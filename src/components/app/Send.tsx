@@ -13,15 +13,19 @@ import {
   TextArea,
   Toast,
 } from "antd-mobile";
+import { ScanCodeOutline } from 'antd-mobile-icons'
+
 import { useEffect, useState } from "react";
 import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard, getAccount } from "../Settings";
 import { send } from "../../nano/accounts";
+import { Scanner } from "@yudiel/react-qr-scanner";
 
 export default function Send({ ticker, onBack }: { ticker: string }) {
   // const [result, setResult] = useState<string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [form] = Form.useForm();
 
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
@@ -40,6 +44,7 @@ export default function Send({ ticker, onBack }: { ticker: string }) {
             Available 0.0 {ticker}
           </div>
           <Form
+          form={form}
             onFinish={async (values) => {
               try {
                 setIsLoading(true);
@@ -75,14 +80,40 @@ export default function Send({ ticker, onBack }: { ticker: string }) {
                 Send
               </Button>
             }
-          >
-            <Form.Item name="address" label="Address">
+          > 
+          <div className="flex justify-between">
+            <Form.Item label="Address" name={"address"}>
               <TextArea
                 autoSize={{ minRows: 2, maxRows: 4 }}
                 placeholder="Address to send to"
                 rows={2}
               />
-            </Form.Item>
+              </Form.Item>
+              <ScanCodeOutline
+               fontSize={24} 
+              className="cursor-pointer text-gray-200 mr-4 mt-4"
+              onClick={() => {
+                Modal.show({
+                    // style: { width: "100%", height: "268px" },
+                    // bodyStyle: { height: "268px" },
+                  closeOnMaskClick: true,
+                  title: "Scan QR Code Address",
+                  content: 
+                  <div style={{height: 256}}>
+                  <Scanner 
+                //   styles={
+                   onScan={(result) => {
+                    console.log(result)
+                    form.setFieldValue("address", result[0].rawValue);
+                    Modal.clear();
+                }} />
+                </div>
+                ,
+                });
+              }}
+              />
+            </div>
+           
             <Form.Item
               name="amount"
               label="Amount"
