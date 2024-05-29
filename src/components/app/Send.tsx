@@ -21,17 +21,21 @@ import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard, getAccount } from "../Settings";
 import { send } from "../../nano/accounts";
 import { Scanner } from "@yudiel/react-qr-scanner";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-export default function Send({ ticker, onBack }: { ticker: string }) {
+export default function Send() {
   // const [result, setResult] = useState<string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const {ticker} = useParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
       <div className="container  relative mx-auto">
         <div className="text-center text-2xl flex-col">
-          <NavBar onBack={onBack}>Send {networks[ticker].name}</NavBar>
+          <NavBar onBack={() => navigate(`/${ticker}`)}>Send {networks[ticker].name}</NavBar>
           <div className="flex justify-center m-2">
             <img
               src={networks[ticker].logo}
@@ -44,6 +48,10 @@ export default function Send({ ticker, onBack }: { ticker: string }) {
             Available 0.0 {ticker}
           </div>
           <Form
+          initialValues={{
+            address: searchParams.get("to") || "",
+            amount: searchParams.get("amount") || "",
+        }}
           form={form}
             onFinish={async (values) => {
               try {
@@ -57,7 +65,7 @@ export default function Send({ ticker, onBack }: { ticker: string }) {
                 Toast.show({
                   content: "Success!",
                 });
-                onBack();
+                navigate(`/${ticker}`);
               } catch (error) {
                 console.error("Error sending:", error);
                 Toast.show({

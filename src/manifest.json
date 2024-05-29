@@ -10,6 +10,12 @@
             "type": "image/png"
         }
     ],
+    "protocol_handlers": [
+        {
+          "protocol": "web+nano",
+        "url": "/protocol_handler?params=%s"
+        }
+      ],
     "background_color": "#ffffff",
     "theme_color": "#000000",
     "screenshots": [

@@ -36,7 +36,6 @@ export const fetchBalance = async (ticker: string) => {
 };
 
 export default function Network() {
-  const [selectedAction, setSelectedAction] = useState<string>(null);
   const [balance, setBalance] = useState<number>(0);
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
   const {ticker} = useParams();
@@ -57,9 +56,6 @@ export default function Network() {
     };
     fetchData();
   }, []);
-  if (selectedAction === "send") {
-    return <Send ticker={ticker} onBack={() => navigate("/")} />;
-  }
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
       <div className="container  relative mx-auto">
@@ -122,7 +118,7 @@ export default function Network() {
               className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white"
               onClick={() => {
                 // window.history.pushState({}, "", "/receive");
-                setSelectedAction("send");
+                navigate(`/${ticker}/send`);
               }}
             >
               <SlArrowUpCircle size={32} />

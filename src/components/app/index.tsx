@@ -20,6 +20,8 @@ import Swap from "./Swap";
 import History from "./History";
 import Network from "./Network";
 import { TabBar } from "antd-mobile";
+import Send from "./Send";
+import Protocol_handler from "./protocol_handler";
 
 export default function App() {
   const [widget, setWidget] = useState<
@@ -90,7 +92,9 @@ export default function App() {
   <Route path="/swap" element={<Swap />} />
   <Route path="/history" element={<History />} />
   <Route path="/network" element={<Network />} />
+  <Route path="/protocol_handler" element={<Protocol_handler />} />
   <Route path="/:ticker" element={<Network />} />
+  <Route path="/:ticker/send" element={<Send />} />
 </Routes>
         <Settings isNavOpen={isNavOpen} />
       </div>
