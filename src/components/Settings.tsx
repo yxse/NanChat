@@ -1,25 +1,53 @@
 import { useState, useEffect } from "react";
-import nc from "multi-nano-web";
+import {wallet} from "multi-nano-web";
 
 import storage from "../utils/storage";
 import { FaExchangeAlt } from "react-icons/fa";
 import { FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { networks } from "../utils/networks";
+
+
+export async function getAccount(ticker: string) {
+  const accI = (await storage.get<number>("account_index", "local")) || 0;
+  const mK = await storage.get<string>("masterSeed", "session");
+  return wallet.accounts(mK, accI, accI)[0].address.replace("nano_", networks[ticker].prefix + "_");
+}
+
+export function CopyToClipboard({ text }: { text: string }) {
+  return (
+    <div
+      className="flex items-center group py-1 rounded cursor-pointer"
+      role="button"
+      onClick={() => navigator.clipboard.writeText(text)}
+    >
+      <p className="text-lg text-blue-300 text-bold group-hover:opacity-80 transition-all break-all text-sm text-center mt-4">
+        {text}
+      </p>
+      <div className="ml-2 hover:opacity-80 transition-all focus:outline-none  group-hover:block group-active:!hidden text-center">
+        <FaCopy className="text-blue-300" />
+      </div>
+      <div>
+        <FaCheck className="ml-2 text-blue-300 hidden group-active:block transition-all" />
+      </div>
+    </div>
+  );
+}
 
 export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
   const [isVisible, setIsVisible] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [option, setSelectedOption] = useState({
-    value: "xno",
+    value: "XNO",
     label: "XNO",
     hex: "#6495ED",
   });
 
   const options = [
-    { value: "xno", label: "XNO", hex: "#6495ED" },
-    { value: "xdg", label: "XDG", hex: "#A7C7E7" },
-    { value: "xro", label: "XRO", hex: "#F0FFFF" },
-    { value: "ban", label: "BAN", hex: "#FFFF8F" },
+    { value: "XNO", label: "XNO", hex: "#6495ED" },
+    { value: "XDG", label: "XDG", hex: "#A7C7E7" },
+    { value: "XRO", label: "XRO", hex: "#F0FFFF" },
+    { value: "BAN", label: "BAN", hex: "#FFFF8F" },
   ];
 
   const moveBackward = () => {
@@ -45,17 +73,17 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
       setAddress(newAddress?.replace("nano", "xno") as string);
     };
   
-    replacePrefixes();
+    // replacePrefixes();
+    let newAddress = networks[option.value].prefix + '_' + address?.split('_')[1];
+    setAddress(newAddress);
   }, [address, option, options]);
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsVisible(true), 600);
 
     (async () => {
-      const accI = (await storage.get<number>("account_index", "local")) || 0;
-      const mK = await storage.get<string>("masterSeed", "session");
-
-      setAddress(nc.wallet.accounts(mK, accI, accI)[0].address);
+      let account = await getAccount(option.value);
+      setAddress(account);
     })();
 
     return () => clearTimeout(timeout);
@@ -95,17 +123,8 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
                     navigator.clipboard.writeText(address as string))();
                 }}
               >
-                <div className="flex items-center group py-1 rounded cursor-pointer">
-                  <p className="text-lg text-blue-300 text-bold group-hover:opacity-80 transition-all">
-                    {address?.slice(0, 9) + "..." + address?.slice(-9)}
-                  </p>
-                  <div className="ml-2 hover:opacity-80 transition-all focus:outline-none hidden group-hover:block group-active:!hidden">
-                    <FaCopy className="text-blue-300" />
-                  </div>
-                  <div>
-                    <FaCheck className="ml-2 text-blue-300 hidden group-active:block transition-all" />
-                  </div>
-                </div>
+                <CopyToClipboard text={address?.slice(0, 9) + "..." + address?.slice(-9)} />
+
               </div>
 
               <p className="text-gray-300 mt-2 ml-2 flex select-none flex-row">

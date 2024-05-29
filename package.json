@@ -18,8 +18,11 @@
   "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.11.4",
+    "antd-mobile": "^5.36.0",
+    "bignumber.js": "^9.1.2",
     "multi-nano-web": "^1.5.1",
     "nanocurrency": "^2.5.0",
+    "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
     "react-confetti-boom": "^1.0.0",
     "react-dom": "^18.2.0",
@@ -27,6 +30,7 @@
     "react-select": "^5.8.0",
     "react-spinners": "^0.13.8",
     "react-toastify": "^10.0.5",
+    "swr": "^2.2.5",
     "vite-plugin-node-polyfills": "^0.22.0"
   },
   "prettier": {

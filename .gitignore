@@ -6,3 +6,4 @@ node_modules
 signer.pub
 export.sig
 extension.pem
+.env.local

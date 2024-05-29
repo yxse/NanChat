@@ -288,3 +288,15 @@ body {
     opacity: 1;
   }
 }
+
+.adm-list-item-description {
+  text-align: left;
+}
+.adm-input-element {
+  background-color: transparent;
+  padding: unset;
+}
+.adm-text-area-element{
+  font-family: unset;
+  font-size: initial;
+}

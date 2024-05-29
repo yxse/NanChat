@@ -6,10 +6,11 @@ import { FaBars, FaBarsStaggered } from "react-icons/fa6";
 import "../../styles/app.css";
 import {
   AiFillDollarCircle,
+  AiFillWallet,
   AiOutlineGlobal,
   AiOutlineSwap,
 } from "react-icons/ai";
-import { BiHistory, BiSolidDashboard } from "react-icons/bi";
+import { BiHistory, BiSolidDashboard, BiWallet } from "react-icons/bi";
 import Settings from "../Settings";
 
 import Home from "./Home";
@@ -17,6 +18,7 @@ import Art from "./Art";
 import Swap from "./Swap";
 import History from "./History";
 import Network from "./Network";
+import { TabBar } from "antd-mobile";
 
 export default function App() {
   const [widget, setWidget] = useState<
@@ -24,6 +26,28 @@ export default function App() {
   >("home");
   const [isNavOpen, setNavOpen] = useState<boolean>(false);
 
+  const tabs = [
+    {
+      key: "home",
+      title: "Wallet",
+      icon: <BiWallet  size={24} />,
+    },
+    {
+      key: "art",
+      title: "Art",
+      icon: <BiSolidDashboard size={24} />,
+    },
+    {
+      key: "swap",
+      title: "Swap",
+      icon: <AiOutlineSwap size={24} />,
+    },
+    {
+      title: "Network",
+      icon: <AiOutlineGlobal size={24} />,
+      key: "network",
+    },
+  ];
   return (
     <>
       <section className="app-navbar">
@@ -68,91 +92,18 @@ export default function App() {
 
         <Settings isNavOpen={isNavOpen} />
       </div>
-
-      <div
-        className={`bottom-nav-wrapper !drop-shadow-2xl !w-full ${isNavOpen && "!hidden"}`}
-      >
-        <div
-          aria-orientation="horizontal"
-          role="tablist"
-          className="bottom-nav"
-        >
-          <div
-            aria-label="Home"
-            role="button"
-            data-widget="home"
-            onClick={() => setWidget("home")}
-            className={`bottom-nav-item text-gray-600 hover:text-slate-100 ${
-              widget == "home" && "text-slate-100"
-            }`}
-          >
-            <AiFillDollarCircle size={24} />
-          </div>
-          <div
-            aria-label="Art"
-            role="button"
-            data-widget="art"
-            onClick={() => setWidget("art")}
-            className={`bottom-nav-item text-gray-600 hover:text-slate-100 ${
-              widget == "art" && "text-slate-100"
-            }`}
-          >
-            <BiSolidDashboard size={24} />
-          </div>
-          <div
-            aria-label="Swap"
-            role="button"
-            data-widget="swap"
-            onClick={() => setWidget("swap")}
-            className={`bottom-nav-item text-gray-600 hover:text-slate-100 ${
-              widget == "swap" && "text-slate-100"
-            }`}
-          >
-            <AiOutlineSwap size={24} />
-          </div>
-          <div
-            aria-label="History"
-            role="button"
-            data-widget="history"
-            onClick={() => setWidget("history")}
-            className={`bottom-nav-item text-gray-600 hover:text-slate-100 ${
-              widget == "history" && "text-slate-100"
-            }`}
-          >
-            <BiHistory size={24} />
-          </div>
-          <div
-            aria-label="Network"
-            role="button"
-            data-widget="network"
-            onClick={() => setWidget("network")}
-            className={`bottom-nav-item text-gray-600 hover:text-slate-100 ${
-              widget == "network" && "text-slate-100"
-            }`}
-          >
-            <AiOutlineGlobal size={24} />
-          </div>
-          {/** there is no math here, so there would be imperfections */}
-          <div
-            className="active-tab-line"
-            style={{
-              left: `${
-                widget === "home"
-                  ? "16px"
-                  : widget === "art"
-                    ? "85px"
-                    : widget === "swap"
-                      ? "152px"
-                      : widget === "history"
-                        ? "223px"
-                        : widget === "network"
-                          ? "289px"
-                          : "-200px"
-              }`,
-            }}
-          ></div>
-        </div>
-      </div>
+      <TabBar activeKey={widget} onChange={(key) => {
+        console.log(key)
+        setWidget(key)
+      }}>
+        {tabs.map((tab) => (
+          <TabBar.Item
+            title={tab.title}
+            key={tab.key}
+            icon={tab.icon}
+          />
+        ))}
+      </TabBar>
     </>
   );
 }

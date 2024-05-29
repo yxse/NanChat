@@ -3,7 +3,8 @@ interface StorageArea {
 }
 
 export default {
-  get: <T>(key: string, storageArea: chrome.storage.AreaName): Promise<T> => {
+  get: <T>(key: string, storageArea: any): any => {
+    return localStorage.getItem(key);
       return new Promise((resolve, reject) => {
           chrome.storage[storageArea].get(key, (items: StorageArea) => {
               const error = chrome.runtime.lastError;
@@ -12,7 +13,8 @@ export default {
           });
       });
   },
-  set: (key: string, value: any, storageArea: chrome.storage.AreaName): Promise<void> => {
+  set: (key: string, value: any, storageArea: any): any => {
+    return localStorage.setItem(key, value);
       return new Promise((resolve, reject) => {
           chrome.storage[storageArea].set({ [key]: value }, () => {
               const error = chrome.runtime.lastError;
@@ -23,5 +25,6 @@ export default {
 };
 
 export function resetWallet(): void {
-  chrome.storage.local.clear();
+  localStorage.clear();
+  // chrome.storage.local.clear();
 }
