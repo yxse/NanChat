@@ -30,7 +30,7 @@ export default function App() {
     {
       key: "home",
       title: "Wallet",
-      icon: <BiWallet  size={24} />,
+      icon: <BiWallet size={24} />,
     },
     {
       key: "art",
@@ -92,16 +92,15 @@ export default function App() {
 
         <Settings isNavOpen={isNavOpen} />
       </div>
-      <TabBar activeKey={widget} onChange={(key) => {
-        console.log(key)
-        setWidget(key)
-      }}>
+      <TabBar
+        activeKey={widget}
+        onChange={(key) => {
+          console.log(key);
+          setWidget(key);
+        }}
+      >
         {tabs.map((tab) => (
-          <TabBar.Item
-            title={tab.title}
-            key={tab.key}
-            icon={tab.icon}
-          />
+          <TabBar.Item title={tab.title} key={tab.key} icon={tab.icon} />
         ))}
       </TabBar>
     </>

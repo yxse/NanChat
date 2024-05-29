@@ -19,7 +19,9 @@ export default function Popup() {
   useEffect(() => {
     if (isAppLoggedIn) {
       (async () => {
-        setSessionMasterKey((await storage.get("masterSeed", "session")) || null);
+        setSessionMasterKey(
+          (await storage.get("masterSeed", "session")) || null,
+        );
       })();
     }
   }, [isAppLoggedIn]);
@@ -27,7 +29,10 @@ export default function Popup() {
   useEffect(() => {
     async function checkLocalStorage() {
       try {
-        const encryptedMasterSeed = await storage.get("encryptedMasterKey", "local");
+        const encryptedMasterSeed = await storage.get(
+          "encryptedMasterKey",
+          "local",
+        );
 
         if (encryptedMasterSeed) {
           setIsLocked(true);

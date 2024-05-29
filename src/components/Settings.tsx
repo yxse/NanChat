@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {wallet} from "multi-nano-web";
+import { wallet } from "multi-nano-web";
 
 import storage from "../utils/storage";
 import { FaExchangeAlt } from "react-icons/fa";
@@ -7,11 +7,12 @@ import { FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
 
-
 export async function getAccount(ticker: string) {
   const accI = (await storage.get<number>("account_index", "local")) || 0;
   const mK = await storage.get<string>("masterSeed", "session");
-  return wallet.accounts(mK, accI, accI)[0].address.replace("nano_", networks[ticker].prefix + "_");
+  return wallet
+    .accounts(mK, accI, accI)[0]
+    .address.replace("nano_", networks[ticker].prefix + "_");
 }
 
 export function CopyToClipboard({ text }: { text: string }) {
@@ -72,9 +73,10 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
       });
       setAddress(newAddress?.replace("nano", "xno") as string);
     };
-  
+
     // replacePrefixes();
-    let newAddress = networks[option.value].prefix + '_' + address?.split('_')[1];
+    let newAddress =
+      networks[option.value].prefix + "_" + address?.split("_")[1];
     setAddress(newAddress);
   }, [address, option, options]);
 
@@ -123,16 +125,25 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
                     navigator.clipboard.writeText(address as string))();
                 }}
               >
-                <CopyToClipboard text={address?.slice(0, 9) + "..." + address?.slice(-9)} />
-
+                <CopyToClipboard
+                  text={address?.slice(0, 9) + "..." + address?.slice(-9)}
+                />
               </div>
 
               <p className="text-gray-300 mt-2 ml-2 flex select-none flex-row">
                 Network:{" "}
                 <div className="flex flex-row transition-all">
-                  <IoChevronBack onClick={moveBackward} className="cursor-pointer hover:opacity-80" />
-                  <span style={{ color: option.hex }} className="text-bold">{option.label}</span>
-                  <IoChevronForward onClick={moveForward} className="cursor-pointer hover:opacity-80" />
+                  <IoChevronBack
+                    onClick={moveBackward}
+                    className="cursor-pointer hover:opacity-80"
+                  />
+                  <span style={{ color: option.hex }} className="text-bold">
+                    {option.label}
+                  </span>
+                  <IoChevronForward
+                    onClick={moveForward}
+                    className="cursor-pointer hover:opacity-80"
+                  />
                 </div>
               </p>
             </div>

@@ -105,7 +105,7 @@ export default function Network() {
 
   const handleRemoveNetwork = (ticker: string) => {
     const updatedNetworks = knownNetworks.filter(
-      (network) => network.ticker !== ticker
+      (network) => network.ticker !== ticker,
     );
     setKnownNetworks(updatedNetworks);
     setLocalStorage("knownNetworks", JSON.stringify(updatedNetworks));
@@ -214,7 +214,7 @@ export default function Network() {
               ws: editedWS,
               enabled: editedEnabled,
             }
-          : network
+          : network,
       );
       setKnownNetworks(updatedNetworks);
       setLocalStorage("knownNetworks", JSON.stringify(updatedNetworks));
@@ -257,7 +257,7 @@ export default function Network() {
           .filter(
             (network) =>
               network.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              network.ticker.toLowerCase().includes(searchTerm.toLowerCase())
+              network.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
           )
           .map((network, index) => (
             <div
@@ -295,7 +295,7 @@ export default function Network() {
         {knownNetworks.filter(
           (network) =>
             network.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            network.ticker.toLowerCase().includes(searchTerm.toLowerCase())
+            network.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
         ).length === 0 && (
           <div className="flex flex-col space-y-2 items-center h-full justify-center text-slate-200">
             <img
@@ -339,7 +339,7 @@ export default function Network() {
               onClick={() =>
                 setTimeout(
                   () => document.getElementById("logoFile")?.click(),
-                  200
+                  200,
                 )
               }
             >

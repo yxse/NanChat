@@ -50,7 +50,7 @@ export default function ImportPassword({
   };
 
   const handleConfirmPasswordChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setConfirmPassword(event.target.value);
   };
@@ -112,7 +112,7 @@ export default function ImportPassword({
                 {showStrength && (
                   <p
                     className={`step-p-input-s ${getColorClass(
-                      passwordStrength
+                      passwordStrength,
                     )}`}
                   >
                     {passwordStrength}

@@ -18,11 +18,11 @@ export default function ImportPhrase({
   setW: Dispatch<React.SetStateAction<number>>;
 }) {
   const [mnemonicInputs, setMnemonicInputs] = useState<string[]>(
-    new Array(24).fill("")
+    new Array(24).fill(""),
   );
   const [activeInputs, setActiveInputs] = useState<number | null>(null);
   const [errorInputs, setErrorInputs] = useState<boolean[]>(
-    new Array(24).fill(false)
+    new Array(24).fill(false),
   );
   const [canContinue, setCanContinue] = useState<boolean>(false);
 
@@ -35,7 +35,7 @@ export default function ImportPhrase({
 
   const handleInputKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (event.key === " ") {
       event.preventDefault();
@@ -129,7 +129,7 @@ export default function ImportPhrase({
                   storage.set(
                     "mnemonic",
                     wallet.fromMnemonic(mnemonicInputs.join(" ")).seed,
-                    "session"
+                    "session",
                   );
                   return setW(5);
                 }

@@ -5,22 +5,22 @@ interface StorageArea {
 export default {
   get: <T>(key: string, storageArea: any): any => {
     return localStorage.getItem(key);
-      return new Promise((resolve, reject) => {
-          chrome.storage[storageArea].get(key, (items: StorageArea) => {
-              const error = chrome.runtime.lastError;
-              if (error) return reject(error);
-              resolve(items[key]);
-          });
+    return new Promise((resolve, reject) => {
+      chrome.storage[storageArea].get(key, (items: StorageArea) => {
+        const error = chrome.runtime.lastError;
+        if (error) return reject(error);
+        resolve(items[key]);
       });
+    });
   },
   set: (key: string, value: any, storageArea: any): any => {
     return localStorage.setItem(key, value);
-      return new Promise((resolve, reject) => {
-          chrome.storage[storageArea].set({ [key]: value }, () => {
-              const error = chrome.runtime.lastError;
-              error ? reject(error) : resolve();
-          });
+    return new Promise((resolve, reject) => {
+      chrome.storage[storageArea].set({ [key]: value }, () => {
+        const error = chrome.runtime.lastError;
+        error ? reject(error) : resolve();
       });
+    });
   },
 };
 

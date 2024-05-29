@@ -52,7 +52,7 @@ export default function Password({
   };
 
   const handleConfirmPasswordChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setConfirmPassword(event.target.value);
   };
@@ -135,7 +135,7 @@ export default function Password({
                 {showStrength && (
                   <p
                     className={`step-p-input-s ${getColorClass(
-                      passwordStrength
+                      passwordStrength,
                     )}`}
                   >
                     {passwordStrength}

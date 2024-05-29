@@ -1,7 +1,7 @@
 export default function Art() {
   return (
     <>
-     NanFT
+      NanFT
       <div />
     </>
   );
