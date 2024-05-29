@@ -1,0 +1,31 @@
+{
+    "name": "Cesium Wallet",
+    "short_name": "Cesium",
+    "start_url": "/",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "/icon-large.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        }
+    ],
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "screenshots": [
+        {
+            "src": "/icon-320.png",
+            "sizes": "320x320",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Application"
+        },
+        {
+            "src": "/icon-320.png",
+            "sizes": "320x320",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Application"
+        }
+    ]
+}

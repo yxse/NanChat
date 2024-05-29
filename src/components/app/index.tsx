@@ -1,6 +1,7 @@
 // You would not believe your eyes..
 
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { FaBars, FaBarsStaggered } from "react-icons/fa6";
 import "../../styles/app.css";
@@ -30,21 +31,21 @@ export default function App() {
     {
       key: "home",
       title: "Wallet",
-      icon: <BiWallet size={24} />,
+      icon: <BiWallet size={28} />,
     },
     {
       key: "art",
       title: "Art",
-      icon: <BiSolidDashboard size={24} />,
+      icon: <BiSolidDashboard size={28} />,
     },
     {
       key: "swap",
       title: "Swap",
-      icon: <AiOutlineSwap size={24} />,
+      icon: <AiOutlineSwap size={28} />,
     },
     {
       title: "Network",
-      icon: <AiOutlineGlobal size={24} />,
+      icon: <AiOutlineGlobal size={28} />,
       key: "network",
     },
   ];
@@ -80,19 +81,22 @@ export default function App() {
           )}
         </div>
       </section>
-
+      <Router>
       <div className="w-full h-full relative overflow-y-hidden overflow-x-hidden">
         {/** main content */}
-
-        {widget == "home" && <Home />}
-        {widget == "art" && <Art />}
-        {widget == "swap" && <Swap />}
-        {widget == "history" && <History />}
-        {widget == "network" && <Network />}
-
+        <Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/art" element={<Art />} />
+  <Route path="/swap" element={<Swap />} />
+  <Route path="/history" element={<History />} />
+  <Route path="/network" element={<Network />} />
+  <Route path="/:ticker" element={<Network />} />
+</Routes>
         <Settings isNavOpen={isNavOpen} />
       </div>
+      </Router>
       <TabBar
+      className="mb-4"
         activeKey={widget}
         onChange={(key) => {
           console.log(key);

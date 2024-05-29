@@ -4,10 +4,12 @@ import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchBalance } from "./Network";
 import { Button } from "antd-mobile";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
   const [balances, setBalances] = useState<any>({}); // {ticker: balance}
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBalances = async () => {
@@ -26,7 +28,7 @@ export default function Home() {
   if (selectedTicker) {
     return (
       <Network
-        onBack={(ticker) => setSelectedTicker(ticker)}
+        onBack={(ticker) => navigate(`/${ticker}`)}
         ticker={selectedTicker}
       />
     );
@@ -37,7 +39,7 @@ export default function Home() {
         <div
           key={ticker}
           className="network-card flex justify-between p-2 m-1 cursor-pointer"
-          onClick={() => setSelectedTicker(ticker)}
+          onClick={() => navigate(`/${ticker}`)}
         >
           <div className="network-info flex">
             <img

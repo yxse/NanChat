@@ -27,6 +27,7 @@
     "react-confetti-boom": "^1.0.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
+    "react-router-dom": "^6.23.1",
     "react-select": "^5.8.0",
     "react-spinners": "^0.13.8",
     "react-toastify": "^10.0.5",

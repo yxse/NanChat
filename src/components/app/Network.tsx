@@ -21,6 +21,7 @@ import History from "./History";
 import useSWR from "swr";
 import { getWalletRPC, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export const fetchBalance = async (ticker: string) => {
   const account = await getAccount(ticker);
@@ -34,10 +35,12 @@ export const fetchBalance = async (ticker: string) => {
   }
 };
 
-export default function Network({ ticker, onBack }: { ticker: string }) {
+export default function Network() {
   const [selectedAction, setSelectedAction] = useState<string>(null);
   const [balance, setBalance] = useState<number>(0);
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
+  const {ticker} = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     getWalletRPC(ticker); // initialize wallet ws
@@ -55,13 +58,13 @@ export default function Network({ ticker, onBack }: { ticker: string }) {
     fetchData();
   }, []);
   if (selectedAction === "send") {
-    return <Send ticker={ticker} onBack={() => setSelectedAction(null)} />;
+    return <Send ticker={ticker} onBack={() => navigate("/")} />;
   }
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
       <div className="container  relative mx-auto">
         <div className="text-center text-2xl flex-col">
-          <NavBar onBack={() => onBack(null)}>{networks[ticker].name}</NavBar>
+          <NavBar onBack={() => navigate("/")}>{networks[ticker].name}</NavBar>
 
           <div className="flex justify-center m-2">
             <img
