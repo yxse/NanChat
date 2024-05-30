@@ -3,28 +3,25 @@ import { useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchBalance } from "./Network";
-import { Button } from "antd-mobile";
+import { Button, DotLoading } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
+import useSWR from "swr";
 
+export const fetchPrices = async () => {
+  const response = await fetch("https://api.nanexplorer.com/prices");
+  return response.json();
+}
 export default function Home() {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
-  const [balances, setBalances] = useState<any>({}); // {ticker: balance}
+  const { data: prices, isLoading: isLoadingPrices } = useSWR("prices", fetchPrices);
+  const balances = {};
+  for (const ticker of Object.keys(networks)) {
+    // fetch balance for each network
+    balances[ticker] = useSWR("balance-" + ticker, () => fetchBalance(ticker));
+  }
+  
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchBalances = async () => {
-      try {
-        const balances = {};
-        for (const ticker of Object.keys(networks)) {
-          balances[ticker] = await fetchBalance(ticker);
-        }
-        setBalances(balances);
-      } catch (error) {
-        console.error("Error fetching balances:", error);
-      }
-    };
-    fetchBalances();
-  }, []);
   if (selectedTicker) {
     return (
       <Network
@@ -58,8 +55,13 @@ export default function Home() {
           <div className="network-balance">
             <div className="text-right">
               <div>
-                {balances[ticker] === undefined ? "..." : balances[ticker]}
-                <div className="text-sm text-gray-400">~0.00 $</div>
+                {balances[ticker].isLoading ? <DotLoading /> : balances[ticker].data}
+                {
+                  !isLoadingPrices && 
+                <div className="text-sm text-gray-400">
+                ~ {+(prices?.[ticker].usd * balances[ticker].data).toFixed(2)} USD
+                  </div>
+                }
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { AiOutlineSwap } from "react-icons/ai";
 import {
   Button,
   Card,
+  DotLoading,
   Form,
   Input,
   Modal,
@@ -22,12 +23,14 @@ import { CopyToClipboard, getAccount } from "../Settings";
 import { send } from "../../nano/accounts";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import useSWR from "swr";
 
 export default function Send() {
   // const [result, setResult] = useState<string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
   const {ticker} = useParams();
+  const {data: balance, isLoading: balanceLoading} = useSWR("balance-" + ticker, () => fetchBalance(ticker));
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -45,7 +48,7 @@ export default function Send() {
           </div>
 
           <div className="text-sm text-gray-400 appearance-none">
-            Available 0.0 {ticker}
+            Available {balanceLoading ? <DotLoading /> : balance} {ticker}
           </div>
           <Form
           initialValues={{
@@ -90,7 +93,7 @@ export default function Send() {
             }
           > 
           <div className="flex justify-between">
-            <Form.Item label="Address" name={"address"}>
+            <Form.Item label="Address" name={"address"} style={{width: "100%"}}>
               <TextArea
                 autoSize={{ minRows: 2, maxRows: 4 }}
                 placeholder="Address to send to"
@@ -125,15 +128,22 @@ export default function Send() {
             <Form.Item
               name="amount"
               label="Amount"
-              required={false}
+              validateFirst
+              required={false} // to remove the red asterisk
               rules={[
                 {
+                    required: true,
+                    message: "Please enter a valid amount",
+                    type: "number",
+                    transform: (value) => parseFloat(value),
+                },
+                {
                   required: true,
-                  message: "Please enter a valid amount",
+                  message: `Available ${ticker} is ${balance}`,
                   type: "number",
                   transform: (value) => parseFloat(value),
                   min: 0,
-                  max: 1000000,
+                  max: balance,
                 },
               ]}
             >

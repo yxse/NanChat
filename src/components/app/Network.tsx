@@ -11,6 +11,7 @@ import {
   ResultPage,
   Skeleton,
   Space,
+  Toast,
 } from "antd-mobile";
 import { useEffect, useState } from "react";
 import Receive from "./Receive";
@@ -22,6 +23,7 @@ import useSWR from "swr";
 import { getWalletRPC, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { fetchPrices } from "./Home";
 
 export const fetchBalance = async (ticker: string) => {
   const account = await getAccount(ticker);
@@ -36,25 +38,16 @@ export const fetchBalance = async (ticker: string) => {
 };
 
 export default function Network() {
-  const [balance, setBalance] = useState<number>(0);
-  const [balanceLoading, setBalanceLoading] = useState<boolean>(false);
   const {ticker} = useParams();
+  const {data: balance, isLoading: balanceLoading} = useSWR("balance-" + ticker, () => fetchBalance(ticker), {
+    keepPreviousData: true,
+  });
+  const { data: prices } = useSWR("prices", fetchPrices);
   const navigate = useNavigate();
 
   useEffect(() => {
     getWalletRPC(ticker); // initialize wallet ws
-    const fetchData = async () => {
-      try {
-        setBalanceLoading(true);
-        let balance = await fetchBalance(ticker);
-        setBalance(balance);
-      } catch (error) {
-        console.error("Error fetching balance:", error);
-      } finally {
-        setBalanceLoading(false);
-      }
-    };
-    fetchData();
+    // fetchData();
   }, []);
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
@@ -79,7 +72,9 @@ export default function Network() {
               balance + " " + ticker
             )}
           </div>
-          <div className="text-sm text-gray-400">~0.00 $</div>
+          <div className="text-sm text-gray-400">
+            ~ {+(prices?.[ticker].usd * balance).toFixed(2)} USD
+            </div>
         </div>
         <div className="flex justify-center mt-4 space-x-4">
           <div className="flex flex-col items-center">
@@ -88,6 +83,7 @@ export default function Network() {
               onClick={async () => {
                 // window.history.pushState({}, "", "/receive");
                 let address = await getAccount(ticker);
+                
                 Modal.show({
                   closeOnMaskClick: true,
                   title: `Receive ${networks[ticker].name}`,
@@ -107,6 +103,7 @@ export default function Network() {
                     </div>
                   ),
                 });
+                
               }}
             >
               <SlArrowDownCircle size={32} />

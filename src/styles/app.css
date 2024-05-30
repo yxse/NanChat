@@ -131,3 +131,12 @@
     -webkit-transform: translateY(100%);
   }
 }
+
+.adm-toast-icon{
+  display: flex;
+  justify-content: center;
+}
+
+.adm-action-sheet-button-item-wrapper:last-child {
+  padding-bottom: 8px; 
+}

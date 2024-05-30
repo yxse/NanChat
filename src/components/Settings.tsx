@@ -6,6 +6,7 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
+import { Toast } from "antd-mobile";
 
 export async function getAccount(ticker: string) {
   const accI = (await storage.get<number>("account_index", "local")) || 0;
@@ -20,7 +21,22 @@ export function CopyToClipboard({ text }: { text: string }) {
     <div
       className="flex items-center group py-1 rounded cursor-pointer"
       role="button"
-      onClick={() => navigator.clipboard.writeText(text)}
+      onClick={() => {
+        navigator.clipboard.writeText(text).then(
+          () => {
+            Toast.show({
+              content: "Copied!",
+              duration: 1000,
+            });
+          },
+          (err) => {
+            Toast.show({
+              content: "Failed to copy",
+            });
+          }
+        );
+        
+      }}
     >
       <p className="text-lg text-blue-300 text-bold group-hover:opacity-80 transition-all break-all text-sm text-center mt-4">
         {text}

@@ -2,6 +2,9 @@ import { wallet as walletLib, block } from "multi-nano-web";
 import RPC from "./rpc";
 import { BigNumber } from "bignumber.js";
 import AsyncLock from "async-lock";
+import { Toast } from "antd-mobile";
+import { mutate } from "swr"
+
 var lock = new AsyncLock();
 
 export class Wallet {
@@ -39,6 +42,7 @@ export class Wallet {
     this.prefix = prefix;
     this.decimal = decimal;
     this.defaultRep = defaultRep; // used for openBlock only
+    this.ticker = ticker;
     this.rpc = new RPC(ticker);
     this.websocket;
     if (WS_URL !== undefined) {
@@ -260,6 +264,10 @@ export class Wallet {
       if (accountDb === null || accountDb === undefined) {
         return;
       }
+      Toast.show({
+        icon: "loading",
+        content: "Receiving " + +this.rawToMega(pendingTx.amount) + " XNO ...",
+      })
       // console.log("Receiving new send on : " + data_json.message.block.link_as_account)
       let pk = accountDb.privateKey;
       let pubk = accountDb.publicKey;
@@ -269,7 +277,13 @@ export class Wallet {
         pk,
         pubk,
       );
-      // console.log(received)
+      Toast.show({
+        icon: "success",
+        content: "Received " + +this.rawToMega(pendingTx.amount) + " XNO",
+      })
+      mutate('history-' + this.ticker)
+      mutate('balance-' + this.ticker)
+      console.log(received)
     }
   };
   wsOnMessage = async function (data_json) {
