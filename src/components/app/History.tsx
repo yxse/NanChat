@@ -105,9 +105,9 @@ export default function History({ ticker }: { ticker: string }) {
                 key={tx.hash + "-list"}
                 header={
                   new Date(+tx.local_timestamp * 1000).toLocaleDateString() !==
-                    new Date(
-                      +history[idx - 1]?.local_timestamp * 1000,
-                    ).toLocaleDateString() && (
+                  new Date(
+                    +history[idx - 1]?.local_timestamp * 1000,
+                  ).toLocaleDateString() && (
                     <div className="">
                       {new Date(
                         +tx.local_timestamp * 1000,
@@ -147,19 +147,25 @@ export default function History({ ticker }: { ticker: string }) {
                     target="_blank"
                     className="text-blue-300"
                   > */}
-                    <div className="flex items-center space-x-4">
-                      <div className="">
-                        {tx.type === "send" && <SlArrowUpCircle size={18} />}
-                        {tx.type === "receive" && (
-                          <SlArrowDownCircle size={18} />
-                        )}
-                      </div>
-                      <div className="">
-                        {tx.type === "send" && "Sent"}
-                        {tx.type === "receive" && "Received"}
-                        <div className="text-gray-400">
-                          {+rawToMega(ticker, tx.amount)} {ticker}
+                    <div className="flex items-center space-x-4 text-sm justify-between">
+
+                      <div className="flex items-center space-x-2">
+                        <div className="">
+                          {tx.type === "send" && <SlArrowUpCircle size={18} />}
+                          {tx.type === "receive" && (
+                            <SlArrowDownCircle size={18} />
+                          )}
                         </div>
+                        <div>
+                          {tx.type === "send" && "Sent"}
+                          {tx.type === "receive" && "Received"}
+                          <div className="text-gray-400">
+                            {+rawToMega(ticker, tx.amount)} {ticker}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-gray-400 text-sm text-right font-mono">
+                        {tx.account.slice(0, 10)}...{tx.account.slice(-6)}
                       </div>
                       {/* <div>
                     {tx.hash}
