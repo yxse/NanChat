@@ -33,9 +33,8 @@ export function CopyToClipboard({ text }: { text: string }) {
             Toast.show({
               content: "Failed to copy",
             });
-          }
+          },
         );
-        
       }}
     >
       <p className="text-lg text-blue-300 text-bold group-hover:opacity-80 transition-all break-all text-sm text-center mt-4">

@@ -3,7 +3,7 @@ import RPC from "./rpc";
 import { BigNumber } from "bignumber.js";
 import AsyncLock from "async-lock";
 import { Toast } from "antd-mobile";
-import { mutate } from "swr"
+import { mutate } from "swr";
 
 var lock = new AsyncLock();
 
@@ -267,7 +267,7 @@ export class Wallet {
       Toast.show({
         icon: "loading",
         content: "Receiving " + +this.rawToMega(pendingTx.amount) + " XNO ...",
-      })
+      });
       // console.log("Receiving new send on : " + data_json.message.block.link_as_account)
       let pk = accountDb.privateKey;
       let pubk = accountDb.publicKey;
@@ -280,10 +280,10 @@ export class Wallet {
       Toast.show({
         icon: "success",
         content: "Received " + +this.rawToMega(pendingTx.amount) + " XNO",
-      })
-      mutate('history-' + this.ticker)
-      mutate('balance-' + this.ticker)
-      console.log(received)
+      });
+      mutate("history-" + this.ticker);
+      mutate("balance-" + this.ticker);
+      console.log(received);
     }
   };
   wsOnMessage = async function (data_json) {
