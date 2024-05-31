@@ -12,6 +12,13 @@
           navigator.serviceWorker.register("/service-worker.js");
         });
       }
+      document.addEventListener("DOMContentLoaded", event => {
+   // we can move only if we are not in a browser's tab
+   isBrowser = matchMedia("(display-mode: browser)").matches;
+   if (!isBrowser) {
+      window.resizeTo(600, 800);
+   }
+});
     </script>
   </head>
   <body>

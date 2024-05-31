@@ -36,14 +36,42 @@ export const fetchBalance = async (ticker: string) => {
     return balanceTotal;
   }
 };
-
-export default function Network() {
-  const {ticker} = useParams();
-  const {data: balance, isLoading: balanceLoading} = useSWR("balance-" + ticker, () => fetchBalance(ticker), {
-    keepPreviousData: true,
-  });
+export const ModalReceive = ({ ticker, modalVisible, setModalVisible }) => {
+  const [address, setAddress] = useState<string>(null);
+  useEffect(() => {
+    getAccount(ticker).then((address) => {
+      setAddress(address);
+    });
+  }, []);
+  return (
+    <Modal
+      visible={modalVisible}
+      closeOnMaskClick={true}
+      onClose={() => setModalVisible(false)}
+      title={`Receive ${networks[ticker].name}`}
+      content={
+        <div className="flex flex-col items-center mb-2">
+          <QRCodeSVG includeMargin value={address} className="rounded-md" />
+          <div style={{ maxWidth: "200px" }} className="break-words">
+            <CopyToClipboard text={address} />
+          </div>
+        </div>
+      }
+    />
+  );
+};
+export default function Network({ defaultReceiveVisible = false }) {
+  const { ticker } = useParams();
+  const { data: balance, isLoading: balanceLoading } = useSWR(
+    "balance-" + ticker,
+    () => fetchBalance(ticker),
+    {
+      keepPreviousData: true,
+    },
+  );
   const { data: prices } = useSWR("prices", fetchPrices);
   const navigate = useNavigate();
+  const [modalVisible, setModalVisible] = useState(defaultReceiveVisible);
 
   useEffect(() => {
     getWalletRPC(ticker); // initialize wallet ws
@@ -54,7 +82,7 @@ export default function Network() {
       <div className="container  relative mx-auto">
         <div className="text-center text-2xl flex-col">
           <NavBar onBack={() => navigate("/")}>{networks[ticker].name}</NavBar>
-
+          <ModalReceive ticker={ticker} modalVisible={modalVisible} setModalVisible={setModalVisible} />
           <div className="flex justify-center m-2">
             <img
               src={networks[ticker].logo}
@@ -74,7 +102,7 @@ export default function Network() {
           </div>
           <div className="text-sm text-gray-400">
             ~ {+(prices?.[ticker].usd * balance).toFixed(2)} USD
-            </div>
+          </div>
         </div>
         <div className="flex justify-center mt-4 space-x-4">
           <div className="flex flex-col items-center">
@@ -82,28 +110,7 @@ export default function Network() {
               className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white"
               onClick={async () => {
                 // window.history.pushState({}, "", "/receive");
-                let address = await getAccount(ticker);
-                
-                Modal.show({
-                  closeOnMaskClick: true,
-                  title: `Receive ${networks[ticker].name}`,
-                  content: (
-                    <div className="flex flex-col items-center mb-2">
-                      <QRCodeSVG
-                        includeMargin
-                        value={address}
-                        className="rounded-md"
-                      />
-                      <div
-                        style={{ maxWidth: "200px" }}
-                        className="break-words"
-                      >
-                        <CopyToClipboard text={address} />
-                      </div>
-                    </div>
-                  ),
-                });
-                
+                setModalVisible(true);
               }}
             >
               <SlArrowDownCircle size={32} />
