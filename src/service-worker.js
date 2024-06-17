@@ -1,3 +1,14 @@
-self.addEventListener('fetch', function(event) {
-
+self.addEventListener("install", () => {
+    // self.skipWaiting();
+});
+self.addEventListener('fetch', function (event) {
+    console.log('Fetch event for ', event.request.url);
+});
+self.addEventListener("push", (event) => {
+    const data = event.data ? event.data.json() : {};
+    console.log('Push event', data);
+    event.waitUntil(self.registration.showNotification(data.title, {
+        body: data.body.description,
+        icon: data.body.icon,
+    }));
 });

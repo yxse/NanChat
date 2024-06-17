@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html data-prefers-color-scheme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Cesium Wallet</title>
-    <!-- mobile responsive -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="manifest" href="/src/manifest.json" />
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/service-worker.js");
-        });
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Cesium Wallet</title>
+  <!-- mobile responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="/src/manifest.json" />
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/src/service-worker.js");
+      });
+    }
+    document.addEventListener("DOMContentLoaded", event => {
+      // we can move only if we are not in a browser's tab
+      isBrowser = matchMedia("(display-mode: browser)").matches;
+      if (!isBrowser) {
+        window.resizeTo(600, 800);
       }
-      document.addEventListener("DOMContentLoaded", event => {
-   // we can move only if we are not in a browser's tab
-   isBrowser = matchMedia("(display-mode: browser)").matches;
-   if (!isBrowser) {
-      window.resizeTo(600, 800);
-   }
-});
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/popup.tsx"></script>
-  </body>
+    });
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="./src/popup.tsx"></script>
+</body>
+
 </html>

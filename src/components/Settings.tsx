@@ -6,14 +6,36 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
-import { Toast } from "antd-mobile";
+import { Button, Toast } from "antd-mobile";
+import { LedgerService } from "../ledger.service";
+import { ConnectLedger, connectLedger } from "./Initialize/Start";
+
+export async function getSeed(index = 0) {
+  const mK = await storage.get<string>("masterSeed", "session");
+  return wallet.accounts(mK, index, index)[0].privateKey;
+}
 
 export async function getAccount(ticker: string) {
+  const isLedger = false
+  if (global.account) {
+        return global.account.replace("nano_", networks[ticker].prefix + "_");
+    } 
   const accI = (await storage.get<number>("account_index", "local")) || 0;
   const mK = await storage.get<string>("masterSeed", "session");
   return wallet
     .accounts(mK, accI, accI)[0]
     .address.replace("nano_", networks[ticker].prefix + "_");
+}
+export async function getAccounts() {
+  let accounts = []
+  let nanoAddress = await getAccount('XNO')
+  for (const ticker in networks) {
+    accounts.push({
+      ticker: ticker,
+      address: nanoAddress.replace("nano_", networks[ticker].prefix + "_")
+    })
+  }
+  return accounts
 }
 
 export function CopyToClipboard({ text }: { text: string }) {
@@ -50,7 +72,7 @@ export function CopyToClipboard({ text }: { text: string }) {
   );
 }
 
-export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
+export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean, setNavOpen: Function }) {
   const [isVisible, setIsVisible] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [option, setSelectedOption] = useState({
@@ -109,9 +131,8 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
   return (
     <>
       <div
-        className={`w-full h-full bg-black absolute top-0 left-0 right-0 ${
-          isNavOpen ? "slide-in-l" : "slide-out-l"
-        } ${!isVisible && "!bg-transparent"}`}
+        className={`w-full h-full bg-black absolute top-0 left-0 right-0 ${isNavOpen ? "slide-in-l" : "slide-out-l"
+          } ${!isVisible && "!bg-transparent"}`}
         id="slider"
       >
         <div
@@ -161,8 +182,8 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
                   />
                 </div>
               </p>
-            </div>
 
+            </div>
             <div
               style={{
                 backgroundImage: "url(nano-card.svg)",
@@ -192,6 +213,20 @@ export default function Settings({ isNavOpen }: { isNavOpen: boolean }) {
               ></div>
             </div>
           </div>
+          <Button className="w-full">
+            Manage Networks
+          </Button>
+          <Button className="w-full">
+            Sign a Message
+          </Button>
+          
+          <ConnectLedger onConnect={() => {
+            setNavOpen(false);
+          }} 
+          onDisconnect={() => {
+            setNavOpen(false);
+          }}
+          />
 
           {/* Lock Wallet button */}
           <div className="bg-slate-800 hover:bg-slate-900 text-blue-500 text-lg transition-all flex py-2 px-4 rounded-md m-2 justify-center items-center justify-end">

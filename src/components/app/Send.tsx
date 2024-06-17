@@ -1,4 +1,4 @@
-import { BiReceipt } from "react-icons/bi";
+import { BiPaste, BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
 import { AiOutlineSwap } from "react-icons/ai";
@@ -10,11 +10,12 @@ import {
   Input,
   Modal,
   NavBar,
+  NoticeBar,
   Result,
   TextArea,
   Toast,
 } from "antd-mobile";
-import { ScanCodeOutline } from "antd-mobile-icons";
+import { ScanCodeOutline, TextOutline } from "antd-mobile-icons";
 
 import { useEffect, useState } from "react";
 import Receive from "./Receive";
@@ -24,6 +25,7 @@ import { send } from "../../nano/accounts";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
+import { MdContentPaste } from "react-icons/md";
 
 export default function Send() {
   // const [result, setResult] = useState<string>(null);
@@ -111,7 +113,7 @@ export default function Send() {
               </Form.Item>
               <ScanCodeOutline
                 fontSize={24}
-                className="cursor-pointer text-gray-200 mr-4 mt-4"
+                className="cursor-pointer text-gray-200 mr-3 mt-4"
                 onClick={() => {
                   Modal.show({
                     // style: { width: "100%", height: "268px" },
@@ -132,6 +134,21 @@ export default function Send() {
                     ),
                   });
                 }}
+              />
+              <BiPaste fontSize={24} className="cursor-pointer text-gray-200 mr-4 mt-4"
+                onClick={() => {
+                  try {
+                    (async () =>
+                      form.setFieldValue("address", await navigator.clipboard.readText()))();
+                  }
+                  catch (error) {
+                    console.error("Error pasting:", error);
+                    Toast.show({
+                      content: "Error pasting",
+                    });
+                  }
+                }
+                }
               />
             </div>
 

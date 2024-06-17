@@ -42,6 +42,16 @@ export default class RPC {
     let r = await this.req(params);
     return r;
   };
+  blocks_info = async (hashes) => {
+    let params = {
+      action: "blocks_info",
+      hashes: hashes,
+      pending: "true",
+      source: "true",
+    };
+    let r = await this.req(params);
+    return r;
+  }
   work_generate = async (hash) => {
     let params = {
       action: "work_generate",

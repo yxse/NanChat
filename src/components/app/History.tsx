@@ -10,7 +10,7 @@ import {
   Toast,
 } from "antd-mobile";
 import { useEffect, useState } from "react";
-import { getWalletRPC, rawToMega } from "../../nano/accounts";
+import { rawToMega } from "../../nano/accounts";
 import { getAccount } from "../Settings";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { networks } from "../../utils/networks";
@@ -25,13 +25,13 @@ const fetchHistory = async (ticker) => {
   let history = await new RPC(ticker).acocunt_history(account);
   return history.history;
 };
-
 export default function History({ ticker }: { ticker: string }) {
   const { data: history, isLoading } = useSWR("history-" + ticker, () =>
     fetchHistory(ticker),
   );
   const [visible, setVisible] = useState(false);
   const [activeTx, setActiveTx] = useState(null);
+  const [account, setAccount] = useState("")
   const navigate = useNavigate();
   const actions = [
     {
@@ -67,6 +67,10 @@ export default function History({ ticker }: { ticker: string }) {
         ),
     },
   ];
+  useEffect(() => {
+    getAccount(ticker).then((r) => setAccount(r))
+  }, [])
+
   return (
     <>
       <div className="w-full overflow-scroll h-screen scroll-smooth mb-4 pb-96">
@@ -84,7 +88,7 @@ export default function History({ ticker }: { ticker: string }) {
             ))}
           </div>
         )}
-        {!isLoading && history.length == 0 && (
+        {!isLoading && (history?.length == 0 || !Array.isArray(history)) && (
           <ErrorBlock
             style={{
               width: "100%",
@@ -98,7 +102,7 @@ export default function History({ ticker }: { ticker: string }) {
             description=""
           />
         )}
-        {!isLoading && history.length > 0 && (
+        {!isLoading && history?.length > 0 && (
           <div className="divide-y divide-solid divide-gray-700 w-full">
             {history.map((tx, idx) => (
               <List
@@ -183,10 +187,17 @@ export default function History({ ticker }: { ticker: string }) {
             />
           </div>
         )}
-        <div className="text-center mt-4">
-          <Button color="primary" className="mt-4">
+        <div className="text-center mt-4 flex flex-col m-4">
+          <Button color="primary" className="mt-4" onClick={() => navigate("/swap?to=" + ticker)}>
             Buy {ticker}
           </Button>
+          <a
+            target="_blank"
+            href={`https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`}>
+            <Button color="default" className="mt-4 w-full">
+              Get some {ticker} for free
+            </Button>
+          </a>
         </div>
       </div>
     </>

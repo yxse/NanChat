@@ -2,8 +2,9 @@ import { wallet as walletLib, block } from "multi-nano-web";
 import RPC from "./rpc";
 import { BigNumber } from "bignumber.js";
 import AsyncLock from "async-lock";
-import { Toast } from "antd-mobile";
+import { Modal, Toast } from "antd-mobile";
 import { mutate } from "swr";
+import { rawToMega } from "./accounts";
 
 var lock = new AsyncLock();
 
@@ -45,6 +46,7 @@ export class Wallet {
     this.ticker = ticker;
     this.rpc = new RPC(ticker);
     this.websocket;
+    this.cacheSendHash = new Map();
     if (WS_URL !== undefined) {
       this.websocket = new WebSocket(WS_URL);
       this.websocket.onerror = (err) => {
@@ -120,17 +122,27 @@ export class Wallet {
         "No seed defined. Create a wallet first with createWallet() or use a seed in the wallet constructor",
       );
     }
-    let accounts = walletLib.accounts(
-      this.seed,
-      this.lastIndex,
-      this.lastIndex + nbAccounts,
-    );
+    let accounts = []
+    if (global.ledger) {
+      accounts = [{
+        address: global.account,
+      },
+      ]
+    }
+    else {
+      accounts = walletLib.accounts(
+        this.seed,
+        this.lastIndex,
+        this.lastIndex + nbAccounts,
+      );
+    }
     this.lastIndex += nbAccounts;
     accounts.forEach((account) => {
       account["address"] = account.address.replace("nano_", this.prefix);
       this.mapAccounts.set(account.address, account);
     });
     let addresses = accounts.map((account) => account.address);
+    console.log("Created accounts: " + addresses);
     if (
       this.websocket !== undefined &&
       this.websocket.readyState === WebSocket.OPEN
@@ -139,7 +151,7 @@ export class Wallet {
     } else {
       console.log("Websocket not yet connected, retrying in 0.5s");
       setTimeout(() => {
-        this.subscribeConfirmation(addresses);
+        // this.subscribeConfirmation(addresses);
       }, 500);
     }
     return addresses;
@@ -170,9 +182,49 @@ export class Wallet {
         amountRaw: amount, // The amount to send in RAW
         work: await this.rpc.work_generate(account_info.frontier),
       };
+      let signedBlock = null
+      if (global.ledger) {
+        //https://www.roosmaa.net/hw-app-nano/#blockdata
+        const newBalance = new BigNumber(data.walletBalanceRaw).minus(data.amountRaw)
+        const formattedBlock = {
+          previousBlock: data.frontier,
+          representative: data.representativeAddress,
+          balance: newBalance.toFixed(0),
+          recipient: destination
+        }
+        console.log({formattedBlock})
+        await global.ledger.updateCache(0, data.frontier, this.ticker)
+        // Modal.show({
+        //   closeOnMaskClick: true,
+        //   content: "Ledger should show: Send 0.001 NANO to nano_1nrtcu8ij14kb4ue8g1q8wn93r9xif7hbimb5aznz4z49up3r5jgzhsqkpgq"
+        // });
+        let amountForLedgerDisplay = +(+rawToMega("XNO", data.amountRaw)).toFixed(8)
+        let amountForLedgerDisplayTicker = +(+rawToMega(this.ticker, data.amountRaw)).toFixed(8)
+        Toast.show({
+          icon: "loading",
+          content: `Review the transaction on your Ledger. 
+You are sending ${amountForLedgerDisplayTicker} ${this.ticker}. 
+Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (nano_)`,
+          duration: 300000
+        });
+        let signatureAndHash = await global.ledger.signBlock(0, formattedBlock)
+        signedBlock = {
+          "type": "state",
+          account: source,
+          previous: data.frontier,
+          representative: data.representativeAddress,
+          balance: newBalance.toFixed(0),
+          link: global.publicKey,
+          signature: signatureAndHash.signature,
+          work: data.work,
+        }
+        console.log(signedBlock)
+      }
+      else{
+        let pk = this.getPrivateKey(source);
+        signedBlock = block.send(data, pk); // Returns a correctly formatted and signed block ready to be sent to the blockchain
+      }
 
-      let pk = this.getPrivateKey(source);
-      const signedBlock = block.send(data, pk); // Returns a correctly formatted and signed block ready to be sent to the blockchain
       let r = await this.rpc.process(signedBlock, "send");
       this.rpc.work_generate(r.hash); // pre-cache work (on server) for next send
       return r;
@@ -181,14 +233,14 @@ export class Wallet {
 
   receive = async (account, pendingTx) => {
     return lock.acquire(account, async () => {
-      const privateKey = this.getPrivateKey(account);
       const account_info = await this.rpc.account_info(account);
       let data = {
         toAddress: account,
         transactionHash: pendingTx.hash,
         amountRaw: pendingTx.amount,
       };
-      if (account_info.error === "Account not found") {
+      const isOpenBlock = account_info.error === "Account not found";
+      if (isOpenBlock) {
         // open block
         data["walletBalanceRaw"] = "0";
         data["representativeAddress"] = this.defaultRep; // default rep
@@ -203,7 +255,40 @@ export class Wallet {
         data["work"] = await this.rpc.work_generate(account_info.frontier);
       }
 
-      const signedBlock = block.receive(data, privateKey); // Returns a correctly formatted and signed block ready to be sent to the blockchain
+      let signedBlock = null
+      if (global.ledger) {
+        //https://www.roosmaa.net/hw-app-nano/#blockdata
+        const newBalance = isOpenBlock ? new BigNumber(data.amountRaw) : new BigNumber(data.walletBalanceRaw).plus(data.amountRaw)
+        const formattedBlock = {
+          representative: data.representativeAddress,
+          balance: newBalance.toFixed(0),
+          sourceBlock: pendingTx.hash
+        }
+        if (!isOpenBlock){
+          formattedBlock["previousBlock"] = data.frontier
+        }
+
+        console.log({formattedBlock})
+        if (!isOpenBlock){
+          await global.ledger.updateCache(0, data.frontier, this.ticker)
+        }
+        let signatureAndHash = await global.ledger.signBlock(0, formattedBlock)
+        signedBlock = {
+          "type": "state",
+          account: account,
+          previous: data.frontier,
+          representative: data.representativeAddress,
+          balance: newBalance.toFixed(0),
+          link: pendingTx.hash,
+          signature: signatureAndHash.signature,
+          work: data.work,
+        }
+        console.log(signedBlock)
+      }
+      else {
+        const privateKey = this.getPrivateKey(account);
+        signedBlock = block.receive(data, privateKey); // Returns a correctly formatted and signed block ready to be sent to the blockchain
+      }
       let r = await this.rpc.process(signedBlock, "receive");
       this.rpc.work_generate(r.hash); // pre-cache work (on server) for next receive
       return r;
@@ -235,6 +320,9 @@ export class Wallet {
     return account.privateKey;
   };
   getPublicKey = (address) => {
+    if (global.publicKey) {
+      return global.publicKey
+    }
     let account = this.mapAccounts.get(address);
     if (account === undefined) {
       throw new Error(address + " not found in wallet");
@@ -256,6 +344,11 @@ export class Wallet {
       data_json.message !== undefined &&
       data_json.message.block.subtype === "send"
     ) {
+      if (this.cacheSendHash.has(data_json.message.hash)) { // prevent receiving the same send twice (eg: if multiple websocket event for same block)
+        console.log("Already received this send: " + data_json.message.hash);
+        return;
+      }
+      this.cacheSendHash.set(data_json.message.hash, "");
       let pendingTx = {
         hash: data_json.message.hash,
         amount: data_json.message.amount,

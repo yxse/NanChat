@@ -197,6 +197,7 @@
   align-items: flex-start;
   -webkit-box-pack: end;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 .button-create {

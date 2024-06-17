@@ -24,6 +24,7 @@ import { getWalletRPC, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchPrices } from "./Home";
+import { GoCreditCard } from "react-icons/go";
 
 export const fetchBalance = async (ticker: string) => {
   const account = await getAccount(ticker);
@@ -129,12 +130,26 @@ export default function Network({ defaultReceiveVisible = false }) {
             </button>
             <span className="text-xs mt-1">Send</span>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+            navigate("/swap?from=" + ticker);
+          }}
+          >
             <button className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white">
               <AiOutlineSwap size={32} />
             </button>
             <span className="text-xs mt-1">Swap</span>
           </div>
+          {
+            ticker === "XNO" && <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+              navigate("/fiat?from=" + ticker);
+            }}
+            >
+              <button className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white">
+                <GoCreditCard size={32} className="" />
+              </button>
+              <span className="text-xs mt-1">Buy/Sell</span>
+            </div>
+          }
         </div>
       </div>
       {/* center  */}

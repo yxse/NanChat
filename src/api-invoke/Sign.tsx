@@ -1,18 +1,17 @@
-import { AiOutlineSignature } from "react-icons/ai";
-
+import { BiX } from "react-icons/bi";
+import { tools } from 'multi-nano-web'
+import { useState } from "react";
+import { TextArea } from "antd-mobile";
+import { getSeed } from "../components/Settings";
 export default function Sign() {
+  const [message, setMessage] = useState("I would like to link {this} account to my nanswap art account with username {username}")
+
   return (
     <div className="flex flex-col overflow-hidden justify-between w-full h-full">
       <nav className="flex select-none w-full shadow-md items-center rounded-b-lg justify-start p-2 bg-slate-800 text-center">
         <div className="w-full flex flex-row items-center">
           <div className="justify-center flex w-full">
             <p className="text-blue-400">Signature Request</p>
-          </div>
-          <div className="absolute right-0 m-3 group">
-            <AiOutlineSignature
-              size={21}
-              className="text-sky-300 group-hover:text-sky-200 transition-colors"
-            />
           </div>
         </div>
       </nav>
@@ -45,12 +44,11 @@ export default function Sign() {
           </div>
 
           <p>Message:</p>
-          <div className="flex !overflow-scroll h-full w-full p-3 text-left bg-slate-800/70 rounded-md mt-4 justify-center">
-            I would like to link{" "}
-            {
-              "{this} account to my nanswap art account with username {username}"
-            }
-          </div>
+          <TextArea
+            value={message}
+            onChange={(e) => setMessage(e)}
+            className="flex !overflow-scroll h-full w-full p-3 text-left bg-slate-800/70 rounded-md mt-4 justify-center"
+          />
         </div>
       </div>
 
@@ -70,10 +68,16 @@ export default function Sign() {
             role="button"
             className="flex text-center w-full rounded-full p-2 bg-blue-500 text-slate-200 hover:bg-blue-400 hover:text-slate-100 transition-colors"
           >
-            <span className="text-sm w-full">SIGN</span>
+            <span
+              onClick={async () => {
+                const pk = await getSeed(0)
+                const signed = tools.sign(pk, message)
+                console.log(signed)
+              }}
+              className="text-sm w-full">SIGN</span>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

@@ -4,6 +4,7 @@ import storage from "../utils/storage";
 import BigNumber from "bignumber.js";
 import { Wallet } from "./wallet";
 import { networks } from "../utils/networks";
+import { LedgerService } from "../ledger.service";
 
 export function deriveAccounts(
   seed: string,
@@ -26,11 +27,13 @@ export function convertToMulti(accounts: Account[], prefixes: string[]) {
 }
 export async function getWalletRPC(ticker) {
   const seed = await storage.get<string>("masterSeed", "session");
+  let walletKey = ticker;
+  if (global.ledger) walletKey += "ledger"; // create a separate wallet instance for ledger
   if (global.wallet == null) {
     global.wallet = {};
   }
-  if (global.wallet[ticker] == null) {
-    global.wallet[ticker] = new Wallet({
+  if (global.wallet[walletKey] == null) {
+    global.wallet[walletKey] = new Wallet({
       RPC_URL: import.meta.env.VITE_PUBLIC_RPC_URL + ticker,
       WORK_URL: import.meta.env.VITE_PUBLIC_RPC_URL + ticker,
       WS_URL:
@@ -49,10 +52,10 @@ export async function getWalletRPC(ticker) {
       decimal: networks[ticker].decimals,
       prefix: networks[ticker].prefix + "_",
     });
-    let account = global.wallet[ticker].createAccounts(1)[0];
-    await global.wallet[ticker].receiveAll(account);
+    let account = global.wallet[walletKey].createAccounts(1)[0];
+    await global.wallet[walletKey].receiveAll(account);
   }
-  return global.wallet[ticker];
+  return global.wallet[walletKey];
 }
 
 export async function send(ticker, addressFrom, addressTo, amountMega) {

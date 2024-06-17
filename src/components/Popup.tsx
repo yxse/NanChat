@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 import PopupWrapper from "./Wrapper";
 import Lockscreen from "./Lock";
@@ -9,8 +9,9 @@ import { ClipLoader as HashSpinner } from "react-spinners";
 import storage from "../utils/storage";
 
 import App from "./app";
+export const LedgerContext = createContext(null);
 
-export default function Popup() {
+export default function InitialPopup() {
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [isAppLoggedIn, setAppLoggedIn] = useState<boolean>(false);
   const [sessionMasterKey, setSessionMasterKey] = useState<string | null>(null);
@@ -46,15 +47,17 @@ export default function Popup() {
 
     checkLocalStorage();
   }, []);
+  const [ledger, setLedger] = useState(null);
 
   return (
+<LedgerContext.Provider value={{ ledger, setLedger }}>
     <PopupWrapper theme={theme}>
       {!isAppLoggedIn && (
         <>
           {isLocked ? (
             <Lockscreen setLoggedIn={setAppLoggedIn} theme={theme} />
           ) : (
-            <InitializeScreen theme={theme} />
+            <InitializeScreen theme={theme} setAppLoggedIn={setAppLoggedIn} />
           )}
         </>
       )}
@@ -75,5 +78,6 @@ export default function Popup() {
         </>
       )}
     </PopupWrapper>
+    </LedgerContext.Provider>
   );
 }

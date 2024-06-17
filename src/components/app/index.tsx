@@ -22,7 +22,7 @@ import { BiHistory, BiSolidDashboard, BiWallet } from "react-icons/bi";
 import Settings from "../Settings";
 
 import Home from "./Home";
-import Art from "./ReceiveSelect";
+import Art from "./Art";
 import Swap from "./Swap";
 import History from "./History";
 import Network from "./Network";
@@ -33,6 +33,8 @@ import Sign from "../../api-invoke/Sign";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import ReceiveSelect from "./ReceiveSelect";
 import NetworkList from "./NetworksList";
+import SwapTransaction from "./SwapTransaction";
+import InitialPopup from "../Popup";
 
 export default function App() {
   const [widget, setWidget] = useState<
@@ -48,12 +50,12 @@ export default function App() {
     {
       key: "receive",
       title: "Receive",
-      icon: <SlArrowUpCircle size={22} />,
+      icon: <SlArrowDownCircle size={22} />,
     },
     {
       key: "send",
       title: "Send",
-      icon: <SlArrowDownCircle size={22} />,
+      icon: <SlArrowUpCircle size={22} />,
     },
     {
       key: "swap",
@@ -69,50 +71,52 @@ export default function App() {
     const [action, setAction] = useState<"receive" | "send">("receive");
     return (
       <>
-      <TabBar
-        className="mb-4"
-        activeKey={location.pathname.split("/")[1]}
-        onChange={(key) => {
-          console.log(location.pathname);
-          // setWidget(key);
-          setVisible(false);
-          if (key === "receive") {
-            setVisible(true);
-            setAction("receive");
-            return
-          }
-          else if (key === "send") {
-            setVisible(true);
-            setAction("send");
-            return
-          }
-          navigate(key);
-        }}
+        <TabBar
+          className="mb-4"
+          activeKey={location.pathname.split("/")[1]}
+          onChange={(key) => {
+            console.log(location.pathname);
+            // setWidget(key);
+            setVisible(false);
+            if (key === "receive") {
+              setVisible(true);
+              setAction("receive");
+              return
+            }
+            else if (key === "send") {
+              setVisible(true);
+              setAction("send");
+              return
+            }
+            navigate(key);
+          }}
         >
-        {tabs.map((tab) => (
-          <TabBar.Item title={tab.title} key={tab.key} icon={tab.icon} />
-        ))}
-      </TabBar>
-      <Popup
-        visible={visible}
-        onClose={() => {
-          setVisible(false);
-        }}
-        onClick={() => setVisible(false)}
-        closeOnMaskClick={true}
-      >
-        <div>
-          <div className="text-2xl  text-center p-2">{
-            action === "receive" ? "Receive" : "Send"
-          }</div>
-        </div>
-        <NetworkList onClick={(ticker) => {
-          navigate(ticker + "/" + action);
-        }} />
-      </Popup>
-        </>
+          {tabs.map((tab) => (
+            <TabBar.Item title={tab.title} key={tab.key} icon={tab.icon} />
+          ))}
+        </TabBar>
+        <Popup
+          visible={visible}
+          onClose={() => {
+            setVisible(false);
+          }}
+          onClick={() => setVisible(false)}
+          closeOnMaskClick={true}
+        >
+          <div>
+            <div className="text-2xl  text-center p-2">{
+              action === "receive" ? "Receive" : "Send"
+            }</div>
+          </div>
+          <NetworkList hidePrice={true} onClick={(ticker) => {
+            navigate(ticker + "/" + action);
+          }} />
+        </Popup>
+      </>
     );
   };
+
+
   return (
     <>
       <section className="app-navbar">
@@ -151,9 +155,11 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/swap" element={<Swap />} />
+            <Route path="/swap/:id" element={<SwapTransaction />} />
             <Route path="/history" element={<History />} />
             <Route path="/network" element={<Network />} />
             <Route path="/sign" element={<Sign />} />
+            <Route path="/art" element={<Art />} />
             <Route path="/protocol_handler" element={<Protocol_handler />} />
             <Route path="/:ticker" element={<Network />} />
             <Route
@@ -162,7 +168,7 @@ export default function App() {
             />
             <Route path="/:ticker/send" element={<Send />} />
           </Routes>
-          <Settings isNavOpen={isNavOpen} />
+          <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} />
         </div>
         <MenuBar />
       </Router>

@@ -118,6 +118,7 @@
   0% {
     transform: translateY(0%);
   }
+
   100% {
     transform: translateY(100%);
   }
@@ -127,16 +128,44 @@
   0% {
     -webkit-transform: translateY(0%);
   }
+
   100% {
     -webkit-transform: translateY(100%);
   }
 }
 
-.adm-toast-icon{
+.adm-toast-icon {
   display: flex;
   justify-content: center;
 }
 
 .adm-action-sheet-button-item-wrapper:last-child {
-  padding-bottom: 8px; 
+  padding-bottom: 8px;
+}
+
+.searchBarContainer {
+  padding: 12px;
+  border-bottom: solid 1px var(--adm-color-border);
+}
+
+.myCheckList .adm-list-item-content-main {
+  padding-top: 6px !important;
+  padding-right: 0px;
+  padding-bottom: 6px !important;
+  padding-left: 0px;
+}
+
+.swap-form .adm-form-item-label {
+  display: flex;
+  align-items: center;
+}
+
+.artSkeleton {
+  --width: 50%;
+  --height: 100px;
+  --border-radius: 8px;
+}
+.adm-auto-center-content {
+  word-break: break-word;
+  white-space-collapse: break-spaces;
 }
