@@ -6,18 +6,28 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
-import { Button, Toast } from "antd-mobile";
+import { Button, Popup, Toast } from "antd-mobile";
 import { LedgerService } from "../ledger.service";
 import { ConnectLedger, connectLedger } from "./Initialize/Start";
+import NetworkList from "./app/NetworksList";
+import { useNavigate } from "react-router-dom";
 
 export async function getSeed(index = 0) {
   const mK = await storage.get<string>("masterSeed", "session");
   return wallet.accounts(mK, index, index)[0].privateKey;
 }
 
+export async function getRepresentative(ticker: string) {
+  const rep = await storage.get<string>("representative-" + ticker, "local");
+  if (rep) return rep;
+  return networks[ticker].defaultRep;
+}
+export async function setRepresentative(ticker: string, rep: string) {
+  await storage.set("representative-" + ticker, rep, "local");
+}
+
 export async function getAccount(ticker: string) {
-  const isLedger = false
-  if (global.account) {
+  if (global.ledger) {
         return global.account.replace("nano_", networks[ticker].prefix + "_");
     } 
   const accI = (await storage.get<number>("account_index", "local")) || 0;
@@ -41,7 +51,7 @@ export async function getAccounts() {
 export function CopyToClipboard({ text }: { text: string }) {
   return (
     <div
-      className="flex items-center group py-1 rounded cursor-pointer"
+      className="flex items-center group py-1 rounded cursor-pointer justify-center"
       role="button"
       onClick={() => {
         navigator.clipboard.writeText(text).then(
@@ -128,6 +138,33 @@ export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean,
     return () => clearTimeout(timeout);
   }, []);
 
+  const ChangeRep = () => {
+    const [visible, setVisible] = useState(false);
+    const navigate = useNavigate();
+    return <>
+    <Popup
+          visible={visible}
+          onClose={() => {
+            setVisible(false);
+            }}
+            onClick={() => setVisible(false)}
+            closeOnMaskClick={true}
+            >
+          <div>
+            <div className="text-2xl  text-center p-2">
+              Change Representative
+            </div>
+          </div>
+          <NetworkList showRepresentative={true} hidePrice={true} onClick={(ticker) => {
+            setNavOpen(false);
+            navigate(ticker + "/" + "representative");
+            }}  />
+        </Popup>
+        <Button className="w-full" onClick={() => setVisible(true)}>
+            Change Representative
+          </Button>
+          </>
+  }
   return (
     <>
       <div
@@ -213,6 +250,7 @@ export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean,
               ></div>
             </div>
           </div>
+          <ChangeRep />
           <Button className="w-full">
             Manage Networks
           </Button>

@@ -5,6 +5,7 @@ import AsyncLock from "async-lock";
 import { Modal, Toast } from "antd-mobile";
 import { mutate } from "swr";
 import { rawToMega } from "./accounts";
+import { setRepresentative } from "../components/Settings";
 
 var lock = new AsyncLock();
 
@@ -294,6 +295,85 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       return r;
     });
   };
+   
+  change = async ({account, newRep}) => {
+    return lock.acquire(account, async () => {
+      Toast.show({
+        icon: "loading",
+        content: "Changing representative ...",
+      });
+      const account_info = await this.rpc.account_info(account);
+      if (account_info.error) {
+        if (account_info.error === "Account not found") {
+          setRepresentative(this.ticker, newRep) // only update local storage since account not yet opened
+          Toast.show({
+            icon: "success",
+          });
+          return
+        }
+        Toast.show({
+          icon: "fail",
+        });
+        return
+      }
+      const data = {
+        // Your current balance, from account info
+        walletBalanceRaw: account_info.balance,
+    
+        // Your wallet address
+        address: account,
+    
+        // The new representative
+        representativeAddress: newRep,
+    
+        // Previous block, from account info
+        frontier: account_info.frontier,
+        // Generate work on the server side or with a DPOW service
+        // This is optional, you don't have to generate work before signing the transaction
+        work: await this.rpc.work_generate(account_info.frontier),
+    }
+
+      let signedBlock = null
+      if (global.ledger) {
+        //https://www.roosmaa.net/hw-app-nano/#blockdata
+        const formattedBlock = {
+          previousBlock: data.frontier,
+          representative: data.representativeAddress,
+          balance: data.walletBalanceRaw,
+        };
+        console.log({formattedBlock})
+        Toast.show({
+          icon: "loading",
+          content: "Review the transaction on your Ledger",
+          duration: 300000
+        });
+        await global.ledger.updateCache(0, data.frontier, this.ticker)
+        let signatureAndHash = await global.ledger.signBlock(0, formattedBlock)
+        signedBlock = {
+          "type": "state",
+          account: account,
+          previous: data.frontier,
+          representative: data.representativeAddress,
+          balance: data.walletBalanceRaw,
+          link: "0000000000000000000000000000000000000000000000000000000000000000",
+          signature: signatureAndHash.signature,
+          work: data.work,
+        }
+        console.log(signedBlock)
+      }
+      else {
+        const privateKey = this.getPrivateKey(account);
+        signedBlock = block.representative(data, privateKey); // Returns a correctly formatted and signed block ready to be sent to the blockchain
+      }
+      let r = await this.rpc.process(signedBlock, "receive");
+      Toast.show({
+        icon: "success",
+      });
+      this.rpc.work_generate(r.hash); // pre-cache work (on server) for next receive
+      return r;
+    });
+  };
+   
   receiveAll = async (account) => {
     let hashes = await this.rpc.receivable(account);
     for (const hash in hashes) {

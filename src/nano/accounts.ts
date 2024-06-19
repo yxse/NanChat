@@ -5,6 +5,7 @@ import BigNumber from "bignumber.js";
 import { Wallet } from "./wallet";
 import { networks } from "../utils/networks";
 import { LedgerService } from "../ledger.service";
+import { getAccount } from "../components/Settings";
 
 export function deriveAccounts(
   seed: string,
@@ -64,6 +65,14 @@ export async function send(ticker, addressFrom, addressTo, amountMega) {
     source: addressFrom,
     destination: addressTo,
     amount: rpcWallet.megaToRaw(amountMega),
+  });
+  console.log(hash);
+}
+export async function changeRep(ticker, rep) {
+  let rpcWallet = await getWalletRPC(ticker);
+  let hash = await rpcWallet.change({
+    account: await getAccount(ticker),
+    newRep: rep,
   });
   console.log(hash);
 }

@@ -37,6 +37,14 @@ export const fetchBalance = async (ticker: string) => {
     return balanceTotal;
   }
 };
+export const fetchAccountInfo = async (ticker: string) => {
+  const account = await getAccount(ticker);
+  const accountInfo = await new RPC(ticker).account_info(account);
+  if (accountInfo.error) {
+    return null;
+  }
+  return accountInfo;
+};
 export const ModalReceive = ({ ticker, modalVisible, setModalVisible }) => {
   const [address, setAddress] = useState<string>(null);
   useEffect(() => {

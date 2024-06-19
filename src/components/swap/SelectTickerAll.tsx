@@ -11,7 +11,7 @@ import React, { useMemo, useState } from 'react'
 import { Button, CheckList, Popup, SearchBar, Space } from 'antd-mobile'
 import { DemoBlock } from 'demos'
 import styles from './demo2.less'
-import NetworkList, { NetworkItem, tickerTitle } from "../app/NetworksList";
+import NetworkList, { NetworkItem, TickerTitle } from "../app/NetworksList";
 import { List as VirtualizedList, AutoSizer } from 'react-virtualized'
 
 
@@ -65,7 +65,8 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
             setVisible(false)
           }}
           clickable={false} key={currencyKey} value={currency.ticker} style={style}>
-          {tickerTitle(currency.ticker.toUpperCase(), currency.image, currency.name, onClick)}
+          {/* {tickerTitle(currency.ticker.toUpperCase(), currency.image, currency.name, onClick)} */}
+          <TickerTitle logo={currency.image} name={currency.name} ticker={currency.ticker} />
         </List.Item>
     )
   }

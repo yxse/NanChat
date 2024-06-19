@@ -35,6 +35,7 @@ import ReceiveSelect from "./ReceiveSelect";
 import NetworkList from "./NetworksList";
 import SwapTransaction from "./SwapTransaction";
 import InitialPopup from "../Popup";
+import ChangeRep from "./ChangeRep";
 
 export default function App() {
   const [widget, setWidget] = useState<
@@ -167,6 +168,7 @@ export default function App() {
               element={<Network defaultReceiveVisible={true} />}
             />
             <Route path="/:ticker/send" element={<Send />} />
+            <Route path="/:ticker/representative" element={<ChangeRep />} />
           </Routes>
           <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} />
         </div>
