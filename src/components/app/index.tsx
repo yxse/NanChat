@@ -36,6 +36,7 @@ import NetworkList from "./NetworksList";
 import SwapTransaction from "./SwapTransaction";
 import InitialPopup from "../Popup";
 import ChangeRep from "./ChangeRep";
+import AddNetwork from "./AddNetwork";
 
 export default function App() {
   const [widget, setWidget] = useState<
@@ -158,7 +159,8 @@ export default function App() {
             <Route path="/swap" element={<Swap />} />
             <Route path="/swap/:id" element={<SwapTransaction />} />
             <Route path="/history" element={<History />} />
-            <Route path="/network" element={<Network />} />
+            <Route path="/add-network" element={<AddNetwork />} />
+            <Route path="/" element={<Home />} />
             <Route path="/sign" element={<Sign />} />
             <Route path="/art" element={<Art />} />
             <Route path="/protocol_handler" element={<Protocol_handler />} />

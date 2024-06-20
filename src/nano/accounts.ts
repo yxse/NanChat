@@ -35,8 +35,8 @@ export async function getWalletRPC(ticker) {
   }
   if (global.wallet[walletKey] == null) {
     global.wallet[walletKey] = new Wallet({
-      RPC_URL: import.meta.env.VITE_PUBLIC_RPC_URL + ticker,
-      WORK_URL: import.meta.env.VITE_PUBLIC_RPC_URL + ticker,
+      RPC_URL: networks[ticker].rpc,
+      WORK_URL: networks[ticker].rpc,
       WS_URL:
         import.meta.env.VITE_PUBLIC_WS_URL +
         "?ticker=" +

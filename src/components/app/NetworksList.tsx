@@ -13,6 +13,8 @@ import { formatAddress } from "../../utils/format";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
+import { TbWorldQuestion } from "react-icons/tb";
+import { useLocalStorage } from "../../utils/useLocalStorage";
 
 
 
@@ -198,13 +200,13 @@ export const NetworkItem = ({ ticker, onClick, hidePrice = false, showRepresenta
             !hidePrice &&
             <div className="flex items-center space-x-1 mt-1">
               <div className="text-xs text-gray-400">
-                ${+(prices?.[ticker].usd)?.toPrecision(4)}
+                ${+(prices?.[ticker]?.usd)?.toPrecision(4)}
               </div>
               {
-                prices?.[ticker].change > 0 ? <div className="text-xs text-green-600">
-                  +{(prices?.[ticker].change * 100)?.toFixed(2)}%
+                prices?.[ticker]?.change > 0 ? <div className="text-xs text-green-600">
+                  +{(prices?.[ticker]?.change * 100)?.toFixed(2)}%
                 </div> : <div className="text-xs text-red-600">
-                  {(prices?.[ticker].change * 100)?.toFixed(2)}%
+                  {(prices?.[ticker]?.change * 100)?.toFixed(2)}%
                 </div>
               }
             </div>
@@ -227,7 +229,7 @@ export const NetworkItem = ({ ticker, onClick, hidePrice = false, showRepresenta
               {!isLoadingPrices && (
                 <div className="text-sm text-gray-400">
                   ~{" "}
-                  {+(prices?.[ticker].usd * data).toFixed(2)}{" "}
+                  {+(prices?.[ticker]?.usd * data).toFixed(2)}{" "}
                   USD
                 </div>
               )}
@@ -244,11 +246,12 @@ export const NetworkItem = ({ ticker, onClick, hidePrice = false, showRepresenta
 }
 
 export default function NetworkList({ onClick, hidePrice, showRepresentative = false }) {
-
+    const [hiddenNetworks, setHiddenNetworks] = useLocalStorage("hiddenNetworks", []);
+  console.log(hiddenNetworks)
   return (<>
     <List>
 
-      {Object.keys(networks).map((ticker) => (
+      {Object.keys(networks).filter((ticker) => !hiddenNetworks.includes(ticker)).map((ticker) => (
         <List.Item>
 
           <NetworkItem

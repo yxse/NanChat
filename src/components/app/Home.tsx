@@ -182,7 +182,10 @@ export default function Home({ }) {
         onClose={() => setNetworksSwitchVisible(false)}
         closeOnMaskClick={true}
       >
-        <NetworksSwitch />
+        <NetworksSwitch
+
+          
+         />
       </Popup>
 
     </div>

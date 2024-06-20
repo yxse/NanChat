@@ -1,16 +1,21 @@
 // const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+import { networks } from "../utils/networks";
+
 /**
  * Simple RPC client for Nano node
  */
 export default class RPC {
   constructor(ticker) {
-    this.rpcURL = import.meta.env.VITE_PUBLIC_RPC_URL + ticker;
-    this.worURL = import.meta.env.VITE_PUBLIC_RPC_URL + ticker;
+    this.rpcURL = networks[ticker].rpc;
+    this.worURL = networks[ticker].rpc;
     this.headerAuth = {
       "Content-Type": "application/json",
-      "nodes-api-key": import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+      // "nodes-api-key": import.meta.env.VITE_PUBLIC_NODES_API_KEY,
     };
+    if (networks[ticker].rpcAuth) {
+      this.headerAuth["nodes-api-key"] = networks[ticker].rpcAuth;
+    }
   }
 
   acocunt_history = async (account, offset) => {
@@ -56,6 +61,7 @@ export default class RPC {
     let params = {
       action: "work_generate",
       hash: hash,
+      use_peers: "true",
     };
 
     let r = await this.req(params);

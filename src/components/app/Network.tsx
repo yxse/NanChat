@@ -110,7 +110,7 @@ export default function Network({ defaultReceiveVisible = false }) {
             )}
           </div>
           <div className="text-sm text-gray-400">
-            ~ {+(prices?.[ticker].usd * balance).toFixed(2)} USD
+            ~ {+(prices?.[ticker]?.usd * balance).toFixed(2)} USD
           </div>
         </div>
         <div className="flex justify-center mt-4 space-x-4">
