@@ -2,10 +2,10 @@
 import { useContext, useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
-import Network, { fetchBalance, showModalReceive } from "./Network";
-import { Button, Card, Dialog, DotLoading, FloatingBubble, List, Modal, Popup, Toast } from "antd-mobile";
+import Network, { fetchBalance, fetchBalances, showModalReceive } from "./Network";
+import { Button, Card, Dialog, DotLoading, FloatingBubble, List, Modal, Popup, PullToRefresh, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { BiPaste, BiPlus } from "react-icons/bi";
 import NetworkList from "./NetworksList";
 import NetworksSwitch from "./NetworksSwitch";
@@ -19,14 +19,14 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { MdOutlineUsb } from "react-icons/md";
 import { resetLedger } from "../Initialize/Start";
 import { LedgerContext } from "../Popup";
+import useLocalStorageState from "use-local-storage-state";
 
 export const fetchPrices = async () => {
   const response = await fetch("https://api.nanexplorer.com/prices");
   return response.json();
 };
-export default function Home({ }) {
-  const [selectedTicker, setSelectedTicker] = useState<string>(null);
-  const [networksSwitchVisible, setNetworksSwitchVisible] = useState<boolean>(false);
+
+const WalletSummary = ({}) => {
   const { data: prices, isLoading: isLoadingPrices } = useSWR(
     "prices",
     fetchPrices,
@@ -36,6 +36,33 @@ export default function Home({ }) {
     // fetch balance for each network
     balances[ticker] = useSWR("balance-" + ticker, () => fetchBalance(ticker));
   }
+
+  // const { data: balances, isLoading: isLoadingBalances, error } = useSWR('balances', fetchBalances);
+  console.log({balances});
+  // if (isLoadingBalances) return <DotLoading />;
+  const isLoadingBalances = Object.keys(balances).some((ticker) => balances[ticker]?.isLoading);
+  if (isLoadingPrices) return <DotLoading />;
+
+return   <div className="m-3 mb-5 mt-5">
+  <div className="text-sm text-gray-200 mb-1">
+    Main Wallet
+  </div>
+  <div className="">
+    
+    <div className="text-2xl">$ 
+    {
+      (isLoadingPrices || isLoadingBalances) ? <DotLoading /> : (Object.keys(balances)?.reduce((acc, ticker) => acc + (
+        +balances[ticker]?.data * +prices?.[ticker]?.usd
+        || 0), 0))?.toFixed(2)} USD
+    </div>
+  </div>
+</div>
+}
+
+export default function Home({ }) {
+  const [selectedTicker, setSelectedTicker] = useState<string>(null);
+  const [networksSwitchVisible, setNetworksSwitchVisible] = useState<boolean>(false);
+  const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
 
   const navigate = useNavigate();
 
@@ -61,21 +88,18 @@ export default function Home({ }) {
     }
   }
   const {ledger, setLedger} = useContext(LedgerContext);
-
   return (
     <div className="container  relative mx-auto" style={{ maxWidth: 600 }}>
+      <PullToRefresh
+      pullingText="Pull to refresh"
+      completeText="Refreshed"
+      canReleaseText="Release to refresh"
+      refreshingText="Refreshing..."
+      onRefresh={async () => {
+        await mutate((key) => key.startsWith("balance-") || key === "prices");
+      }}>
       <div className="flex items-center justify-between">
-        <div className="m-3 mb-5 mt-5">
-          <div className="text-sm text-gray-200 mb-1">
-            Main Wallet
-          </div>
-          <div className="">
-            <div className="text-2xl">$ {(Object.keys(balances)?.reduce((acc, ticker) => acc + (
-              +balances[ticker]?.data * +prices?.[ticker]?.usd
-              || 0), 0))?.toFixed(2)} USD
-            </div>
-          </div>
-        </div>
+        <WalletSummary />
         <div className="flex items-center justify-center">
           {
             ledger && 
@@ -187,7 +211,7 @@ export default function Home({ }) {
           
          />
       </Popup>
-
+      </PullToRefresh>
     </div>
   );
 }
