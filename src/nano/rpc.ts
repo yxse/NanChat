@@ -33,6 +33,7 @@ export default class RPC {
     let params = {
       action: "account_balance",
       account: account,
+      include_only_confirmed: "false", // allow better ux when receiving, else balance may be inaccurate if fetching balance when receiving in same time
     };
     let r = await this.req(params);
     return r;

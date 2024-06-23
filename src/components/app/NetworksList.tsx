@@ -14,7 +14,7 @@ import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { TbWorldQuestion } from "react-icons/tb";
-import { useLocalStorage } from "../../utils/useLocalStorage";
+import useLocalStorageState from "use-local-storage-state";
 
 
 
@@ -85,7 +85,8 @@ export const Representative = ({ ticker, condensed = false, newLocalRep=null }) 
   }
   else {
     return <div className="text-base text-gray-400 appearance-none m-2 ">
-      Currently Represented by:
+      Currently Represented by {isOnline ? (alias ? `${alias}` : "Unknown Address") : "" // todo: resolve alias even if offline
+        }:
       {
         isLoading ? <DotLoading /> : <CopyToClipboard text={currentRep} />
       }
@@ -94,9 +95,7 @@ export const Representative = ({ ticker, condensed = false, newLocalRep=null }) 
         {
           isOnline ? <div className="text-green-400 mt-2 mb-2">Your Representative is Voting</div> : <div className="text-orange-400 mt-2 mb-2">Your Representative is not Voting</div>
         }
-        {
-          isOnline ? (alias ? `Known as ${alias}` : "Unknown Address") : "" // todo: resolve alias even if offline
-        }
+        
         {
           isOnline ? <> ({(+weightPercent).toFixed(2)}% voting weight)</> : ""
         }
@@ -168,7 +167,7 @@ export const RepresentativeList = ({ ticker, onClick }) => {
   </List>
 </>
 }
-export const NetworkItem = ({ ticker, onClick, hidePrice = false, showRepresentative }) => {
+export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showRepresentative }) => {
   const { data: prices, isLoading: isLoadingPrices } = useSWR(
     "prices",
     fetchPrices,
@@ -189,12 +188,12 @@ export const NetworkItem = ({ ticker, onClick, hidePrice = false, showRepresenta
       <div className="flex items-center">
         <img
           width={42}
-          src={networks[ticker].logo}
-          alt={`${networks[ticker].logo} logo`} />
+          src={network.logo}
+          alt={`${network.logo} logo`} />
         <div className="flex flex-col ml-3 justify-center">
           <div>{ticker}</div>
           <div className="text-sm text-gray-400">
-            {networks[ticker].name}
+            {network.name}
           </div>
           {
             !hidePrice &&
@@ -246,24 +245,40 @@ export const NetworkItem = ({ ticker, onClick, hidePrice = false, showRepresenta
 }
 
 export default function NetworkList({ onClick, hidePrice, showRepresentative = false }) {
-    const [hiddenNetworks, setHiddenNetworks] = useLocalStorage("hiddenNetworks", []);
-  console.log(hiddenNetworks)
+    const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
+    const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
+    const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
+    const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
+    
   return (<>
     <List>
 
-      {Object.keys(networks).filter((ticker) => !hiddenNetworks.includes(ticker)).map((ticker) => (
+      {activeMainNetworks.map((ticker) => (
         <List.Item>
-
           <NetworkItem
+            network={networks[ticker]}
             key={ticker}
             ticker={ticker}
             onClick={onClick}
             hidePrice={hidePrice}
             showRepresentative={showRepresentative}
           />
-
         </List.Item>
       ))}
+      {
+        activeCustomNetworks.map((ticker) => (
+          <List.Item>
+            <NetworkItem
+            network={customNetworks[ticker]}
+              key={ticker}
+              ticker={ticker}
+              onClick={onClick}
+              hidePrice={hidePrice}
+              showRepresentative={showRepresentative}
+            />
+          </List.Item>
+        ))
+      }
     </List>
   </>
   );

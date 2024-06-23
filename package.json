@@ -40,6 +40,7 @@
     "react-toastify": "^10.0.5",
     "react-virtualized": "^9.22.5",
     "swr": "^2.2.5",
+    "use-local-storage-state": "^19.3.1",
     "vite-plugin-node-polyfills": "^0.22.0"
   },
   "prettier": {

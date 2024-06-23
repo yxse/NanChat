@@ -56,3 +56,5 @@ export const customNetworks = () => {
   const customNetworks = localStorage.getItem("customNetworks");
   return customNetworks ? JSON.parse(customNetworks) : [];
 }
+
+export const activeNetworks = Object.keys(networks).filter((ticker) => !JSON.parse(localStorage.getItem("hiddenNetworks"))?.includes(ticker));

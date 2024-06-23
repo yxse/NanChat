@@ -37,7 +37,6 @@ const WalletSummary = ({}) => {
     balances[ticker] = useSWR("balance-" + ticker, () => fetchBalance(ticker));
   }
 
-  // const { data: balances, isLoading: isLoadingBalances, error } = useSWR('balances', fetchBalances);
   console.log({balances});
   // if (isLoadingBalances) return <DotLoading />;
   const isLoadingBalances = Object.keys(balances).some((ticker) => balances[ticker]?.isLoading);

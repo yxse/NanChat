@@ -19,7 +19,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard, getAccount } from "../Settings";
 import Send from "./Send";
 import History from "./History";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getWalletRPC, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -27,8 +27,18 @@ import { fetchPrices } from "./Home";
 import { GoCreditCard } from "react-icons/go";
 
 export const fetchBalance = async (ticker: string) => {
+  let hidden = localStorage.getItem("hiddenNetworks") || [];
+  if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
+    return null;
+  }
   const account = await getAccount(ticker);
-  const balance = await new RPC(ticker).account_balance(account);
+  let balance = 0
+  try {
+    balance = await new RPC(ticker).account_balance(account);
+  } catch (error) {
+    console.error(`Error fetching balance for ${ticker}`, error);
+    return 0;
+  }
   if (balance.error) {
     return 0;
   } else {
