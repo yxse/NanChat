@@ -270,6 +270,11 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         }
 
         console.log({formattedBlock})
+        Toast.show({
+          icon: "loading",
+          content: "Review the transaction on your Ledger to receive",
+          duration: 300000
+        });
         if (!isOpenBlock){
           await global.ledger.updateCache(0, data.frontier, this.ticker)
         }
@@ -439,7 +444,7 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       }
       Toast.show({
         icon: "loading",
-        content: "Receiving " + +this.rawToMega(pendingTx.amount) + " XNO ...",
+        content: "Receiving " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
       });
       // console.log("Receiving new send on : " + data_json.message.block.link_as_account)
       let pk = accountDb.privateKey;
@@ -452,7 +457,7 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       );
       Toast.show({
         icon: "success",
-        content: "Received " + +this.rawToMega(pendingTx.amount) + " XNO",
+        content: "Received " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
       });
       mutate("history-" + this.ticker);
       mutate("balance-" + this.ticker);
