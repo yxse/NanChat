@@ -8,13 +8,13 @@ export default function Navbar({ theme }: { theme: "dark" | "light" }) {
       } lockscreen-nav select-none`}
     >
       <div style={{ width: "10px" }}></div>
-      <span
+      {/* <span
         className={`${
           theme == "light" && "text-slate-600"
         } text-slate-400 text-xl`}
       >
         cesium
-      </span>
+      </span> */}
       <div
         className="lockscreen-nav-q"
         role="button"

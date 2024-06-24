@@ -19,6 +19,7 @@ import useSWR from "swr";
 import { BiSend, BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { Action } from "antd-mobile/es/components/action-sheet";
+import {MinusCircleOutline, AddCircleOutline} from "antd-mobile-icons";
 
 const fetchHistory = async (ticker) => {
   const account = await getAccount(ticker);
@@ -73,11 +74,11 @@ export default function History({ ticker }: { ticker: string }) {
 
   return (
     <>
-      <div className="w-full overflow-scroll h-screen scroll-smooth mb-4 pb-96">
+      <div className="w-full ">
         {isLoading && (
           <div className="divide-y divide-solid divide-gray-700 w-full">
             {[1, 2, 3, 4, 5, 6].map((_, idx) => (
-              <List key={idx}>
+              <List key={idx} mode="card">
                 <List.Item>
                   <div className="flex items-center space-x-4">
                     <div className="w-8 h-8 bg-gray-500 rounded-full"></div>
@@ -103,9 +104,10 @@ export default function History({ ticker }: { ticker: string }) {
           />
         )}
         {!isLoading && history?.length > 0 && (
-          <div className="divide-y divide-solid divide-gray-700 w-full">
+          <div className="">
             {history.map((tx, idx) => (
               <List
+              mode="card"
                 key={tx.hash + "-list"}
                 header={
                   new Date(+tx.local_timestamp * 1000).toLocaleDateString() !==
@@ -115,7 +117,12 @@ export default function History({ ticker }: { ticker: string }) {
                     <div className="">
                       {new Date(
                         +tx.local_timestamp * 1000,
-                      ).toLocaleDateString()}
+                      ).toLocaleDateString(undefined, {
+                        weekday: "short",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </div>
                   )
                 }
@@ -140,6 +147,7 @@ export default function History({ ticker }: { ticker: string }) {
                   ]}
                 >
                   <List.Item
+                  className=""
                     onClick={() => {
                       setVisible(true);
                       setActiveTx(tx);
@@ -151,13 +159,13 @@ export default function History({ ticker }: { ticker: string }) {
                     target="_blank"
                     className="text-blue-300"
                   > */}
-                    <div className="flex items-center space-x-4 text-sm justify-between">
+                    <div className="flex items-center space-x-4 text-sm justify-between ">
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-4">
                         <div className="">
-                          {tx.type === "send" && <SlArrowUpCircle size={18} />}
+                          {tx.type === "send" && <MinusCircleOutline fontSize={20} />}
                           {tx.type === "receive" && (
-                            <SlArrowDownCircle size={18} />
+                            <AddCircleOutline fontSize={20} />
                           )}
                         </div>
                         <div>

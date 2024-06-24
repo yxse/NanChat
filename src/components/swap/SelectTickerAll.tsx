@@ -49,6 +49,10 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
           clickable={false}
           key={currency.ticker} value={currency.ticker} style={style} >
           <NetworkItem
+          network={{
+            ...currency,
+            logo: currency.image,
+          }}
             onClick={() => {
               onClick(currency.ticker)
               setVisible(false)

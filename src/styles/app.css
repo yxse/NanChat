@@ -169,3 +169,33 @@
   word-break: break-word;
   white-space-collapse: break-spaces;
 }
+
+.adm-capsule-tabs-tab {
+  background-color: var(--adm-color-primary);
+  font-size: large;
+  
+}
+.adm-capsule-tabs-header {
+  position: fixed;
+  background-color: black;
+  bottom: 0px;
+  z-index: 10;
+  width: 100%;
+  box-shadow: 0px 0px 10px 10px black;
+}
+.adm-capsule-tabs-tab-list {
+  box-shadow: 0px 0px 10px 10px black;
+  z-index: 10;
+  /* position: fixed; */
+  bottom: 8px;
+  /* width: 100%; */
+  /* justify-content: center !important; */
+  /* padding-right: 6px; */
+  padding: 16px;
+  padding-bottom: 24px;
+}
+
+:root:root {
+  --adm-button-border-radius: 12px;
+  --adm-color-background: #111111;
+}

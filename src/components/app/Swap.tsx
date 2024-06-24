@@ -37,7 +37,7 @@ import SwapHistory from "./SwapHistory";
 import { createOrder, fetcher, getAllCurrencies, getEstimate, getLimits, getOrder } from "../../nanswap/swap/service";
 import { GoCreditCard } from "react-icons/go";
 
-export default function Swap() {
+export default function Swap({hideHistory = false}) {
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
     getAllCurrencies, fetcher, {
     errorRetryCount: 0
@@ -48,7 +48,7 @@ export default function Swap() {
   const [visibleSelectTo, setVisibleSelectTo] = useState<boolean>(false);
   const [selectedFrom, setSelectedFrom] = useState<string>("XNO");
   const [selectedTo, setSelectedTo] = useState<string>("BAN");
-  const [amount, setAmount] = useState<number | string>("");
+  const [amount, setAmount] = useState<number | string>(0.0001);
   const [side, setSide] = useState<string>("from"); // ["from", "to"]
   const [form] = Form.useForm();
   const { data: balance, isLoading: balanceLoading } = useSWR(
@@ -232,9 +232,9 @@ export default function Swap() {
   }, [])
 
   return (
-    <div className="divide-y divide-solid divide-gray-700 space-y-6">
+    <div className="">
       <div className="container  relative mx-auto">
-        <div className="text-center text-2xl flex-col">
+        <div className="">
           <NavBar
             right={
               <Button size="mini">
@@ -427,7 +427,10 @@ export default function Swap() {
             }
           </Form>
         </div>
+        {
+          !hideHistory &&
         <SwapHistory />
+        }
       </div>
     </div >
   );

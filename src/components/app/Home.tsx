@@ -3,10 +3,10 @@ import { useContext, useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchBalance, fetchBalances, showModalReceive } from "./Network";
-import { Button, Card, Dialog, DotLoading, FloatingBubble, List, Modal, Popup, PullToRefresh, Toast } from "antd-mobile";
+import { Button, Card, Dialog, DotLoading, FloatingBubble, List, Modal, NavBar, Popup, PullToRefresh, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
-import { BiPaste, BiPlus } from "react-icons/bi";
+import { BiCopy, BiPaste, BiPlus } from "react-icons/bi";
 import NetworkList from "./NetworksList";
 import NetworksSwitch from "./NetworksSwitch";
 import { askPermission } from "../../nano/notifications";
@@ -20,7 +20,8 @@ import { MdOutlineUsb } from "react-icons/md";
 import { resetLedger } from "../Initialize/Start";
 import { LedgerContext } from "../Popup";
 import useLocalStorageState from "use-local-storage-state";
-
+import { FaExchangeAlt } from "react-icons/fa";
+import {SetOutline} from "antd-mobile-icons";
 export const fetchPrices = async () => {
   const response = await fetch("https://api.nanexplorer.com/prices");
   return response.json();
@@ -89,6 +90,17 @@ export default function Home({ }) {
   const {ledger, setLedger} = useContext(LedgerContext);
   return (
     <div className="container  relative mx-auto" style={{ maxWidth: 600 }}>
+        <NavBar
+        className="text-slate-400 text-xxl app-navbar "
+         back={
+          <SetOutline fontSize={20} />
+        } 
+        onBack={() => {
+          navigate("/settings");
+        }}
+        backArrow={false}>
+          <span className="text-xl">cesium</span>
+        </NavBar>
       <PullToRefresh
       pullingText="Pull to refresh"
       completeText="Refreshed"
@@ -122,6 +134,14 @@ export default function Home({ }) {
   }
 />
 }
+<BiCopy fontSize={24} className="cursor-pointer text-gray-200 mr-3 mt-4"
+  onClick={() => {
+    Toast.show({
+      content: "Copied!",
+    });
+  }
+}
+/>
           <ScanCodeOutline
             fontSize={24}
             className="cursor-pointer text-gray-200 mr-3 mt-4"
@@ -196,9 +216,11 @@ export default function Home({ }) {
           '--initial-position-right': '24px',
           '--edge-distance': '24px',
         }}
-        onClick={() => setNetworksSwitchVisible(true)}
+        onClick={() => navigate("/swap")}
       >
-        <BiPlus size={24} />
+    
+        <FaExchangeAlt size={22} />
+
       </FloatingBubble> */}
       <Popup
         visible={networksSwitchVisible}

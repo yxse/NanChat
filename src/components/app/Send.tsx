@@ -26,6 +26,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import { MdContentPaste } from "react-icons/md";
+import { parseURI } from "../../utils/format";
 
 export default function Send() {
   // const [result, setResult] = useState<string>(null);
@@ -126,7 +127,10 @@ export default function Send() {
                           //   styles={
                           onScan={(result) => {
                             console.log(result);
-                            form.setFieldValue("address", result[0].rawValue);
+                            let parsed = parseURI(result[0].rawValue);
+                            console.log(parsed);
+                            form.setFieldValue("address", parsed.address);
+                            form.setFieldValue("amount", parsed.megaAmount);
                             Modal.clear();
                           }}
                         />

@@ -6,7 +6,7 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
-import { Button, Popup, Toast } from "antd-mobile";
+import { Button, NavBar, Popup, Toast } from "antd-mobile";
 import { LedgerService } from "../ledger.service";
 import { ConnectLedger, connectLedger } from "./Initialize/Start";
 import NetworkList from "./app/NetworksList";
@@ -83,8 +83,9 @@ export function CopyToClipboard({ text }: { text: string }) {
 }
 
 export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean, setNavOpen: Function }) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [address, setAddress] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [option, setSelectedOption] = useState({
     value: "XNO",
     label: "XNO",
@@ -157,7 +158,7 @@ export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean,
           </div>
           <NetworkList showRepresentative={true} hidePrice={true} onClick={(ticker) => {
             setNavOpen(false);
-            navigate(ticker + "/" + "representative");
+            navigate('/' + ticker + "/" + "representative");
             }}  />
         </Popup>
         <Button className="w-full" onClick={() => setVisible(true)}>
@@ -168,12 +169,19 @@ export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean,
   return (
     <>
       <div
-        className={`w-full h-full bg-black absolute top-0 left-0 right-0 ${isNavOpen ? "slide-in-l" : "slide-out-l"
-          } ${!isVisible && "!bg-transparent"}`}
-        id="slider"
+        className={``}
+        // id="slider"
       >
+        <NavBar
+        className="text-slate-400 text-xxl app-navbar "
+        onBack={() => {
+          navigate("/");
+        }}
+        backArrow={true}>
+          <span className="">Settings</span>
+        </NavBar>
         <div
-          className={`${!isVisible ? "hidden" : ""} w-full h-full flex flex-col justify-between`}
+          className={``}
         >
           <div
             className={`bg-black rounded-lg m-2 overflow-hidden justify-start`}
@@ -250,12 +258,14 @@ export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean,
               ></div>
             </div>
           </div>
+          <div className="m-2 space-y-3">
+
           <ChangeRep />
           <Button className="w-full">
-            Manage Networks
+            Sign a Message
           </Button>
           <Button className="w-full">
-            Sign a Message
+            Notifications
           </Button>
           
           <ConnectLedger onConnect={() => {
@@ -265,6 +275,7 @@ export default function Settings({ isNavOpen, setNavOpen}: { isNavOpen: boolean,
             setNavOpen(false);
           }}
           />
+          </div>
 
           {/* Lock Wallet button */}
           <div className="bg-slate-800 hover:bg-slate-900 text-blue-500 text-lg transition-all flex py-2 px-4 rounded-md m-2 justify-center items-center justify-end">
