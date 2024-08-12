@@ -55,7 +55,7 @@
     "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.16",
-    "cssnano": "^7.0.1",
+    "cssnano": "^7.0.5",
     "esbuild-plugin-react-virtualized": "^1.0.4",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.0",
