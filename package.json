@@ -50,7 +50,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@types/bun": "^1.0.12",
     "@types/chrome": "0.0.268",
-    "@types/node": "^20.10.4",
+    "@types/node": "^22.5.4",
     "@types/react": "^18.0.29",
     "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react-swc": "^3.5.0",
