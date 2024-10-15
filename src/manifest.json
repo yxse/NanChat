@@ -1,23 +1,28 @@
 {
-    "name": "Cesium Wallet",
-    "short_name": "Cesium",
+    "name": "NanWallet",
+    "short_name": "NanWallet",
     "start_url": "/",
     "display": "standalone",
-    "icons": [
-        {
-            "src": "/icon-large.png",
-            "sizes": "256x256",
-            "type": "image/png"
-        }
-    ],
+    "icons":  [
+    {
+      "src": "../icons/icon.png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "../icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable" 
+    }
+  ],
     "protocol_handlers": [
         {
           "protocol": "web+nano",
         "url": "/protocol_handler?params=%s"
         }
       ],
-    "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "background_color": "#000034",
+    "theme_color": "#101018",
     "screenshots": [
         {
             "src": "/icon-320.png",
