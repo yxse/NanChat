@@ -7,3 +7,6 @@ signer.pub
 export.sig
 extension.pem
 .env.local
+dist.pem
+dist.crx
+bun.lockb
