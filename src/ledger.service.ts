@@ -1,6 +1,6 @@
 //https://github.com/Nault/Nault/blob/master/src/app/services/ledger.service.ts
 
-import Nano from 'hw-app-nano';
+import Nano from 'hw-app-nan';
 // import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportUSB from '@ledgerhq/hw-transport-webusb';
 import TransportHID from '@ledgerhq/hw-transport-webhid';
@@ -265,6 +265,7 @@ export class LedgerService {
         // LedgerLogs.listen((log: LedgerLog) => console.log(`Ledger: ${log.type}: ${log.message}`));
         this.ledger.transport = trans;
         const allowedPrefixes = Object.keys(networks).map(k => networks[k].prefix + '_');
+        console.log(`Allowed prefixes: `, allowedPrefixes);
         this.ledger.nano = new Nano(this.ledger.transport, allowedPrefixes)
 
         resolve(this.ledger.transport);

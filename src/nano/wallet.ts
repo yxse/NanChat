@@ -1,11 +1,11 @@
-import { wallet as walletLib, block } from "multi-nano-web";
+import { wallet as walletLib, block, tools } from "multi-nano-web";
 import RPC from "./rpc";
 import { BigNumber } from "bignumber.js";
 import AsyncLock from "async-lock";
 import { Modal, Toast } from "antd-mobile";
-import { mutate } from "swr";
 import { rawToMega } from "./accounts";
-import { setRepresentative } from "../components/Settings";
+import { setRepresentative } from "../components/getRepresentative";
+import { convertAddress } from "../utils/format";
 
 var lock = new AsyncLock();
 
@@ -37,7 +37,10 @@ export class Wallet {
     decimal = 30,
     wsSubAll = false,
     ticker = "XNO",
+    mutate,
+    dispatch
   }) {
+    this.allAccounts = [];
     this.mapAccounts = new Map();
     this.lastIndex = 0;
     this.seed = seed;
@@ -48,6 +51,13 @@ export class Wallet {
     this.rpc = new RPC(ticker);
     this.websocket;
     this.cacheSendHash = new Map();
+    this.mutate = mutate;
+    this.dispatch = dispatch;
+    this.activeIndex = +localStorage.getItem('activeIndex') || 0;
+    this.hiddenIndexes = JSON.parse(localStorage.getItem("hiddenIndexes")) || [];
+    
+    let accountsToCreate = +localStorage.getItem("lastAccountIndex") || 1;
+    this.createAccounts(0, accountsToCreate, true);
     if (WS_URL !== undefined) {
       this.websocket = new WebSocket(WS_URL);
       this.websocket.onerror = (err) => {
@@ -112,12 +122,41 @@ export class Wallet {
     };
   };
 
+  createAccount = async (index) => {
+    if (this.seed === undefined) {
+      throw new Error(
+        "No seed defined. Create a wallet first with createWallet() or use a seed in the wallet constructor",
+      );
+    }
+    let accounts  = []
+    if (global.ledger) {
+
+      let account = await global.ledger.getLedgerAccountWeb(index, false)
+      console.log({account})
+      accounts.push({
+        address: account.address,
+        accountIndex: index,
+      })
+      
+    }
+    else {
+      let functionToUse = this.seed.length === 128 ? walletLib.accounts : walletLib.legacyAccounts;
+      accounts = functionToUse(
+        this.seed,
+        index,
+        index,
+      );
+    }
+   
+    return addresses;
+  }
   /**
    * create new in memory accounts derived from the seed
-   * @param {[string]} nbAccounts Number of accounts to create
+   * @param {[string]} index start index
+   * @param {number} nbAccounts number of accounts to create
    * @returns {[string]} Array of addresses
    */
-  createAccounts = (nbAccounts) => {
+  createAccounts = async (index, nbAccounts = 1, init = false) => {
     if (this.seed === undefined) {
       throw new Error(
         "No seed defined. Create a wallet first with createWallet() or use a seed in the wallet constructor",
@@ -125,24 +164,71 @@ export class Wallet {
     }
     let accounts = []
     if (global.ledger) {
-      accounts = [{
-        address: global.account,
-      },
-      ]
+      // accounts = [{
+      //   address: global.account,
+      //   accountIndex: 0,
+      // },
+      // ]
+      for (let i = 0; i < nbAccounts; i++){
+        if (this.allAccounts.find((account) => account.accountIndex === index)) {
+          this.dispatch({type: "ADD_ACCOUNTS", payload: [...new Set(this.allAccounts.filter((account) => !this.hiddenIndexes.includes(account.accountIndex) || account.accountIndex === index))]})
+          this.hiddenIndexes = this.hiddenIndexes.filter((i) => i !== index);
+          localStorage.setItem("hiddenIndexes", JSON.stringify(this.hiddenIndexes));
+      
+          return
+        }
+        let account
+        for (let j = 0; j < 10; j++){ // hacky way to retrieve ledger account as we cannot concurrently retrieve accounts, ideally only one call for xno should be enough for all other tickers
+          try {
+            account = await global.ledger.getLedgerAccountWeb(index + i, false)
+        console.log({account})
+        accounts.push({
+          address: account.address,
+          accountIndex: index + i,
+          publicKey: account.publicKey,
+        })
+        break
+      } catch (error) {
+        await new Promise((r) => setTimeout(r, 200 + Math.random() * 1000));
+        continue            
+      }
+      }
+      }
+      localStorage.setItem("ledgerAccounts", JSON.stringify(accounts));
     }
     else {
-      accounts = walletLib.accounts(
+      let functionToUse = this.seed.length === 128 ? walletLib.accounts : walletLib.legacyAccounts;
+      if (this.allAccounts.find((account) => account.accountIndex === index)) {
+        this.dispatch({type: "ADD_ACCOUNTS", payload: [...new Set(this.allAccounts.filter((account) => !this.hiddenIndexes.includes(account.accountIndex) || account.accountIndex === index))]})
+        this.hiddenIndexes = this.hiddenIndexes.filter((i) => i !== index);
+        localStorage.setItem("hiddenIndexes", JSON.stringify(this.hiddenIndexes));
+    
+        return
+      }
+      accounts = functionToUse(
         this.seed,
-        this.lastIndex,
-        this.lastIndex + nbAccounts,
+        index,
+        index + nbAccounts -1,
       );
     }
-    this.lastIndex += nbAccounts;
+    this.allAccounts = this.allAccounts.concat(accounts).sort((a, b) => a.accountIndex - b.accountIndex);
+    if (this.ticker === "XNO"){
+      if (init){
+        this.dispatch({type: "ADD_ACCOUNTS", payload: this.allAccounts.filter((account) => init && !this.hiddenIndexes.includes(account.accountIndex))});
+      }
+      else{
+        this.dispatch({type: "ADD_ACCOUNTS", payload: this.allAccounts.filter((account) => !this.hiddenIndexes.includes(account.accountIndex) || account.accountIndex === index)});
+      }
+      localStorage.setItem("lastAccountIndex", this.allAccounts.length);
+    }
+    this.hiddenIndexes = this.hiddenIndexes.filter((i) => i !== index);
+    localStorage.setItem("hiddenIndexes", JSON.stringify(this.hiddenIndexes));
     accounts.forEach((account) => {
       account["address"] = account.address.replace("nano_", this.prefix);
       this.mapAccounts.set(account.address, account);
     });
     let addresses = accounts.map((account) => account.address);
+    console.log({nbAccounts})
     console.log("Created accounts: " + addresses);
     if (
       this.websocket !== undefined &&
@@ -158,6 +244,82 @@ export class Wallet {
     return addresses;
   };
 
+  removeAccount = (index) => {
+    console.log("Removing account: " + index);
+    let account = this.allAccounts.find((account) => account.accountIndex === index);
+    console.log(this.allAccounts, account);
+    this.allAccounts = this.allAccounts.filter((account) => account.accountIndex !== index);
+    this.mapAccounts.delete(account.address);
+    this.dispatch({type: "REMOVE_ACCOUNT", payload: index});
+  }
+
+  prepareSend = async ({ source, destination, amount }) => {
+    // allow to prepare a send, during the "confirm" step
+    // faster UX & more verification possible
+    let account_info = await this.rpc.account_info(source);
+    if (account_info.error !== undefined) {
+      return { error: account_info.error };
+    }
+
+    const [work, existingFrontier, verifFrontier] = await Promise.all([
+      this.rpc.work_generate(account_info.frontier),
+      fetch(`https://api.nanexplorer.com/block_info?hash=${account_info.frontier.trim()}&network=all`).then((res) => res.json()),
+      this.verifyFrontier(source, account_info)
+    ]);
+    
+    if (!verifFrontier) {
+      throw new Error("Frontier verification failed");
+    }
+    const data = {
+      walletBalanceRaw: account_info.balance,
+      fromAddress: source,
+      toAddress: destination,
+      representativeAddress: account_info.representative,
+      frontier: account_info.frontier, // Previous block
+      amountRaw: amount, // The amount to send in RAW
+      work: work,
+      existingFrontier: existingFrontier, // this is to show, as a security measure, if the same frontier is used in another network
+    };
+    return data;
+  }
+
+  verifyFrontier = async (account, accountInfo) => {
+    // verify frontier signature
+    const hash = accountInfo.frontier;
+    const blocksInfo = await this.rpc.blocks_info([hash]);
+    if (blocksInfo.error) {
+      throw new Error("Frontier block not found");
+    }
+    const blockInfo = blocksInfo.blocks[hash];
+    if (blockInfo == null) {
+      throw new Error("Frontier block not found");
+    }
+    const blockContents = JSON.parse(blockInfo.contents);
+    if (blockContents.signature === undefined) {
+      throw new Error("Frontier block has no signature");
+    }
+    if (account !== blockContents.account) {
+      throw new Error("Frontier block account mismatch");
+    }
+    if (accountInfo.balance !== blockContents.balance) {
+      throw new Error("Frontier block balance mismatch");
+    }
+    if (accountInfo.representative !== blockContents.representative) {
+      throw new Error("Frontier block representative mismatch");
+    }
+    
+    const publicKey = this.getPublicKey(account);
+    const validHash = tools.verifyBlockHash(blockContents, hash);
+    if (!validHash) {
+      throw new Error("Frontier block hash verification failed");
+    }
+    const valid = tools.verifyBlock(publicKey, blockContents);
+    if (!valid) {
+      throw new Error("Frontier block signature verification failed");
+    }
+    return true;
+  }
+
   /**
    * Send amount from source to destination.
    * source must be in the wallet
@@ -166,23 +328,16 @@ export class Wallet {
    * @param {string} amount Amount in RAW
    * @returns {Object} RPC response, eg: {"hash": "ABCABCABC"}
    */
-  send = async ({ source, destination, amount }) => {
+  send = async (dataPrepareSend) => {
+    dataPrepareSend = await dataPrepareSend;
+    console.log({dataPrepareSend});
     // we put a lock on source to allows concurrent send to be executed synchronously
     // otherwise concurrent sends would create fork or bad blocks
+    const source = dataPrepareSend.fromAddress;
+    const destination = dataPrepareSend.toAddress;
+
     return lock.acquire(source, async () => {
-      const account_info = await this.rpc.account_info(source);
-      if (account_info.error !== undefined) {
-        return { error: account_info.error };
-      }
-      const data = {
-        walletBalanceRaw: account_info.balance,
-        fromAddress: source,
-        toAddress: destination,
-        representativeAddress: account_info.representative,
-        frontier: account_info.frontier, // Previous block
-        amountRaw: amount, // The amount to send in RAW
-        work: await this.rpc.work_generate(account_info.frontier),
-      };
+      const data = dataPrepareSend
       let signedBlock = null
       if (global.ledger) {
         //https://www.roosmaa.net/hw-app-nano/#blockdata
@@ -194,7 +349,8 @@ export class Wallet {
           recipient: destination
         }
         console.log({formattedBlock})
-        await global.ledger.updateCache(0, data.frontier, this.ticker)
+        let indexAccount = this.getLedgerAccountIndex(source)
+        await global.ledger.updateCache(indexAccount, data.frontier, this.ticker)
         // Modal.show({
         //   closeOnMaskClick: true,
         //   content: "Ledger should show: Send 0.001 NANO to nano_1nrtcu8ij14kb4ue8g1q8wn93r9xif7hbimb5aznz4z49up3r5jgzhsqkpgq"
@@ -208,14 +364,15 @@ You are sending ${amountForLedgerDisplayTicker} ${this.ticker}.
 Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (nano_)`,
           duration: 300000
         });
-        let signatureAndHash = await global.ledger.signBlock(0, formattedBlock)
+        let signatureAndHash = await global.ledger.signBlock(indexAccount, formattedBlock)
+        Toast.clear()
         signedBlock = {
           "type": "state",
           account: source,
           previous: data.frontier,
           representative: data.representativeAddress,
           balance: newBalance.toFixed(0),
-          link: global.publicKey,
+          link: tools.addressToPublicKey(destination),
           signature: signatureAndHash.signature,
           work: data.work,
         }
@@ -227,6 +384,8 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       }
 
       let r = await this.rpc.process(signedBlock, "send");
+      this.mutate("history-" + this.ticker);
+      this.mutate("balance-" + this.ticker + "-" + source);
       this.rpc.work_generate(r.hash); // pre-cache work (on server) for next send
       return r;
     });
@@ -235,6 +394,7 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
   receive = async (account, pendingTx) => {
     return lock.acquire(account, async () => {
       const account_info = await this.rpc.account_info(account);
+      
       let data = {
         toAddress: account,
         transactionHash: pendingTx.hash,
@@ -249,6 +409,10 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
           "0000000000000000000000000000000000000000000000000000000000000000";
         data["work"] = await this.rpc.work_generate(this.getPublicKey(account));
       } else {
+        let r = await this.verifyFrontier(account, account_info);
+        if (!r) {
+          throw new Error("Frontier verification failed");
+        }
         // normal receive
         data["walletBalanceRaw"] = account_info.balance;
         data["representativeAddress"] = account_info.representative;
@@ -275,10 +439,12 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
           content: "Review the transaction on your Ledger to receive",
           duration: 300000
         });
+        let indexAccount = this.getLedgerAccountIndex(account)
         if (!isOpenBlock){
-          await global.ledger.updateCache(0, data.frontier, this.ticker)
+          await global.ledger.updateCache(indexAccount, data.frontier, this.ticker)
         }
-        let signatureAndHash = await global.ledger.signBlock(0, formattedBlock)
+        let signatureAndHash = await global.ledger.signBlock(indexAccount, formattedBlock)
+        Toast.clear()
         signedBlock = {
           "type": "state",
           account: account,
@@ -296,6 +462,13 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         signedBlock = block.receive(data, privateKey); // Returns a correctly formatted and signed block ready to be sent to the blockchain
       }
       let r = await this.rpc.process(signedBlock, "receive");
+      this.addHashReceiveToAnimate(r.hash);
+      // this.wsOnMessage("receive"); // this allows to be faster than waiting the conf of the receive
+      this.mutate("history-" + this.ticker);
+      this.mutate("balance-" + this.ticker + "-" + account);
+      // console.log("mutate:" + "history-" + this.ticker)
+      // await mutate("history-" + this.ticker, );
+      // await mutate("balance-" + this.ticker);
       this.rpc.work_generate(r.hash); // pre-cache work (on server) for next receive
       return r;
     });
@@ -320,6 +493,10 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
           icon: "fail",
         });
         return
+      }
+      let verif = await this.verifyFrontier(account, account_info);
+      if (!verif) {
+        throw new Error("Frontier verification failed");
       }
       const data = {
         // Your current balance, from account info
@@ -370,7 +547,8 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         const privateKey = this.getPrivateKey(account);
         signedBlock = block.representative(data, privateKey); // Returns a correctly formatted and signed block ready to be sent to the blockchain
       }
-      let r = await this.rpc.process(signedBlock, "receive");
+      let r = await this.rpc.process(signedBlock, "change");
+      this.mutate("representative-" + this.ticker);
       Toast.show({
         icon: "success",
       });
@@ -386,15 +564,27 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         hash: hash,
         amount: hashes[hash],
       };
-      this.receive(account, pendingTx);
+      await this.receive(account, pendingTx);
+      // await new Promise((r) => setTimeout(r, 800)); // wait a bit between each receive for rate limit and better UI animation
     }
     return { started: true };
   };
   getAccounts = () => {
-    return Array.from(this.mapAccounts.keys());
+    let hiddenAccounts = JSON.parse(localStorage.getItem("hiddenIndexes"));
+    if (!hiddenAccounts) {
+      hiddenAccounts = [];
+    }
+    let filteredAccounts = []
+    for (const [address, account] of this.mapAccounts) {
+      if (!hiddenAccounts.includes(account.accountIndex)) {
+        filteredAccounts.push(account)
+      }
+    }
+    return filteredAccounts;
   };
   getAccount = (address) => {
-    return this.mapAccounts.get(address);
+    
+    return this.mapAccounts.get(address)
   };
 
   getPrivateKey = (address) => {
@@ -404,9 +594,22 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
     }
     return account.privateKey;
   };
+  getLedgerAccountIndex = (address) => {
+    if (this.ticker === "XNO") {
+      return this.allAccounts.find((account) => account.address === address).accountIndex
+    }
+    let ledgerAccounts = JSON.parse(localStorage.getItem("ledgerAccounts"));
+    let account = ledgerAccounts.find((account) => convertAddress(account.address, this.ticker) === address);
+    return account.accountIndex
+  }
   getPublicKey = (address) => {
     if (global.publicKey) {
-      return global.publicKey
+      // if (this.ticker !== "XNO") {
+      //   let ledgerAccounts = JSON.parse(localStorage.getItem("ledgerAccounts"));
+      //   let account = ledgerAccounts.find((account) => convertAddress(account.address, this.ticker) === address);
+      //   return account.publicKey
+      // }
+      return this.allAccounts.find((account) => account.address === address).publicKey
     }
     let account = this.mapAccounts.get(address);
     if (account === undefined) {
@@ -459,12 +662,36 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         icon: "success",
         content: "Received " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
       });
-      mutate("history-" + this.ticker);
-      mutate("balance-" + this.ticker);
+      // localStorage.setItem("lastReceivedHash", received.hash);
+      
       console.log(received);
     }
   };
+  updateTicker = (ticker) => {
+      return
+  }
+  setActiveIndex = (index) => {
+    this.activeIndex = index;
+  }
+
+  getActiveAccount = () => {
+    for (const [address, account] of this.mapAccounts) {
+      if (account.accountIndex === this.activeIndex) {
+        return account.address;
+      }
+    }
+  }
   wsOnMessage = async function (data_json) {
     return;
   };
+
+    addHashReceiveToAnimate = (hash) => {
+      // add hash into localstorage array
+      let receiveHashesToAnimate = JSON.parse(localStorage.getItem("receiveHashesToAnimate"));
+      if (!receiveHashesToAnimate) {
+        receiveHashesToAnimate = [];
+      }
+      receiveHashesToAnimate.push(hash);
+      localStorage.setItem("receiveHashesToAnimate", JSON.stringify(receiveHashesToAnimate));
+  }
 }
