@@ -7,6 +7,7 @@ import { wallet } from "multi-nano-web";
 // @ts-expect-error no check
 import cryptoWorker from "../../worker/crypto?worker&url";
 import storage from "../../utils/storage";
+import { decrypt } from "../../worker/crypto";
 
 // theme added
 export default function Footer({
@@ -25,54 +26,41 @@ export default function Footer({
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    (async () => {
-      const masterSeed = await storage.get("masterSeed", "session");
-      if (masterSeed) {
-        //alert(masterSeed);
-        return setLoggedIn(true);
-      }
-    })();
-  }, []);
 
   useEffect(() => {
-    if (password === "") return;
+    return
+    if (password === "" && !localStorage.getItem("seed")) return;
     setLoading(true);
-    const worker = new Worker(cryptoWorker, { type: "module" });
-    worker.onmessage = async (event) => {
-      const { result, error } = event.data;
-      if (result) {
-        try {
-          const res = wallet.fromSeed(result); // just double check :D
-          setInvalidPass(false);
-          storage.set("masterSeed", res.seed, "session");
-          setTimeout(() => {
-            setLoggedIn(true);
-          }, 100); // worst case, or your browser is bad for your pc's health;
-        } catch {
-          console.error("corrupted seed!");
-          setInvalidPass(true);
-        }
-      } else if (error) {
-        console.error("invalid password!");
-        setInvalidPass(true);
-      }
-      setLoading(false);
-    };
     async function decryptData() {
-      worker.postMessage({
-        action: "decrypt",
-        payload: {
-          encryptedMasterSeed: await storage.get("encryptedMasterKey", "local"),
-          password,
-        },
-      });
+      if (localStorage.getItem("seed")) {
+        const seed = localStorage.getItem("seed");
+        const res = seed.length === 128 ? wallet.fromSeed(seed) : wallet.fromLegacySeed(seed);
+        setSeed(res.seed);
+        setLoggedIn(true);
+        return;
+      }
+      else {
+        try {
+          let encryptedMasterKey = await storage.get("encryptedMasterKey", "local");
+          let result = await decrypt(encryptedMasterKey, password);
+          const res = result.length === 128 ? wallet.fromSeed(result) : wallet.fromLegacySeed(result); 
+          setInvalidPass(false);
+          setSeed(res.seed);
+          setLoggedIn(true);
+        } catch (error) {
+          console.log(error)
+          setLoading(false);
+        }
+      }
     }
     decryptData();
   }, [password]);
 
   const handleUnlock = () => {
     // @ts-expect-error unlock
+    // add focus to input
+    document.getElementById("unlock-pass").focus();
+
     const elem = document.getElementById("unlock-pass").value;
     if (!elem || elem === "") return;
     setPassword(elem);

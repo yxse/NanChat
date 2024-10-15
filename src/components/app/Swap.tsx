@@ -1,7 +1,7 @@
 import { BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
-import { AiOutlineSwap } from "react-icons/ai";
+import { AiOutlineHistory, AiOutlineSwap } from "react-icons/ai";
 import {
   Button,
   Card,
@@ -22,22 +22,26 @@ import {
 } from "antd-mobile";
 import { ScanCodeOutline } from "antd-mobile-icons";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
-import { CopyToClipboard, getAccount } from "../Settings";
-import { send } from "../../nano/accounts";
+import { CopyToClipboard } from "../Settings";
+import { getAccount } from "../getAccount";
+import { megaToRaw, send } from "../../nano/accounts";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import useSWR, { mutate } from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import NetworkList from "./NetworksList";
 import SelectTickerAll from "../swap/SelectTickerAll";
 import { IoSwapVerticalOutline } from "react-icons/io5";
 import SwapHistory from "./SwapHistory";
 import { createOrder, fetcher, getAllCurrencies, getEstimate, getLimits, getOrder } from "../../nanswap/swap/service";
 import { GoCreditCard } from "react-icons/go";
+import { fetchBalance } from "./Network";
+import { WalletContext } from "../Popup";
+import { convertAddress } from "../../utils/format";
 
-export default function Swap({hideHistory = false}) {
+export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultTo = "BAN", onSuccess}) {
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
     getAllCurrencies, fetcher, {
     errorRetryCount: 0
@@ -46,14 +50,16 @@ export default function Swap({hideHistory = false}) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [visibleSelectFrom, setVisibleSelectFrom] = useState<boolean>(false);
   const [visibleSelectTo, setVisibleSelectTo] = useState<boolean>(false);
-  const [selectedFrom, setSelectedFrom] = useState<string>("XNO");
-  const [selectedTo, setSelectedTo] = useState<string>("BAN");
-  const [amount, setAmount] = useState<number | string>(0.0001);
+  const [selectedFrom, setSelectedFrom] = useState<string>(defaultFrom);
+  const [selectedTo, setSelectedTo] = useState<string>(defaultTo);
+  const [amount, setAmount] = useState<number | string>(null);
   const [side, setSide] = useState<string>("from"); // ["from", "to"]
   const [form] = Form.useForm();
+  const {wallet} = useContext(WalletContext);
+  const accountFrom = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedFrom);
   const { data: balance, isLoading: balanceLoading } = useSWR(
     "balance-" + selectedFrom,
-    () => fetchBalance(selectedFrom),
+    () => fetchBalance(selectedFrom, accountFrom),
   );
   const { data: estimate, isLoading: isLoadingEstimate } = useSWR(
     getEstimate + '?from=' + selectedFrom + '&to=' + selectedTo + '&amount=' + amount,
@@ -63,7 +69,7 @@ export default function Swap({hideHistory = false}) {
     getLimits + '?from=' + selectedFrom + '&to=' + selectedTo,
     fetcher,
   )
-
+  const {mutate}=useSWRConfig()
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -135,7 +141,7 @@ export default function Swap({hideHistory = false}) {
       console.log(values);
       let toAddress
       if (networks.hasOwnProperty(selectedTo)) {
-        toAddress = await getAccount(selectedTo);
+        toAddress = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedTo);
       } else {
         toAddress = values.address;
       }
@@ -174,13 +180,23 @@ export default function Swap({hideHistory = false}) {
         return;
       }
 
-      if (networks.hasOwnProperty(selectedFrom)) {
-        const fromAddress = await getAccount(selectedFrom);
-        await send(selectedFrom, fromAddress, exchange.payinAddress, amount);
-        mutate("balance-" + selectedFrom);
+      if (networks.hasOwnProperty(selectedFrom) && allCurrencies?.[selectedFrom]?.feeless == true) {
+        const fromAddress = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedFrom);
+        // await send(selectedFrom, fromAddress, exchange.payinAddress, amount);
+        let data = await wallet.wallets[selectedFrom].prepareSend({
+          source: fromAddress,
+          destination: exchange.payinAddress,
+          amount: megaToRaw(selectedFrom, amount),
+        })
+        await wallet.wallets[selectedFrom].send(data);
+        await mutate((key) => key.startsWith("history-" + selectedFrom) || key.startsWith("balance-" + selectedFrom));
+        onSuccess && onSuccess();
         await new Promise((resolve) => setTimeout(resolve, 1000));
         mutate("balance-" + selectedTo);
         mutate(`${getOrder}${exchange.id}`);
+        await mutate((key) => key.startsWith("history-" + selectedFrom) || key.startsWith("balance-" + selectedFrom));
+        await mutate((key) => key.startsWith("history-" + selectedTo) || key.startsWith("balance-" + selectedTo));
+
       }
       else {
         navigate(`/swap/${exchange.id}`);
@@ -236,11 +252,14 @@ export default function Swap({hideHistory = false}) {
       <div className="container  relative mx-auto">
         <div className="">
           <NavBar
+          backArrow={hideHistory ? false : true}
             right={
-              <Button size="mini">
-                <div className="flex text-xs items-center -mr-0"><GoCreditCard size={18} className="mr-1" /> Buy/Sell</div></Button>}
+              <Button size="small">
+                <div className="flex text-xs items-center -mr-0"><GoCreditCard size={18} className="mr-2" /> Buy/Sell</div></Button>}
             onBack={() => navigate(`/`)}>
-            Swap
+              <span className="text-xl">
+              Swap
+              </span>
           </NavBar>
 
           <div style={{ float: "right" }}>
@@ -257,7 +276,9 @@ export default function Swap({hideHistory = false}) {
             footer={
               <>
                 {
-                  amount != undefined && amount !== "" && networks.hasOwnProperty(selectedFrom) && !balanceLoading && amount > balance && <div
+                  amount != undefined && amount !== "" 
+                  && networks.hasOwnProperty(selectedFrom) && allCurrencies?.[selectedFrom]?.feeless == true
+                  && !balanceLoading && amount > balance && <div
                     onClick={() => {
                       setAmount(balance)
                     }}
@@ -336,10 +357,11 @@ export default function Swap({hideHistory = false}) {
                     zIndex: 100,
                     right: 32,
                     borderRadius: 8,
+                    // backgroundColor: 'white',
                   }}
-                  className="cursor-pointer bg-gray-800"
+                  className="cursor-pointer btn-swap"
                 >
-                  <IoSwapVerticalOutline size={24} color="gray" style={{ padding: 2 }} />
+                  <IoSwapVerticalOutline size={28}  style={{ padding: 4 }} />
                 </div>
               </Form.Item>
             </div>
@@ -372,8 +394,9 @@ export default function Swap({hideHistory = false}) {
               </Form.Item>
             </div>
             {
-              !networks.hasOwnProperty(selectedTo) &&
-
+              (!networks.hasOwnProperty(selectedTo) ||
+              allCurrencies?.[selectedTo]?.feeless == false) // show address for btc if not nanbtc feeless 
+              &&
               <div className="flex justify-between">
                 <Form.Item
                   label="Address"

@@ -81,7 +81,7 @@ export default function SwapTransaction() {
         <List.Item
           title="You will receive:"
         >
-          {(+(+order.expectedAmountTo).toPrecision(6))} {order.to}
+          ≈ {(+(+order.expectedAmountTo).toPrecision(6))} {order.to}
         </List.Item>
 
       </List></>

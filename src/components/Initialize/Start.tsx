@@ -1,12 +1,15 @@
-import { Button, Toast } from "antd-mobile";
+import { Button, Divider, Space, Toast } from "antd-mobile";
 import Navbar from "../Lock/Navbar";
 import { Dispatch, useContext, useState } from "react";
 import { LedgerService, LedgerStatus } from "../../ledger.service";
 import { Link, useNavigate } from "react-router-dom";
-import { LedgerContext } from "../Popup";
+import { LedgerContext, WalletContext } from "../Popup";
 
-import { mutate } from "swr";
+import { mutate, useSWRConfig } from "swr";
 import { networks } from "../../utils/networks";
+import PWAInstallComponent from "../PWAInstallComponent";
+import { MdOutlineUsb } from "react-icons/md";
+import { initWallet } from "../../nano/accounts";
 
 export async function resetLedger() {
   global.ledger.resetLedger()
@@ -18,11 +21,16 @@ export async function resetLedger() {
 export function ConnectLedger({onConnect, onDisconnect}) {
   const [isConnected, setIsConnected] = useState(false);
   const {ledger, setLedger} = useContext(LedgerContext);
-
+  const {wallet, dispatch} = useContext(WalletContext);
+  const {mutate} = useSWRConfig();
   return <>
     {
       ledger ? (
-        <Button onClick={async () => {
+        <Button 
+        size="large"
+        shape="rounded"
+        className="w-full"
+        onClick={async () => {
           Toast.show({
             content: "Ledger disconnected."
           });
@@ -37,7 +45,11 @@ export function ConnectLedger({onConnect, onDisconnect}) {
           Disconnect Ledger
         </Button>
       ) : (
-        <Button onClick={async () => {
+        <Button 
+        size="large"
+        shape="rounded"
+        className="w-full"
+        onClick={async () => {
           Toast.show({
             icon: "loading",
             content: "Connecting to Ledger device..."
@@ -79,26 +91,33 @@ export function ConnectLedger({onConnect, onDisconnect}) {
           }
           setIsConnected(true)
           setLedger(ledger)
+          for (let ticker of Object.keys(networks)) {
+            let newWallet = initWallet(ticker, "0", mutate, dispatch)
+            dispatch({ type: "USE_LEDGER", payload: { wallet: newWallet, ticker: ticker } })
+          }
           mutate((key) => typeof key === 'string' && key.startsWith('balance-'))
           if (onConnect) {
             onConnect()
           }
         }
         }>
-          Connect Ledger
+          <Space align="center">
+          <MdOutlineUsb />
+          Use Ledger
+          </Space>
         </Button>
       )
     }
   </>
 }
 export default function Start({
+  setWalletState,
   setW,
   theme,
-  setAppLoggedIn
 }: {
+  setWalletState: Dispatch<React.SetStateAction<"unlocked" | "locked" | "no-wallet" | "loading">>;
   setW: Dispatch<React.SetStateAction<number>>;
   theme: "dark" | "light";
-  setAppLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   // const navigate = useNavigate();
 
@@ -148,27 +167,24 @@ export default function Start({
               </p>
             </div>
           </div>
+          <PWAInstallComponent   />
 
-          <div className="buttons-wrapper">
-            <div
-              className={`${theme == "light" && "!text-slate-200"
-                } button-create`}
-              role="button"
-              onClick={() => setW(1)}
-            >
-              Create a new wallet
-            </div>
-
-            <div
-              className={`${theme == "light" &&
-                "!bg-slate-400 !text-slate-900 hover:!bg-slate-300"
-                } button-restore`}
-              role="button"
-              onClick={() => setW(4)}
-            >
-              I already have a wallet
-            </div>
-
+            <Button 
+            shape="rounded"
+            onClick={() => setW(1)}
+            className="w-full mt-4"
+            size="large"
+            color="primary">
+            Create a new wallet
+            </Button>
+            <Button 
+            shape="rounded"
+            onClick={() => setW(4)}
+            className="w-full mt-2 mb-2"
+            size="large"
+            color="default">
+            Import Wallet
+            </Button>
             {/* <div
               className={`${theme == "light" &&
                 "!bg-slate-400 !text-slate-900 hover:!bg-slate-300"
@@ -178,10 +194,15 @@ export default function Start({
             >
               Use Ledger
             </div> */}
-            <ConnectLedger />
+            <Divider />
+            <ConnectLedger
+            onConnect={() => {
+              // localStorage.setItem("masterSeed", "0")
+              setWalletState("unlocked")
+            }}
+             />
             {/* <Link to="/XNO">XNO</Link> */}
 
-          </div>
         </div>
       </div>
     </div>

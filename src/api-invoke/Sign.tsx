@@ -1,53 +1,74 @@
 import { BiX } from "react-icons/bi";
 import { tools } from 'multi-nano-web'
-import { useState } from "react";
-import { TextArea } from "antd-mobile";
-import { getSeed } from "../components/Settings";
+import { useContext, useEffect, useState } from "react";
+import { Button, Result, TextArea, Toast } from "antd-mobile";
+import { getPk } from "../components/getSeed";
+import { WalletContext } from "../components/Popup";
+import { redirect, useNavigate, useSearchParams } from "react-router-dom";
+import { AccountIcon } from "../components/app/Home";
+import SelectAccount from "../components/app/SelectAccount";
 export default function Sign() {
-  const [message, setMessage] = useState("I would like to link {this} account to my nanswap art account with username {username}")
-
+  const {wallet} = useContext(WalletContext)
+  const [message, setMessage] = useState("")
+  const [hostname, setHostname] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [result, setResult] = useState("")
+  const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex);
+  const proxyWorker = "https://proxy-signature.xno.link" // Cloudflare Worker to protect client's IP
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate()
+  const submitURL = searchParams.get("url") || ""
+  useEffect(() => {
+    setMessage(searchParams.get("message"))
+    try {
+      let submitHost = new URL(submitURL).hostname
+      setHostname(submitHost)
+    } catch (error) {
+      console.log(error)
+      navigate("/")
+    }
+  }, [])
   return (
     <div className="flex flex-col overflow-hidden justify-between w-full h-full">
       <nav className="flex select-none w-full shadow-md items-center rounded-b-lg justify-start p-2 bg-slate-800 text-center">
         <div className="w-full flex flex-row items-center">
           <div className="justify-center flex w-full">
-            <p className="text-blue-400">Signature Request</p>
+            <p className="text-blue-400">
+              <SelectAccount />
+              </p>
           </div>
         </div>
       </nav>
-
+<div style={{maxWidth: "550px", margin: "auto"}} className={result ? "hidden" : ""}>
       <div className="flex justify-center h-full p-4">
         <div className="flex flex-col justify-between h-full w-full">
-          <div className="flex flex-col w-full justify-start mt-3 items-center">
+          <div className="flex flex-col w-full justify-start mt-0 items-center mb-6">
             <div className="flex flex-col space-y-2 overflow-hidden justify-center text-center w-full">
               <div className="flex mb-2 items-center justify-center">
                 {/** image placeholder */}
-                <img
-                  className="h-20 w-20 rounded-full border-4 border-gray-200 select-none pointer-events-none"
-                  draggable={false}
-                  src="https://nanswap.com/faviconArt.png?1"
-                  alt="Web Logo"
-                />
+               
               </div>
               <p className="text-slate-200 text-lg font-semibold">
-                Nanswap ART
+              Signature request
               </p>
-              <div className="flex flex-col">
-                <p className="text-sky-500 font-link select-none hover:underline">
-                  https://nanswap.com
-                </p>
                 <p className="text-slate-500 hover:text-slate-400 cursor-pointer transition-colors text-sm mt-1 justify-end">
-                  1pkkcc...bwbcgz
+                Only confirm this message if you approve the content and trust the requesting site.
                 </p>
-              </div>
             </div>
           </div>
-
+          {
+            hostname && <><p>Request From:</p>
+          <div className="p-3 bg-slate-800/70 rounded-md mt-4 mb-4">
+          {hostname}
+          </div>
+            </>
+          }
           <p>Message:</p>
           <TextArea
+          autoSize={{ minRows: 3}}
             value={message}
             onChange={(e) => setMessage(e)}
-            className="flex !overflow-scroll h-full w-full p-3 text-left bg-slate-800/70 rounded-md mt-4 justify-center"
+            className="p-3 bg-slate-800/70 rounded-md mt-4"
           />
         </div>
       </div>
@@ -57,27 +78,89 @@ export default function Sign() {
 
         {/** buttons */}
         <div className="flex flex-row items-center justify-center space-x-5 p-3">
-          <div
-            role="button"
-            className="flex text-center w-full rounded-full p-2 bg-transparent border border-solid border-red-500 text-red-500 hover:border-red-400 hover:text-red-400 transition-colors"
+          <Button
+            onClick={() => navigate("/")}
+            className="w-full"
+            shape="rounded"
+            color="default"
           >
-            <span className="text-sm w-full">CANCEL</span>
-          </div>
+            Cancel
+          </Button>
+          <Button
+          loading={isLoading}
+            onClick={async () => {
+              let messageToSign = "Signed Message: " + message // Add prefix to message as a security measure to prevent to sign a block by mistake / from an attacker request
+              const signed = tools.sign(activeAccount.privateKey, messageToSign)
+              console.log(signed)
+              setIsLoading(true)
+              fetch(proxyWorker, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  'X-Target-URL': submitURL
+                },
+                body: JSON.stringify({
+                  "message": messageToSign,
+                  "signature": signed,
+                  "account": activeAccount.address,
+                  "signatureType": "nanocurrency-web",
+                }),
+              })
+              .then((response) => response.text())
+              .then((data) => {
+                console.log(data)
+                setResult(data)
+                window.open("https://znbfmt6n-3001.euw.devtunnels.ms/art/account", "_blank")
+            })
+              .catch((error) => {
+                Toast.show({content: "An error occurred while signing the message", icon: 'fail'})
+                console.log(error)
+            }).finally(() => {
+              setIsLoading(false)
+            })
 
-          <div
-            role="button"
-            className="flex text-center w-full rounded-full p-2 bg-blue-500 text-slate-200 hover:bg-blue-400 hover:text-slate-100 transition-colors"
+          }}
+
+            className="w-full"
+            shape="rounded"
+            color="primary"
           >
-            <span
-              onClick={async () => {
-                const pk = await getSeed(0)
-                const signed = tools.sign(pk, message)
-                console.log(signed)
-              }}
-              className="text-sm w-full">SIGN</span>
-          </div>
+            Confirm
+          </Button>
         </div>
       </div>
     </div >
+      {
+        result && <>
+      <Result
+      className="text-xl"
+                status="success"
+                title={<div className="text-2xl text-gray-100">Success</div>}
+                description={<>
+                  <div className="text-lg">
+                  Response from {hostname}: 
+                  </div>
+                  <div className="text-base mt-2 flex justify-center space-x-2 items-baseline">
+                    <div className="text-gray-400">
+                      {result}
+                    </div>
+                    
+                    </div>
+                    <a href="https://znbfmt6n-3001.euw.devtunnels.ms/art/account" target="_blank">
+                <Button
+            onClick={() => navigate("/")}
+            className="w-full mt-4"
+            shape="rounded"
+            color="primary"
+          >
+            Go Home
+          </Button>
+          </a>
+                </>
+                }
+                />
+                </>
+      }
+    </div>
   );
 }

@@ -28,7 +28,8 @@ import { ScanCodeOutline } from "antd-mobile-icons";
 import { useEffect, useState } from "react";
 import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
-import { CopyToClipboard, getAccount } from "../Settings";
+import { CopyToClipboard } from "../Settings";
+import { getAccount } from "../getAccount";
 import { send } from "../../nano/accounts";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -106,8 +107,8 @@ export function ArtImages() {
         </div>
     }
     return (
-        <div className="overflow-y-auto pb-10" style={{ height: "85vh" }}>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="overflow-y-auto mt-4 p-4" style={{ height: "100vh" }}>
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                 {
                     allData.map((nanft) => {
                         return <a target="_blank" href={"https://nanswap.com/art/assets/" + nanft.id} key={nanft.id}>

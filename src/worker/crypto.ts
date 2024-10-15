@@ -99,6 +99,15 @@ const decryptMasterSeed = async (
   return new TextDecoder().decode(decryptedData);
 };
 
+export async function encrypt(seed, password) {
+  const encryptedResult = await encryptPair(seed, password);
+  return Buffer.from(encryptedResult).toString("hex");
+}
+export async function decrypt(seedEncrypted, password) {
+  const decryptedResult = await decryptMasterSeed(seedEncrypted, password);
+  return decryptedResult;
+}
+
 self.onmessage = async (event: MessageEvent) => {
   const { action, payload } = event.data;
   let result: WorkerResponse = {};

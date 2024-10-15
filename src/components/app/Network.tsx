@@ -1,41 +1,56 @@
 import { BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
-import { AiOutlineSwap } from "react-icons/ai";
+import { AiOutlineCreditCard, AiOutlineSwap, AiOutlineSync } from "react-icons/ai";
 import {
   Button,
   CapsuleTabs,
+  Card,
+  CenterPopup,
   Divider,
+  DotLoading,
   ErrorBlock,
   Input,
   Modal,
   NavBar,
   Popup,
+  PullToRefresh,
   ResultPage,
   Skeleton,
   Space,
   Toast,
 } from "antd-mobile";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
-import { CopyToClipboard, getAccount } from "../Settings";
-import Send from "./Send";
+import { CopyToClipboard } from "../Settings";
+import { getAccount } from "../getAccount";
+import Send, { AmountFormItem } from "./Send";
 import History from "./History";
-import useSWR, { mutate } from "swr";
-import { getWalletRPC, rawToMega } from "../../nano/accounts";
+import useSWR, { useSWRConfig } from "swr";
+import { getWalletRPC, initWallet, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { fetchPrices } from "./Home";
+import { ConvertToBaseCurrency, fetchPrices } from "./Home";
 import { GoCreditCard } from "react-icons/go";
 import Swap from "./Swap";
-
-export const fetchBalance = async (ticker: string) => {
+import { MdOutlineCheck, MdOutlineCurrencyExchange, MdOutlineRefresh } from "react-icons/md";
+import { useLongPress } from "../../hooks/use-long-press";
+import { SiExpertsexchange } from "react-icons/si";
+import { RiTokenSwapLine } from "react-icons/ri";
+import SetAmountModal from "./SetAmountModal";
+import { CloseCircleFill } from "antd-mobile-icons";
+import { convertAddress, getURI } from "../../utils/format";
+import { CopyButton } from "./Icons";
+import { WalletContext } from "../Popup";
+import { Wallet } from "../../nano/wallet";
+import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
     return null;
   }
-  const account = await getAccount(ticker);
+  // const account = await getAccount(ticker);
   let balance = 0
   try {
     balance = await new RPC(ticker).account_balance(account);
@@ -51,55 +66,174 @@ export const fetchBalance = async (ticker: string) => {
     return balanceTotal;
   }
 };
-export const fetchAccountInfo = async (ticker: string) => {
-  const account = await getAccount(ticker);
+export const fetchAccountInfo = async (ticker: string, account: string) => {
   const accountInfo = await new RPC(ticker).account_info(account);
   if (accountInfo.error) {
     return null;
   }
   return accountInfo;
 };
-export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, setAction }) => {
-  const [address, setAddress] = useState<string>(null);
-  useEffect(() => {
-    getAccount(ticker).then((address) => {
-      setAddress(address);
-    });
-  }, []);
+export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, setAction, onClose = () => {}, defaultScannerOpen = false }) => {
+  // const [address, setAddress] = useState<string>(null);
+  const [sizeQR, setSizeQR] = useState("small");
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [enterAmountVisible, setEnterAmountVisible] = useState(false);
+  const [receiveAmount, setReceiveAmount] = useState(undefined);
+  // useEffect(() => {
+  //   getAccount(ticker).then((address) => {
+  //     setAddress(address);
+  //   });
+  // }, [ticker]);
+  const { wallet } = useContext(WalletContext);
+  console.log("wallets", wallet);
+  const address = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
+  const {isMobile} = useWindowDimensions()
+  const ResponsivePopup = isMobile ? Popup : CenterPopup;
+  if (ticker == null) ticker = "XNO";
   return (
 
-    <Popup
+    <ResponsivePopup
+    
+    position={isMobile ? "bottom" : "right" }
+    destroyOnClose={action === 'send' ? true : false} // destroy send modal on close e
+    showCloseButton={action === 'receive' ? true : false}
     visible={modalVisible}
     closeOnSwipe={true}
     closeOnMaskClick={true}
     onClose={() => {
       setAction('')
       setModalVisible(false)
+      if (action === 'send' && pathname !== `/`) {
+        navigate(`/${ticker}`, {replace: true}) // to reset url params
+      }
+      onClose()
     }}
+    className="action-popup"
     
->
-  { action === 'send' && <Send /> }
+><div style={{minWidth: "350px"}}>
+  { action === 'send' && <Send ticker={ticker} onClose={() => {
+    setModalVisible(false);
+    onClose();
+    // scroll to top
+    window.scrollTo(0, 0);
+  }} defaultScannerOpen={defaultScannerOpen}/>}
   { action === 'receive' && <>
   <div className="text-center text-xl m-4">
-
         Receive {networks[ticker].name}
   </div>
-        <div className="flex flex-col items-center mb-2">
-          <QRCodeSVG includeMargin value={address} className="rounded-md" />
-          <div style={{ maxWidth: "200px" }} className="break-words">
-            <CopyToClipboard text={address} />
+              <SetAmountModal
+              visible={enterAmountVisible}
+              setVisible={setEnterAmountVisible}
+              ticker={ticker}
+              onOk={(amount) => {
+                setReceiveAmount(amount);
+              }}
+              />
+        <div className="flex flex-col items-center mb-2 space-y-3 mx-4 mb-6">
+            <QRCodeSVG 
+            onClick={() => {
+              if (sizeQR === "small") {
+                setSizeQR("medium");
+              }
+              else if (sizeQR === "medium") {
+                setSizeQR("large");
+              }
+              else {
+                setSizeQR("small");
+              }
+            }}
+            imageSettings={{
+              src: networks[ticker].logo,
+              height: 24,
+              width: 24,
+              excavate: false,
+            }}
+            includeMargin 
+            value={getURI(ticker, address, receiveAmount)} className="rounded-md" size={
+              sizeQR === "small" ? 128 : sizeQR === "medium" ? 256 : Math.min(window.innerWidth, window.innerHeight-300)
+            } />
+            <div>
+              {receiveAmount ? 
+              <div className="flex items-center space-x-2 mt-2">
+
+              <div className="text-lg">{receiveAmount} {ticker}</div> 
+              <div className="text-lg text-gray-400">
+              ≈ <ConvertToBaseCurrency amount={receiveAmount} ticker={ticker} />
+              </div>
+              <div className="text-lg text-gray-400" onClick={() => {
+                setReceiveAmount(undefined);
+              }}>
+              <CloseCircleFill />
+              </div>
+              </div>
+              : null}
+            </div>
+          <div style={{ maxWidth: "200px" }} >
+            <CopyToClipboard text={address} hideCopyIcon />
           </div>
+        <CopyButton textToCopy={address} copyText="Copy Address" copiedText="Address Copied!" />
+                  <div className="flex w-full space-x-2">
+
+        {/* share address button */}
+        <Button
+        shape="rounded"
+        size="large"
+          color="default"
+          onClick={() => {
+            navigator.share({
+              text: address,
+            });
+          }}
+          className="w-1/2"
+        >
+          Share Address
+        </Button>
+        <Button
+        shape="rounded"
+        size="large"
+          color="default"
+          onClick={() => {
+            setEnterAmountVisible(true);
+              // Modal.confirm({
+              //   content: <Input type="number" placeholder="Amount" autoFocus/>,
+              //   closeOnMaskClick: true,
+              // });
+              // window.prompt("Enter amount to receive", "0");
+          }}
+          className="w-1/2"
+        >
+          Set Amount
+        </Button>
+        </div>
         </div></>
   }
-  { action === 'swap' && <Swap hideHistory={true}/> }
-</Popup>    
+  { action === 'swap' && <Swap 
+  onSuccess={() => {
+    Toast.show({icon: 'success'})
+    setModalVisible(false);
+    onClose();
+    console.log("success swap")
+    console.log({modalVisible})
+    window.scrollTo(0, 0);
+  }}
+  hideHistory={true} defaultFrom={ticker} defaultTo={ticker === "XNO" ? "BAN" : "XNO"} />}
+  </div>
+</ResponsivePopup>    
   );
 };
-export default function Network({ defaultReceiveVisible = false, defaultAction = '' }) {
-  const { ticker } = useParams();
+export default function Network({ defaultReceiveVisible = false, defaultAction = '', defaultTicker = false }) {
+  let { ticker } = useParams();
+  if (defaultTicker) {
+    ticker = defaultTicker;
+  }
+
+  const {wallet, dispatch} = useContext(WalletContext);
+  let account = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
+
   const { data: balance, isLoading: balanceLoading } = useSWR(
-    "balance-" + ticker,
-    () => fetchBalance(ticker),
+    "balance-" + ticker + "-" + account,
+    () => fetchBalance(ticker, account),
     {
       keepPreviousData: true,
     },
@@ -108,19 +242,72 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(defaultReceiveVisible);
   const [action, setAction] = useState(defaultAction);
+  const [defaultScannerOpen, setDefaultScannerOpen] = useState(false);
+  const {mutate,cache}=useSWRConfig()
+  
+  const onLongPress = useLongPress(() => {
+    setAction('send');
+    setModalVisible(true);
+    setDefaultScannerOpen(true);    
+    navigator.vibrate(100);
+    }, 400);
 
   useEffect(() => {
-    getWalletRPC(ticker); // initialize wallet ws
+    // if (wallet.wallets[ticker] == null){
+    //     dispatch("ADD_WALLET", {ticker: ticker, wallet: initWallet(ticker, wallet.seed)})
+    // }
+    console.log("wallets", wallet)
+    // getWalletRPC(ticker, wallet.seed).then((wallet) => {
+    //   wallet.wsOnMessage = (msg) => {
+    //     console.log("ws message in Network", msg);
+    //     if (msg == "receive") {
+    //       mutate("history-" + ticker);
+    //       mutate("balance-" + ticker);
+    //     }
+    //   }
+    // });
     // fetchData();
   }, []);
+
+    // useEffect(() => {
+    //   async function updateBalanceOnWsMessage() {
+    //     let wallet = await getWalletRPC(ticker)
+    //     wallet.wsOnMessage = (msg) => {
+    //       console.log("ws message in Network", msg)
+    //       mutate()
+    //     }
+    //   }
+    //   updateBalanceOnWsMessage()
+    //   }, [])
+  
   return (
-    <div className="">
-          <NavBar 
-          className="sticky top-0 z-10 bg-black pb-5"
-          onBack={() => navigate("/")}>{networks[ticker].name}</NavBar>
-      <div className="container  relative mx-auto">
-        <div className="text-center text-2xl flex-col">
-          <ModalReceive ticker={ticker} modalVisible={modalVisible} setModalVisible={setModalVisible} action={action} setAction={setAction} />
+    <div className="transition-opacity">
+      <NavBar
+      right={
+          
+          <Button size="mini"
+          onClick={() => {
+            setModalVisible(true);
+            setAction('swap');
+          }}
+          >
+          <div className="flex text-xs items-center -mr-0"><AiOutlineSwap size={18} className="mr-1" /> Swap</div></Button>
+      }
+          className="text-slate-400 text-xxl app-navbar sticky top-0 z-10 "
+          onBack={() => {
+          navigate("/");
+        }}
+        backArrow={true}>
+          <span className="">{networks[ticker].name}</span>
+        </NavBar>
+     
+      <div className="container  relative mx-auto ">
+        <Card
+         className="text-center text-2xl flex-col m-3 mt-4">
+        
+          <ModalReceive ticker={ticker} modalVisible={modalVisible} setModalVisible={setModalVisible} action={action} setAction={setAction} defaultScannerOpen={defaultScannerOpen} onClose={() => {
+            setDefaultScannerOpen(false);
+          }}/>
           <div className="flex justify-center m-2">
             <img
               src={networks[ticker].logo}
@@ -139,34 +326,10 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
             )}
           </div>
           <div className="text-sm text-gray-400">
-            ~ {+(prices?.[ticker]?.usd * balance).toFixed(2)} USD
+            ~ <ConvertToBaseCurrency amount={balance} ticker={ticker} />
           </div>
-        </div>
+        </Card>
         <div className="flex justify-center mt-4 space-x-4 hidden">
-          {/* <div className="flex flex-col items-center">
-            <button
-              className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white"
-              onClick={async () => {
-                // window.history.pushState({}, "", "/receive");
-                setModalVisible(true);
-              }}
-            >
-              <SlArrowDownCircle size={32} />
-            </button>
-            <span className="text-xs mt-1">Receive</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <button
-              className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white"
-              onClick={() => {
-                // window.history.pushState({}, "", "/receive");
-                navigate(`/${ticker}/send`);
-              }}
-            >
-              <SlArrowUpCircle size={32} />
-            </button>
-            <span className="text-xs mt-1">Send</span>
-          </div> */}
           <div className="flex flex-col items-center cursor-pointer" onClick={() => {
             navigate("/swap?from=" + ticker);
           }}
@@ -188,36 +351,98 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
             </div>
           }
         </div>
-        <Divider />
+        {/* <Divider /> */}
       </div>
       {/* center  */}
-      <CapsuleTabs defaultActiveKey={""} activeKey={action}
-      className=""
+      <div className="flex justify-center mt-4 space-x-4 bottom-btn">
+      <Button color="primary" shape="rounded" size="large" className="w-full" onClick={() => {
+        setModalVisible(true);
+        setAction('receive');
+      }}>
+            Receive
+          </Button>
+      <Button
+      {...onLongPress}
+      style={{
+        userSelect: "none",
+        "WebkitUserSelect": "none",
+        "MozUserSelect": "none",
+        "msUserSelect": "none",
+        
+      }}
+       color="primary" shape="rounded" size="large" className="w-full select-none" onClick={() => {
+        setModalVisible(true);
+        setAction('send');
+      }}>Send
+          </Button></div>
+      <CapsuleTabs defaultActiveKey={""} activeKey={""}
+      className="select-none hidden"
       onChange={(key) => {
           setModalVisible(true);
           setAction(key);
       }}>
+        
         <CapsuleTabs.Tab
-          title="Receive"
+
+          title={
+            "Receive"
+          }
           key={"receive"}
-        />
+          />
+          
+   
         <CapsuleTabs.Tab
-          title="Send"
           key={"send"}
+          title={
+            <div {...onLongPress} style={{
+              userSelect: "none",
+              "WebkitUserSelect": "none",
+              "MozUserSelect": "none",
+              "msUserSelect": "none",
+              
+            }}>
+            Send
+            </div>
+          }
         />
-        <CapsuleTabs.Tab
-          title="Swap"
-          key={"swap"}
-        />
+          {/* <CapsuleTabs.Tab
+           // style={{borderRadius: "100%", display: "flex", padding: 0}}
+            title={<>
+             <div className="flex items-center flex-col">
+             <RiTokenSwapLine size={24} /> 
+            <span className="text-xs">Swap</span>
+             </div>
+       
+            <MdOutlineCurrencyExchange size={24} />
+            <AiOutlineSync size={24} />
+       "Swap"</>
+           }
+            key={"swap"}
+          /> */}
         {/* {
           ticker === "XNO" && <CapsuleTabs.Tab
-            title="Buy/Sell"
+            title={
+              "Buy/Sell"
+            }
             key={"swap"}
           />
         } */}
       </CapsuleTabs>
-      <div className="container relative mx-auto flex justify-center mt-4">
-        <History ticker={ticker} />
+      <div className="mt-4">
+      <PullToRefresh
+      pullingText={<MdOutlineRefresh />}
+      completeText={<>Updated <MdOutlineCheck /></>}
+      canReleaseText={<DotLoading />}
+      refreshingText={<DotLoading />}
+      onRefresh={async () => {
+        await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
+        await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
+      }}>
+        <History ticker={ticker} onSendClick={() => {
+          setModalVisible(true);
+          setAction('send');
+        }} />
+        </PullToRefresh>
       </div>
     </div>
   );

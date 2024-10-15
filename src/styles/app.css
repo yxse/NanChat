@@ -177,14 +177,34 @@
 }
 .adm-capsule-tabs-header {
   position: fixed;
-  background-color: black;
+  background-color: var(--main-background-color);
   bottom: 0px;
   z-index: 10;
   width: 100%;
-  box-shadow: 0px 0px 10px 10px black;
+  box-shadow: 0px 0px 10px 10px var(--main-background-color);
+}
+.bottom-btn {
+  position: fixed;
+  background-color: var(--main-background-color);
+  bottom: 0px;
+  z-index: 10;
+  width: 100%;
+  box-shadow: 12px 0px 10px 10px var(--main-background-color);
+  padding-bottom: 32px;
+  padding-top: 8px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+.adm-button-primary {
+  color: var(--text-color-primary);
+}
+.adm-button {
+    font-weight: 500;
 }
 .adm-capsule-tabs-tab-list {
-  box-shadow: 0px 0px 10px 10px black;
+  font-weight:500;
+  color: var(--text-color-primary);
+  box-shadow: 0px 0px 10px 10px var(--main-background-color);
   z-index: 10;
   /* position: fixed; */
   bottom: 8px;
@@ -198,4 +218,129 @@
 :root:root {
   --adm-button-border-radius: 12px;
   --adm-color-background: #111111;
+}
+
+.checkListContainer {
+  height: 500px;
+  overflow-y: scroll;
+}
+
+.action-popup > .adm-mask {
+  /* darker background to hide behind txs */
+  /* background-color: rgba(0, 0, 0, 0.8) !important;  */
+}
+
+.animate-received > .adm-list-body {
+  animation: animationname 1s ease;
+  /*animation: animation-name animation-duration animation-direction animation-iteration-count */  
+  /* transition: 1s ease-in-out; */
+}
+@keyframes animationname{
+  0%{
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+  100%{
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+
+.fade-in {
+	animation: fadeIn 0.3s;
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+  	opacity: 0;
+  }
+  to {
+ 	opacity: 1;
+  }
+}
+
+.animated-button {
+  background-color: #1677ff;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.animated-button:hover {
+  background-color: #2563eb;
+}
+
+.animated-button:active {
+  background-color: #00b578;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.natrium-theme {
+  --adm-color-primary: #A3CDFF;
+  --text-color-primary: #1E2C3D;
+  --adm-color-background: #2A3A4D;
+  --main-background-color: #1E2C3D;
+  --adm-color-text: #A3CDFF;
+  --adm-button-border-color: #A3CDFF;
+}
+/* #292A2D */
+/* #212124 */
+
+.dark-theme {
+  --adm-color-primary: #1677ff;
+  --adm-color-background: #171718;
+  /* --adm-color-background: #171718; */
+  --main-background-color: #000;
+  /* --main-background-color: #1e1f21; */
+  --adm-color-text: #d7d7d7;
+  --text-color-primary: var(--adm-color-text);
+}
+.light-theme {
+  --adm-color-primary: #1677ff;
+  --adm-color-background: rgb(255, 255, 255);
+  --main-background-color: #efefef;
+  --adm-color-text: #333333;
+  --text-color-primary: white;
+}
+
+
+.bottom {
+  border-top: solid 1px var(--adm-color-border);
+  padding-top: 8px;
+  /* background-color: rgb(25, 25, 25); */
+  background-color: var(--main-background-color);
+}
+.swap-btn:hover {
+  transform: scale(1.1);
+}
+.swap-btn:active {
+  transform: scale(1.2);
+}
+.swap-btn {
+  /* color: var(--adm-color-primary); */
+  
+}
+
+@media (hover: hover) {
+.adm-list-item:hover {
+  background-color: var(--main-background-color);
+}
+}
+.adm-list-item:active {
+  background-color: var(--main-background-color);
+}
+.btn-swap {
+  background-color: var(--main-background-color);
+}
+.adm-list-item, .adm-list-body{
+  /* background-color: var(--adm-color-background); */
+  background-color: var(--adm-color-background);
+}
+
+.adm-center-popup-body {
+  padding: 8px;
+}
+
+.adm-popup-body-position-right{
+  background-color: var(--main-background-color);
 }

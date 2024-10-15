@@ -1,4 +1,12 @@
-import { Dispatch, SetStateAction, useRef, useEffect } from "react";
+import { Button, Toast } from "antd-mobile";
+import { Dispatch, SetStateAction, useRef, useEffect, useState, useContext } from "react";
+import { decrypt } from "../../worker/crypto";
+import { wallet as walletLib} from "multi-nano-web";
+import { ClipLoader as HashSpinner } from "react-spinners";
+import { networks } from "../../utils/networks";
+import { WalletContext } from "../Popup";
+import { useSWRConfig } from "swr";
+import { initWallet } from "../../nano/accounts";
 
 // theme added I guess?
 export default function Form({
@@ -7,13 +15,19 @@ export default function Form({
   invalidPass,
   setInvalidPass,
   theme,
+  setWalletState,
 }: {
   goForth: Dispatch<SetStateAction<boolean>>;
   handleSubmit: () => any;
   invalidPass: boolean;
   setInvalidPass: React.Dispatch<React.SetStateAction<boolean>>;
   theme: "dark" | "light";
+  setWalletState: React.Dispatch<React.SetStateAction<"locked" | "unlocked" | "no-wallet" | "loading">>;
 }) {
+  const {mutate,cache}=useSWRConfig()
+  const { dispatch } = useContext(WalletContext);
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     const handleClickOutside = (event: any) => {
@@ -28,19 +42,45 @@ export default function Form({
     };
   }, [setInvalidPass]);
 
+  const handleUnlock = async () => {
+    setLoading(true);
+        try {
+          let encryptedMasterKey = localStorage.getItem("encryptedMasterKey");
+          let result = await decrypt(encryptedMasterKey, password);
+          console.log(result)
+          const res = result.length === 128 ? walletLib.fromSeed(result) : walletLib.fromLegacySeed(result);
+          setInvalidPass(false);
+          for (let ticker of Object.keys(networks)) {
+            dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, res.seed, mutate, dispatch) } });
+          }
+          setWalletState("unlocked");
+          // setLoggedIn(true);
+        } catch (error) {
+          console.log(error)
+          // setLoading(false);
+          setInvalidPass(true);
+        }
+        finally {
+          setLoading(false);
+        }
+    }
+
+
   return (
     <div
-      className={`lockscreen-inner ${
-        theme == "light" && "!bg-white !text-black"
-      }`}
+      className={`lockscreen-inner ${theme == "light" && "!bg-white !text-black"
+        }`}
     >
       <form
         id="unlock"
         className="lockscreen-form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          return handleSubmit();
+          handleUnlock();
+          return
+          // return handleSubmit();
         }}
+
       >
         <div className="unlock-form">
           <div className="unlock-form-img select-none">
@@ -55,40 +95,52 @@ export default function Form({
           </div>
 
           <p
-            className={`${
-              theme == "light" && "!text-black/90"
-            } unlock-form-label select-none`}
+            className={`${theme == "light" && "!text-black/90"
+              } unlock-form-label select-none`}
           >
             Enter your password
           </p>
           <div style={{ width: "100%", transform: "none" }}>
             <div className="w-full">
               <input
-                className={`relative select-text z-10 unlock-form-input ${
-                  invalidPass && "invalid-password"
-                } ${
-                  theme == "light" &&
+                autoFocus
+                autoComplete="current-password"
+                className={`relative select-text z-10 unlock-form-input ${invalidPass && "invalid-password"
+                  } ${theme == "light" &&
                   "!bg-slate-300 !text-slate-700 !border-slate-400"
-                }`}
+                  }`}
                 type="password"
                 id="unlock-pass"
                 placeholder="Password"
                 ref={inputRef}
                 maxLength={48}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <p
-              className={`unlock-form-footer ${
-                theme == "light" && "!text-slate-800 hover:!text-slate-500"
-              } select-none`}
+              className={`unlock-form-footer ${theme == "light" && "!text-slate-800 hover:!text-slate-500"
+                } select-none`}
               role="button"
               onClick={() => goForth(true)}
             >
               Forgot password
             </p>
           </div>
+          <Button
+            color="primary"
+            size="large"
+            type="submit"
+            className="w-full mt-4"
+          >
+            Unlock
+          </Button>
         </div>
       </form>
+      {loading && (
+        <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center bg-black/90">
+          <HashSpinner size={80} color="#0096FF" loading={loading} />
+        </div>
+      )}
     </div>
   );
 }

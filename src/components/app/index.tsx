@@ -1,6 +1,6 @@
 // You would not believe your eyes..
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -27,8 +27,8 @@ import Home from "./Home";
 import Art from "./Art";
 import Swap from "./Swap";
 import History from "./History";
-import Network from "./Network";
-import { CapsuleTabs, Popup, TabBar } from "antd-mobile";
+import Network, { ModalReceive } from "./Network";
+import { Badge, CapsuleTabs, Popup, SideBar, TabBar, Toast } from "antd-mobile";
 import Send from "./Send";
 import Protocol_handler from "./protocol_handler";
 import Sign from "../../api-invoke/Sign";
@@ -42,103 +42,235 @@ import AddNetwork from "./AddNetwork";
 import { networks } from "../../utils/networks";
 import { FaExchangeAlt } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
-import {BellOutline} from "antd-mobile-icons";
+import {BellOutline, LoopOutline} from "antd-mobile-icons";
+import Contacts from "./Contacts";
+import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
+import PWAInstallComponent from "../PWAInstallComponent";
+import useLocalStorageState from "use-local-storage-state";
+import SecuritySettings from "./SecuritySettings";
+import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import DeveloperSettings from "./DeveloperSettings";
+import NanoAlias from "./NanoAlias";
+
+export const MenuBar = () => {
+  const navigate = useNavigate();
+  const {ticker}= useParams();
+  const location = useLocation();
+  const [visible, setVisible] = useState<boolean>(false);
+  const [action, setAction] = useState<"receive" | "send" | "swap">("receive");
+
+  const [activeTicker, setActiveTicker] = useState<string>(null);
+
+  const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
+  const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
+  const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
+  const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
+
+  
+
+
+  let swapBtn = <div 
+  className="swap-btn"
+  style={{marginBottom: 32}}>
+    {/* <LoopOutline fontSize={32}  fontWeight={0} */}
+    <AiOutlineSwap 
+    fontSize={36}  
+    style={{
+    // color: '#000034',
+    // color: '#ccc',
+    // backgroundColor: '#4A90E2',
+    backgroundColor: '#1677ff',
+    // boxShadow: "0 0 0 4px #4A90E2",
+    // color: '#4A90E2',
+    // backgroundColor: '#000034',
+    // boxShadow: "0 0 0 2px #000034",
+    // boxShadow: "0 0 0 2px #aaa",
+    // border: "1px solid #aaa",
+    borderRadius: "100%",
+    padding: 4,
+    
+    
+  }}
+    /></div>
+  let btnSize = 22
+  let fontSize = 22
+
+  const tabs = [
+    // {
+    //   key: "",
+    //   title: "Wallet",
+    //   icon: <BiWallet size={28} />,
+    // },
+    {
+      key: "receive",
+      title: "Receive",
+      icon: <SlArrowDownCircle size={btnSize} />,
+    },
+    {
+      key: "swap",
+      title: "",
+      icon: swapBtn,
+    },
+    {
+      key: "send",
+      title: "Send",
+      icon: <SlArrowUpCircle size={btnSize} />,
+    },
+  ];
+  let style = {position: "fixed", bottom: 0, width: "100%", paddingBottom: 16};
+
+  let positionPopup = "right";
+  return (
+    <>
+      <TabBar
+      // safeArea={true}
+      style={style}
+        className={"bottom"}
+        activeKey={location.pathname.split("/")[1]}
+        onChange={(key) => {
+          console.log(location.pathname);
+          // setWidget(key);
+          setVisible(false);
+          if (key === "receive") {
+            // console.log(location.pathname.split("/"));
+            // if (networks[location.pathname.split("/")[1]]) {
+            //   navigate(location.pathname.split("/")[1] + "/receive");
+            //   return;
+            // }
+            if (activeMainNetworks.length + activeCustomNetworks.length === 1) {
+              let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
+              setActiveTicker(ticker);
+            }
+            else{
+              setVisible(true);
+            }
+            setAction("receive");
+            return
+          }
+          else if (key === "send") {
+            // if (networks[location.pathname.split("/")[1]]) {
+            //   navigate(location.pathname.split("/")[1] + "/send");
+            //   return;
+            // }
+            if (activeMainNetworks.length + activeCustomNetworks.length === 1) { // directly show the action if only one active network
+              let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
+              setActiveTicker(ticker);
+            }
+            else{
+              setVisible(true);
+            }
+            setAction("send");
+            return
+          }
+          else if (key === "swap") {
+            setVisible(true);
+            setAction("swap");
+            return
+          }
+          // navigate(key);
+        }}
+      >
+        {tabs.map((tab) => (
+          <TabBar.Item title={tab.title} key={tab.key} icon={tab.icon} style={tab.key === "swap" ? {marginBottom: 20} : {}} />
+        ))}
+      </TabBar>
+        
+      <ModalReceive
+      onClose={() => {
+        setVisible(false);
+        setActiveTicker(null);
+      }}
+       action={action} ticker={activeTicker} modalVisible={activeTicker} setModalVisible={setVisible} setAction={setAction} />
+      <Popup
+      position={"bottom"}
+      closeOnSwipe
+        visible={visible}
+        onClose={() => {
+          setVisible(false);
+        }}
+        // onClick={() => setVisible(false)}
+        closeOnMaskClick={true}
+      >
+        {action !== "swap" && <div>
+        <div>
+          <div className="text-2xl  text-center p-2">{
+            action === "receive" ? "Receive" : "Send"
+          }</div>
+        </div>
+        <NetworkList hidePrice={true} onClick={(ticker) => {
+          // navigate(ticker + "/" + action);
+          setVisible(false);
+          setActiveTicker(ticker);
+        }} /></div>}
+         { action === 'swap' && <Swap 
+onSuccess={() => {
+  Toast.show({icon: 'success'})
+  setVisible(false);
+  window.scrollTo(0, 0);
+}}
+hideHistory={true} defaultFrom={ticker} defaultTo={"BAN"} />}
+      </Popup>
+    </>
+  );
+};
+
 export default function App() {
   const [widget, setWidget] = useState<
     "home" | "art" | "swap" | "history" | "network"
   >("home");
   const [isNavOpen, setNavOpen] = useState<boolean>(false);
-  const tabs = [
-    {
-      key: "",
-      title: "Wallet",
-      icon: <BiWallet size={28} />,
-    },
-    {
-      key: "receive",
-      title: "Receive",
-      icon: <SlArrowDownCircle size={22} />,
-    },
-    {
-      key: "send",
-      title: "Send",
-      icon: <SlArrowUpCircle size={22} />,
-    },
-    {
-      key: "swap",
-      title: "Swap",
-      icon: <FaExchangeAlt size={22} />
+  const { isMobile } = useWindowDimensions();
 
-    },
-  ];
+  
 
-  const MenuBar = () => {
-    const navigate = useNavigate();
-    const {ticker}= useParams();
-    const location = useLocation();
-    const [visible, setVisible] = useState<boolean>(false);
-    const [action, setAction] = useState<"receive" | "send">("receive");
-    return (
-      <>
-        <TabBar
-        safeArea={true}
-        style={{position: "fixed", bottom: 0, width: "100%"}}
-          className="mb-4"
-          activeKey={location.pathname.split("/")[1]}
-          onChange={(key) => {
-            console.log(location.pathname);
-            // setWidget(key);
-            setVisible(false);
-            if (key === "receive") {
-              // console.log(location.pathname.split("/"));
-              // if (networks[location.pathname.split("/")[1]]) {
-              //   navigate(location.pathname.split("/")[1] + "/receive");
-              //   return;
-              // }
-              setVisible(true);
-              setAction("receive");
-              return
-            }
-            else if (key === "send") {
-              // if (networks[location.pathname.split("/")[1]]) {
-              //   navigate(location.pathname.split("/")[1] + "/send");
-              //   return;
-              // }
-              setVisible(true);
-              setAction("send");
-              return
-            }
-            navigate(key);
-          }}
-        >
-          {tabs.map((tab) => (
-            <TabBar.Item title={tab.title} key={tab.key} icon={tab.icon} />
-          ))}
-        </TabBar>
-        <Popup
-          visible={visible}
-          onClose={() => {
-            setVisible(false);
-          }}
-          onClick={() => setVisible(false)}
-          closeOnMaskClick={true}
-        >
-          <div>
-            <div className="text-2xl  text-center p-2">{
-              action === "receive" ? "Receive" : "Send"
-            }</div>
-          </div>
-          <NetworkList hidePrice={true} onClick={(ticker) => {
-            navigate(ticker + "/" + action);
-          }} />
-        </Popup>
-      </>
-    );
-  };
+  
 
+  const LockAfterInactivity = () => {
+    const [timeSinceLastActivity, setTimeSinceLastActivity] = useState(0);
+    const [lockTimeSeconds, setLockTimeSeconds] = useLocalStorageState("lock-after-inactivity", {defaultValue: 
+      60 * 30 // 30 minutes
+    });
+    const handleActivity = () => {
+      setTimeSinceLastActivity(0);
+    };
 
+    useEffect(() => {
+      const interval = setInterval(() => {
+          setTimeSinceLastActivity((prev) => prev + 1);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+      window.addEventListener("mousemove", handleActivity);
+      window.addEventListener("touchstart", handleActivity);
+
+      return () => {
+        window.removeEventListener("mousemove", handleActivity);
+        window.removeEventListener("touchstart", handleActivity);
+      };
+    }, []);
+
+    useEffect(() => {
+      if (timeSinceLastActivity > lockTimeSeconds && lockTimeSeconds !== -1) {
+        Toast.show("Locking wallet due to inactivity");
+        window.location.reload();
+      }
+    }, [timeSinceLastActivity]);
+    
+    
+    return (<></>);
+    }
+  
+
+    console.log("index render")
   return (
     <>
+    <LockAfterInactivity />
+      <PWAInstallComponent   />
+      <div className="app">
+      
       <section className="app-navbar hidden">
         <div className="app-navbar-menu">
           <div
@@ -160,7 +292,7 @@ export default function App() {
         <div className="app-nav-c">
           {widget == "home" && (
             <span className="text-slate-400 text-xl select-none cursor-pointer">
-              cesium
+              Nanswap Wallet
             </span>
           )}
           {widget == "network" && (
@@ -175,16 +307,23 @@ export default function App() {
           >
               <BellOutline fontSize={18}  />
           </div> */}
+          
       </section>
+      
       <Router>
-        <div className="w-full">
+        <div className="w-full body ">
+          
           {/** main content */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} />
+            <Route path="/settings/security" element={<SecuritySettings />} />
+            <Route path="/settings/alias" element={<NanoAlias />} />
+            <Route path="/settings/security/developer" element={<DeveloperSettings />} />
             <Route path="/swap" element={<Swap />} />
             <Route path="/swap/:id" element={<SwapTransaction />} />
             <Route path="/history" element={<History />} />
+            <Route path="/contacts" element={<Contacts />} />
             <Route path="/add-network" element={<AddNetwork />} />
             <Route path="/" element={<Home />} />
             <Route path="/sign" element={<Sign />} />
@@ -199,9 +338,11 @@ export default function App() {
           </Routes>
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}
         </div>
-        <MenuBar />
-       
+        {
+          isMobile && <MenuBar />
+        }
       </Router>
+      </div>
     </>
   );
 }

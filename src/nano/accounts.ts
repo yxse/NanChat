@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import { Wallet } from "./wallet";
 import { networks } from "../utils/networks";
 import { LedgerService } from "../ledger.service";
-import { getAccount } from "../components/Settings";
+import { getAccount } from "../components/getAccount";
 
 export function deriveAccounts(
   seed: string,
@@ -26,13 +26,41 @@ export function convertToMulti(accounts: Account[], prefixes: string[]) {
     };
   });
 }
-export async function getWalletRPC(ticker) {
-  const seed = await storage.get<string>("masterSeed", "session");
+export function initWallet(ticker, seed, mutate, dispatch) {
+  // const seed = await storage.get<string>("masterSeed", "session");
+  let walletKey = ticker;
+  let wallet = new Wallet({
+      RPC_URL: networks[ticker].rpc,
+      WORK_URL: networks[ticker].rpc,
+      WS_URL:
+        import.meta.env.VITE_PUBLIC_WS_URL +
+        "?ticker=" +
+        ticker +
+        "&api=" +
+        import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+      seed: seed,
+      defaultRep:
+        "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq".replace(
+          "nano_",
+          networks[ticker].prefix + "_",
+        ),
+      ticker: ticker,
+      decimal: networks[ticker].decimals,
+      prefix: networks[ticker].prefix + "_",
+      mutate: mutate,
+      dispatch: dispatch
+    });
+    console.log("init wallet", ticker)
+    return wallet;
+}
+export async function getWalletRPC(ticker, seed){
+  // const seed = await storage.get<string>("masterSeed", "session");
   let walletKey = ticker;
   if (global.ledger) walletKey += "ledger"; // create a separate wallet instance for ledger
   if (global.wallet == null) {
     global.wallet = {};
   }
+  
   if (global.wallet[walletKey] == null) {
     global.wallet[walletKey] = new Wallet({
       RPC_URL: networks[ticker].rpc,
@@ -68,14 +96,6 @@ export async function send(ticker, addressFrom, addressTo, amountMega) {
   });
   console.log(hash);
 }
-export async function changeRep(ticker, rep) {
-  let rpcWallet = await getWalletRPC(ticker);
-  let hash = await rpcWallet.change({
-    account: await getAccount(ticker),
-    newRep: rep,
-  });
-  console.log(hash);
-}
 
 export function rawToMega(ticker, amount) {
   const decimals = networks[ticker].decimals;
@@ -85,6 +105,14 @@ export function rawToMega(ticker, amount) {
   let value = new BigNumber(amount.toString());
   return value.shiftedBy(-decimals).toFixed(decimals, 1);
 }
+export function megaToRaw(ticker, amount) {
+  const decimals = networks[ticker].decimals;
+  if (decimals == null) {
+    throw new Error("Decimals not found for ticker: " + ticker);
+  }
+  let value = new BigNumber(amount.toString());
+  return value.shiftedBy(decimals).toFixed(0);
+};
 /*
 export function convertToMulti(accounts: Account[], prefixes: string[]) {
     const Accounts = new Array();

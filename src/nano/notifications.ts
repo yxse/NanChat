@@ -1,4 +1,5 @@
-import { getAccount, getAccounts } from "../components/Settings";
+import { getAccounts } from "../components/getAccount";
+import { getAccount } from "../components/getAccount";
 
 const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_SERVER_NOTIFICATIONS_URL;
 

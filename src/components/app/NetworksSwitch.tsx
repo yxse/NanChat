@@ -21,10 +21,10 @@ export default function NetworksSwitch({ onClick }) {
       {Object.keys(customNetworks).map((ticker) => (
         renderNetworkSwitch(ticker, customNetworks[ticker], true)
       ))}
-      <div>
+      <div className="p-4">
         <Button
           onClick={() => navigate("/add-network")}
-          className="m-2 w-full mb-4"
+          className="w-full mb-4"
           type="primary"
         ><div className="flex justify-center items-center gap-2">
           <BiPlus /> Add Network

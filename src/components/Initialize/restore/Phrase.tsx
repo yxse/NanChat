@@ -1,9 +1,9 @@
 // You know the rules and so do I
 
-import React, { Dispatch, useState } from "react";
+import React, { Dispatch, useContext, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
 import words from "../../../utils/words";
-import { tools, wallet } from "multi-nano-web";
+import { tools, wallet as walletLib } from "multi-nano-web";
 
 import storage from "../../../utils/storage";
 
@@ -11,6 +11,13 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "../../../styles/restore.css";
+import { TextArea, Toast } from "antd-mobile";
+import { networks } from "../../../utils/networks";
+import { initWallet } from "../../../nano/accounts";
+import { useSWRConfig } from "swr";
+import { WalletContext } from "../../Popup";
+import * as bip39 from 'bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
 
 export default function ImportPhrase({
   setW,
@@ -18,8 +25,10 @@ export default function ImportPhrase({
   setW: Dispatch<React.SetStateAction<number>>;
 }) {
   const [mnemonicInputs, setMnemonicInputs] = useState<string[]>(
-    new Array(24).fill(""),
+    new Array(0).fill(""),
   );
+  const { mutate } = useSWRConfig()
+  const { wallet, dispatch } = useContext(WalletContext);
   const [activeInputs, setActiveInputs] = useState<number | null>(null);
   const [errorInputs, setErrorInputs] = useState<boolean[]>(
     new Array(24).fill(false),
@@ -45,6 +54,11 @@ export default function ImportPhrase({
   };
 
   const validateMnemonic = (inputs: string[]) => {
+    if (inputs[0].length === 64 || inputs[0].length === 128) {
+      setCanContinue(true);
+      setErrorInputs(new Array(24).fill(false));
+      return
+    }
     const isValid = inputs.every((word) => words.includes(word.trim()));
     setCanContinue(isValid);
     setErrorInputs(inputs.map((word) => !words.includes(word.trim())));
@@ -81,27 +95,64 @@ export default function ImportPhrase({
           </p>
         </div>
 
+
+        <TextArea
+          className="mt-4"
+          autoSize
+          value={mnemonicInputs.join(" ")}
+          onChange={(v) => {
+            setMnemonicInputs(v.split(" "));
+            validateMnemonic(v.split(" "));
+          }}
+          placeholder="Enter your 24 word recovery phrase or a 64/128 hex characters seed" />
+        <div className="justify-end items-center m-3 align-center">
+          <button
+            className={`step-r-p-import ${canContinue
+                ? "!cursor-pointer !bg-blue-600 hover:!bg-blue-500"
+                : "opacity-60 !cursor-not-allowed"
+              }`}
+            onClick={(e) => {
+              let seed
+              if (mnemonicInputs[0].length === 64 || mnemonicInputs[0].length === 128) {
+                seed = mnemonicInputs[0];
+                console.log(seed);
+              }
+              else if (tools.validateMnemonic(mnemonicInputs.join(" "))) {
+                seed = walletLib.fromLegacyMnemonic(mnemonicInputs.join(" ")).seed;
+              }
+              else {
+                toast.error("Invalid Mnemonic!");
+                return;
+              }
+              for (let ticker of Object.keys(networks)) {
+                dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed, mutate, dispatch) } });
+              }
+              return setW(2);
+            }}
+          >
+            Import Wallet
+          </button>
+        </div>
         <div className="justify-center h-full items-center m-3">
-          <div className="bg-transparent w-full max-h-[330px] scroll-auto p-3 overflow-y-auto rounded-md">
+          <div className="bg-transparent w-full  scroll-auto p-3 overflow-y-auto rounded-md">
             <div className="w-full h-full grid grid-cols-3 gap-3">
               {mnemonicInputs.map((input, index) => (
                 <div
-                  className={`grid-input-r border-2 ${
-                    activeInputs === index && "!border-blue-500"
-                  } ${errorInputs[index] && "!border-red-500"}`}
+                  className={`grid-input-r border-2 ${activeInputs === index && "!border-blue-500"
+                    } ${errorInputs[index] && "!border-red-500"}`}
                   key={index}
                 >
                   <p className="grid-input-r-p">{index + 1}.</p>
                   <input
+
                     id={`mnemonic-input-${index}`}
                     pattern="[A-Za-z\s]+"
                     autoCorrect="false"
                     spellCheck="false"
-                    className={`grid-input-r-i ${
-                      input.trim() && !words.includes(input.trim())
+                    className={`grid-input-r-i ${input.trim() && !words.includes(input.trim())
                         ? "invalid-input"
                         : ""
-                    }`}
+                      }`}
                     value={input}
                     onChange={(e) => handleInputChange(index, e.target.value)}
                     onKeyDown={(e) => handleInputKeyDown(e, index)}
@@ -112,34 +163,6 @@ export default function ImportPhrase({
               ))}
             </div>
           </div>
-        </div>
-
-        <div className="justify-end items-center m-3 align-center">
-          <button
-            className={`step-r-p-import ${
-              canContinue
-                ? "!cursor-pointer !bg-blue-600 hover:!bg-blue-500"
-                : "opacity-60 !cursor-not-allowed"
-            }`}
-            onClick={(e) => {
-              toast.error("Invalid Mnemonic!");
-              e.preventDefault();
-              if (canContinue) {
-                if (tools.validateMnemonic(mnemonicInputs.join(" "))) {
-                  storage.set(
-                    "mnemonic",
-                    wallet.fromMnemonic(mnemonicInputs.join(" ")).seed,
-                    "session",
-                  );
-                  return setW(5);
-                }
-                // todo
-              }
-              return;
-            }}
-          >
-            Import Wallet
-          </button>
         </div>
       </div>
 

@@ -17,16 +17,18 @@ import {
 } from "antd-mobile";
 import { ScanCodeOutline, TextOutline } from "antd-mobile-icons";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
-import { CopyToClipboard, getAccount } from "../Settings";
-import { changeRep, send } from "../../nano/accounts";
+import { CopyToClipboard } from "../Settings";
+import { getAccount } from "../getAccount";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { MdContentPaste } from "react-icons/md";
 import { Representative, RepresentativeList } from "./NetworksList";
+import { WalletContext } from "../Popup";
+import { convertAddress } from "../../utils/format";
 
 export default function ChangeRep() {
   // const [result, setResult] = useState<string>(null);
@@ -35,15 +37,26 @@ export default function ChangeRep() {
   const [newRep, setNewRep] = useState<string>(null); // to refresh on change of rep when account not yet opened
   const [form] = Form.useForm();
   const { ticker } = useParams();
+  const {wallet} = useContext(WalletContext);
+  const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  async function changeRep(ticker, rep) {
+    await wallet.wallets[ticker].change({
+      account: activeAccount,
+      newRep: rep,
+    });
+  }
 
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
       <div className="container  relative mx-auto">
         <div className="text-center text-2xl flex-col">
-          <NavBar onBack={() => navigate(`/${ticker}`)}>
+          <NavBar 
+          className="text-slate-400 text-xxl app-navbar "
+          onBack={() => navigate(`/settings`)}>
             Change {networks[ticker].name} Representative
           </NavBar>
           <div className="flex justify-center m-2">

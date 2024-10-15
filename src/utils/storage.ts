@@ -22,9 +22,28 @@ export default {
       });
     });
   },
+  remove: (key: string, storageArea: any): any => {
+    return localStorage.removeItem(key);
+    return new Promise((resolve, reject) => {
+      chrome.storage[storageArea].remove(key, () => {
+        const error = chrome.runtime.lastError;
+        error ? reject(error) : resolve();
+      });
+    });
+  }
 };
 
 export function resetWallet(): void {
   localStorage.clear();
   // chrome.storage.local.clear();
+}
+
+export function autoLockAfterInactivity(): void {
+  let timeout: NodeJS.Timeout;
+  window.addEventListener("mousemove", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      window.location.reload();
+    }, 60000);
+  });
 }

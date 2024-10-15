@@ -10,18 +10,20 @@ import ImportPassword from "./restore/Password";
 import "../../styles/initialize.css";
 
 export default function InitializeScreen({
+  onCreated,
   theme,
-  setAppLoggedIn
+  setWalletState,
 }: {
+  onCreated: () => any;
   theme: "dark" | "light";
-  setAppLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setWalletState: React.Dispatch<React.SetStateAction<"locked" | "unlocked" | "no-wallet" | "loading">>;
 }) {
   const [wizardI, setWizardI] = useState<number>(0);
   return (
     <>
-      {wizardI == 0 && <Start setW={setWizardI} theme={theme} setAppLoggedIn={setAppLoggedIn}/>}
-      {wizardI == 1 && <Password setW={setWizardI} theme={theme} />}
-      {wizardI == 2 && <Mnemonic setW={setWizardI} theme={theme} />}
+      {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} />}
+      {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} />}
+      {wizardI == 2 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 3 && <Done setW={setWizardI} theme={theme} />}
       {wizardI == 4 && <ImportPhrase setW={setWizardI} />}
       {wizardI == 5 && <ImportPassword setW={setWizardI} />}

@@ -1,23 +1,32 @@
 // You know the rules and so do I
 
-import React, { Dispatch, useState, useEffect } from "react";
+import React, { Dispatch, useState, useEffect, useContext } from "react";
 import { IoArrowBack } from "react-icons/io5";
 
 import storage from "../../../utils/storage";
+import { Button, Card, Form, Input, Modal, Toast } from "antd-mobile";
+import { encrypt } from "../../../worker/crypto";
+import { WalletContext } from "../../Popup";
 
 export default function Password({
   setW,
   theme,
+  setWalletState,
+  onCreated,
 }: {
   setW: Dispatch<React.SetStateAction<number>>;
   theme: "light" | "dark";
+  setWalletState: React.Dispatch<React.SetStateAction<"locked" | "unlocked" | "no-wallet" | "loading">>;
+  onCreated: () => any;
 }) {
+  const {wallet} = useContext(WalletContext);
   const [passLen, setPassLen] = useState<number>(0);
   const [passwordStrength, setPasswordStrength] = useState<string>("");
   const [showStrength, setShowStrength] = useState<boolean>(false);
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
+  const [modalPasswordVisible, setModalPasswordVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (passLen > 0) {
@@ -29,7 +38,7 @@ export default function Password({
   }, [passLen]);
 
   useEffect(() => {
-    if (confirmPassword !== "" && confirmPassword !== password) {
+    if (confirmPassword !== password) {
       setPasswordMatch(false);
     } else {
       setPasswordMatch(true);
@@ -46,149 +55,160 @@ export default function Password({
     }
   };
 
-  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-    setPassLen(event.target.value.length);
+  const handlePasswordChange = (value) => {
+    setPassword(value);
+    setPassLen(value.length);
   };
 
   const handleConfirmPasswordChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    value
   ) => {
-    setConfirmPassword(event.target.value);
+    setConfirmPassword(value);
   };
 
+  const isMobile = () => {
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  }
   return (
-    <div>
+    <div className={``}>
       <div
-        className={`${
-          theme == "light" && "!bg-white !text-black !border-slate-400"
-        } step-p-nav`}
+        className={`${theme == "light" && "!bg-white !text-black !border-slate-400"
+          } step-p-nav`}
       >
         <div
           className="cursor-pointer text-slate-400 hover:text-slate-200"
           role="button"
-          onClick={() => setW(0)}
+          onClick={() => {
+            setW(1)
+          }}
         >
           <IoArrowBack size={20} />
         </div>
         <div className="step-p-steps select-none">
           <div className="step-dot mr-[10px]" />
-          <div className="step-dot mr-[10px] !bg-slate-700" />
+          <div className="step-dot mr-[10px]" />
           <div className="step-dot !bg-slate-700" />
         </div>
       </div>
-
       <div
-        className={`${
-          theme == "light" && "!bg-white !text-black"
-        } step-p-content select-none`}
+        className={`step-m-wrapper `}
       >
-        <form
-          className="step-p-form !relative !min-h-[554px]"
+        {/* <form
+          className=""
           onSubmit={(e) => {
             e.preventDefault();
-            if (passwordMatch && !(confirmPassword == "")) {
+            if (passwordMatch) {
               storage.set("password", password, "session");
-              return setW(2);
+              window.history.pushState({}, "", "/success")
+              return setW(3);
             }
             return;
           }}
-        >
-          <div className="step-p-form-m">
-            <div className="step-p-form-c">
-              <p
-                className={`${
-                  theme == "light" && "!text-slate-900"
-                } step-p-form-d`}
-              >
-                Create a password
-              </p>
-              <p
-                className={`${
-                  theme == "light" && "!text-slate-700"
-                } step-p-form-cc`}
-              >
-                You will use this to unlock your wallet.
-              </p>
-            </div>
-            <div className="step-p-p-wrapper">
-              <input
-                className={`step-p-input ${
-                  theme == "light" &&
-                  "!bg-slate-300 !text-slate-900 !border-slate-400"
-                }`}
-                type="password"
-                placeholder="Password"
-                maxLength={48}
-                onChange={handlePasswordChange}
-              />
-              <div className="relative w-full">
-                <input
-                  className={`${
-                    theme == "light" &&
-                    "!bg-slate-300 !text-slate-900 !border-slate-400"
-                  } step-p-confirm`}
-                  type="password"
-                  placeholder="Confirm Password"
-                  onChange={handleConfirmPasswordChange}
-                />
-                {showStrength && (
-                  <p
-                    className={`step-p-input-s ${getColorClass(
-                      passwordStrength,
-                    )}`}
-                  >
-                    {passwordStrength}
-                  </p>
-                )}
-              </div>
-              {!passwordMatch && confirmPassword !== "" && (
-                <p className="flex w-full items-center justify-center mt-4 text-red-500">
-                  Passwords do not match!
-                </p>
-              )}
-            </div>
-          </div>
+          method="post"
+          action=""
+        > */}
+        <div className="step-m-h">
+          <p className={`step-m-hp`}>
+            Require a password to open Cesium ?
+          <p className="text-sm text-gray-400 mt-2">
+           Password will be used to encrypt your secret phrase.
+          </p>
+          </p>
+        </div>
+        <Modal
+          visible={modalPasswordVisible}
+          closeOnMaskClick={true}
+          onClose={() => setModalPasswordVisible(false)}
+          title=""
+          content={
+<Form>
+                      <Input
+                      autoFocus
+                        id="password"
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="Password"
+                        className="mt-2"
+                      />
+                      <Input
+                        id="verify-password"
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="Verify Password"
+                        className="mt-2"
+                      />
+                      <Button
+                      color="primary"
+                      shape="rounded"
+                        className="mt-4 w-full"
+                        onClick={async () => {
+                          let password = document.getElementById("password") as HTMLInputElement;
+                          let verifyPassword = document.getElementById("verify-password") as HTMLInputElement;
+                          if (password.value !== verifyPassword.value) {
+                            Toast.show({
+                              icon: "fail",
+                              content: "Passwords do not match"
+                            })
+                            return
+                          }
 
-          <div className="mt-auto">
-            <button
-              className={`step-p-continue !absolute !bottom-0 !mb-3 ${
-                (!passwordMatch || confirmPassword === "") &&
-                "!cursor-not-allowed !opacity-60"
-              }`}
-            >
-              Continue
-            </button>
-          </div>
-
-          <div
-            className={`${
-              theme == "light" && "bg-slate-400/60"
-            } absolute top-0 flex items-center flex-col align-center justify-center w-full mt-8 p-3 bg-black/30 rounded-md`}
+                          let encryptedMasterKey = await encrypt(wallet.wallets["XNO"].seed, password.value)
+                          localStorage.setItem("encryptedMasterKey", encryptedMasterKey)
+                          setModalPasswordVisible(false)
+                          setWalletState("unlocked")
+                          onCreated()
+                          // setW(3)
+                        }}
+                      >
+                        Enable Password
+                      </Button>
+                      <Button
+                      color="default"
+                      shape="rounded"
+                        className="mt-4 w-full"
+                        onClick={() => {setModalPasswordVisible(false)}
+                        }
+                      >
+                        Cancel
+                      </Button>
+                      </Form>
+          }
+        />
+        <div className="w-full">
+            <div
+            className="m-4"
           >
-            <p
-              className={`${
-                theme == "light" && "!text-slate-600"
-              } text-xs text-slate-400`}
+
+            <Button
+            shape="rounded"
+              size="large"
+              className="w-full mb-4 mt-4"
+              color={isMobile() ? "default" : "primary"}
+              type="submit"
+              onClick={() => {
+                setModalPasswordVisible(true)  
+              }}
+              
             >
-              <span
-                className={`${
-                  theme == "light" && "!text-slate-700"
-                } font-bold text-slate-300`}
-              >
-                Never
-              </span>{" "}
-              share this password
-            </p>
-            <p
-              className={`${
-                theme == "light" && "!text-slate-600"
-              } text-xs text-slate-400`}
+              Yes
+            </Button>
+            <Button
+            shape="rounded"
+              size="large"
+              className="w-full  "
+              color={isMobile() ? "primary" : "default"}
+              type="submit"
+              onClick={() => {
+                localStorage.setItem("seed", wallet.wallets["XNO"].seed)
+                // setW(3)
+                setWalletState("unlocked");
+                onCreated()
+              }}
             >
-              your seed is to be encrypted with it.
-            </p>
+              No, Skip
+            </Button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

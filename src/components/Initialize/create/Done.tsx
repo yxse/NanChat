@@ -18,52 +18,10 @@ export default function Created({
   prevStep?: number;
   theme: "light" | "dark";
 }) {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [mnemonic, setMnemonic] = useState<string>("");
 
-  useEffect(() => {
-    async function fetchData() {
-      const fetchedPassword = await storage.get<string>("password", "session");
-      const fetchedMnemonic = await storage.get<string>("mnemonic", "session");
-      setPassword(fetchedPassword || "");
-      setMnemonic(fetchedMnemonic || "");
-      setLoading(false);
-    }
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    async function encryptData() {
-      if (password && mnemonic) {
-        try {
-          setLoading(true);
-          const worker = new Worker(cryptoWorker, { type: "module" });
-
-          worker.onmessage = (event) => {
-            const { result, error } = event.data;
-            if (result) {
-              storage.set("encryptedMasterKey", result, "local");
-            } else if (error) {
-              console.error("Encryption failed:", error);
-            }
-            setLoading(false);
-          };
-
-          worker.postMessage({
-            action: "encrypt",
-            payload: { seed: mnemonic, password },
-          });
-        } catch (error) {
-          console.error("Error occurred:", error);
-          setLoading(false);
-        }
-      }
-    }
-
-    encryptData();
-  }, [password, mnemonic]);
 
   return (
     <>

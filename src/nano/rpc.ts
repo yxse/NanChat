@@ -18,13 +18,14 @@ export default class RPC {
     }
   }
 
-  acocunt_history = async (account, offset) => {
+  acocunt_history = async (account, count, offset, reverse = false) => {
     let body = {
       action: "account_history",
       account: account,
-      count: "50",
-      raw: "false",
-      // "offset": offset,
+      count: count,
+      raw: "true",
+      "offset": offset,
+      "reverse": reverse,
     };
     let r = await this.req(body);
     return r;

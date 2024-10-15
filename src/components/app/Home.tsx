@@ -2,10 +2,10 @@
 import { useContext, useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
-import Network, { fetchBalance, fetchBalances, showModalReceive } from "./Network";
-import { Button, Card, Dialog, DotLoading, FloatingBubble, List, Modal, NavBar, Popup, PullToRefresh, Toast } from "antd-mobile";
+import Network, { fetchBalance, fetchBalances, ModalReceive, showModalReceive } from "./Network";
+import { Badge, Button, Card, CenterPopup, Dialog, DotLoading, FloatingBubble, Image, List, Modal, NavBar, NoticeBar, Popup, PullToRefresh, SideBar, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
-import useSWR, { mutate } from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { BiCopy, BiPaste, BiPlus } from "react-icons/bi";
 import NetworkList from "./NetworksList";
 import NetworksSwitch from "./NetworksSwitch";
@@ -14,28 +14,134 @@ import { CgCreditCard } from "react-icons/cg";
 import { GoCreditCard } from "react-icons/go";
 import { AiOutlineAccountBook, AiOutlineBank, AiTwotoneContainer } from "react-icons/ai";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { ScanCodeOutline } from "antd-mobile-icons";
+import { DownOutline, ScanCodeOutline } from "antd-mobile-icons";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { MdOutlineUsb } from "react-icons/md";
+import { MdOutlineCheck, MdOutlineRefresh, MdOutlineUsb } from "react-icons/md";
 import { resetLedger } from "../Initialize/Start";
-import { LedgerContext } from "../Popup";
+import { LedgerContext, WalletContext } from "../Popup";
 import useLocalStorageState from "use-local-storage-state";
 import { FaExchangeAlt } from "react-icons/fa";
 import {SetOutline} from "antd-mobile-icons";
+import getSymbolFromCurrency from "currency-symbol-map";
+import { cryptoBaseCurrencies, fetchFiatRates } from "../../nanswap/swap/service";
+import { convertAddress, parseURI } from "../../utils/format";
+import PasteAction from "./PasteAction";
+import { CopyIcon } from "./Icons";
+import CopyAddressPopup from "./CopyAddressPopup";
+import Confetti from "react-confetti-boom";
+import { getAccount } from "../getAccount";
+import SelectAccount from "./SelectAccount";
+import Settings, { ManageNetworks } from "../Settings";
+import { SlArrowDownCircle } from "react-icons/sl";
+import { MenuBar } from ".";
+import { useWindowDimensions } from "../../hooks/use-windows-dimensions"
 export const fetchPrices = async () => {
   const response = await fetch("https://api.nanexplorer.com/prices");
   return response.json();
 };
 
+export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
+  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+
+  let formatted = null
+  try {
+    if (selected.startsWith("X") || cryptoBaseCurrencies.includes(selected)) {
+      // without this it would always show 2 decimal places for X.. currencies
+      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
+    }
+    else if (selected === "NYANO"){
+      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 0 }).format(amountInBaseCurrency) + " " + selected;
+    }
+    else if (maximumSignificantDigits === undefined) {
+      formatted = new Intl.NumberFormat("en-US", { 
+        style: 'currency', 
+        currency: selected,
+       }).format(amountInBaseCurrency);
+    }
+    else {
+      formatted = new Intl.NumberFormat("en-US", { 
+        style: 'currency', 
+        currency: selected,
+        maximumSignificantDigits: maximumSignificantDigits,
+       }).format(amountInBaseCurrency);
+    }
+
+  }
+  catch (e) {
+    console.log(e);
+    if (maximumSignificantDigits === undefined) {
+      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
+    }
+    else {
+      formatted = new Intl.NumberFormat("en-US", {maximumSignificantDigits: maximumSignificantDigits }).format(amountInBaseCurrency) + " " + selected;
+    }
+    // +amountInBaseCurrency.toPrecision(6) + " " + selected;
+  }
+  return (
+    <>
+      {formatted}
+    </>
+  );
+}
+
+
+export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits = undefined }) => {
+  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+  const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
+  const { data: prices, isLoading: isLoadingPrices } = useSWR(
+    "prices",
+    fetchPrices,
+  );
+
+  if (isLoadingPrices) return <DotLoading />;
+  
+  let converted = 0
+  if (selected === ticker) {
+    converted = amount;
+  }
+  else{
+    converted = amount * (+prices?.[ticker]?.usd * +data?.[selected] ) ;
+  }
+  return (
+    <FormatBaseCurrency amountInBaseCurrency={converted} maximumSignificantDigits={maximumSignificantDigits} />
+  );
+}
+
+export const AccountIcon = ({ account }) => {
+  return (
+    <Image
+      src={"https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account}
+      alt="nantricon"
+      width={32}
+    />
+  );
+}
+export const AccountName = ({ }) => {
+  const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
+  const {wallet} = useContext(WalletContext);
+  const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address;
+
+  return (
+    <>
+      {accountsLabels[activeAccount] || `Account ${wallet.activeIndex + 1}`}
+    </>
+  );
+}
+
 const WalletSummary = ({}) => {
+  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+  const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
+  const { wallet, dispatch } = useContext(WalletContext);
   const { data: prices, isLoading: isLoadingPrices } = useSWR(
     "prices",
     fetchPrices,
   );
   const balances = {};
   for (const ticker of Object.keys(networks)) {
+    let account = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
+
     // fetch balance for each network
-    balances[ticker] = useSWR("balance-" + ticker, () => fetchBalance(ticker));
+    balances[ticker] = useSWR("balance-" + ticker + "-" + account, () => fetchBalance(ticker, account));
   }
 
   console.log({balances});
@@ -43,17 +149,22 @@ const WalletSummary = ({}) => {
   const isLoadingBalances = Object.keys(balances).some((ticker) => balances[ticker]?.isLoading);
   if (isLoadingPrices) return <DotLoading />;
 
-return   <div className="m-3 mb-5 mt-5">
-  <div className="text-sm text-gray-200 mb-1">
-    Main Wallet
-  </div>
+  const sum = Object.keys(balances)?.reduce((acc, ticker) => acc + (
+    +balances[ticker]?.data * +prices?.[ticker]?.usd * +data?.[selected] 
+    || 0), 0);
+  
+
+  const addressPfp = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
+
+  return   <div className="m-3 mb-5">
+    <SelectAccount />
   <div className="">
     
-    <div className="text-2xl">$ 
+    <div className="text-2xl">
     {
-      (isLoadingPrices || isLoadingBalances) ? <DotLoading /> : (Object.keys(balances)?.reduce((acc, ticker) => acc + (
-        +balances[ticker]?.data * +prices?.[ticker]?.usd
-        || 0), 0))?.toFixed(2)} USD
+      (isLoadingPrices || isLoadingBalances) ? <DotLoading /> : <FormatBaseCurrency amountInBaseCurrency={sum} />
+    }
+
     </div>
   </div>
 </div>
@@ -61,8 +172,8 @@ return   <div className="m-3 mb-5 mt-5">
 
 export default function Home({ }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
-  const [networksSwitchVisible, setNetworksSwitchVisible] = useState<boolean>(false);
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
+  const {mutate,cache}=useSWRConfig()
 
   const navigate = useNavigate();
 
@@ -76,41 +187,51 @@ export default function Home({ }) {
     "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/4850f8da-6458-4e47-bc80-3765e7df3a92@webp", //brocco
     "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/628a9d75-28fb-414b-80d7-ff8896cced20@webp", // raistone
   ]
-  async function getClipboardContents() {
-    try {
-      const text = await navigator.clipboard.readText();
-      console.log('Pasted content: ', text);
-      Toast.show({
-        content: "Pasted: " + text,
-      });
-    } catch (err) {
-      console.error('Failed to read clipboard contents: ', err);
-    }
-  }
   const {ledger, setLedger} = useContext(LedgerContext);
+  const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
+  const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
+  const {isMobile} = useWindowDimensions()
+  console.log("isMobile", isMobile)
   return (
-    <div className="container  relative mx-auto" style={{ maxWidth: 600 }}>
+    <div className="w-full  relative mx-auto" style={{  }}>
+        <Popup
+        destroyOnClose // else issue with history infinite scroll
+          visible={selectedTicker !== null}
+          onClose={() => setSelectedTicker(null)}
+          closeOnMaskClick
+          position="right"
+          maskClosable
+          >{
+            selectedTicker && <div style={{maxHeight: "100vh", overflowY: "auto"}}>
+              <Network defaultTicker={selectedTicker} />
+              </div>
+          }
+          </Popup>
         <NavBar
         className="text-slate-400 text-xxl app-navbar "
          back={
-          <SetOutline fontSize={20} />
+          icon
         } 
         onBack={() => {
           navigate("/settings");
         }}
         backArrow={false}>
-          <span className="text-xl">cesium</span>
+          <span className="text-xl">Home</span>
         </NavBar>
+        <div className="flex">
+        <div style={{width: "100%"}}>
       <PullToRefresh
-      pullingText="Pull to refresh"
-      completeText="Refreshed"
-      canReleaseText="Release to refresh"
-      refreshingText="Refreshing..."
+       pullingText={<MdOutlineRefresh />}
+       completeText={<>Updated <MdOutlineCheck /></>}
+       canReleaseText={<DotLoading />}
+       refreshingText={<DotLoading />}
       onRefresh={async () => {
         await mutate((key) => key.startsWith("balance-") || key === "prices");
       }}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between" >
         <WalletSummary />
+{/* <MenuBar mode="large-screen"/> */}
+
         <div className="flex items-center justify-center">
           {
             ledger && 
@@ -134,56 +255,24 @@ export default function Home({ }) {
   }
 />
 }
-<BiCopy fontSize={24} className="cursor-pointer text-gray-200 mr-3 mt-4"
-  onClick={() => {
-    Toast.show({
-      content: "Copied!",
-    });
-  }
-}
-/>
-          <ScanCodeOutline
-            fontSize={24}
-            className="cursor-pointer text-gray-200 mr-3 mt-4"
-            onClick={() => {
-              Modal.show({
-                // style: { width: "100%", height: "268px" },
-                // bodyStyle: { height: "268px" },
-                closeOnMaskClick: true,
-                title: "Scan QR Code",
-                content: (
-                  <div>
-                    <div style={{ height: 256 }}>
-                      <Scanner
-                        //   styles={
-                        onScan={(result) => {
-                          console.log(result);
-                          form.setFieldValue("address", result[0].rawValue);
-                          Modal.clear();
-                        }}
-                      />
-                    </div>
-                    <div className="text-gray-400 m-4 text-sm">
-                      Scan Address to send funds to or scan a message to sign
-                    </div>
-                  </div>
-                ),
-              });
-            }}
-          />
-          <BiPaste fontSize={24} className="cursor-pointer text-gray-200 mr-4 mt-4"
-            onClick={() => {
-              navigator.clipboard.readText().then((text) => {
-                Toast.show({
-                  content: "Pasted: " + text,
-                });
-              })}}
-          />
+<CopyAddressPopup />
+          
+          <PasteAction mode="paste"/>
+          <PasteAction mode="scan" />
+       
         </div>
       </div>
       <div className="overflow-y-auto pb-10" style={{ height: "70vh" }}>
         <NetworkList
-          onClick={(ticker) => navigate(`/${ticker}`)}
+          // onClick={(ticker) => navigate(`/${ticker}`)}
+          onClick={(ticker) => {
+            if (isMobile) {
+              navigate(`/${ticker}`)
+            }
+            else {
+              setSelectedTicker(ticker)
+            }
+          }}
         />
         <List>
           <List.Item
@@ -206,9 +295,7 @@ export default function Home({ }) {
             NaNFT
           </List.Item>
         </List>
-        <div className="text-center mt-8 text-sm text-gray-400 cursor-pointer" onClick={() => setNetworksSwitchVisible(true)}>
-          Manage crypto
-        </div>
+        <ManageNetworks />
       </div>
       {/* <FloatingBubble
         style={{
@@ -222,17 +309,9 @@ export default function Home({ }) {
         <FaExchangeAlt size={22} />
 
       </FloatingBubble> */}
-      <Popup
-        visible={networksSwitchVisible}
-        onClose={() => setNetworksSwitchVisible(false)}
-        closeOnMaskClick={true}
-      >
-        <NetworksSwitch
-
-          
-         />
-      </Popup>
       </PullToRefresh>
+      </div>
+      </div>
     </div>
   );
 }

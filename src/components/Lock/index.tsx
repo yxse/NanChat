@@ -10,11 +10,11 @@ import "../../styles/login.css";
 // As long as it gets the work done, it's all good - Write Int
 
 export default function Lockscreen({
-  setLoggedIn,
   theme,
+  setWalletState,
 }: {
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
   theme: "dark" | "light";
+  setWalletState: React.Dispatch<React.SetStateAction<"locked" | "unlocked" | "no-wallet" | "loading">>;
 }) {
   const [resetPassW, setResetPassW] = useState<boolean>(false);
   const [shouldCall, setShouldCall] = useState<boolean>(false);
@@ -33,13 +33,7 @@ export default function Lockscreen({
             handleSubmit={() => setShouldCall(true)}
             invalidPass={invalidPass}
             theme={theme}
-          />
-          <Footer
-            shouldCall={shouldCall}
-            setInvalidPass={setInvalidPass}
-            setShouldCall={setShouldCall}
-            setLoggedIn={setLoggedIn}
-            theme={theme}
+            setWalletState={setWalletState}
           />
         </>
       )}
