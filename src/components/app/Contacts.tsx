@@ -96,7 +96,7 @@ const Contacts: React.FC = () => {
 
             <Form 
             initialValues={{
-                name: "",
+                name: searchParams.get("name") || "",
                 network: searchParams.get("network") || "",
                 address: searchParams.get("address") || "",
             }}

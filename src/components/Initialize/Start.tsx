@@ -10,7 +10,8 @@ import { networks } from "../../utils/networks";
 import PWAInstallComponent from "../PWAInstallComponent";
 import { MdOutlineUsb } from "react-icons/md";
 import { initWallet } from "../../nano/accounts";
-
+// ./icons/icon.png
+import icon from "../../../public/icons/icon.png"
 export async function resetLedger() {
   global.ledger.resetLedger()
   global.ledger = null
@@ -133,27 +134,27 @@ export default function Start({
             <div className="select-none items-center flex flex-col justify-center align-center w-full">
               <div className="flex flex-col space-y-3 items-center justify-center w-full">
                 <img
-                  src="img/logo.svg"
+                src={icon}
                   className="w-auto h-32 mr-2"
                   alt="Cesium Wallet Logo"
                   draggable={false}
                 />
                 <div className="flex flex-col">
                   <span className="text-sm text-gray-600">
-                    Created with ❤️ by{" "}
+                    Created with 💙 by{" "}
                     <a
-                      href="https://nano.gift/"
+                      href="https://github.com/YXSE"
                       onClick={(e) => {
                         e.preventDefault();
                         return chrome.tabs.create({
-                          url: "https://nano.gift/?referrer=caesium",
+                          url: "",
                         });
                       }}
                       className="text-blue-500 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Nano Gift
+                      YXSE
                     </a>
                   </span>
                 </div>
@@ -167,7 +168,7 @@ export default function Start({
               </p>
             </div>
           </div>
-          <PWAInstallComponent   />
+          {/* <PWAInstallComponent   /> */}
 
             <Button 
             shape="rounded"

@@ -23,7 +23,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { FaExchangeAlt } from "react-icons/fa";
 import {SetOutline} from "antd-mobile-icons";
 import getSymbolFromCurrency from "currency-symbol-map";
-import { cryptoBaseCurrencies, fetchFiatRates } from "../../nanswap/swap/service";
+import { cryptoBaseCurrencies, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
 import { convertAddress, parseURI } from "../../utils/format";
 import PasteAction from "./PasteAction";
 import { CopyIcon } from "./Icons";
@@ -31,14 +31,13 @@ import CopyAddressPopup from "./CopyAddressPopup";
 import Confetti from "react-confetti-boom";
 import { getAccount } from "../getAccount";
 import SelectAccount from "./SelectAccount";
-import Settings, { ManageNetworks } from "../Settings";
-import { SlArrowDownCircle } from "react-icons/sl";
+// import Settings, { ManageNetworks } from "../Settings";
+import Settings from "../Settings";
+import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { MenuBar } from ".";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions"
-export const fetchPrices = async () => {
-  const response = await fetch("https://api.nanexplorer.com/prices");
-  return response.json();
-};
+import Messaging from "../messaging/Messaging";
+import localForage from "localforage";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
@@ -107,12 +106,15 @@ export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits
   );
 }
 
-export const AccountIcon = ({ account }) => {
+export const accountIconUrl = (account) => {
+  return "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account;
+}
+export const AccountIcon = ({ account, width=32 }) => {
   return (
     <Image
       src={"https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account}
       alt="nantricon"
-      width={32}
+      width={width}
     />
   );
 }
@@ -173,7 +175,11 @@ const WalletSummary = ({}) => {
 export default function Home({ }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
+  const [modalSettingsVisible, setModalSettingsVisible] = useState(false);
   const {mutate,cache}=useSWRConfig()
+  const [modalReceiveVisible, setModalReceiveVisible] = useState(false);
+  const [action, setAction] = useState("receive");
+  const [ticker, setTicker] = useState(null);
 
   const navigate = useNavigate();
 
@@ -213,7 +219,12 @@ export default function Home({ }) {
           icon
         } 
         onBack={() => {
-          navigate("/settings");
+          if (isMobile){
+            navigate("/settings");
+          }
+          else{
+            setModalSettingsVisible(true);
+          }
         }}
         backArrow={false}>
           <span className="text-xl">Home</span>
@@ -262,7 +273,45 @@ export default function Home({ }) {
        
         </div>
       </div>
-      <div className="overflow-y-auto pb-10" style={{ height: "70vh" }}>
+      <div className="overflow-y-auto pb-10" style={{ height: "65dvh" }}>
+        {
+          isMobile && <>
+          
+      <div className="flex items-center justify-center gap-5 mb-5 mx-2">
+        <ModalReceive 
+        action={action} 
+        setAction={setAction} 
+        modalVisible={modalReceiveVisible}
+        setModalVisible={setModalReceiveVisible}
+         ticker={"XNO"} />
+        <Button
+        onClick={() => {
+          setAction("receive");
+          setModalReceiveVisible(true);
+        }}
+        style={{width: "50%"}}
+            type="button"
+            shape="rounded"
+            size="large"
+          >
+            Receive
+          </Button>
+
+          <Button
+          onClick={() => {
+            setAction("send");
+            setModalReceiveVisible(true);
+          }}
+          style={{width: "50%"}}
+            type="button"
+            shape="rounded"
+            size="large"
+          >
+            Send
+          </Button>
+      </div>
+      </>
+        }
         <NetworkList
           // onClick={(ticker) => navigate(`/${ticker}`)}
           onClick={(ticker) => {
@@ -295,7 +344,7 @@ export default function Home({ }) {
             NaNFT
           </List.Item>
         </List>
-        <ManageNetworks />
+        {/* <ManageNetworks /> */}
       </div>
       {/* <FloatingBubble
         style={{
@@ -310,6 +359,17 @@ export default function Home({ }) {
 
       </FloatingBubble> */}
       </PullToRefresh>
+        <Modal
+        bodyStyle={{height: "100vh", width: "500px"}}
+        style={{height: "100vh"}}
+        closeOnMaskClick
+        onClose={() => setModalSettingsVisible(false)}
+        visible={modalSettingsVisible} 
+        // visible={true}
+        content={
+        //  <Settings isNavOpen={true} setNavOpen={() => {}} />
+         <iframe src="/settings" className="w-full h-full" /> // only temporary, a bit hacky settings in modal is nice for pc users
+         } />
       </div>
       </div>
     </div>

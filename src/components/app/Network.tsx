@@ -31,7 +31,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { getWalletRPC, initWallet, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { ConvertToBaseCurrency, fetchPrices } from "./Home";
+import { ConvertToBaseCurrency } from "./Home";
 import { GoCreditCard } from "react-icons/go";
 import Swap from "./Swap";
 import { MdOutlineCheck, MdOutlineCurrencyExchange, MdOutlineRefresh } from "react-icons/md";
@@ -45,6 +45,7 @@ import { CopyButton } from "./Icons";
 import { WalletContext } from "../Popup";
 import { Wallet } from "../../nano/wallet";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { fetchPrices } from "../../nanswap/swap/service";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden

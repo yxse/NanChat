@@ -11,6 +11,10 @@ import {
   useSearchParams,
   useParams,
 } from "react-router-dom";
+import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
+// when using `"withGlobalTauri": true`, you may use
+// const { onOpenUrl } = window.__TAURI__.deepLink;
+
 
 import { FaBars, FaBarsStaggered } from "react-icons/fa6";
 import "../../styles/app.css";
@@ -18,9 +22,10 @@ import {
   AiFillDollarCircle,
   AiFillWallet,
   AiOutlineGlobal,
+  AiOutlineHome,
   AiOutlineSwap,
 } from "react-icons/ai";
-import { BiHistory, BiSolidDashboard, BiWallet } from "react-icons/bi";
+import { BiHistory, BiReceipt, BiSolidDashboard, BiWallet } from "react-icons/bi";
 import Settings from "../Settings";
 
 import Home from "./Home";
@@ -28,7 +33,7 @@ import Art from "./Art";
 import Swap from "./Swap";
 import History from "./History";
 import Network, { ModalReceive } from "./Network";
-import { Badge, CapsuleTabs, Popup, SideBar, TabBar, Toast } from "antd-mobile";
+import { Badge, CapsuleTabs, Popup, SafeArea, SideBar, TabBar, Toast } from "antd-mobile";
 import Send from "./Send";
 import Protocol_handler from "./protocol_handler";
 import Sign from "../../api-invoke/Sign";
@@ -42,7 +47,7 @@ import AddNetwork from "./AddNetwork";
 import { networks } from "../../utils/networks";
 import { FaExchangeAlt } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
-import {BellOutline, LoopOutline} from "antd-mobile-icons";
+import {AppstoreOutline, BellOutline, LoopOutline, MessageOutline} from "antd-mobile-icons";
 import Contacts from "./Contacts";
 import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
 import PWAInstallComponent from "../PWAInstallComponent";
@@ -51,6 +56,10 @@ import SecuritySettings from "./SecuritySettings";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import DeveloperSettings from "./DeveloperSettings";
 import NanoAlias from "./NanoAlias";
+import { IoWalletOutline } from "react-icons/io5";
+import Messaging from "../messaging/Messaging";
+import ChatRoom from "../messaging/components/ChatRoom";
+import Chat from "../messaging/components/Chat";
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -96,15 +105,15 @@ export const MenuBar = () => {
   let fontSize = 22
 
   const tabs = [
-    // {
-    //   key: "",
-    //   title: "Wallet",
-    //   icon: <BiWallet size={28} />,
-    // },
     {
-      key: "receive",
-      title: "Receive",
-      icon: <SlArrowDownCircle size={btnSize} />,
+      key: "",
+      title: "Home",
+      icon: <AiOutlineHome size={btnSize} />,
+    },
+    {
+      key: "chat",
+      title: "Chat",
+      icon: <MessageOutline size={btnSize} />,
     },
     {
       key: "swap",
@@ -113,8 +122,13 @@ export const MenuBar = () => {
     },
     {
       key: "send",
-      title: "Send",
-      icon: <SlArrowUpCircle size={btnSize} />,
+      title: "History",
+      icon: <BiReceipt size={btnSize} />,
+    },
+    {
+      key: "receive",
+      title: "Explore",
+      icon: <AppstoreOutline size={btnSize} />,
     },
   ];
   let style = {position: "fixed", bottom: 0, width: "100%", paddingBottom: 16};
@@ -123,8 +137,8 @@ export const MenuBar = () => {
   return (
     <>
       <TabBar
-      // safeArea={true}
-      style={style}
+      safeArea={true}
+      // style={style}
         className={"bottom"}
         activeKey={location.pathname.split("/")[1]}
         onChange={(key) => {
@@ -165,6 +179,14 @@ export const MenuBar = () => {
           else if (key === "swap") {
             setVisible(true);
             setAction("swap");
+            return
+          }
+          else if (key === "chat") {
+            navigate("/chat");
+            return
+          }
+          else if (key === "") {
+            navigate("/");
             return
           }
           // navigate(key);
@@ -235,6 +257,8 @@ export default function App() {
     };
 
     useEffect(() => {
+      const myworker = new Worker(new URL("./src/service-worker.js", import.meta.url));
+      
       const interval = setInterval(() => {
           setTimeSinceLastActivity((prev) => prev + 1);
       }, 1000);
@@ -268,7 +292,7 @@ export default function App() {
   return (
     <>
     <LockAfterInactivity />
-      <PWAInstallComponent   />
+      {/* <PWAInstallComponent   /> */}
       <div className="app">
       
       <section className="app-navbar hidden">
@@ -315,7 +339,11 @@ export default function App() {
           
           {/** main content */}
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home
+            // setAction={setAction}
+            
+            
+             />} />
             <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} />
             <Route path="/settings/security" element={<SecuritySettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />
@@ -325,7 +353,6 @@ export default function App() {
             <Route path="/history" element={<History />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/add-network" element={<AddNetwork />} />
-            <Route path="/" element={<Home />} />
             <Route path="/sign" element={<Sign />} />
             <Route path="/art" element={<Art />} />
             <Route path="/protocol_handler" element={<Protocol_handler />} />
@@ -335,12 +362,18 @@ export default function App() {
               element={<Network defaultReceiveVisible={true} defaultAction="receive" />} />
             <Route path="/:ticker/send" element={<Network defaultReceiveVisible={true} defaultAction="send" />} />
             <Route path="/:ticker/representative" element={<ChangeRep />} />
+            {/* <Route path="/messages" element={<Messaging />} />
+            <Route path="/messages/:account" element={<ChatRoom />} />
+            <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
+            <Route  path="/chat/*" element={<Chat />} />
           </Routes>
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}
         </div>
-        {
+        {/* {
           isMobile && <MenuBar />
-        }
+        } */}
+        <MenuBar />
+        <SafeArea position="bottom" />
       </Router>
       </div>
     </>

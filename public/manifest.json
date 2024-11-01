@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Cesium Wallet",
-  "description": "Secure, private and minimalist wallet extension for the Nano (XNO) - brought to you by Nano Gift",
+  "description": "Secure, private and minimalist wallet extension for the Nano (XNO) - brought to you by YXSE",
   "version": "1.0",
   "options_ui": {
     "page": "options.html",

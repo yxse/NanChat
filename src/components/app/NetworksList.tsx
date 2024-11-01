@@ -271,7 +271,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                 <div className="flex space-x-4 ml-6 mr-1 justify-end max-md:hidden">
                   <ButtonAction action="receive" ticker={ticker} />
                   <ButtonAction action="send" ticker={ticker} />
-                  <ButtonAction action="swap" ticker={ticker} />
+                  <ButtonAction action="swap" ticker={ticker} /> 
                 </div>
                 }
               </div>
