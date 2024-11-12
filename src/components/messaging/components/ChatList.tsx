@@ -1,19 +1,20 @@
-import { Badge, Card, Input, List, SearchBar } from "antd-mobile";
-import { FillinOutline, LockOutline } from "antd-mobile-icons";
+import { Badge, Button, Card, Input, List, Modal, Popover, SearchBar, Toast } from "antd-mobile";
+import { FillinOutline, LockOutline, TeamOutline, UserCircleOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
 import { WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
-import { fetcherMessages } from "../fetcher";
+import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { box } from "multi-nano-web";
 
 const ChatList: React.FC = ({ onChatSelect , onlineAccount}) => {
     const {wallet} = useContext(WalletContext)
+    const {account} = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     const {data: chats, mutate} = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
@@ -42,12 +43,82 @@ const ChatList: React.FC = ({ onChatSelect , onlineAccount}) => {
         }
     }
     , []);
+
+    const ButtonNewChat = () => {
+        const actions: Action[] = [
+            // { key: 'private_chat', icon: <UserOutline />, text: 'New Private Chat' },
+            // { key: 'private_group', icon: <TeamOutline />, text: 'Private Group' },
+            { key: 'public_group', icon: <TeamOutline />, text: 'New Public Group' },
+
+          ]
+        return (
+            <div className="flex justify-center items-center mt-4">
+                <Popover.Menu
+          mode='dark'
+          actions={actions}
+          placement='right-start'
+          onAction={node => {
+            if (node.key === 'public_group') {
+                let modal = Modal.show({
+                    title: 'Create a new public group',
+                    content: (
+                        <div>
+                            <Input
+                                id="group-name"
+                                type="text"
+                                placeholder="Group Name"
+                                className="w-full mt-2 p-2 rounded-lg"
+                            />
+                        </div>
+                    ),
+                    actions: [
+                        {
+                            key: 'cancel',
+                            text: 'Cancel',
+                            onClick: () => modal.close()
+                        },
+                        {
+                            key: 'create',
+                            text: 'Create',
+                            primary: true,
+                            onClick: async () => {
+                                await fetcherMessagesPost('/chats', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        name: (document.getElementById('group-name') as HTMLInputElement).value,
+                                        type: 'public',
+                                        participants: [activeAccount]
+                                    })
+                                })
+
+                                Toast.show({
+                                    content: 'Group created'
+                                });
+                                modal.close();
+                            }
+                        }
+                    ]
+                });
+            }
+            
+          }}
+          trigger='click'
+        >
+          <Button><FillinOutline fontSize={24} /></Button>
+        </Popover.Menu>
+            </div>
+        );
+    };
     return (
         <div>
-            <div>
+        <div>
+            <List style={{position: 'sticky', top: 0, zIndex: 1}} className="">
                 <div className="flex justify-between items-center m-4">
                     <h1>Chats</h1>
-                    <FillinOutline fontSize={24} />
+                    <ButtonNewChat />
                 </div>
                 {/* <div className="flex items-center gap-2 mt-1 align-middle">
             Share your Invitation Link: <CopyToClipboard text={`https://znbfmt6n-4173.euw.devtunnels.ms/messages/${activeAccount}`} />
@@ -59,7 +130,7 @@ const ChatList: React.FC = ({ onChatSelect , onlineAccount}) => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-            </div>
+            </List>
 
             <div className="">
                 <List>
@@ -76,7 +147,8 @@ const ChatList: React.FC = ({ onChatSelect , onlineAccount}) => {
                         }
                         return (
                         <List.Item
-                            onClick={() => onChatSelect(accountFrom)}
+                        className={chat.id === account ? 'active' : ''}
+                            onClick={() => onChatSelect(chat.id)}
                             key={chat.id}
                             extra={
                                 <div className="flex flex-col items-end">
@@ -145,6 +217,7 @@ const ChatList: React.FC = ({ onChatSelect , onlineAccount}) => {
                     </List>
                 </div>
             </div>
+        </div>
         </div>
     );
 };

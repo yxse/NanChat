@@ -1,3 +1,5 @@
+import localforage from "localforage";
+
 interface StorageArea {
   [key: string]: any;
 }
@@ -37,6 +39,18 @@ export function resetWallet(): void {
   localStorage.clear();
   // chrome.storage.local.clear();
 }
+
+export async function setSeed(seed: string): Promise<void> {
+  localStorage.setItem("seed", seed);
+  await localforage.setItem("seed", seed);
+}
+
+export async function removeSeed(): Promise<void> {
+  localStorage.removeItem("seed");
+  await localforage.removeItem("seed");
+}
+
+
 
 export function autoLockAfterInactivity(): void {
   let timeout: NodeJS.Timeout;

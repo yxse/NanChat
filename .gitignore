@@ -10,3 +10,5 @@ extension.pem
 dist.pem
 dist.crx
 bun.lockb
+vite.config.ts.timestamp*
+dev-dist/

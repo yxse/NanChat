@@ -47,7 +47,7 @@ import AddNetwork from "./AddNetwork";
 import { networks } from "../../utils/networks";
 import { FaExchangeAlt } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
-import {AppstoreOutline, BellOutline, LoopOutline, MessageOutline} from "antd-mobile-icons";
+import {AppstoreOutline, BellOutline, CompassOutline, LoopOutline, MessageOutline, UserOutline} from "antd-mobile-icons";
 import Contacts from "./Contacts";
 import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
 import PWAInstallComponent from "../PWAInstallComponent";
@@ -60,6 +60,8 @@ import { IoWalletOutline } from "react-icons/io5";
 import Messaging from "../messaging/Messaging";
 import ChatRoom from "../messaging/components/ChatRoom";
 import Chat from "../messaging/components/Chat";
+import ReloadPrompt from "./ReloadPrompt/ReloadPrompt";
+import { Discover } from "./discover/Discover";
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -121,14 +123,14 @@ export const MenuBar = () => {
       icon: swapBtn,
     },
     {
-      key: "send",
-      title: "History",
-      icon: <BiReceipt size={btnSize} />,
+      key: "discover",
+      title: "Discover",
+      icon: <CompassOutline size={btnSize} />,
     },
     {
-      key: "receive",
-      title: "Explore",
-      icon: <AppstoreOutline size={btnSize} />,
+      key: "me",
+      title: "Me",
+      icon: <UserOutline size={btnSize} />,
     },
   ];
   let style = {position: "fixed", bottom: 0, width: "100%", paddingBottom: 16};
@@ -161,19 +163,12 @@ export const MenuBar = () => {
             setAction("receive");
             return
           }
-          else if (key === "send") {
-            // if (networks[location.pathname.split("/")[1]]) {
-            //   navigate(location.pathname.split("/")[1] + "/send");
-            //   return;
-            // }
-            if (activeMainNetworks.length + activeCustomNetworks.length === 1) { // directly show the action if only one active network
-              let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
-              setActiveTicker(ticker);
-            }
-            else{
-              setVisible(true);
-            }
-            setAction("send");
+          else if (key === "discover") {
+            navigate("/discover");
+            return
+          }
+          else if (key === "me") {
+            navigate("/chat/set-name");
             return
           }
           else if (key === "swap") {
@@ -257,8 +252,9 @@ export default function App() {
     };
 
     useEffect(() => {
-      const myworker = new Worker(new URL("./src/service-worker.js", import.meta.url));
-      
+      // const myworker = new Worker(new URL("./src/service-worker.js", import.meta.url));
+     
+
       const interval = setInterval(() => {
           setTimeSinceLastActivity((prev) => prev + 1);
       }, 1000);
@@ -333,9 +329,9 @@ export default function App() {
           </div> */}
           
       </section>
-      
+      <ReloadPrompt />
       <Router>
-        <div className="w-full body ">
+        <div className="w-full body " style={{overflow: 'auto'}}>
           
           {/** main content */}
           <Routes>
@@ -365,6 +361,7 @@ export default function App() {
             {/* <Route path="/messages" element={<Messaging />} />
             <Route path="/messages/:account" element={<ChatRoom />} />
             <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
+            <Route path="/discover" element={<Discover />} />
             <Route  path="/chat/*" element={<Chat />} />
           </Routes>
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}

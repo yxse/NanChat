@@ -46,7 +46,11 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     className="flex items-center">
                     <BiChevronLeft
                         onClick={(e) => {
-                               navigate(`/chat/${account}`);
+                            if (window.history?.length && window.history.length > 1) {
+                                navigate(-1);
+                             } else {
+                                navigate('/chat', { replace: true });
+                             }
                         }}
                         className="w-8 h-8 text-gray-500 cursor-pointer" />
                     

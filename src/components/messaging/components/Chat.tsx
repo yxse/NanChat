@@ -7,11 +7,12 @@ import { WalletContext } from '../../Popup';
 import { convertAddress } from '../../../utils/format';
 import SetName from './SetName';
 import AccountInfo from './AccountInfo';
+import { askPermission } from '../../../nano/notifications';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
-    const {wallet} = useContext(WalletContext)
+    const { wallet } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
 
     useEffect(() => {
@@ -28,31 +29,99 @@ const Chat: React.FC = () => {
             setOnlineAccount(accounts);
         });
         socket.on('newAccount', (account: string) => {
-            console.log('newAccount', account); 
+            console.log('newAccount', account);
             console.log('onlineAccount', onlineAccount);
-            if (!onlineAccount.includes(account)){
+            if (!onlineAccount.includes(account)) {
                 setOnlineAccount(prev => [...prev, account]);
             }
         });
-        
-        
 
-      return () => {
-                socket.off('newAccount');
-                socket.off('accounts');
-      };
+
+
+        return () => {
+            socket.off('newAccount');
+            socket.off('accounts');
+        };
     }, [activeAccount, onlineAccount]);
+
+    useEffect(() => {
+        // todo add modal
+        askPermission();
+    }, [])
     return (
         <>
-        <Routes>
+            <Routes>
                 <Route path="/set-name" element={<SetName />} />
-                <Route path="/:account" element={<ChatRoom onlineAccount={onlineAccount}/>} />
-                <Route path="/:account/info" element={<AccountInfo  onlineAccount={onlineAccount}/>} />
-                <Route path="/" element={<ChatList
-                onlineAccount={onlineAccount}
-                    onChatSelect={(chatId) => navigate(`/chat/${chatId}`)}
-                 />} />
-        </Routes>
+                <Route path="/:account" element={
+                    <div className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
+                        <div
+                        className='hide-on-mobile'
+                         style={{
+                            height: "100%", 
+                            display: "flex", 
+                            flexDirection: "column",
+                            flexBasis: "45%", 
+                            overflowY: "scroll",
+                            overflowX: "hidden",
+                            maxWidth: 420
+
+                            }}>
+                        <ChatList
+                            onlineAccount={onlineAccount}
+                            onChatSelect={(chatId) => navigate(`/chat/${chatId}`)}
+                        /></div>
+                        <div style={{
+                            height: "100%", 
+                            display: "flex", 
+                            flexDirection: "column",
+                            // width: "100%",
+                            flexBasis: "55%",
+                            flexGrow: 1,
+                            minWidth: 180,
+                            }}>
+
+                        <ChatRoom onlineAccount={onlineAccount} />
+                        </div>
+                    </div>
+                } />
+                <Route path="/:account/info" element={<AccountInfo onlineAccount={onlineAccount} />} />
+                <Route path="/" element={<div className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
+                        <div
+                        className='full-width-on-mobile'
+                         style={{
+                            height: "100%", 
+                            display: "flex", 
+                            flexDirection: "column",
+                            // flexBasis: "45%", 
+                            overflowY: "scroll",
+                            overflowX: "hidden",
+                            maxWidth: 420
+                            // width: "100%"
+                            }}>
+                        <ChatList
+                            onlineAccount={onlineAccount}
+                            onChatSelect={(chatId) => {
+                                document.startViewTransition(() => {
+                                    navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
+                                })
+                            }}
+                        /></div>
+                        <div
+                        className='hide-on-mobile'
+                         style={{
+                            height: "100%", 
+                            display: "flex", 
+                            flexDirection: "column",
+                            // width: "100%",
+                            flexBasis: "55%",
+                            flexGrow: 1,
+                            minWidth: 180,
+                            }}>
+
+                        <ChatRoom onlineAccount={onlineAccount} />
+                        </div>
+                    </div>} />
+            </Routes>
         </>
     );
 };

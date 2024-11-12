@@ -32,19 +32,24 @@ import Confetti from "react-confetti-boom";
 import { getAccount } from "../getAccount";
 import SelectAccount from "./SelectAccount";
 // import Settings, { ManageNetworks } from "../Settings";
-import Settings from "../Settings";
+import Settings, { ManageNetworks } from "../Settings";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { MenuBar } from ".";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions"
 import Messaging from "../messaging/Messaging";
 import localForage from "localforage";
+import ReloadPrompt from "./ReloadPrompt/ReloadPrompt";
+import { SendReceive } from "./wallet/SendReceive";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
 
   let formatted = null
   try {
-    if (selected.startsWith("X") || cryptoBaseCurrencies.includes(selected)) {
+    if (selected === "XNO") {
+      formatted = "Ӿ" + new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency);
+    }
+    else if (selected.startsWith("X") || cryptoBaseCurrencies.includes(selected)) {
       // without this it would always show 2 decimal places for X.. currencies
       formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
     }
@@ -177,9 +182,6 @@ export default function Home({ }) {
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const [modalSettingsVisible, setModalSettingsVisible] = useState(false);
   const {mutate,cache}=useSWRConfig()
-  const [modalReceiveVisible, setModalReceiveVisible] = useState(false);
-  const [action, setAction] = useState("receive");
-  const [ticker, setTicker] = useState(null);
 
   const navigate = useNavigate();
 
@@ -197,7 +199,6 @@ export default function Home({ }) {
   const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
   const {isMobile} = useWindowDimensions()
-  console.log("isMobile", isMobile)
   return (
     <div className="w-full  relative mx-auto" style={{  }}>
         <Popup
@@ -227,7 +228,7 @@ export default function Home({ }) {
           }
         }}
         backArrow={false}>
-          <span className="text-xl">Home</span>
+          <span className="text-xl">Home </span>
         </NavBar>
         <div className="flex">
         <div style={{width: "100%"}}>
@@ -274,44 +275,7 @@ export default function Home({ }) {
         </div>
       </div>
       <div className="overflow-y-auto pb-10" style={{ height: "65dvh" }}>
-        {
-          isMobile && <>
-          
-      <div className="flex items-center justify-center gap-5 mb-5 mx-2">
-        <ModalReceive 
-        action={action} 
-        setAction={setAction} 
-        modalVisible={modalReceiveVisible}
-        setModalVisible={setModalReceiveVisible}
-         ticker={"XNO"} />
-        <Button
-        onClick={() => {
-          setAction("receive");
-          setModalReceiveVisible(true);
-        }}
-        style={{width: "50%"}}
-            type="button"
-            shape="rounded"
-            size="large"
-          >
-            Receive
-          </Button>
-
-          <Button
-          onClick={() => {
-            setAction("send");
-            setModalReceiveVisible(true);
-          }}
-          style={{width: "50%"}}
-            type="button"
-            shape="rounded"
-            size="large"
-          >
-            Send
-          </Button>
-      </div>
-      </>
-        }
+     <SendReceive />
         <NetworkList
           // onClick={(ticker) => navigate(`/${ticker}`)}
           onClick={(ticker) => {
@@ -344,7 +308,7 @@ export default function Home({ }) {
             NaNFT
           </List.Item>
         </List>
-        {/* <ManageNetworks /> */}
+        <ManageNetworks />
       </div>
       {/* <FloatingBubble
         style={{

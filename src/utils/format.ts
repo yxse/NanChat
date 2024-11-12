@@ -15,6 +15,12 @@ export const formatAddress = (address) => {
     if (!address) return "";
     return address.slice(0, 10) + "..." + address.slice(-6);
   }
+export const formatAmountRaw = (amountRaw, ticker) => {
+    if (amountRaw == null) {
+      return "";
+    }
+    return rawToMega(ticker, amountRaw);
+  }
 export const parseURI = (uri) => {
     const parts = uri.split(":");
     let prefix = parts[0];

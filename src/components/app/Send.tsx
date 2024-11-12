@@ -93,6 +93,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
 
   const getAvailableAmount = () => {
     const fiatRate = getFiatRate();
+    if (prices?.[ticker] == null) return "..";
     const fiatAmount = (balance * prices[ticker]?.usd * fiatRate).toFixed(2);
     return isAmountFiat
       ? `${fiatAmount} ${selected} (${balance} ${ticker})`
@@ -141,7 +142,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
   return (
     <Form.Item
       name={formItemName}
-      label={label}
+      label={""}
       validateFirst
       required={false}
       extra={
@@ -179,7 +180,7 @@ const useFocus = () => {
   return [ htmlElRef, setFocus ] 
 }
 
-export default function Send({ticker, onClose, defaultScannerOpen = false}) {
+export default function Send({ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null}) {
   
   // const [result, setResult] = useState<string>(null);
   const {wallet} = useContext(WalletContext)
@@ -208,8 +209,12 @@ export default function Send({ticker, onClose, defaultScannerOpen = false}) {
   const {mutate,cache}=useSWRConfig()
   let isScanning = false;
   useEffect(() => {
-    form.setFieldsValue({ amount: searchParams.get("amount") || "" });
-    form.setFieldsValue({ address: searchParams.get("to") || "" });
+    if (searchParams.get("to")) {
+      form.setFieldsValue({ address: searchParams.get("to") });
+    }
+    if (searchParams.get("amount")) {
+      form.setFieldsValue({ amount: searchParams.get("amount") });
+    }
     if (defaultScannerOpen && !isScanning) {
       showScanner()
       isScanning = true // prevent multiple open scanners
@@ -266,8 +271,8 @@ export default function Send({ticker, onClose, defaultScannerOpen = false}) {
           <Form
           style={successPopupOpen ? {display: "none"} : {}}
             initialValues={{
-              address: "",
-              amount: "",
+              address: defaultAddress,
+              amount: defaultAmount,
             }}
             form={form}
             onFinish={async (values) => {
@@ -325,13 +330,14 @@ export default function Send({ticker, onClose, defaultScannerOpen = false}) {
           >
             <div className="flex justify-between">
               <Form.Item
-                label="Address"
+                label=""
                 name={"address"}
                 style={{ width: "100%" }}
               >
                 <TextArea
+                disabled
                   autoSize={{ minRows: 3, maxRows: 4 }}
-                  placeholder="Address to send to"
+                  placeholder="To alias or address"
                   rows={2}
                 />
               </Form.Item>
@@ -469,13 +475,16 @@ export default function Send({ticker, onClose, defaultScannerOpen = false}) {
                     setSentAmount(amount);
                     setSentTo(toAddress);
                     form.setFieldsValue({ address: "", amount: "" });
-                    if (location.pathname !== '/'){
+                    if (location.pathname !== '/' && !location.pathname.startsWith(`/chat`)) {
                       navigate(`/${ticker}`, { replace: true }); //reset params send
                     }
                     setConfirmPopupOpen(false);
                     setSuccessPopupOpen(true);
                     mutate("balance-" + ticker);
                     mutate("history-" + ticker);
+                    if (onSent) {
+                      onSent(ticker, result.hash);
+                    }
                   } catch (error) {
                     console.error("Error sending:", error);
                     Toast.show({

@@ -1,14 +1,12 @@
 // @ts-nocheck
-import { useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchBalance, showModalReceive } from "./Network";
-import { Button, Divider, DotLoading, FloatingBubble, List } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { BiPlus } from "react-icons/bi";
-import React, { useMemo, useState } from 'react'
-import { Button, CheckList, Popup, SearchBar, Space } from 'antd-mobile'
+import React, { useMemo, useState, useEffect } from 'react'
+import { Button, CheckList, Popup, SearchBar, Space, Divider, DotLoading, FloatingBubble, List } from 'antd-mobile'
 import { DemoBlock } from 'demos'
 import styles from './demo2.less'
 import NetworkList, { NetworkItem, TickerTitle } from "../app/NetworksList";

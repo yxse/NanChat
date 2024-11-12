@@ -10,11 +10,12 @@
   <link rel="icon" href="icons/icon.png" type="image/png" />
   <link rel="manifest" href="/src/manifest.json" />
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/src/service-worker.js");
-      });
-    }
+    // handled by vite pwa plugin
+    // if ("serviceWorker" in navigator) {
+    //   window.addEventListener("load", () => {
+    //     navigator.serviceWorker.register("/src/service-worker.js");
+    //   });
+    // }
     document.addEventListener("DOMContentLoaded", event => {
       // we can move only if we are not in a browser's tab
       isBrowser = matchMedia("(display-mode: browser)").matches;

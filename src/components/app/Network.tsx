@@ -74,6 +74,13 @@ export const fetchAccountInfo = async (ticker: string, account: string) => {
   }
   return accountInfo;
 };
+export const fetchBlock = async (ticker: string, hash: string) => {
+  const block = await new RPC(ticker).blocks_info([hash]);
+  if (block.error) {
+    return null;
+  }
+  return block.blocks[hash];
+}
 export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, setAction, onClose = () => {}, defaultScannerOpen = false }) => {
   // const [address, setAddress] = useState<string>(null);
   const [sizeQR, setSizeQR] = useState("small");
@@ -105,7 +112,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
     onClose={() => {
       setAction('')
       setModalVisible(false)
-      if (action === 'send' && pathname !== `/`) {
+      if (action === 'send' && pathname !== `/` && !pathname.startsWith(`/chat`)) {
         navigate(`/${ticker}`, {replace: true}) // to reset url params
       }
       onClose()

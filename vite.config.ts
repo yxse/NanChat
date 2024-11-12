@@ -3,6 +3,7 @@ import path, { resolve } from "path";
 import react from "@vitejs/plugin-react-swc";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import fixReactVirtualized from 'esbuild-plugin-react-virtualized'
+import { VitePWA } from 'vite-plugin-pwa'
 
 
 // https://vitejs.dev/config/
@@ -14,13 +15,24 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      devOptions: {
+        enabled: false,
+        type: 'module',
+      },
+       registerType: 'prompt'
+       },
+      ),
     nodePolyfills({
       include: ['crypto', 'stream', 'vm', 'process'],
       globals: {
         Buffer: true
       }
     }),
-    splitVendorChunkPlugin()
+    // splitVendorChunkPlugin()
   ],
   build: {
     minify: true,

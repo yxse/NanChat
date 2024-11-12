@@ -55,6 +55,31 @@
   flex: 1;
   position: relative;
 }
+@keyframes fadeInAnimation {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+   }
+}
+
+body {
+  touch-action: none;
+  /* position: fixed ; */
+  width: 100%;
+
+  /* animation: fadeInAnimation ease 4s; */
+  /* animation-iteration-count: 1; */
+  /* animation-fill-mode: forwards; */
+}
+html body {
+  overflow: hidden;
+}
+html {
+  overscroll-behavior: none; 
+  /* prevent ios scroll bounce down when scrolling pwa, especially in /chat */
+}
 .bottom {
   border-top: solid 1px var(--adm-color-border);
   padding-top: 8px;
@@ -141,7 +166,14 @@
     transform: translateY(100%);
   }
 }
-
+@keyframes slide-in {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
 @-webkit-keyframes slide-out-l {
   0% {
     -webkit-transform: translateY(0%);
@@ -339,6 +371,9 @@
   background-color: var(--main-background-color);
 }
 }
+.adm-list-item.active {
+  background-color: var(--main-background-color) !important;
+}
 .adm-list-item:active {
   background-color: var(--main-background-color);
 }
@@ -365,3 +400,93 @@
 .input-message {
   background-color: var(--main-background-color);
 }
+
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .full-width-on-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-basis: 100% !important;
+  }
+
+  
+/* here we customize the transition, these are the shared styles for the old and new view*/      
+::view-transition-new(root),
+::view-transition-old(root) {
+  animation-duration: 150ms;
+  animation-timing-function: ease-out;
+  animation-direction: normal;
+}
+
+/* old view slides out to the left */
+::view-transition-old(root) {
+  animation-name: slide-out;
+}
+
+/* new view slides in from the right */
+::view-transition-new(root) {
+  animation-name: slide-in;
+  mix-blend-mode: normal;
+}
+}
+
+
+
+
+
+
+
+/* class "back-transition" is added to the html element 
+ * to customize the back transition 
+ * new view
+ */
+.back-transition::view-transition-new(root) {
+  animation-name: slide-out-reverse;
+}
+
+/* customized back transition for old view */
+.back-transition::view-transition-old(root) {
+  animation-name: slide-in-reverse;
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-20%);
+  }
+}
+
+@keyframes slide-out-reverse {
+  from {
+    transform: translateX(-20%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-reverse {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}      
+      

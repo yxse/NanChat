@@ -3,7 +3,7 @@
 import React, { Dispatch, useState, useEffect, useContext } from "react";
 import { IoArrowBack } from "react-icons/io5";
 
-import storage from "../../../utils/storage";
+import storage, { setSeed } from "../../../utils/storage";
 import { Button, Card, Form, Input, Modal, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../Popup";
@@ -198,8 +198,8 @@ export default function Password({
               className="w-full  "
               color={isMobile() ? "primary" : "default"}
               type="submit"
-              onClick={() => {
-                localStorage.setItem("seed", wallet.wallets["XNO"].seed)
+              onClick={async () => {
+                await setSeed(wallet.wallets["XNO"].seed)
                 // setW(3)
                 setWalletState("unlocked");
                 onCreated()

@@ -6,6 +6,7 @@ import { decrypt, encrypt } from "../../worker/crypto";
 import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { useState } from "react";
+import { removeSeed, setSeed } from "../../utils/storage";
 
 function SecuritySettings() {
     const navigate = useNavigate();
@@ -72,7 +73,7 @@ function SecuritySettings() {
                             console.error(error)
                           }
                           if (isValid) {
-                            localStorage.setItem('seed', result)
+                            await setSeed(result)
                             Toast.show({
                               icon: "success",
                               content: "Password disabled"
@@ -102,7 +103,7 @@ function SecuritySettings() {
             
             <List.Item
               prefix={<MdOutlinePassword size={24} />}
-              onClick={() => {
+              onClick={async () => {
                 let modal = Modal.show({
                   closeOnMaskClick: true,
                   title: "Require a password to open Cesium ?",
@@ -140,7 +141,7 @@ function SecuritySettings() {
 
                           let encryptedMasterKey = await encrypt(localStorage.getItem("seed") as string, password.value)
                           localStorage.setItem("encryptedMasterKey", encryptedMasterKey)
-                          localStorage.removeItem("seed")
+                          await removeSeed()
                           Toast.show({
                             icon: "success",
                             content: "Password enabled"

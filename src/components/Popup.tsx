@@ -59,7 +59,8 @@ function walletsReducer(state, action) {
       hiddenIndexesSorted = [...state.hiddenIndexes, action.payload].sort((a, b) => a - b);
       localStorage.setItem('hiddenIndexes', JSON.stringify(hiddenIndexesSorted));
       return { ...state, hiddenIndexes: hiddenIndexesSorted };
-    
+    case "ADD_MESSAGE":
+      return { ...state, messages:{...state.messages, [action.payload._id]: action.payload.content} };
     default:
       return state;
   }
@@ -176,4 +177,5 @@ const initialState = {
   lastAccountIndex: localStorage.getItem('lastAccountIndex') ? parseInt(localStorage.getItem('lastAccountIndex')) : 1,
   hiddenIndexes: localStorage.getItem('hiddenIndexes') ? JSON.parse(localStorage.getItem('hiddenIndexes')) : [],
   accounts: [],
+  messages: [],
 };

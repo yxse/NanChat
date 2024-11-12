@@ -1,18 +1,38 @@
+import { useContext } from "react";
 import { getAccounts } from "../components/getAccount";
 import { getAccount } from "../components/getAccount";
+import { WalletContext } from "../components/Popup";
+import { networks } from "../utils/networks";
+import { convertAddress } from "../utils/format";
+import { box, wallet } from "multi-nano-web";
 
 const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_SERVER_NOTIFICATIONS_URL;
 
 async function askPermission() {
+    const activeAddressesLs = localStorage.getItem("activeAddresses");
+    const activeAddresses = activeAddressesLs ? JSON.parse(activeAddressesLs) : [];
+    const accounts = activeAddresses || [];
+    const tickers = Object.keys(networks).filter((ticker) => !networks[ticker].custom);
+
+    const allAccounts = []
+    for (let account of accounts) {
+        const accountsWithTicker = tickers.map((ticker) => {
+            return {
+                ticker,
+                address: convertAddress(account, ticker),
+            }
+        })
+        allAccounts.push(...accountsWithTicker);
+    }
+    console.log({allAccounts});
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-        const accounts = await getAccounts()
-        registerServiceWorker(accounts);
+        registerServiceWorker(allAccounts);
     }
 }
 
 async function registerServiceWorker(accounts) {
-    const registration = await navigator.serviceWorker.getRegistration('/src/service-worker.js');
+    const registration = await navigator.serviceWorker.getRegistration('/sw.js');
     let subscription = await registration.pushManager.getSubscription();
     // user is not already subscribed, we subscribe him to push notifications
     if (!subscription) {
@@ -51,5 +71,16 @@ async function saveSubscription(subscription, accounts) {
         body: JSON.stringify(body),
     });
 }
+
+
+const bc = new BroadcastChannel("notification_channel");
+bc.onmessage = (event) => {
+    return;
+  console.log(event);
+  const data = event.data;
+  console.log(localStorage.getItem('seed'));
+  
+};
+
 
 export { askPermission, registerServiceWorker, saveSubscription, getPublicKey };

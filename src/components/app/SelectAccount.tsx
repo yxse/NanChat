@@ -31,6 +31,14 @@ function SelectAccount({ }) {
   const [visible, setVisible] = useState(false);
   const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address;
  
+  useEffect(() => {
+    // todo handle that better
+    // if (localStorage.getItem('activeAddresses') === null) {
+      // activeAddresses is used for service workers notifications
+      localStorage.setItem('activeAddresses', JSON.stringify(wallet.accounts.map((account) => account.address)));
+    // }
+  }
+  , []);
   return (<>
   <div className="text-sm text-gray-400 mb-1 flex items-center cursor-pointer" onClick={() => setVisible(true)}>
     <AccountIcon account={activeAccount} />
@@ -122,7 +130,12 @@ function SelectAccount({ }) {
           }
           indexToAdd = wallet.accounts.length;
         }
-        await wallet.wallets['XNO'].createAccounts(indexToAdd, 1);
+        let newAccount = await wallet.wallets['XNO'].createAccounts(indexToAdd, 1);
+        console.log(newAccount);
+        // update ls
+        // let activeAddresses = JSON.parse(localStorage.getItem('activeAddresses'));
+        // activeAddresses.push(newAccount[0].address);
+        // localStorage.setItem('activeAddresses', JSON.stringify(activeAddresses));
       }}>
         Add Account
       </Button></div>

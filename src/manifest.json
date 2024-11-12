@@ -25,14 +25,14 @@
     "theme_color": "#101018",
     "screenshots": [
         {
-            "src": "/icon-320.png",
+            "src": "../icons/icon.png",
             "sizes": "320x320",
             "type": "image/png",
             "form_factor": "wide",
             "label": "Application"
         },
         {
-            "src": "/icon-320.png",
+            "src": "../icons/icon.png",
             "sizes": "320x320",
             "type": "image/png",
             "form_factor": "narrow",

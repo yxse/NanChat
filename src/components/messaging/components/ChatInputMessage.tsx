@@ -12,12 +12,15 @@ import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, DotLoading, Input, List, TextArea } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherMessages } from "../fetcher";
+import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import { SlArrowUpCircle } from "react-icons/sl";
 import { FaArrowUp } from "react-icons/fa6";
+import { useChat } from "../hooks/useChat";
+import ChatInputTip from "./ChatInputTip";
+import EmitTyping from "./EmitTyping";
 
-const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
+const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     const {
         account
     } = useParams();
@@ -26,15 +29,22 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
     const [newMessage, setNewMessage] = useState('');
     const [dateNow, setDateNow] = useState(Date.now());
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const messageInputRef = useRef<HTMLTextAreaElement>(null);
     const navigate = useNavigate();
     const {wallet} = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const {data: messagesHistory} = useSWR<Message[]>(`/messages?fromAccount=${activeAccount}&toAccount=${account}`, fetcherMessages);
-    const {data: names} = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
-    const nameOrAccount = names?.[0]?.name || formatAddress(account);
-
+    const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
+    // const {data: names} = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
+    const {data: chats, mutate} = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
+    const chat = chats?.find(chat => chat.id === account);
+    const names = chat?.participants;
+    let address = names?.find(participant => participant._id !== activeAccount)?._id;
+    let participant = names?.find(participant => participant._id !== activeAccount)
+    if (account?.startsWith('nano_')) {
+        address = account;
+    }
+    const nameOrAccount = participant?.name || formatAddress(address);
+    
     useEffect(() => {
         if (messagesHistory) {
             // setMessages(messagesHistory);
@@ -44,6 +54,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
     useEffect(() => {
         socket.on('typing', (account: string) => {
             console.log('typing', account);
+            // setTimeout(() => {
+            //   window.scrollTo(0, document.body.scrollHeight);
+            // }
+            // , 10);
         });
         socket.on('message', (message: Message) => {
           setLastTypingTimeReceived(0);
@@ -52,12 +66,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
       return () => {
                 socket.off('message');
       };
-    }, []);
+    }, [address]);
 
    
     useEffect(() => {
         if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
-          socket.emit('typing', account);
+          socket.emit('typing', address);
           setLastEmitTime(Date.now());
         }
     }
@@ -66,23 +80,18 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
 
     useEffect(() => {
         socket.on('typing', (account: string) => {
-            console.log('typing', account);
-            setLastTypingTimeReceived(Date.now());
+            // console.log('typing', account, address);
+            // if (account !== address) return;
+            // setLastTypingTimeReceived(Date.now());
+            // messageInputRef.current?.blur();
+            // messageInputRef.current?.focus();
         });
 
         return () => {
             socket.off('typing');
         };
-    }, []);
+    }, [address]);
 
-    useEffect(() => {
-    // todo this in separate component as it is refresh the whole component every second
-        const interval = setInterval(() => {
-            setDateNow(Date.now());
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-    
     const scrollToBottom = () => {
       messagesEndRef.current?.
       scroll({
@@ -93,55 +102,109 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
   
     // useEffect(scrollToBottom, [messages]);
   
-    const sendMessage = (e: React.FormEvent) => {
+    const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
+      let chatId = account;
       if (!newMessage.trim()) return;
+      if (messagesHistory.length === 0 && account.startsWith('nano_')) {
+        let r = await fetcherMessagesPost(`/chat`, {
+          type: "private",
+          participants: [activeAccount, account]
+        })
+        
+        chatId = r.id;
+      }
       const message: Message = {
         content: newMessage,
         fromAccount: activeAccount,
-        toAccount: account,
+        // toAccount: account,
         timestamp: new Date(),
+        chatId: chatId,
       };
       onSent(message);
      const messageEncrypted = { ...message };
-     messageEncrypted['content'] = box.encrypt(newMessage, account, activeAccountPk);
+     messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
      socket.emit('message', messageEncrypted);
      setNewMessage('');
      messageInputRef.current?.focus();
+     if (account !== chatId){
+      // redirect to chat id when initial message
+       mutate()
+       navigate(`/chat/${chatId}`); 
+     }
+
     };
 
-  
+    const sendTipMessage = async (ticker: string, hash: string) => {
+      let chatId = account;
+      // let messageTip = 'Tip ' + ticker + ' ' + hash;
+      const message: Message = {
+        content: "tip",
+        fromAccount: activeAccount,
+        // toAccount: account,
+        timestamp: new Date(),
+        chatId: chatId,
+        tip: {ticker, hash}
+      };
+      onSent(message);
+     const messageEncrypted = { ...message };
+     messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
+     socket.emit('message', messageEncrypted);
+     messageInputRef.current?.focus();
+
+    };
+
+    console.log("message input render")
     return (
-        <form 
-        style={{position: 'fixed', bottom: '0', width: '100%'}}
-        onSubmit={sendMessage} className="p-4  ">
-              {
-                  lastTypingTimeReceived > (dateNow - 4000) && (
-                      <div className="flex items-center gap-2 mb-1">
-                          <span>
-                            <DotLoading />
-                            {
-                                nameOrAccount
-                            } is typing...
-                            </span>
-                      </div>
-                      )
-                }
+        <div 
+        style={{
+          // position: 'relative',
+          //  bottom: '0',
+           width: '100%',
+           // flexDirection: 'row',
+          //  alignItems: 'center',
+          //  touchAction: 'none',
+          //  display: 'flex',
+          //  gap: '1rem',
+        }}
+        onSubmit={sendMessage} className="mb-4 px-4">
+       
+            <EmitTyping 
+            messageInputRef={messageInputRef}
+            newMessage={newMessage} />
+            <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              width: '100%',
+            }}
+            >
+            
+            <ChatInputTip toAddress={address} onTipSent={(ticker, hash) => {
+              sendTipMessage(ticker, hash);
+            }} />
           <div 
-          style={{borderRadius: 32}}
+          style={{borderRadius: 32, width: '100%'}}
           className="flex items-center gap-2 border border-solid border-gray-800 input-message">
             <TextArea 
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(e);
+              }}
+            }
             ref={messageInputRef}
               autoSize={{ minRows: 1, maxRows:5 }}
               rows={1}
-              style={{focus}}
-              className="flex-1 p-2 rounded-lg "
+              // style={{focus}}
+              className="m-2 rounded-lg "
               placeholder="Message"
               value={newMessage}
               onChange={(e) => setNewMessage(e)}
             />
             <Button
-              type="submit"
+              onClick={sendMessage}
               className="p-1 rounded-full bg-blue-500 text-white mr-1"
               disabled={!newMessage.trim()}
               style={ !newMessage.trim() ? {display: 'none'} : {}}
@@ -149,7 +212,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent }) => {
               <FaArrowUp className="w-5 h-5" />
             </Button>
           </div>
-        </form>
+          </div>
+        </div>
     );
   };
 
