@@ -34,7 +34,7 @@ const MessageTip = ({ message, side, hash, ticker }) => {
             </div>
             <div className="flex items-center gap-2 mx-2">
                 <div>
-                    <img src={networks[ticker].logo} style={{width: '32px', height: '32px'}} />
+                    <img src={networks[ticker]?.logo} style={{width: '32px', height: '32px'}} />
                 </div>
                 <div className="flex flex-col">
                     <div>

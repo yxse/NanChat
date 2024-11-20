@@ -15,15 +15,19 @@ import useSWR from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import { SlArrowUpCircle } from "react-icons/sl";
-import { FaArrowUp } from "react-icons/fa6";
+import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
 import { useChat } from "../hooks/useChat";
 import ChatInputTip from "./ChatInputTip";
 import EmitTyping from "./EmitTyping";
+import ChatInputStickers from "./ChatInputStickers";
+import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 
 const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     const {
         account
     } = useParams();
+    const [stickerVisible, setStickerVisible] = useState(false);
+    const {isMobile} = useWindowDimensions()
     const [lastEmitTime, setLastEmitTime] = useState(0);
     const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);
     const [newMessage, setNewMessage] = useState('');
@@ -66,7 +70,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
       return () => {
                 socket.off('message');
       };
-    }, [address]);
+    }, [address, chat]);
 
    
     useEffect(() => {
@@ -123,7 +127,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
       };
       onSent(message);
      const messageEncrypted = { ...message };
-     messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
+     if (chat.type === "private") {
+      messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
+      }
+      else {
+        messageEncrypted['content'] = newMessage;
+      }
+
      socket.emit('message', messageEncrypted);
      setNewMessage('');
      messageInputRef.current?.focus();
@@ -151,8 +161,33 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
      messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
      socket.emit('message', messageEncrypted);
      messageInputRef.current?.focus();
-
     };
+
+    const sendStickerMessage = async (stickerId: string) => {
+      let chatId = account;
+      // let messageTip = 'Tip ' + ticker + ' ' + hash;
+      const message: Message = {
+        content: "Sticker",
+        fromAccount: activeAccount,
+        // toAccount: account,
+        timestamp: new Date(),
+        chatId: chatId,
+        stickerId: stickerId
+      };
+      onSent(message);
+     const messageEncrypted = { ...message };
+     if (chat.type === "private") {
+      messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
+     }
+      else {
+        messageEncrypted['content'] = message.content;
+      }
+     socket.emit('message', messageEncrypted);
+    }
+
+    const iconRisibank =  <img style={{filter: 'grayscale(0)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
+    const iconRisibankGray =  <img style={{filter: 'grayscale(1)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
+
 
     console.log("message input render")
     return (
@@ -188,6 +223,11 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
           style={{borderRadius: 32, width: '100%'}}
           className="flex items-center gap-2 border border-solid border-gray-800 input-message">
             <TextArea 
+            onFocus={() => {
+              if (isMobile){
+                // setStickerVisible(false) // close sticker when keyboard open on mobile
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -212,7 +252,35 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
               <FaArrowUp className="w-5 h-5" />
             </Button>
           </div>
+          <Button
+          onClick={() => {
+            if (stickerVisible){
+              setStickerVisible(false);
+              messageInputRef.current?.focus();
+            }
+            else {
+              setStickerVisible(true);
+              messageInputRef.current?.blur();
+            }
+          }}
+        className=""
+        shape="rounded"
+        size="large"
+        >
+          {
+            stickerVisible ? 
+              (isMobile ? <FaKeyboard className="w-5 h-5" /> : iconRisibank)
+            :
+            iconRisibankGray
+        }
+        </Button>
           </div>
+          {
+            stickerVisible && <ChatInputStickers onStickerSelect={(stickerId) => {
+              sendStickerMessage(stickerId);
+            }} />
+          }
+
         </div>
     );
   };

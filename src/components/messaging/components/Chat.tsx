@@ -8,12 +8,15 @@ import { convertAddress } from '../../../utils/format';
 import SetName from './SetName';
 import AccountInfo from './AccountInfo';
 import { askPermission } from '../../../nano/notifications';
+import { fetcherMessages } from '../fetcher';
+import useSWR from 'swr';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
     const { wallet } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
+    const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
 
     useEffect(() => {
         socket.auth = { account: activeAccount };
@@ -30,10 +33,23 @@ const Chat: React.FC = () => {
         });
         socket.on('newAccount', (account: string) => {
             console.log('newAccount', account);
-            console.log('onlineAccount', onlineAccount);
-            if (!onlineAccount.includes(account)) {
-                setOnlineAccount(prev => [...prev, account]);
+            // console.log('onlineAccount', onlineAccount);
+            // if (!onlineAccount.includes(account)) {
+            //     setOnlineAccount(prev => [...prev, account]);
+            // }
+            console.log('newAccounts', accounts);
+
+            let newAccounts = {
+                online: [],
+                offline: []
             }
+            newAccounts.offline = accounts.offline.filter(acc => acc._id !== account._id);
+            newAccounts.online = accounts.online.filter(acc => acc._id !== account._id);
+            newAccounts.online.push(account);
+            newAccounts.online = newAccounts.online.sort((a, b) => a.name.localeCompare(b.name));
+            console.log('newAccounts', newAccounts);
+            mutate(newAccounts, false); 
+
         });
 
 
@@ -42,7 +58,7 @@ const Chat: React.FC = () => {
             socket.off('newAccount');
             socket.off('accounts');
         };
-    }, [activeAccount, onlineAccount]);
+    }, [activeAccount, onlineAccount, accounts]);
 
     useEffect(() => {
         // todo add modal

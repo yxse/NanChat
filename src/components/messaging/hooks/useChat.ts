@@ -21,7 +21,7 @@ export function useChat(chatId) {
   const getKey = (pageIndex, previousPageData) => {
     console.log({pageIndex, previousPageData});
     if (previousPageData && previousPageData.length == 0) return null;
-    return `/messages?chatId=${chatId}&page=${pageIndex}&limit=20`;
+    return `/messages?chatId=${chatId}&page=${pageIndex}&limit=50`;
   };
 
   const {
@@ -29,7 +29,9 @@ export function useChat(chatId) {
     error,
     size,
     setSize,
-    mutate
+    mutate,
+    isLoading,
+    isValidating 
   } = useSWRInfinite(getKey, fetcher, {
     revalidateFirstPage: false,
     revalidateOnFocus: false,
@@ -39,7 +41,8 @@ export function useChat(chatId) {
   // Flatten all pages into a single array
   const messages = pages ? pages.flat() : [];
   const isLoadingInitial = !pages && !error;
-  const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
+  // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
+  const isLoadingMore = isValidating
 
   // Get unread count
   // const { data: unreadCount } = useSWR(

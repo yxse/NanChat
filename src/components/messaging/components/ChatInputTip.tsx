@@ -87,7 +87,6 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
         closeOnSwipe
           visible={visible}
           onClose={() => {
-            onTipSent(activeTicker, "aze");
             setVisible(false);
           }}
           // onClick={() => setVisible(false)}

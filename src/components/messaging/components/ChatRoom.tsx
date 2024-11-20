@@ -1,4 +1,4 @@
-import { LockFill, LockOutline, MessageOutline, PhoneFill, SendOutline } from "antd-mobile-icons";
+import { LockFill, LockOutline, MessageOutline, PhoneFill, SendOutline, TeamOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -20,6 +20,7 @@ import { useChat } from "../hooks/useChat";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Message from "./Message";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
+import GroupAvatar from "./group-avatar";
 
 
 
@@ -68,7 +69,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         socket.on('message', (message: Message) => {
             // setMessages(prev => [...prev, message]);
-            if (message.fromAccount !== address) {
+            if (message.fromAccount !== address && chat.type === 'private') {
                 return;
             }
             mutate(currentPages => {
@@ -77,13 +78,13 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 return newPages;
             }, false);
             setTimeout(() => {
-                window.scrollTo(0, document.body.scrollHeight);
+                // window.scrollTo(0, document.body.scrollHeight);
             }, 1000);
         });
         return () => {
             socket.off('message');
         };
-    }, [address]);
+    }, [address, chat]);
 
 
     const scrollToBottom = () => {
@@ -98,7 +99,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             // window.scrollTo(0, document.body.scrollHeight);
             // messagesEndRef.current?.scrollTo(0, -1);
             // messagesEndRef.current?.scrollTo(0, messagesEndRef.current.offsetHeight + 1000);
-            messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+            // messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
             
     };
 
@@ -124,7 +125,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             }, 10 );
 
         }
-        , [messages]);
+        , [messages, chat]);
 
         useEffect(() => {
             scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
@@ -146,26 +147,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     }, [account]);
 
     console.log("account", account);
-    return (
-        <div 
-        style={{
-            display: 'flex', 
-            flexDirection: 'column', 
-            // overflow: 'auto',
-            height: '100%', 
-            width: '100%',
-            flexGrow: 1,
-            // animation: "slide-in 0.4s",
-            // animationIterationCount: "1",
-            // animationFillMode: "forwards",
-            }}>
-            <List.Item
-        style={{ zIndex: 1 }}
-            // prefix={
-            //     <AccountIcon account={account} width={48} />
-            // }
-            >
-                <div
+
+    const HeaderPrivate = () => {
+        return (
+            <div
                 onClick={() => {
                     navigate(`/chat/${address}/info`);
                 }}
@@ -203,6 +188,61 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         <AccountIcon account={address} width={48} />
                     </div>
                 </div>
+        )
+    }
+    const HeaderGroup = () => {
+        return (
+            <div
+                onClick={() => {
+                    // navigate(`/chat/${address}/info`);
+                }}
+                    style={{ 
+                        height: '5vh',
+                        touchAction: 'none',
+                     }}
+                    className="flex items-center cursor-pointer">
+                    <BiChevronLeft
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate('/chat')
+                        }}
+                        className="w-8 h-8 text-gray-500" />
+                    
+                    <div className="flex-1 text-center">
+                        <h2 className="font-medium flex items-center justify-center">
+                            <TeamOutline  className="mr-2" />
+                            {chat?.name}
+                        </h2>
+                    </div>
+                    <div className="">
+                        <GroupAvatar />
+                    </div>
+                </div>
+        )
+    }
+
+    return (
+        <div 
+        style={{
+            display: 'flex', 
+            flexDirection: 'column', 
+            // overflow: 'auto',
+            height: '100%', 
+            width: '100%',
+            flexGrow: 1,
+            // animation: "slide-in 0.4s",
+            // animationIterationCount: "1",
+            // animationFillMode: "forwards",
+            }}>
+            <List.Item
+        style={{ zIndex: 1 }}
+            // prefix={
+            //     <AccountIcon account={account} width={48} />
+            // }
+            >
+                {
+                    chat?.type === 'private' ? <HeaderPrivate /> : <HeaderGroup />
+                }
             </List.Item>
             {
               account == null && (
@@ -223,16 +263,11 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                           display: 'flex',
                           flexGrow: 1,
                         }}
-                    >{
-                        isLoadingMore && (
-                            <div className="text-center">
-                                <DotLoading />
-                            </div>
-                        )
-                    }
+                    >
             <div
             ref={infiniteScrollRef}
   id="scrollableDiv"
+//   className="scrollableDiv"
   style={{
     height: "100%",
     width: '100%',
@@ -243,6 +278,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     // touchAction: 'none', // don't or ios scroll glitch
   }}
 >
+    
     {
         isLoadingInitial ? <Skeleton animated /> : 
             <InfiniteScroll
@@ -258,16 +294,19 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             hasMore={true}
             loader={null}
             inverse={true}
+            scrollThreshold={"600px"}
             onScroll={(e) => {
                 //disable auto scroll when user scrolls up
                 console.log(e.target.scrollTop);
                 if (e.target.scrollTop > 0) {
                     setAutoScroll(true);
                     console.log("enable autoscroll");
+                    infiniteScrollRef.current.className = "scrollableDiv";
                 }
                 else {
                     setAutoScroll(false);
                     console.log("disable autoscroll");
+                    infiniteScrollRef.current.className = "scrollableDivAuto";
                 }
                 // if (e.target.scrollTop < 0) {
                 //     setAutoScroll(false);
@@ -280,7 +319,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             }}
             style={{ 
                 display: 'flex',
-                 flexDirection: 'column'
+                 flexDirection: 'column',
+                //  overflowAnchor: 'none',
                  }} //To put endMessage and loader to the top.
             endMessage={
                 null
@@ -288,7 +328,13 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             scrollableTarget="scrollableDiv"
 
             >
-            
+            {/* {
+                        isLoadingMore && (
+                            <div className="text-center m-4">
+                                <DotLoading />
+                            </div>
+                        )
+                    } */}
 
                 {messages.reverse().map((message, index) => {
                     return (
@@ -300,8 +346,11 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         <Message
                         // key={message._id}
                             message={message}
+                            prevMessage={messages[index + 1]}
+                            nextMessage={messages[index - 1]}
                             activeAccount={activeAccount}
                             activeAccountPk={activeAccountPk}
+                            type={chat?.type}
                             // toAccount={names?.find(participant => participant._id !== message.fromAccount)?._id}
                         />
                         </div>
@@ -335,6 +384,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     mutate(currentPages => {
                         const newPages = [...(currentPages || [])];
                         // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
+                        // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
                         newPages[0] = [{ ...message, isLocal: true }, ...(newPages[0] || [])];
                         return newPages;
                     }, false);

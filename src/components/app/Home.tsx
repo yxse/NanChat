@@ -116,7 +116,7 @@ export const accountIconUrl = (account) => {
 }
 export const AccountIcon = ({ account, width=32 }) => {
   return (
-    <Image
+    <img
       src={"https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account}
       alt="nantricon"
       width={width}

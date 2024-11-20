@@ -18,7 +18,7 @@ export const Discover: React.FC = () => {
         {
             name: 'AI',
             description: 'Use state-of-the-art AI models',
-            image: '֎',
+            image: '֎ ',
             link: 'https://nano-gpt.com'
         },
         {

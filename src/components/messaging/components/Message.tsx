@@ -2,25 +2,31 @@ import { box } from "multi-nano-web";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { WalletContext } from "../../Popup";
-import { DotLoading } from "antd-mobile";
-import { convertAddress } from "../../../utils/format";
+import { Avatar, DotLoading } from "antd-mobile";
+import { convertAddress, formatAddress } from "../../../utils/format";
 import MessageTip from "./MessageTip";
+import MessageSticker from "./MessageSticker";
+import { AccountIcon } from "../../app/Home";
+import { fetcherMessages } from "../fetcher";
+import useSWR from "swr";
 
-const Message = ({ message }) => {
+const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const { wallet, dispatch
-     } = useContext(WalletContext);
-     const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : false);
-     const [loading, setLoading] = useState(true);
-     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
-     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-     const toAccount = message.toAccount;
+    } = useContext(WalletContext);
+    const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : false);
+    const [loading, setLoading] = useState(true);
+    const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
+    const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
+    const toAccount = message.toAccount;
+    const { data: name } = useSWR(type === "private" ? null : `/name?account=${message.fromAccount}`, fetcherMessages);
     useEffect(() => {
         // if (!toAccount) return;
+        // if (type !== 'private') return;
         if (decrypted) return;
         if (wallet.messages.hasOwnProperty(message._id)) {
             setDecrypted(wallet.messages[message._id]);
         }
-        else{
+        else {
             try {
                 console.log("decrypting", message.content);
                 let r = box.decrypt(message.content,
@@ -30,63 +36,102 @@ const Message = ({ message }) => {
                 setDecrypted(r);
                 let id = message.isLocal ? Math.random().toString() : message._id;
                 dispatch({ type: 'ADD_MESSAGE', payload: { _id: id, content: r } });
-                } catch (error) {
-                    // debugger
-                    console.log(error);
-                    setDecrypted(message.content);
-                }
+            } catch (error) {
+                // debugger
+                console.log(error);
+                setDecrypted(message.content);
+            }
         }
     }
 
-    
-    , []);
+
+        , []);
 
     if (!decrypted) {
         return null;
     }
     // console.log(message.content);
-   
-    if (message?.tip){
+
+    if (message?.tip) {
         return <MessageTip message={message} side={message.fromAccount === activeAccount ? 'from' : 'to'} hash={message.tip.hash} ticker={message.tip.ticker} />
     }
+    else if (message?.stickerId) {
+        return <MessageSticker message={message} side={message.fromAccount === activeAccount ? 'from' : 'to'} />
+    }
+
+    const isPreviousMessageFromSameAccount = prevMessage && prevMessage.fromAccount === message.fromAccount;
+    const isNextMessageFromSameAccount = nextMessage && nextMessage.fromAccount === message.fromAccount;
     return (
         <div
-        // style={{marginLeft: '10px', marginRight: '10px'}}
-        key={message._id}
-        className={`flex ${message.fromAccount === activeAccount ? 'justify-end' : 'justify-start'} mb-1 mx-4`}
-    >
-        <div
-        style={{
-            whiteSpace: 'pre-wrap', 
-            wordBreak: 'break-word',
-            borderRadius: 18, 
-            // borderBottomRightRadius: message.fromAccount === activeAccount ? 0 : 18, 
-            // borderBottomLeftRadius: message.fromAccount === activeAccount ? 18 : 0
-        }}
-            className={`max-w-[70%] p-3 rounded-lg ${message.fromAccount === activeAccount
-                    ? 'bg-blue-500 text-white rounded-br-none'
-                    : 'bg-white text-gray-800 rounded-bl-none'
-                }`}
+            // style={{marginLeft: '10px', marginRight: '10px'}}
+            key={message._id}
+            className={`flex ${message.fromAccount === activeAccount ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
         >
-            <p
-            style={!decrypted ? {
-                // height: '300px', // allow to have a skeleton with enough height to have correct autoscroll
-            } : {}}
-            >{!decrypted && !message.isLocal ?
-                <span className="text-xs opacity-70">(clear) </span>
-                : ''}
-                {decrypted ? decrypted : ""}
-            </p>
-            <div className="flex items-center justify-end gap-1 mt-1">
-                <span className="text-xs opacity-70">
-                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                {message.fromAccount === activeAccount && (
-                    <BiMessageSquare className="w-4 h-4" />
-                )}
+            {
+                type === 'group' && isPreviousMessageFromSameAccount ?
+                    <div style={{ width: '48px' }}></div>
+                    :
+                    type === 'group' && message.fromAccount !== activeAccount && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column' }}>
+                            <AccountIcon account={message.fromAccount} width={48} />
+                        </div>
+                    )
+            }
+            <div
+                style={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    // borderRadius: 16, 
+                    // borderBottomRightRadius: message.fromAccount === activeAccount ? 0 : 116, 
+                    // borderBottomLeftRadius: 
+                    // message.fromAccount === activeAccount ? 16 : 
+                    // isPreviousMessageFromSameAccount ? 16 : 0,
+                    backgroundColor: message.fromAccount === activeAccount ? '#1677ff' : '#171718',
+                }}
+                className={
+                    `bubble max-w-[70%] p-2
+                ${message.fromAccount === activeAccount ?
+
+                        isPreviousMessageFromSameAccount ?
+                            'bubble-right' : 'bubble-right-tail'
+                        :
+                        isPreviousMessageFromSameAccount
+                            ?
+                            'bubble-left' : ' bubble-left-tail'
+
+                    }`}
+            >
+                {
+                    type === 'group' && !isNextMessageFromSameAccount && message.fromAccount !== activeAccount && (
+                        <span style={{fontWeight: 'bold'}}>
+                            {name?.name || formatAddress(message.fromAccount)}
+                        </span>
+                    )
+                }
+                <p
+                    style={!decrypted ? {
+                        // height: '300px', // allow to have a skeleton with enough height to have correct autoscroll
+                    } : {}}
+                >{!decrypted && !message.isLocal ?
+                    <span className="text-xs opacity-70">(clear) </span>
+                    : ''}
+                    {decrypted ? decrypted : ""}
+                </p>
+                    <span 
+                    style={{float: 'right'}}
+                    className="text-sm opacity-70">
+                        {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+
+                <div className="flex items-center justify-end gap-1 mt-1">
+                    
+                    {/* {message.fromAccount === activeAccount && (
+                        <BiMessageSquare className="w-4 h-4" />
+                    )} */}
+                </div>
+                {/* {type} */}
             </div>
         </div>
-    </div>
     )
 }
 

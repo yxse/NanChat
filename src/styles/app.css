@@ -342,7 +342,7 @@ html {
   /* --adm-color-background: #171718; */
   --main-background-color: #000;
   /* --main-background-color: #1e1f21; */
-  --adm-color-text: #d7d7d7;
+  /* --adm-color-text: #d7d7d7; */
   --text-color-primary: var(--adm-color-text);
 }
 .light-theme {
@@ -490,3 +490,77 @@ html {
   }
 }      
       
+
+@keyframes blink { 50% { fill: transparent }}
+.dot { 
+  animation: 1s blink infinite;
+  fill: grey;
+}
+.dot:nth-child(2) { animation-delay: 250ms }
+.dot:nth-child(3) { animation-delay: 500ms }
+
+.loader {
+  color: grey;
+}
+
+
+.bubble {
+  --r: 0.75em;  /* the radius */
+  --t: 0.5em; /* the size of the tail */
+  
+  
+  padding: 1em;
+  border-inline: var(--t) solid #0000;
+  border-radius: calc(var(--r) + var(--t))/var(--r);
+  mask: 
+    radial-gradient(100% 100% at var(--_p) 0,#0000 99%,#000 102%) 
+      var(--_p) 100%/var(--t) var(--t) no-repeat,
+    linear-gradient(#000 0 0) padding-box;
+  color: #fff;
+}
+
+.bubble-without-tail {
+  --r: 1em;  /* the radius */
+  --t: 0.5em; /* the size of the tail */
+  
+  padding: 1em;
+  border-inline: var(--t) solid #0000;
+  border-radius: calc(var(--r) + var(--t))/var(--r);
+  mask: 
+    linear-gradient(#000 0 0) padding-box;
+  color: #fff;
+}
+.bubble-left-tail {
+  --_p: 0;
+  border-bottom-left-radius: 0 0;
+  place-self: start;
+}
+.bubble-right-tail {
+  --_p: 100%;
+  border-bottom-right-radius: 0 0;
+  place-self: end;
+}
+.bubble-left {
+  /* this fix small point remaining */
+  --_p: 0;
+  place-self: start;
+  border-color: var(--adm-color-background); 
+}
+.bubble-right {
+  --_p: 100%;
+  place-self: end;
+  border-color: var(--adm-color-background);
+}
+
+
+.scrollableDiv * {
+ overflow-anchor: none;
+}
+.scrollableDivAuto * {
+ overflow-anchor: auto;
+}
+
+#endOfMessages {
+  overflow-anchor: auto;
+  height: 1px;
+}
