@@ -67,7 +67,7 @@ const Chat: React.FC = () => {
     return (
         <>
             <Routes>
-                <Route path="/set-name" element={<SetName />} />
+                <Route path="/profile" element={<SetName />} />
                 <Route path="/:account" element={
                     <div className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
                         <div
@@ -84,7 +84,11 @@ const Chat: React.FC = () => {
                             }}>
                         <ChatList
                             onlineAccount={onlineAccount}
-                            onChatSelect={(chatId) => navigate(`/chat/${chatId}`)}
+                            onChatSelect={(chatId) => {
+                                document.startViewTransition(() => {
+                                    navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
+                                })
+                            }}
                         /></div>
                         <div style={{
                             height: "100%", 

@@ -21,6 +21,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Message from "./Message";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import GroupAvatar from "./group-avatar";
+import ProfilePicture from "./profile/ProfilePicture";
 
 
 
@@ -184,8 +185,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                 )
                         }
                     </div>
-                    <div className="">
-                        <AccountIcon account={address} width={48} />
+                    <div className="mr-2">
+                        <ProfilePicture address={address} />
                     </div>
                 </div>
         )

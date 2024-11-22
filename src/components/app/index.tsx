@@ -62,6 +62,10 @@ import ChatRoom from "../messaging/components/ChatRoom";
 import Chat from "../messaging/components/Chat";
 import ReloadPrompt from "./ReloadPrompt/ReloadPrompt";
 import { Discover } from "./discover/Discover";
+import SetName from "../messaging/components/SetName";
+import ProfilePictureUpload from "../messaging/components/profile/upload-pfp";
+import ProfileHome from "../messaging/components/profile/ProfileHome";
+import { SideBarMenu } from "./desktop/SideBarMenu";
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -128,7 +132,7 @@ export const MenuBar = () => {
       icon: <CompassOutline size={btnSize} />,
     },
     {
-      key: "me",
+      key: "profile",
       title: "Me",
       icon: <UserOutline size={btnSize} />,
     },
@@ -167,8 +171,8 @@ export const MenuBar = () => {
             navigate("/discover");
             return
           }
-          else if (key === "me") {
-            navigate("/chat/set-name");
+          else if (key === "profile") {
+            navigate("/profile");
             return
           }
           else if (key === "swap") {
@@ -331,8 +335,19 @@ export default function App() {
       </section>
       <ReloadPrompt />
       <Router>
-        <div className="w-full body " style={{overflow: 'auto'}}>
-          
+        <div className="w-full body " 
+        // style={{overflow: 'auto'}}
+        style={
+          {overflow: 'auto', display: "flex"}
+        }
+        >
+        {
+          !isMobile && 
+          <div style={{flex: "none"}}>
+            <SideBarMenu />
+          </div>
+        }
+        <div style={{flex: 1}}>
           {/** main content */}
           <Routes>
             <Route path="/" element={<Home
@@ -362,14 +377,18 @@ export default function App() {
             <Route path="/messages/:account" element={<ChatRoom />} />
             <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
             <Route path="/discover" element={<Discover />} />
+            <Route  path="/profile" element={<ProfileHome />} />
+            <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
+            <Route  path="/profile/name" element={<SetName />} />
             <Route  path="/chat/*" element={<Chat />} />
           </Routes>
+          </div>
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}
         </div>
-        {/* {
+        {
           isMobile && <MenuBar />
-        } */}
-        <MenuBar />
+        }
+        {/* <MenuBar /> */}
         <SafeArea position="bottom" />
       </Router>
       </div>

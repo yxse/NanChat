@@ -8,6 +8,7 @@ export const networks = {
     defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq", 
     rpc: "https://nodes.nanswap.com/XNO",
     rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    icon: "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D"
   },
   // "BTC-NANSWAP": {
   //   name: "NanBitcoin",
@@ -39,6 +40,7 @@ export const networks = {
     defaultRep: "ban_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq",
     rpc: "https://nodes.nanswap.com/BAN",
     rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    icon: "https://i.nanswap.com/u/plain/https%3A%2F%2Fmonkey.banano.cc%2Fapi%2Fv1%2Fmonkey%2F",
   },
   XDG: {
     name: "DogeNano",
@@ -49,6 +51,7 @@ export const networks = {
     defaultRep: "xdg_1e4ecrhmcws6kwiegw8dsbq5jstq7gqj7fspjmgiu11q55s6xnsnp3t9jqxf",
     rpc: "https://nodes.nanswap.com/XDG",
     rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    icon: "https://i.nanswap.com/u/plain/https%3A%2F%2Fdoggycon.dogenano.io%2Fapi%2Fv1%2Fpilou%2F",
   },
   ANA: {
     name: "Ananos",

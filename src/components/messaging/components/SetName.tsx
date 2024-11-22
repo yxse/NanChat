@@ -8,12 +8,17 @@ import { convertAddress } from '../../../utils/format';
 import { AccountIcon } from '../../app/Home';
 import { Button, Form, Input } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
+import ProfilePictureUpload from './profile/upload-pfp';
+import { fetcherAccount } from '../fetcher';
+import useSWR from 'swr';
 
 const SetName: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
     const {wallet} = useContext(WalletContext)
     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)
+    const activeAccountNano = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
+    const {data: me, isLoading, mutate} = useSWR(activeAccountNano, fetcherAccount);
 
     return (
         <div className="flex flex-col items-center justify-center h-full">
@@ -58,14 +63,13 @@ const SetName: React.FC = () => {
                 <Form.Item
                  extra='' name={'name'}>
                     <Input
-                    
-                    autoFocus
+                    defaultValue={me?.name}
+                    // autoFocus
                         placeholder="Enter your name"
                     />
 
                 </Form.Item>
             </Form>
-                
             </div>
     );
 };

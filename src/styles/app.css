@@ -338,7 +338,7 @@ html {
 
 .dark-theme {
   --adm-color-primary: #1677ff;
-  --adm-color-background: #171718;
+  /* --adm-color-background: #171718; */
   /* --adm-color-background: #171718; */
   --main-background-color: #000;
   /* --main-background-color: #1e1f21; */
@@ -368,7 +368,7 @@ html {
 
 @media (hover: hover) {
 .adm-list-item:hover {
-  background-color: var(--main-background-color);
+  background-color: var(--active-background-color	);
 }
 }
 .adm-list-item.active {
@@ -563,4 +563,10 @@ html {
 #endOfMessages {
   overflow-anchor: auto;
   height: 1px;
+}
+
+.adm-image-uploader-cell {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
 }

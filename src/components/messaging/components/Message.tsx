@@ -7,8 +7,9 @@ import { convertAddress, formatAddress } from "../../../utils/format";
 import MessageTip from "./MessageTip";
 import MessageSticker from "./MessageSticker";
 import { AccountIcon } from "../../app/Home";
-import { fetcherMessages } from "../fetcher";
+import { fetcherAccount, fetcherMessages } from "../fetcher";
 import useSWR from "swr";
+import ProfilePicture from "./profile/ProfilePicture";
 
 const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const { wallet, dispatch
@@ -18,7 +19,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     const toAccount = message.toAccount;
-    const { data: name } = useSWR(type === "private" ? null : `/name?account=${message.fromAccount}`, fetcherMessages);
+    const { data: account} = useSWR(type === "private" ? null : message.fromAccount, fetcherAccount);
     useEffect(() => {
         // if (!toAccount) return;
         // if (type !== 'private') return;
@@ -73,7 +74,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
                     :
                     type === 'group' && message.fromAccount !== activeAccount && (
                         <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column' }}>
-                            <AccountIcon account={message.fromAccount} width={48} />
+                            <ProfilePicture address={message.fromAccount} />
                         </div>
                     )
             }
@@ -104,7 +105,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
                 {
                     type === 'group' && !isNextMessageFromSameAccount && message.fromAccount !== activeAccount && (
                         <span style={{fontWeight: 'bold'}}>
-                            {name?.name || formatAddress(message.fromAccount)}
+                            {account?.name || formatAddress(message.fromAccount)}
                         </span>
                     )
                 }

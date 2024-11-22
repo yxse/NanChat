@@ -44,7 +44,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
     useEffect(() => {
         if (localStorage.getItem('name') === null) {
-            navigate('/chat/set-name');
+            navigate('/profile/name');
         }
     }
         , []);
@@ -136,6 +136,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             const from = chat.participants.find(participant => participant._id !== activeAccount);
                             const accountFrom = from?._id;
                             const hasName = from?.name;
+                            const pfp = from?.profilePicture?.url
 
                             let decrypted = false
                             try {
@@ -174,6 +175,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                             />
                                             :
                                             <AccountAvatar
+                                                url={pfp}
                                                 account={accountFrom}
                                                 badgeColor={onlineAccount?.find(account => account._id === accountFrom) ? 'green' : 'gray'}
                                             />
@@ -223,17 +225,23 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     );
 };
 
-const AccountAvatar = ({ account, badgeColor }) => {
+const AccountAvatar = ({ url, account, badgeColor }) => {
+    if (url == null) {
+        url = "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
+    }
+
+    const icon = <img style={{borderRadius: "100%", padding: 6}} src={url} alt="account-pfp" width={64} />
+    if (badgeColor == "gray"){ // show only active icon
+        return icon
+    }
     return (
         <Badge
             color={badgeColor}
             content={Badge.dot}
             style={{ '--top': '80%', '--right': '20%' }}
         >
-            <AccountIcon
-                account={account}
-                width={64}
-            /></Badge>
+            {icon}
+    </Badge>
     );
 }
 const AccountListItems = ({ accounts, badgeColor }) => {
@@ -244,10 +252,10 @@ const AccountListItems = ({ accounts, badgeColor }) => {
                 accounts?.map(account => (
                     <List.Item
                         onClick={() => {
-                            // document.startViewTransition(() => {
-                            //     navigate(`/chat/${account._id}`, {unstable_viewTransition: true})
-                            // })
-                            navigate(`/chat/${account._id}`, { unstable_viewTransition: false })
+                            document.startViewTransition(() => {
+                                navigate(`/chat/${account._id}`, {unstable_viewTransition: true})
+                            })
+                            // navigate(`/chat/${account._id}`, { unstable_viewTransition: false })
                         }}
                         key={account._id + badgeColor}
                         extra={
@@ -259,6 +267,7 @@ const AccountListItems = ({ accounts, badgeColor }) => {
                         }
                         prefix={
                             <AccountAvatar
+                            url={account?.profilePicture?.url}
                                 account={account._id}
                                 badgeColor={badgeColor}
                             />

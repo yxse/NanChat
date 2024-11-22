@@ -17,6 +17,7 @@ import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import useLocalStorageState from "use-local-storage-state";
+import ProfilePicture from "./profile/ProfilePicture";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {
@@ -72,8 +73,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                 )
                         }
                     </div>
-                    <div className="">
-                        <AccountIcon account={account} width={48} />
+                    <div className="mr-2">
+                        <ProfilePicture address={account} />
                     </div>
                 </div>
             </List.Item>
