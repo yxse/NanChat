@@ -22,7 +22,7 @@
     "capacitor:open:android": "npx cap open android",
     "capacitor:open:ios": "npx cap open ios",
     "capacitor:align:android": "zipalign -v -p 4 android/app/build/outputs/apk/release/app-release-unsigned.apk android/app/build/outputs/apk/release/app-release-aligned.apk",
-    "capacitor:sign:android": "apksigner sign --ks /path/to/your/keystore/my-release-key.jks --ks-key-alias my-key-alias --ks-pass pass:your-keystore-password --key-pass pass:your-keystore-password --out android/app/build/outputs/apk/release/app-release-signed.apk android/app/build/outputs/apk/release/app-release-aligned.apk"
+    "capacitor:sign:android": "apksigner sign --ks my-release-key.jks --ks-key-alias my-key-alias --ks-pass pass:your-keystore-password --key-pass pass:your-keystore-password --out android/app/build/outputs/apk/release/app-release-signed.apk android/app/build/outputs/apk/release/app-release-aligned.apk"
   },
   "author": "Nano Gift Developers",
   "license": "MIT",

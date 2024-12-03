@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">cesium</string>
+    <string name="title_activity_main">cesium</string>
+    <string name="package_name">com.cesium.app</string>
+    <string name="custom_url_scheme">com.cesium.app</string>
+</resources>
