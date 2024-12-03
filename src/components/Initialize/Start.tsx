@@ -11,7 +11,7 @@ import PWAInstallComponent from "../PWAInstallComponent";
 import { MdOutlineUsb } from "react-icons/md";
 import { initWallet } from "../../nano/accounts";
 // ./icons/icon.png
-import icon from "../../../public/icons/icon.png"
+import icon from "/icons/icon.png?url"
 export async function resetLedger() {
   global.ledger.resetLedger()
   global.ledger = null

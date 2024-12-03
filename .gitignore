@@ -2,7 +2,6 @@ dist
 dist.zip
 cesium.zip
 node_modules
-
 signer.pub
 export.sig
 extension.pem
@@ -12,3 +11,9 @@ dist.crx
 bun.lockb
 vite.config.ts.timestamp*
 dev-dist/
+yarn.lock
+*.jks
+android
+ios
+package-lock.json
+yarn.lock
