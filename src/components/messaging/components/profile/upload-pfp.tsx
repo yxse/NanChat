@@ -7,6 +7,7 @@ import useSWR from 'swr';
 import { fetcherAccount, fetcherMessages } from '../../fetcher';
 import { accountIconUrl } from '../../../app/Home';
 import { networks } from '../../../../utils/networks';
+import { ArtImages } from '../../../app/Art';
 
 const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
     const { wallet } = useContext(WalletContext)
@@ -184,6 +185,27 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
         })
       }
       </div>
+      <ArtImages onImageClick={(url) => {
+          setCurrentAvatar(url);
+          fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/upload/update-pfp', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({account: activeAccount, url})
+          }).then((res) => {
+              console.log(res);
+              if (res.ok) {
+                  Toast.show({
+                      icon: 'success',
+                      content: 'Profile picture updated successfully',
+                      position: 'bottom',
+                  });
+              }
+
+          });
+      }
+      } />
     </div>
   );
 };
