@@ -1,4 +1,5 @@
 import localforage from "localforage";
+import KeyringService from "../services/tauri-keyring-frontend";
 
 interface StorageArea {
   [key: string]: any;
@@ -42,6 +43,9 @@ export function resetWallet(): void {
 
 export async function setSeed(seed: string): Promise<void> {
   localStorage.setItem("seed", seed);
+  await KeyringService.saveSecret('nanwallet', 'seed', seed);
+  const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
+  console.log("Keyring seed: ", retrievedSeed);
   await localforage.setItem("seed", seed);
 }
 

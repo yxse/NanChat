@@ -5,7 +5,6 @@
   "identifier": "com.nanwallet.dev",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://192.168.59.1:5173",
     "beforeDevCommand": "npm run ui",
     "beforeBuildCommand": "npm run build"
   },

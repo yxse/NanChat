@@ -14,7 +14,7 @@ import ProfilePicture from "./profile/ProfilePicture";
 const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const { wallet, dispatch
     } = useContext(WalletContext);
-    const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : false);
+    const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : type === 'private' ? null : message.content);
     const [loading, setLoading] = useState(true);
     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
