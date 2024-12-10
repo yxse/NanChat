@@ -42,7 +42,7 @@ import { GrInProgress } from "react-icons/gr";
 import { fetcher, getOrder } from "../../nanswap/swap/service";
 import useSWRInfinite from "swr/infinite";
 
-export function ArtImages() {
+export function ArtImages({onImageClick}) {
     const getKey = (pageIndex) => {
         return `https://art.nanswap.com/public/collected?address=nano_3f8qys7cubej8pxrqmeotwsjsesg1pz7n8x6zwdjfymmnpwxtgtgkfuegdu6&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
     }
@@ -111,8 +111,16 @@ export function ArtImages() {
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                 {
                     allData.map((nanft) => {
-                        return <a target="_blank" href={"https://nanswap.com/art/assets/" + nanft.id} key={nanft.id}>
-                            <Image src={proxyImage(nanft.location)} style={{ borderRadius: 8 }} /></a>
+                        return <a 
+                        onClick={(e) => {
+                            if (onImageClick) {
+                                onImageClick(proxyImage(nanft.location))
+                                e.preventDefault()
+                            }
+                        }}
+                        target="_blank" href={"https://nanswap.com/art/assets/" + nanft.id} key={nanft.id}>
+                            <Image src={proxyImage(nanft.location)} style={{ borderRadius: 8 }} />
+                        </a>
                     })
                 }
             </div>
