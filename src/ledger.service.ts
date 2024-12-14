@@ -4,7 +4,10 @@ import Nano from 'hw-app-nan';
 // import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportUSB from '@ledgerhq/hw-transport-webusb';
 import TransportHID from '@ledgerhq/hw-transport-webhid';
-// import TransportBLE from '@ledgerhq/hw-transport-web-ble';
+import TransportBLE from '@ledgerhq/hw-transport-web-ble';
+import BleTransport from "@oasisprotocol/ionic-ledger-hw-transport-ble";
+
+
 import Transport from '@ledgerhq/hw-transport';
 import {Subject} from 'rxjs';
 import {ApiService} from './api.service';
@@ -71,8 +74,8 @@ export class LedgerService {
   supportsUSB = false;
 
   transportMode: 'U2F' | 'USB' | 'HID' | 'Bluetooth' = 'U2F';
-  DynamicTransport: typeof TransportUSB | typeof TransportHID | typeof TransportUSB = TransportUSB;
-
+  DynamicTransport: typeof TransportUSB | typeof TransportHID | typeof TransportUSB | typeof BleTransport = BleTransport;
+  device: any;
   ledgerStatus$: Subject<{ status: string, statusText: string }> = new Subject();
   desktopMessage$ = new Subject();
 
@@ -83,7 +86,7 @@ export class LedgerService {
     
       this.checkBrowserSupport().then(() => {
         // if (appSettings.getAppSetting('ledgerReconnect') === 'bluetooth') {
-        //   this.enableBluetoothMode(true);
+          // this.enableBluetoothMode(true);
         // }
       });
   }
@@ -125,9 +128,9 @@ export class LedgerService {
   async checkBrowserSupport() {
     await Promise.all([
     //   TransportU2F.isSupported().then(supported => this.supportsU2F = supported),
-      TransportHID.isSupported().then(supported => this.supportsWebHID = supported),
-      TransportUSB.isSupported().then(supported => this.supportsWebUSB = supported),
-    //   TransportBLE.isSupported().then(supported => this.supportsBluetooth = supported),
+      // TransportHID.isSupported().then(supported => this.supportsWebHID = supported),
+      // TransportUSB.isSupported().then(supported => this.supportsWebUSB = supported),
+      BleTransport.isSupported().then(supported => this.supportsBluetooth = supported),
     ]);
     this.supportsUSB = this.supportsU2F || this.supportsWebHID || this.supportsWebUSB;
   }
@@ -139,7 +142,7 @@ export class LedgerService {
     if (this.supportsWebUSB) {
       // Prefer WebUSB
       this.transportMode = 'USB';
-      this.DynamicTransport = TransportUSB;
+      this.DynamicTransport = BleTransport;
     } else if (this.supportsWebHID) {
       // Fallback to WebHID
       this.transportMode = 'HID';
@@ -155,10 +158,29 @@ export class LedgerService {
    * Enable or disable bluetooth communication, if supported
    * @param enabled   The bluetooth enabled state
    */
-  enableBluetoothMode(enabled: boolean) {
+  async enableBluetoothMode(enabled: boolean) {
+    console.log(`Bluetooth mode enabled: ${enabled}`);
+    // Check if @capacitor-community/bluetooth-le is setup
+    let supportsBluetooth = await BleTransport.isSupported()
+    // Check for bluetooth status
+    let enabledNative = await BleTransport.isEnabled()
+    console.log(`Native bluetooth enabled: ${enabledNative}`);
+    console.log(`Native Bluetooth supported: ${supportsBluetooth}`);
+    console.log(`Bluetooth supported: ${this.supportsBluetooth}`);
+
+    const scannedDevices = await BleTransport.list()
+    const [scannedDevice] = scannedDevices
+    console.log(`Scanned devices: `, scannedDevices);
     if (this.supportsBluetooth && enabled) {
       this.transportMode = 'Bluetooth';
-    //   this.DynamicTransport = TransportBLE;
+      // this.DynamicTransport = TransportBLE;
+      console.log(scannedDevice);
+      this.device = scannedDevice;
+      // let result = await BleTransport.open(scannedDevice)
+      // console.log(`Opened transport: `, result);
+      // const transport = await BleTransport.open(scannedDevice)
+
+      this.DynamicTransport = BleTransport;
     } else {
       this.detectUsbTransport();
     }
@@ -260,8 +282,8 @@ export class LedgerService {
 
   async loadTransport() {
     return new Promise((resolve, reject) => {
-      this.DynamicTransport.create(3000, this.waitTimeout).then(trans => {
-
+      this.DynamicTransport.open(this.device).then(trans => {
+        console.log(`transport`, trans);
         // LedgerLogs.listen((log: LedgerLog) => console.log(`Ledger: ${log.type}: ${log.message}`));
         this.ledger.transport = trans;
         const allowedPrefixes = Object.keys(networks).map(k => networks[k].prefix + '_');
