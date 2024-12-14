@@ -56,6 +56,7 @@ export function ConnectLedger({onConnect, onDisconnect}) {
             content: "Connecting to Ledger device..."
           });
           const ledger = new LedgerService();
+          await ledger.enableBluetoothMode(true)
           let r = await ledger.loadLedger();
           console.log(r)
           console.log(ledger.ledger)

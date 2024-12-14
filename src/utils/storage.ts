@@ -1,5 +1,6 @@
 import localforage from "localforage";
 import KeyringService from "../services/tauri-keyring-frontend";
+import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 
 interface StorageArea {
   [key: string]: any;
@@ -43,9 +44,12 @@ export function resetWallet(): void {
 
 export async function setSeed(seed: string): Promise<void> {
   localStorage.setItem("seed", seed);
-  await KeyringService.saveSecret('nanwallet', 'seed', seed);
-  const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
-  console.log("Keyring seed: ", retrievedSeed);
+  // await KeyringService.saveSecret('nanwallet', 'seed', seed);
+  // const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
+  // console.log("Keyring seed: ", retrievedSeed);
+  SecureStoragePlugin.set({key: "seed", value: seed});
+  const value = await SecureStoragePlugin.get({key: "seed"});
+  console.log("SecureStorage seed: ", value);
   await localforage.setItem("seed", seed);
 }
 
