@@ -360,17 +360,18 @@ export const ItemCopyAddress = ({ address, ticker, onClick }) => {
     </div>
     </List.Item>
 }
-export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = false, hideBalance = false, filterTickers = [], customAddress = false }) {
+export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = false, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker}) {
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
-
   return (<>
     <List >
 
       {activeMainNetworks.map((ticker) => (
-        <List.Item>
+        <List.Item
+        className={selectedTicker === ticker ? "active" : ""}
+        >
           <NetworkItem
             network={networks[ticker]}
             key={ticker}

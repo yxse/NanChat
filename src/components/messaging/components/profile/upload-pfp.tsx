@@ -85,6 +85,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
         content: 'Profile picture updated successfully',
         position: 'bottom',
       });
+      mutate();
       return {
         url: data.url,
       }
@@ -159,6 +160,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
         allIcons.map((icon) => {
             return (
                 <img 
+                key={icon}
                 onClick={async () => {
                     setCurrentAvatar(networks[icon].icon + convertAddress(activeAccount, icon));
                     fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/upload/update-pfp', {
@@ -175,6 +177,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
                                 content: 'Profile picture updated successfully',
                                 position: 'bottom',
                             });
+                            mutate();
                         }
 
                     });
@@ -201,6 +204,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
                       content: 'Profile picture updated successfully',
                       position: 'bottom',
                   });
+                  mutate();
               }
 
           });

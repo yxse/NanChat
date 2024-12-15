@@ -43,6 +43,7 @@ const SetName: React.FC = () => {
                     console.log(res);
                     navigate('/chat');
                     localStorage.setItem('name', values.name);
+                    mutate({name: values.name});
                 });
             }}
             footer={

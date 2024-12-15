@@ -40,6 +40,7 @@ import Messaging from "../messaging/Messaging";
 import localForage from "localforage";
 import ReloadPrompt from "./ReloadPrompt/ReloadPrompt";
 import { SendReceive } from "./wallet/SendReceive";
+import ProfilePicture from "../messaging/components/profile/ProfilePicture";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
@@ -115,6 +116,7 @@ export const accountIconUrl = (account) => {
   return "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account;
 }
 export const AccountIcon = ({ account, width=32 }) => {
+  return <ProfilePicture address={account} width={width} fallback={accountIconUrl(account)} />
   return (
     <img
       src={"https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account}
@@ -277,6 +279,7 @@ export default function Home({ }) {
       <div className="overflow-y-auto pb-10" style={{ height: "65dvh" }}>
      <SendReceive />
         <NetworkList
+        selectedTicker={selectedTicker}
           // onClick={(ticker) => navigate(`/${ticker}`)}
           onClick={(ticker) => {
             if (isMobile) {

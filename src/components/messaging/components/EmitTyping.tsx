@@ -19,6 +19,7 @@ import { FaArrowUp } from "react-icons/fa6";
 import { useChat } from "../hooks/useChat";
 import ChatInputTip from "./ChatInputTip";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
+import ProfileName from "./profile/ProfileName";
 
 const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, messageInputRef }) => {
     const {
@@ -64,7 +65,7 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
                     return Date.now() - participant.time < 4000;
                 });
             });
-        }, 1000);
+        }, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -161,15 +162,6 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     )
 };
 
-const AccountName = ({ account }) => {
-    const { data: accountData } = useSWR<Chat[]>(`/name?account=${account}`, fetcherMessages, {
-        dedupingInterval: 60000,
-    });
-
-    return (
-            <b>{accountData?.name}</b>
-    )
-}
 const AccountsAreTyping = ({ participantsTyping }) => {
 
     if (participantsTyping.length === 0) {
@@ -188,7 +180,7 @@ const AccountsAreTyping = ({ participantsTyping }) => {
             {
                 participantsTyping.map((participant, index) => (
                     <span key={participant.account}>
-                        <AccountName account={participant.account} />
+                        <ProfileName address={participant.account} />
                         {index !== participantsTyping.length - 1 ? ', ' : ''}
                     </span>
                 ))

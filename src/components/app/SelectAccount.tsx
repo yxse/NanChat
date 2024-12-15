@@ -15,7 +15,7 @@ import { FaCheck, FaCopy, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { TbWorldQuestion } from "react-icons/tb";
 import useLocalStorageState from "use-local-storage-state";
-import { AccountIcon, AccountName, ConvertToBaseCurrency } from "./Home";
+import { AccountIcon, ConvertToBaseCurrency } from "./Home";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { getAccount } from "../getAccount";
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineSend, AiOutlineSwap } from "react-icons/ai";
@@ -23,6 +23,7 @@ import { CopyIcon } from "./Icons";
 import { WalletContext } from "../Popup";
 import React from 'react'
 import { DownOutline, EditSOutline, EyeFill, EyeInvisibleFill } from "antd-mobile-icons";
+import ProfileName from "../messaging/components/profile/ProfileName";
 
 const MAX_ACCOUNTS = 5;
 function SelectAccount({ }) {
@@ -41,8 +42,10 @@ function SelectAccount({ }) {
   , []);
   return (<>
   <div className="text-sm text-gray-400 mb-1 flex items-center cursor-pointer" onClick={() => setVisible(true)}>
-    <AccountIcon account={activeAccount} />
-    <AccountName />
+    <span className="mr-2">
+      <AccountIcon account={activeAccount} />
+    </span>
+    <ProfileName address={activeAccount} fallback={`Account ${wallet.activeIndex + 1}`} />
     <DownOutline className="ml-2" /> 
     {/* {activeAccount} - {wallet.activeIndex} */}
   </div>
@@ -65,17 +68,19 @@ function SelectAccount({ }) {
           wallet.accounts.map((account) => {
             return (
               <SwipeAction
-              rightActions={[{
-                key: 'edit-label',
-                color: 'primary',
-                text: <EditSOutline/>,
-                onClick: () => {
-                  let newLabel = prompt("Enter a new label", accountsLabels[account.address] || "");
-                  if (newLabel){
-                    setAccountsLabels({...accountsLabels, [account.address]: newLabel});
-                  }
-                }
-              },
+              rightActions={[
+                // account label is now the profile name in the chat
+                // {
+                // key: 'edit-label',
+                // color: 'primary',
+                // text: <EditSOutline/>,
+                // onClick: () => {
+                //   let newLabel = prompt("Enter a new label", accountsLabels[account.address] || "");
+                //   if (newLabel){
+                //     setAccountsLabels({...accountsLabels, [account.address]: newLabel});
+                //   }
+                // }
+                // },
                 {
                   key: 'hide',
                   text: <EyeInvisibleFill />,
@@ -102,7 +107,7 @@ function SelectAccount({ }) {
                   <AccountIcon account={account.address} />
                 }
               >
-                {accountsLabels[account.address] || `Account ${account.accountIndex + 1}`}
+                <ProfileName address={account.address} fallback={`Account ${account.accountIndex + 1}`} />
               </CheckList.Item>
               </SwipeAction>
             );
