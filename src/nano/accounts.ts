@@ -51,6 +51,7 @@ export function initWallet(ticker, seed, mutate, dispatch) {
       dispatch: dispatch
     });
     console.log("init wallet", ticker)
+    wallet.receiveAllActiveAccount();
     return wallet;
 }
 export async function getWalletRPC(ticker, seed){

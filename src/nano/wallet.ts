@@ -557,7 +557,11 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
     });
   };
    
+  receiveAllActiveAccount = async () => {
+      await this.receiveAll(this.getActiveAccount());
+  }
   receiveAll = async (account) => {
+    console.log("Receiving all pending transactions for: " + account);
     let hashes = await this.rpc.receivable(account);
     for (const hash in hashes) {
       const pendingTx = {
