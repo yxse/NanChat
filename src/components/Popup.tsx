@@ -28,6 +28,7 @@ function walletsReducer(state, action) {
     case "SET_ACTIVE_INDEX":
       for (let ticker of Object.keys(state.wallets)) {
         state.wallets[ticker].setActiveIndex(action.payload);
+        state.wallets[ticker].receiveAllActiveAccount();
       }
       localStorage.setItem('activeIndex', action.payload);
       return { ...state, activeIndex: action.payload };
