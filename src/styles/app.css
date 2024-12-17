@@ -570,3 +570,15 @@ html {
   justify-content: center;
   align-items: center;
 }
+
+.ai-spin {
+  animation: ai-spin 1s infinite linear;
+}
+@keyframes ai-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}

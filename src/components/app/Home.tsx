@@ -41,6 +41,8 @@ import localForage from "localforage";
 import ReloadPrompt from "./ReloadPrompt/ReloadPrompt";
 import { SendReceive } from "./wallet/SendReceive";
 import ProfilePicture from "../messaging/components/profile/ProfilePicture";
+import RefreshButton from "../RefreshButton";
+import { isTouchDevice } from "../../utils/isTouchDevice";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
@@ -141,6 +143,8 @@ const WalletSummary = ({}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
   const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
   const { wallet, dispatch } = useContext(WalletContext);
+  const {mutate,cache}=useSWRConfig()
+
   const { data: prices, isLoading: isLoadingPrices } = useSWR(
     "prices",
     fetchPrices,
@@ -165,13 +169,20 @@ const WalletSummary = ({}) => {
 
   const addressPfp = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
 
+  const onRefresh = async () => {
+    await mutate((key) => key.startsWith("balance-") || key === "prices");
+  }
+
   return   <div className="m-3 mb-5">
     <SelectAccount />
   <div className="">
     
     <div className="text-2xl">
     {
-      (isLoadingPrices || isLoadingBalances) ? <DotLoading /> : <FormatBaseCurrency amountInBaseCurrency={sum} />
+      (isLoadingPrices || isLoadingBalances) ? <DotLoading /> : <>
+      <FormatBaseCurrency amountInBaseCurrency={sum} /> <RefreshButton onRefresh={onRefresh} />
+      
+      </>
     }
 
     </div>
@@ -201,6 +212,11 @@ export default function Home({ }) {
   const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
   const {isMobile} = useWindowDimensions()
+  const onRefresh = async () => {
+    await mutate((key) => key.startsWith("balance-") || key === "prices");
+  }
+ 
+  
   return (
     <div className="w-full  relative mx-auto" style={{  }}>
         <Popup
@@ -235,13 +251,14 @@ export default function Home({ }) {
         <div className="flex">
         <div style={{width: "100%"}}>
       <PullToRefresh
+      disabled={
+         isTouchDevice() ? false : true
+      }
        pullingText={<MdOutlineRefresh />}
        completeText={<>Updated <MdOutlineCheck /></>}
        canReleaseText={<DotLoading />}
        refreshingText={<DotLoading />}
-      onRefresh={async () => {
-        await mutate((key) => key.startsWith("balance-") || key === "prices");
-      }}>
+      onRefresh={onRefresh}>
       <div className="flex items-center justify-between" >
         <WalletSummary />
 {/* <MenuBar mode="large-screen"/> */}

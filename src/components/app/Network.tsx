@@ -46,6 +46,8 @@ import { WalletContext } from "../Popup";
 import { Wallet } from "../../nano/wallet";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { fetchPrices } from "../../nanswap/swap/service";
+import { isTouchDevice } from "../../utils/isTouchDevice";
+import RefreshButton from "../RefreshButton";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
@@ -287,7 +289,10 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     //   }
     //   updateBalanceOnWsMessage()
     //   }, [])
-  
+  const onRefresh = async () => {
+    await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
+    await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
+  }
   return (
     <div className="transition-opacity">
       <NavBar
@@ -331,10 +336,10 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
               </div>
             ) : (
               balance + " " + ticker
-            )}
+            )} <RefreshButton onRefresh={onRefresh} />
           </div>
           <div className="text-sm text-gray-400">
-            ~ <ConvertToBaseCurrency amount={balance} ticker={ticker} />
+            ~ <ConvertToBaseCurrency amount={balance} ticker={ticker} /> 
           </div>
         </Card>
         <div className="flex justify-center mt-4 space-x-4 hidden">
@@ -438,14 +443,12 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
       </CapsuleTabs>
       <div className="mt-4">
       <PullToRefresh
+      disabled={isTouchDevice() ? false : true}
       pullingText={<MdOutlineRefresh />}
       completeText={<>Updated <MdOutlineCheck /></>}
       canReleaseText={<DotLoading />}
       refreshingText={<DotLoading />}
-      onRefresh={async () => {
-        await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
-        await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
-      }}>
+      onRefresh={onRefresh}>
         <History ticker={ticker} onSendClick={() => {
           setModalVisible(true);
           setAction('send');
