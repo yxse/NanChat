@@ -97,26 +97,38 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     </p>
                 </div>
             </Popup>
-            <div
-                style={{ position: 'absolute', top: '0', bottom: '0', overflowY: 'auto', width: '100%', marginTop: '9vh', marginBottom: 64 }}
-            >
+         
                 <List>
                     <List.Item
+                    description={
+                        <div className="">
+                                        
+                                        <p>
+                                        {nameOrAccount}'s account used for end-to-end encryption.
+                                        </p>
+                                        <p>
+                                            Verify it with {nameOrAccount} by a secure mean and save it in your contacts for a guaranteed authenticity and end-to-end encryption.
+                                        </p>
+                                    </div>
+                    }
                             title="Account"
                             children={
-                                formatAddress(account)
+                                <div>
+                                <p className="break-all mb-2">
+                                            {account}
+                                        </p></div>
                             }
-                            onClick={() => {
-                                setVisible(true);
-                            }}
+                            // onClick={() => {
+                            //     setVisible(true);
+                            // }}
                             />
                             {
                                 !contacts.find((contact) => contact.addresses.find((address) => address.address === account)) ? 
                     <List.Item
                     children={
                         <Button
-                        type="submit"
-                        size="middle"
+                        shape="default"
+                        size="large"
                         color="primary"
                         onClick={() => {
                             navigate(`/contacts/?address=${account}&name=${nameOrAccount}&add=true&network=XNO`);
@@ -133,8 +145,31 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                 Saved in contacts as {contacts.find((contact) => contact.addresses.find((address) => address.address === account))?.name}
                             </div>
                         }
+                        <List.Item
+                        children={
+                            <a href={`https://nanexplorer.com/nano/account/${account}`} target="_blank">
+                            <Button
+                            shape="default"
+                            size="large"
+                            color="default"
+                            >
+                                View on explorer
+                            </Button>
+                            </a>
+                        }
+                        >
+                            
+                        </List.Item>
                 </List>
-            </div>
+                <Button
+                shape="default"
+                size="large"
+                color="danger"
+                
+                >
+                    Block
+                </Button>
+
         </div>
     );
 };

@@ -42,7 +42,7 @@ import { Alias, AliasContact, AliasInternetIdentifier } from "./History";
 import { FaAddressBook } from "react-icons/fa6";
 import { SelectContact } from "./Contacts";
 import { fetchBalance } from "./Network";
-import { CopyButton, CopyIcon } from "./Icons";
+import { CopyButton, CopyIcon, PasteIcon } from "./Icons";
 import { WalletContext } from "../Popup";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
@@ -167,7 +167,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
         type="number"
         inputMode="decimal"
         onChange={handleInputChange}
-        placeholder={`Amount of ${currency}`}
+        placeholder={`Enter Amount`}
       />
     </Form.Item>
   );
@@ -323,7 +323,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 onClick={() => {
                   showScanner()
                 }}>
-                Scan QR Code
+                Scan QR Code // or select contact
               </Button> */}
                 </div>
             }
@@ -335,14 +335,13 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 style={{ width: "100%" }}
               >
                 <TextArea
-                disabled
                   autoSize={{ minRows: 3, maxRows: 4 }}
-                  placeholder="To alias or address"
+                  placeholder="Enter Address or Alias"
                   rows={2}
                 />
               </Form.Item>
               <div className="flex items-center space-x-2">
-              <CopyIcon fontSize={24}  className=""
+              <PasteIcon fontSize={24}  className=""
                 onClick={() => {
                   try {
                     (async () =>
@@ -357,11 +356,11 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 }
                 }
               />
+              <ScanCodeOutline fontSize={24} className="cursor-pointer mr-3" onClick={() => showScanner()} />
               <SelectContact  ticker={ticker} onSelect={(contact) => {
                 let correctAddressTicker = contact.addresses.find((a) => a.network === ticker)
                 form.setFieldsValue({ address: correctAddressTicker.address })
               }} />
-              <ScanCodeOutline fontSize={24} className="cursor-pointer mr-3" onClick={() => showScanner()} />
              </div>
             </div>
 

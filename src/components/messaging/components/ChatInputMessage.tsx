@@ -127,7 +127,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
       };
       onSent(message);
      const messageEncrypted = { ...message };
-     if (chat.type === "private") {
+     if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
       }
       else {
