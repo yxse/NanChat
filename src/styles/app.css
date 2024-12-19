@@ -401,6 +401,11 @@ html {
   background-color: var(--main-background-color);
 }
 
+@media (max-width: 1200px) {
+  .hide-on-lg {
+    display: none !important;
+  }
+}
 
 @media (max-width: 768px) {
   .hide-on-mobile {

@@ -22,6 +22,7 @@ import Message from "./Message";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import GroupAvatar from "./group-avatar";
 import ProfilePicture from "./profile/ProfilePicture";
+import NewMessageWarning from "./NewMessageWarning";
 
 
 
@@ -55,6 +56,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
+    if (chat?.participants[0]?._id === chat?.participants[1]?._id) {
+        participant = chat?.participants[0];
+    }
     let address = participant?._id;
     if (account?.startsWith('nano_')) {
         address = account;
@@ -222,6 +226,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         )
     }
 
+    console.log("messages", messages);
     return (
         <div 
         style={{
@@ -242,9 +247,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             // }
             >
                 {
-                    chat?.type === 'private' ? <HeaderPrivate /> : <HeaderGroup />
+                    chat?.type === 'group' ? <HeaderGroup />: <HeaderPrivate />
                 }
             </List.Item>
+    
             {
               account == null && (
                     <div className="flex items-center justify-center h-full">
@@ -336,7 +342,16 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             </div>
                         )
                     } */}
-
+        {
+                chat?.type === 'private' && (
+                    <div className="flex items-center justify-center text-yellow-300 text-sm text-center" style={{ backgroundColor: 'var(--adm-color-background)', padding: '16px', margin: 32, borderRadius: 8 }}>
+                        <div>
+                    <LockFill className="mr-2 inline" />
+                    Messages are end-to-end encrypted using nano addresses. No one outside of this chat can read them.
+                    </div>
+                    </div>
+                )
+            }
                 {messages.reverse().map((message, index) => {
                     return (
                         <div 
@@ -375,6 +390,12 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 color="primary">
                     Load more
                 </Button> */}
+                {
+                    chat && 
+                    !chat?.accepted &&
+                    activeAccount !== chat?.creator &&
+                     <NewMessageWarning fromAddress={address} account={activeAccount} chatId={account} />
+                }
             <ChatInputMessage
             messageInputRef={messageInputRef}
                 onSent={(message) => {

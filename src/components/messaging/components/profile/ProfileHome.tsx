@@ -45,8 +45,10 @@ const ProfileHome: React.FC = () => {
                 >
                     Name
                 </List.Item>
-                <List.Item>
-                    ID NanWallt
+                <List.Item
+                extra={"@" + me?.username}
+                >
+                    Username
                 </List.Item>
             </List>
         </div>

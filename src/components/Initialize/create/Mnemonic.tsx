@@ -8,13 +8,14 @@ import "../../../styles/mnemonic.css";
 import { BsEyeSlashFill } from "react-icons/bs";
 
 import storage from "../../../utils/storage";
-import { Button, DotLoading } from "antd-mobile";
+import { Button, DotLoading, Modal } from "antd-mobile";
 import { CopyButton } from "../../app/Icons";
 import { saveAs } from 'file-saver';
 import { WalletContext } from "../../Popup";
 import { networks } from "../../../utils/networks";
 import { useSWRConfig } from "swr";
 import { initWallet } from "../../../nano/accounts";
+import { CopyToClipboard } from "../../Settings";
 
 export default function Mnemonic({
   setW,
@@ -74,12 +75,12 @@ export default function Mnemonic({
           </div>
           {
             mnemonic === "" ? <DotLoading /> : 
-          <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={true} colorCopy="default" />
+          <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={true} colorCopy="default" showWarning={false} />
           }
           <Button
           shape="rounded"
           onClick={() => setW(2)}
-           type="submit" color="primary" size="large" className="mt-4">
+           type="submit" color="primary" size="large" className="mt-4 w-full">
             I saved my Secret Recovery Phrase
           </Button>
         </form>
@@ -91,6 +92,20 @@ export default function Mnemonic({
 export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideButton = false, colorCopy}: { mnemonic: string, defaultIsRevealed?: boolean, showHideButton?: boolean, colorCopy?: string }) {
   const [isRevealed, setIsRevealed] = useState<boolean>(defaultIsRevealed);
   const [copied, setCopied] = useState<boolean>(false);
+  const [warningShown, setWarningShown] = useState<boolean>(defaultIsRevealed); // don't show warning when init wallet
+  const warningModal = () => {
+    Modal.confirm({
+      title: "Do not share your Secret Recovery Phrase",
+      content: "Support will never ask for your Secret Recovery Phrase. Do not share it with anyone and store it securely.",
+      confirmText: "I understand",
+      cancelText: "I don't understand",
+      onCancel: () => {
+        navigator.clipboard.writeText("")
+        setIsRevealed(false)
+        setWarningShown(false)
+      }
+    })
+  }
   return <div>
   <div 
   style={{userSelect: isRevealed ? 'all' : 'none'}}
@@ -116,14 +131,26 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       </div>
       {
         showHideButton && 
-      <div className="text-gray-400 m-4 cursor-pointer" onClick={() => setIsRevealed(!isRevealed)}>
+      <div className="text-gray-400 m-4 cursor-pointer" onClick={() => {
+        if (!isRevealed && !warningShown) {
+          warningModal()
+          setWarningShown(true)
+        }
+        setIsRevealed(!isRevealed)
+      }}>
                     {isRevealed ? "Click to hide" : "Click to reveal"}
                 </div>
       }
     <div className="mt-4">
     <CopyButton 
     textToCopy={mnemonic} copiedText={"Copied"} copyText={"Copy"} color={colorCopy}
-    onCopy={() => setCopied(true)}
+    onCopy={() => {
+      setCopied(true)
+      if (!warningShown){
+        warningModal()
+        setWarningShown(true)
+      }
+    }}
     onAnimationEnd={() => setCopied(false)}
     />
     </div>

@@ -118,7 +118,7 @@ export const MenuBar = () => {
     },
     {
       key: "chat",
-      title: "Chat",
+      title: "Chats",
       icon: <MessageOutline size={btnSize} />,
     },
     {

@@ -31,6 +31,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
+    const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
+
     return (
         <div className="">
             <List.Item
@@ -123,7 +125,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             // }}
                             />
                             {
-                                !contacts.find((contact) => contact.addresses.find((address) => address.address === account)) ? 
+                                !inContacts ? 
                     <List.Item
                     children={
                         <Button

@@ -1,5 +1,5 @@
-import { Avatar, Badge, Button, Card, Input, List, Modal, Popover, SearchBar, Toast } from "antd-mobile";
-import { FillinOutline, LockOutline, TeamOutline, UserCircleOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
+import { Avatar, Badge, Button, Card, Input, List, Modal, Popover, SearchBar, Space, Toast } from "antd-mobile";
+import { FillinOutline, LockFill, LockOutline, MailOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
@@ -9,9 +9,14 @@ import { convertAddress, formatAddress } from "../../../utils/format";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { box } from "multi-nano-web";
 import GroupAvatar from "./group-avatar";
+import Contacts from "../../app/Contacts";
+import useLocalStorageState from "use-local-storage-state";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import NewChatPopup from "./NewChatPopup";
+import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 
 const ChatList: React.FC = ({ onChatSelect }) => {
     const { wallet } = useContext(WalletContext)
@@ -21,16 +26,17 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { data: chats, mutate } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
-    const { data: accounts } = useSWR<string[]>('/accounts', fetcherMessages);
-    const onlineAccount = accounts?.online;
-    const offlineAccount = accounts?.offline;
-    const all = onlineAccount?.concat(offlineAccount);
-    const { data: names } = useSWR<Chat[]>(`/names?accounts=${all?.map(account => account._id).join(',')}`, fetcherMessages);
+    const { data: accounts } = useSWR<string[]>('/accounts?search=' + activeAccount, fetcherMessages);
+    // const onlineAccount = accounts?.online;
+    // const offlineAccount = accounts?.offline;
+    // const all = onlineAccount?.concat(offlineAccount);
+    // const { data: names } = useSWR<Chat[]>(`/names?accounts=${all?.map(account => account._id).join(',')}`, fetcherMessages, {keepPreviousData: true});
     // const filteredChats = chats?.filter(chat =>
     //     chat.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     // );
+    const accountData = accounts?.find(name => name._id === activeAccount)
     const filteredChats = chats
-
+    const {isMobile} = useWindowDimensions()
     useEffect(() => {
         socket.on('chat', (chat: string) => {
             mutate();
@@ -112,32 +118,36 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         );
     };
     return (
-        <div>
+        <div
+        style={isMobile ? {} : { minWidth: 500 }}
+        >
             <div>
                 <List style={{ position: 'sticky', top: 0, zIndex: 1 }} className="">
-                    <div className="flex justify-between items-center m-4">
-                        <h1>Chats</h1>
-                        <ButtonNewChat />
-                    </div>
+                    <List.Item
+                    description={formatAddress(activeAccount)}
+                    extra={<FillinOutline fontSize={24} color="white" style={{cursor: "pointer"}}/>}
+                    >
+                        {accountData?.name}
+                    </List.Item>
                     {/* <div className="flex items-center gap-2 mt-1 align-middle">
             Share your Invitation Link: <CopyToClipboard text={`https://znbfmt6n-4173.euw.devtunnels.ms/messages/${activeAccount}`} />
             </div> */}
-                    <Input
-                        type="text"
-                        placeholder="Search chats..."
-                        className="w-full mt-2 p-2 rounded-lg"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                  
                 </List>
+                <div className="text-gray-500 mt-2 mb-2 ml-2">
+                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted.
+                    </div>
                 <div className="">
                     <List>
                         {filteredChats?.map(chat => {
-                            const from = chat.participants.find(participant => participant._id !== activeAccount);
+                            let from = chat.participants.find(participant => participant._id !== activeAccount);
+                            if (chat.participants[0]?._id === chat.participants[1]?._id) { // chat with self
+                                from = chat.participants[0]; 
+                            }
                             const accountFrom = from?._id;
                             const hasName = from?.name;
                             const pfp = from?.profilePicture?.url
-
+                            
                             let decrypted = false
                             try {
                                 if (chat.type === 'private') {
@@ -177,13 +187,14 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                             <AccountAvatar
                                                 url={pfp}
                                                 account={accountFrom}
-                                                badgeColor={onlineAccount?.find(account => account._id === accountFrom) ? 'green' : 'gray'}
+                                                // badgeColor={onlineAccount?.find(account => account._id === accountFrom) ? 'green' : 'gray'}
+                                                badgeColor={'gray'}
                                             />
                                     }
                                     description={decrypted}
                                 >
                                     <div className="flex items-center">
-                                        {
+                                        {/* {
                                             chat.type === 'group' ?
                                                 <>
                                                     <TeamOutline className="text-gray-500 mr-2" />
@@ -191,7 +202,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                                 </>
                                                 :
                                                 <LockOutline className="text-gray-500 mr-2" />
-                                        }
+                                        } */}
 
                                         {
                                             hasName ? hasName : formatAddress(accountFrom)
@@ -203,7 +214,27 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             )
                         })}
                     </List>
-                    <div className="text-center text-gray-500 mt-4 flex items-center justify-start ml-2">
+                    
+                    <div className="mt-2">
+                        
+                        
+                        <List className="mt-2">
+                            <List.Item
+                            onClick={() => {
+                                navigator.share({
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${accountData?.username}`,
+                                    url: 'http://localhost:5173/chat/' + activeAccount
+                                })  
+                            }}
+                            prefix={<MailOutline />}
+                            >
+                                Invite friends
+                            </List.Item>
+                            <NewChatPopup />
+                        </List>
+                    </div>
+                    
+                    {/* <div className="text-center text-gray-500 mt-4 flex items-center justify-start ml-2">
                         Online - {onlineAccount?.length}
                     </div>
                     <div className="mt-2">
@@ -218,14 +249,14 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         <List>
                             <AccountListItems accounts={offlineAccount} badgeColor="gray" />
                         </List>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
     );
 };
 
-const AccountAvatar = ({ url, account, badgeColor }) => {
+export const AccountAvatar = ({ url, account, badgeColor }) => {
     if (url == null) {
         url = "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
     }
@@ -244,42 +275,5 @@ const AccountAvatar = ({ url, account, badgeColor }) => {
     </Badge>
     );
 }
-const AccountListItems = ({ accounts, badgeColor }) => {
-    const navigate = useNavigate();
-    return (
-        <List>
-            {
-                accounts?.map(account => (
-                    <List.Item
-                        onClick={() => {
-                            document.startViewTransition(() => {
-                                navigate(`/chat/${account._id}`, {unstable_viewTransition: true})
-                            })
-                            // navigate(`/chat/${account._id}`, { unstable_viewTransition: false })
-                        }}
-                        key={account._id + badgeColor}
-                        extra={
-                            <div className="flex flex-col items-end">
-                                <div>
-                                    {formatAddress(account._id)}
-                                </div>
-                            </div>
-                        }
-                        prefix={
-                            <AccountAvatar
-                            url={account?.profilePicture?.url}
-                                account={account._id}
-                                badgeColor={badgeColor}
-                            />
-                        }
-                    >
-                        {
-                            account.name
-                        }
-                    </List.Item>
-                ))
-            }
-        </List>
-    );
-}
+
 export default ChatList;

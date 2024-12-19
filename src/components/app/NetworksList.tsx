@@ -268,7 +268,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                 {
                   !hideActions &&
                 
-                <div className="flex space-x-4 ml-6 mr-1 justify-end max-md:hidden">
+                <div className="flex space-x-4 ml-6 mr-1 justify-end hide-on-lg">
                   <ButtonAction action="receive" ticker={ticker} />
                   <ButtonAction action="send" ticker={ticker} />
                   <ButtonAction action="swap" ticker={ticker} /> 

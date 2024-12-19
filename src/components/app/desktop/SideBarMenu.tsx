@@ -29,7 +29,7 @@ export const SideBarMenu = () => {
       },
       {
         key: "chat",
-        title: "Chat",
+        title: "Chats",
         icon: <MessageOutline size={btnSize} />,
       },
       {
@@ -39,7 +39,7 @@ export const SideBarMenu = () => {
       },
       {
         key: "profile",
-        title: "Profile",
+        title: "Me",
         icon: <UserOutline size={btnSize} />,
       },
       {

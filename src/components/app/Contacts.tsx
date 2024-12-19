@@ -11,7 +11,7 @@ import { getAccount } from '../getAccount';
 import { useSearchParams } from 'react-router-dom';
 import { UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 
-const Contacts: React.FC = () => {
+const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
     const [addContactVisible, setAddContactVisible] = useState( searchParams.get("add") === "true" );
     const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -207,11 +207,19 @@ const Contacts: React.FC = () => {
         </Card>
     }
 
-    const ImportContacts = () => {
+     const ImportContacts = () => {
         return  <div className='text-white'>
-        <label htmlFor="file_input" className='cursor-pointer flex items-center space-x-2 justify-center '>
-        <AiOutlineImport size={20} />
-        <span>Import</span>
+        <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
+            <List>
+            <List.Item
+            className='w-full'
+            clickable
+                prefix={<UserContactOutline />}
+                description="Nault, Natrium and Kalium export file supported"
+            >
+                Import contacts
+            </List.Item>
+            </List>
         </label>
         <input
             onChange={(e) => {
@@ -272,6 +280,13 @@ const Contacts: React.FC = () => {
     </div>
     }
 
+    if (onlyImport && contacts.length > 0) {
+        return null
+    }
+    if (onlyImport) {
+        return <ImportContacts />
+    }
+
     return (
         <div>
             <NavBar
@@ -295,16 +310,21 @@ const Contacts: React.FC = () => {
                 Contacts
             </NavBar>
             {
-                contacts.length === 0 && <div className='text-center text-xl p-4'>
+                contacts.length === 0 && 
+                <>
+                <div className='text-center text-xl p-4'>
                     No contacts
-                    <div className='text-center text-lg text-gray-500 mt-4'>
-                    Add or import contacts (Nault/Natrium/Kalium export files supported)
-                    <br/>
-                    <div className='text-center text-lg text-gray-500 mt-4 w-full'>
-                        <ImportContacts />
-                        </div>
                     </div>
-                </div>
+                                <ImportContacts />
+                        </>
+                //     <div className='text-center text-lg text-gray-500 mt-4'>
+                //     Add or import contacts (Nault/Natrium/Kalium export files supported)
+                //     <br/>
+                //     <div className='text-center text-lg text-gray-500 mt-4 w-full'>
+                //         <ImportContacts />
+                //         </div>
+                //     </div>
+                // </div>
             }
             <List>
                 {contacts.map((contact, index) => (

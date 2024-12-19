@@ -47,6 +47,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     if (account?.startsWith('nano_')) {
         address = account;
     }
+    if (chat?.participants && chat?.participants[0]?._id === chat?.participants[1]?._id) { // chat with self
+        address = chat?.participants[0]?._id;
+    }
     const nameOrAccount = participant?.name || formatAddress(address);
     
     useEffect(() => {
@@ -113,7 +116,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
       if (messagesHistory.length === 0 && account.startsWith('nano_')) {
         let r = await fetcherMessagesPost(`/chat`, {
           type: "private",
-          participants: [activeAccount, account]
+          participants: [activeAccount, account],
+          creator: activeAccount,
         })
         
         chatId = r.id;

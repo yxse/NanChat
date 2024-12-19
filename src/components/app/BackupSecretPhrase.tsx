@@ -36,6 +36,7 @@ function BackupSecretPhrase() {
                 Backup Secret Phrase
             </List.Item>
             <Popup
+            destroyOnClose
                 showCloseButton
                 visible={visible}
                 onClose={() => setVisible(false)}
@@ -44,6 +45,9 @@ function BackupSecretPhrase() {
             >
                 <div className="text-2xl  text-center p-2">
                     Backup Secret Phrase
+                </div>
+                <div className="text-center p-2 mb-2" style={{ color: 'var(--adm-color-danger)' }}>
+                    Never share your secret phrase. Anyone with access to your secret phrase can steal your funds.
                 </div>
                 <div className="text-center p-2 mb-4">
                     <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={false} showHideButton colorCopy={seedVerified ? "primary" : "default"} />

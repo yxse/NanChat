@@ -2,7 +2,7 @@ import { box } from "multi-nano-web";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { WalletContext } from "../../Popup";
-import { Avatar, DotLoading } from "antd-mobile";
+import { Avatar, DotLoading, Skeleton } from "antd-mobile";
 import { convertAddress, formatAddress } from "../../../utils/format";
 import MessageTip from "./MessageTip";
 import MessageSticker from "./MessageSticker";
@@ -49,7 +49,9 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
         , []);
 
     if (!decrypted) {
-        return null;
+        // return empty while decrypting message to avoid the "Messages are end-to-end encrypted" flickering
+        // eventually messages could be kept into localstorage unencrpted for faster loading
+        return <div style={{ height: '100px' }}></div>
     }
     // console.log(message.content);
 

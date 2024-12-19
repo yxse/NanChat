@@ -43,12 +43,12 @@ const Chat: React.FC = () => {
                 online: [],
                 offline: []
             }
-            newAccounts.offline = accounts.offline.filter(acc => acc._id !== account._id);
-            newAccounts.online = accounts.online.filter(acc => acc._id !== account._id);
-            newAccounts.online.push(account);
-            newAccounts.online = newAccounts.online.sort((a, b) => a.name.localeCompare(b.name));
-            console.log('newAccounts', newAccounts);
-            mutate(newAccounts, false); 
+            // newAccounts.offline = accounts.offline.filter(acc => acc._id !== account._id);
+            // newAccounts.online = accounts.online.filter(acc => acc._id !== account._id);
+            // newAccounts.online.push(account);
+            // newAccounts.online = newAccounts.online.sort((a, b) => a.name.localeCompare(b.name));
+            // console.log('newAccounts', newAccounts);
+            // mutate(newAccounts, false); 
 
         });
 
