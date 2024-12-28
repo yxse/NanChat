@@ -334,6 +334,7 @@ export default function App() {
           
       </section>
       <ReloadPrompt />
+      <SafeArea position="top" style={{backgroundColor: "rgb(16, 16, 24)"}} />
       <Router>
         <div className="w-full body " 
         // style={{overflow: 'auto'}}
