@@ -42,12 +42,13 @@ import SetAmountModal from "./SetAmountModal";
 import { CloseCircleFill } from "antd-mobile-icons";
 import { convertAddress, getURI } from "../../utils/format";
 import { CopyButton } from "./Icons";
-import { WalletContext } from "../Popup";
+import { LedgerContext, WalletContext } from "../Popup";
 import { Wallet } from "../../nano/wallet";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { fetchPrices } from "../../nanswap/swap/service";
 import { isTouchDevice } from "../../utils/isTouchDevice";
 import RefreshButton from "../RefreshButton";
+import { LedgerStatus } from "../../ledger.service";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
@@ -96,6 +97,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   //   });
   // }, [ticker]);
   const { wallet } = useContext(WalletContext);
+  const {ledger} = useContext(LedgerContext);
   console.log("wallets", wallet);
   const address = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
   const {isMobile} = useWindowDimensions()
@@ -183,6 +185,41 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
             <CopyToClipboard text={address} hideCopyIcon />
           </div>
         <CopyButton textToCopy={address} copyText="Copy Address" copiedText="Address Copied!" />
+        {
+          ledger && <Button
+          style={{width: "100%"}}
+          shape="rounded"
+          size="large"
+            color="default"
+            onClick={async () => {
+              if (ledger.ledger.status !== LedgerStatus.READY) {
+                Toast.show({icon: 'fail', content: "Ledger is not yet ready. Please try again."})
+                return;
+              }
+              if (ticker === "XNO"){
+                Toast.show({icon: 'loading', content: "Confirm address on Ledger...", duration: 0})
+              }
+              else {
+                Toast.show({icon: 'loading', content: "Confirm address on Ledger. It should show the Nano prefix (nano_) ...", duration: 0})
+              }
+              try {
+                await ledger.getLedgerAccount(wallet.activeIndex, true);
+                Toast.show({icon: 'success', content: "Address confirmed"})
+              } catch (error) {
+                console.log("Error confirming address on Ledger", error)
+                if (error.message === "An action was already pending on the Ledger device. Please deny or reconnect.") {
+                  Toast.show({icon: 'fail', content: "Ledger is busy. Please try again."})
+                }
+                else{
+                  Toast.show({icon: 'fail', content: "Address rejected. Do not use wallet if address does not match.", duration: 5000})
+                }
+              }
+            }}
+            className="w-1/2"
+          >
+            Confirm on Ledger
+          </Button>
+        }
                   <div className="flex w-full space-x-2">
 
         {/* share address button */}
@@ -199,6 +236,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         >
           Share Address
         </Button>
+      
         <Button
         shape="rounded"
         size="large"
