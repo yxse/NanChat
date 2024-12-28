@@ -240,9 +240,11 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             // animationIterationCount: "1",
             // animationFillMode: "forwards",
             }}>
-            <List.Item
-        style={{ zIndex: 1 }}
-            // prefix={
+                {
+                    account != null && (
+                        <List.Item
+                        style={{ zIndex: 1 }}
+                        // prefix={
             //     <AccountIcon account={account} width={48} />
             // }
             >
@@ -250,11 +252,26 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     chat?.type === 'group' ? <HeaderGroup />: <HeaderPrivate />
                 }
             </List.Item>
+                    )
+            }
     
             {
               account == null && (
-                    <div className="flex items-center justify-center h-full">
+                    <div
+                    
+                     className="flex items-center justify-center h-full">
+                        <span 
+                        style={{
+                            borderRadius: 32,
+                            padding: 8,
+                            paddingRight: 16,
+                            paddingLeft: 16,
+                            backgroundColor: 'var(--adm-color-background)',
+                        }}
+                        >
+
                             Select a chat to start messaging
+                        </span>
                     </div>
                 )
             }
@@ -396,26 +413,30 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     activeAccount !== chat?.creator &&
                      <NewMessageWarning fromAddress={address} account={activeAccount} chatId={account} />
                 }
-            <ChatInputMessage
-            messageInputRef={messageInputRef}
-                onSent={(message) => {
-
-                    // mutate(prev => {
-                    //     return [...prev, { ...message, isLocal: true }];
-                    // }, false);
-                    mutate(currentPages => {
-                        const newPages = [...(currentPages || [])];
-                        // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
-                        // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
-                        newPages[0] = [{ ...message, isLocal: true }, ...(newPages[0] || [])];
-                        return newPages;
-                    }, false);
-                    setTimeout(() => {
-                        scrollToBottom();
-                    }, 0);
-                    // setMessages(prev => [...prev, { ...message, isLocal: true }]);
-                }}
-            />
+                <div
+                style={account == null ? { display: 'none' } : { }}
+                >
+                        <ChatInputMessage
+                        messageInputRef={messageInputRef}
+                        onSent={(message) => {
+                            
+                            // mutate(prev => {
+                                //     return [...prev, { ...message, isLocal: true }];
+                                // }, false);
+                                mutate(currentPages => {
+                                    const newPages = [...(currentPages || [])];
+                                    // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
+                                    // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
+                                    newPages[0] = [{ ...message, isLocal: true }, ...(newPages[0] || [])];
+                                    return newPages;
+                                }, false);
+                                setTimeout(() => {
+                                    scrollToBottom();
+                                }, 0);
+                                // setMessages(prev => [...prev, { ...message, isLocal: true }]);
+                            }}
+                            />
+                        </div>
         </div>
     );
 };

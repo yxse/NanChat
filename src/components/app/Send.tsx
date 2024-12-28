@@ -28,7 +28,6 @@ import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard } from "../Settings";
 import { getAccount } from "../getAccount";
 import { megaToRaw, send } from "../../nano/accounts";
-import { Scanner } from "@yudiel/react-qr-scanner";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import { MdContentPaste, MdCurrencyExchange } from "react-icons/md";
@@ -46,7 +45,8 @@ import { CopyButton, CopyIcon, PasteIcon } from "./Icons";
 import { WalletContext } from "../Popup";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
-
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
+import { Scanner } from "./Scanner";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -215,34 +215,8 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
     if (searchParams.get("amount")) {
       form.setFieldsValue({ amount: searchParams.get("amount") });
     }
-    if (defaultScannerOpen && !isScanning) {
-      showScanner()
-      isScanning = true // prevent multiple open scanners
-    }
   }, [searchParams]);
-  function showScanner() {
-    Modal.show({
-      // style: { width: "100%", height: "268px" },
-      // bodyStyle: { height: "268px" },
-      closeOnMaskClick: true,
-      title: "Scan QR Code Address",
-      content: (
-        <div style={{ height: 256 }}>
-          <Scanner
-            //   styles={
-            onScan={(result) => {
-              console.log(result);
-              let parsed = parseURI(result[0].rawValue);
-              console.log(parsed);
-              form.setFieldValue("address", parsed.address);
-              form.setFieldValue("amount", parsed.megaAmount);
-              Modal.clear();
-            }}
-          />
-        </div>
-      ),
-    });
-  }
+
   let dataPrepareSend = null;
   return (
     <div className="divide-y divide-solid divide-gray-700 space-y-6">
@@ -356,7 +330,16 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 }
                 }
               />
-              <ScanCodeOutline fontSize={24} className="cursor-pointer mr-3" onClick={() => showScanner()} />
+              <Scanner
+              defaultOpen={defaultScannerOpen}
+                onScan={(result) => {
+                  let parsed = parseURI(result);
+                  form.setFieldValue("address", parsed.address);
+                  form.setFieldValue("amount", parsed.megaAmount);
+                }}
+              >
+                <ScanCodeOutline fontSize={24} className="cursor-pointer"/>
+              </Scanner>
               <SelectContact  ticker={ticker} onSelect={(contact) => {
                 let correctAddressTicker = contact.addresses.find((a) => a.network === ticker)
                 form.setFieldsValue({ address: correctAddressTicker.address })
@@ -424,15 +407,17 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 loading={isLoading}
                 size="large"
                  color="primary" onClick={async () => {
-                    
-                    if (localStorage.getItem("webauthn-credential-id")) {
-                      const challenge = crypto.randomUUID()
-                      await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
-                        // "authenticatorType": "both",
-                        // "userVerification": "discouraged",
-                        "timeout": 5000
-                      })
-                    }
+                  await BiometricAuth.authenticate({
+                    // reason: "Confirm to enable biometric authentication"
+                  })
+                    // if (localStorage.getItem("webauthn-credential-id")) {
+                    //   const challenge = crypto.randomUUID()
+                    //   await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
+                    //     // "authenticatorType": "both",
+                    //     // "userVerification": "discouraged",
+                    //     "timeout": 5000
+                    //   })
+                    // }
              
                     try {
                     setIsLoading(true);

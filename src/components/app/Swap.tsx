@@ -28,7 +28,6 @@ import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard } from "../Settings";
 import { getAccount } from "../getAccount";
 import { megaToRaw, send } from "../../nano/accounts";
-import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import NetworkList from "./NetworksList";
@@ -40,6 +39,7 @@ import { GoCreditCard } from "react-icons/go";
 import { fetchBalance } from "./Network";
 import { WalletContext } from "../Popup";
 import { convertAddress } from "../../utils/format";
+import { Scanner } from "./Scanner";
 
 export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultTo = "BAN", onSuccess}) {
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
@@ -409,30 +409,17 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
                     rows={2}
                   />
                 </Form.Item>
+                <Scanner
+                  onScan={(result) => {
+                    form.setFieldValue("address", result);
+                  }
+                }>
+
                 <ScanCodeOutline
                   fontSize={24}
                   className="cursor-pointer text-gray-200 mr-4 mt-4"
-                  onClick={() => {
-                    Modal.show({
-                      // style: { width: "100%", height: "268px" },
-                      // bodyStyle: { height: "268px" },
-                      closeOnMaskClick: true,
-                      title: "Scan QR Code Address",
-                      content: (
-                        <div style={{ height: 256 }}>
-                          <Scanner
-                            //   styles={
-                            onScan={(result) => {
-                              console.log(result);
-                              form.setFieldValue("address", result[0].rawValue);
-                              Modal.clear();
-                            }}
-                          />
-                        </div>
-                      ),
-                    });
-                  }}
-                />
+                  />
+                  </Scanner>
               </div>
             }
             {

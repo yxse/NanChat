@@ -38,11 +38,6 @@ export const SideBarMenu = () => {
         icon: <CompassOutline size={btnSize} />,
       },
       {
-        key: "profile",
-        title: "Me",
-        icon: <UserOutline size={btnSize} />,
-      },
-      {
         key: "settings",
         title: "Settings",
         icon: <SetOutline size={btnSize} />

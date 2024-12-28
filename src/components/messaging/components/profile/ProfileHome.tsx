@@ -4,13 +4,18 @@ import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { socket } from '../socket';
 import { AccountIcon } from '../../app/Home';
-import { Button, Form, Input, List } from 'antd-mobile';
+import { Button, Divider, Form, Input, List, Modal } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
 import useSWR from 'swr';
 import { fetcherAccount, fetcherMessages } from '../../fetcher';
 import { WalletContext } from '../../../Popup';
-import { convertAddress } from '../../../../utils/format';
+import { convertAddress, formatAddress } from '../../../../utils/format';
+import { QRCodeSVG } from 'qrcode.react';
+import icon from "../../../../../public/icons/icon.png";
+import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserOutline } from 'antd-mobile-icons';
+import SelectAccount from '../../../app/SelectAccount';
+import Settings from '../../../Settings';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -21,7 +26,6 @@ const ProfileHome: React.FC = () => {
 
     return (
         <div className="">
-            
             <List>
                 <List.Item
                 onClick={() => {
@@ -45,12 +49,25 @@ const ProfileHome: React.FC = () => {
                 >
                     Name
                 </List.Item>
-                <List.Item
+                {/* <List.Item
                 extra={"@" + me?.username}
+                onClick={() => {
+                    navigate('/profile/username')
+                }
+                }
                 >
                     Username
-                </List.Item>
+                </List.Item> */}
+                </List>
+            <List className='my-4'>
+            <List.Item
+                    prefix={<AddressBookFill fontSize={24} color="white" />}
+                    onClick={() => navigate('/contacts')}
+                    >
+                        Contacts
+                    </List.Item>
             </List>
+            <Settings />
         </div>
     );
 };

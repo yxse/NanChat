@@ -115,8 +115,8 @@ const Chat: React.FC = () => {
                             // flexBasis: "45%", 
                             overflowY: "scroll",
                             overflowX: "hidden",
-                            maxWidth: 420
-                            // width: "100%"
+                            maxWidth: 420,
+                            width: "100%"
                             }}>
                         <ChatList
                             onlineAccount={onlineAccount}

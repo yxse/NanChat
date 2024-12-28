@@ -47,7 +47,7 @@ import AddNetwork from "./AddNetwork";
 import { networks } from "../../utils/networks";
 import { FaExchangeAlt } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
-import {AppstoreOutline, BellOutline, CompassOutline, LoopOutline, MessageOutline, UserOutline} from "antd-mobile-icons";
+import {AppstoreOutline, BellOutline, CompassOutline, LoopOutline, MessageOutline, SetOutline, UserOutline} from "antd-mobile-icons";
 import Contacts from "./Contacts";
 import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
 import PWAInstallComponent from "../PWAInstallComponent";
@@ -66,6 +66,8 @@ import SetName from "../messaging/components/SetName";
 import ProfilePictureUpload from "../messaging/components/profile/upload-pfp";
 import ProfileHome from "../messaging/components/profile/ProfileHome";
 import { SideBarMenu } from "./desktop/SideBarMenu";
+// import SetUsername from "../messaging/components/profile/SetUsername";
+import AppUrlListener from "./AppUrlListener";
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -132,9 +134,9 @@ export const MenuBar = () => {
       icon: <CompassOutline size={btnSize} />,
     },
     {
-      key: "profile",
-      title: "Me",
-      icon: <UserOutline size={btnSize} />,
+      key: "settings",
+      title: "Settings",
+      icon: <SetOutline size={btnSize} />
     },
   ];
   let style = {position: "fixed", bottom: 0, width: "100%", paddingBottom: 16};
@@ -143,7 +145,7 @@ export const MenuBar = () => {
   return (
     <>
       <TabBar
-      safeArea={true}
+      safeArea={false}
       // style={style}
         className={"bottom"}
         activeKey={location.pathname.split("/")[1]}
@@ -171,8 +173,8 @@ export const MenuBar = () => {
             navigate("/discover");
             return
           }
-          else if (key === "profile") {
-            navigate("/profile");
+          else if (key === "settings") {
+            navigate("/settings");
             return
           }
           else if (key === "swap") {
@@ -350,13 +352,13 @@ export default function App() {
         }
         <div style={{flex: 1}}>
           {/** main content */}
+            <AppUrlListener />
           <Routes>
             <Route path="/" element={<Home
             // setAction={setAction}
             
-            
              />} />
-            <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} />
+            {/* <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} /> */}
             <Route path="/settings/security" element={<SecuritySettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />
             <Route path="/settings/security/developer" element={<DeveloperSettings />} />
@@ -378,9 +380,10 @@ export default function App() {
             <Route path="/messages/:account" element={<ChatRoom />} />
             <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
             <Route path="/discover" element={<Discover />} />
-            <Route  path="/profile" element={<ProfileHome />} />
+            <Route  path="/settings" element={<ProfileHome />} />
             <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
             <Route  path="/profile/name" element={<SetName />} />
+            {/* <Route  path="/profile/username" element={<SetUsername />} /> */}
             <Route  path="/chat/*" element={<Chat />} />
           </Routes>
           </div>
