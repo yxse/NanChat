@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-router-dom';
 import ChatRoom from './ChatRoom';
-import ChatList from './ChatList';
+import ChatList, { LedgerNotCompatible } from './ChatList';
 import { socket } from '../socket';
-import { WalletContext } from '../../Popup';
+import { LedgerContext, WalletContext } from '../../Popup';
 import { convertAddress } from '../../../utils/format';
 import { AccountIcon } from '../../app/Home';
 import { Button, Form, Input } from 'antd-mobile';
@@ -19,7 +19,11 @@ const SetName: React.FC = () => {
     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)
     const activeAccountNano = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: me, isLoading, mutate} = useSWR(activeAccountNano, fetcherAccount);
-
+    const {ledger} = useContext(LedgerContext);
+    
+    if (ledger) {
+        return <LedgerNotCompatible />
+    }
     return (
         <div className="flex flex-col items-center justify-center h-full">
             {/* <span className='text-lg mx-2'>

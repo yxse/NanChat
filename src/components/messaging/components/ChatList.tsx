@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
-import { WalletContext } from "../../Popup";
+import { LedgerContext, WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import useSWR from "swr";
@@ -17,6 +17,20 @@ import useLocalStorageState from "use-local-storage-state";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import NewChatPopup from "./NewChatPopup";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { QRCodeSVG } from "qrcode.react";
+import icon from "../../../../public/icons/icon.png";
+import { DisconnectLedger } from "../../Initialize/Start";
+
+export const LedgerNotCompatible = () => {
+    return (
+        <div className="m-4">
+        <div className="text-base mb-4">
+            Chat is not compatible with Ledger. Please disconnect Ledger to use E2E encrypted chat.
+        </div>
+        <DisconnectLedger />
+        </div>
+    );
+}
 
 const ChatList: React.FC = ({ onChatSelect }) => {
     const { wallet } = useContext(WalletContext)
@@ -26,6 +40,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { data: chats, mutate } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+    const {ledger, setLedger} = useContext(LedgerContext);
+
     const { data: accounts } = useSWR<string[]>('/accounts?search=' + activeAccount, fetcherMessages);
     // const onlineAccount = accounts?.online;
     // const offlineAccount = accounts?.offline;
@@ -55,6 +71,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     }
         , []);
 
+    
     const ButtonNewChat = () => {
         const actions: Action[] = [
             // { key: 'private_chat', icon: <UserOutline />, text: 'New Private Chat' },
@@ -117,15 +134,51 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             </div>
         );
     };
+    if (ledger) {
+        return <LedgerNotCompatible />
+    }
     return (
         <div
-        style={isMobile ? {} : { minWidth: 500 }}
+        // style={isMobile ? {} : { minWidth: 500 }}
         >
             <div>
-                <List style={{ position: 'sticky', top: 0, zIndex: 1 }} className="">
+                <List style={{ 
+                    position: 'sticky', top: 0, zIndex: 1 }} className="">
                     <List.Item
                     description={formatAddress(activeAccount)}
-                    extra={<FillinOutline fontSize={24} color="white" style={{cursor: "pointer"}}/>}
+                    onClick={() => {
+                        Modal.show({
+
+                            showCloseButton: true,
+                            closeOnMaskClick: true,
+                            content: (
+                                <div className="flex justify-center items-center flex-col">
+                                    <div className="text-center text-xl mb-1">
+                                        {accountData?.name}                                        
+                                    </div>
+                                    <div className="text-sm mb-2">
+                                        {formatAddress(activeAccount)}
+                                    </div>
+                                    <QRCodeSVG
+                                    imageSettings={{
+                                        src: icon,
+                                        height: 24,
+                                        width: 24,
+                                        excavate: false,
+                                      }}
+                                    includeMargin
+                                    value={`${window.location.href}/${activeAccount}`}
+                                    size={200}
+                                    />
+                                    <div className="text-sm mt-2 text-gray-500 text-center">
+                                        Scan to start an encrypted chat with me
+                                    </div>
+                                </div>
+                            )
+                        })
+                    }}
+                    extra={<SystemQRcodeOutline 
+                        fontSize={24} color="white" style={{cursor: "pointer"}}/>}
                     >
                         {accountData?.name}
                     </List.Item>
@@ -223,7 +276,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             onClick={() => {
                                 navigator.share({
                                     title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${accountData?.username}`,
-                                    url: 'http://localhost:5173/chat/' + activeAccount
+                                    url: window.location.href + `/${activeAccount}`
                                 })  
                             }}
                             prefix={<MailOutline />}

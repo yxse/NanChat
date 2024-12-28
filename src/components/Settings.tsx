@@ -6,7 +6,7 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
 import { Button, NavBar, Popup, Toast, CheckList, SearchBar, Space, DotLoading, Image, Modal, List, Input, Form, NoticeBar, Badge, Divider } from "antd-mobile";
 import { LedgerService } from "../ledger.service";
-import { ConnectLedger, connectLedger } from "./Initialize/Start";
+import { ConnectLedger, connectLedger, LedgerSelect } from "./Initialize/Start";
 import NetworkList from "./app/NetworksList";
 import { useNavigate } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
@@ -21,12 +21,13 @@ import { RiContactsFill } from "react-icons/ri";
 import BackupSecretPhrase from "./app/BackupSecretPhrase";
 import { decrypt, encrypt } from "../worker/crypto";
 import { BsCurrencyExchange } from "react-icons/bs";
-import { BellOutline, DeleteOutline, EditSOutline, GlobalOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
+import { AddressBookFill, BellOutline, DeleteOutline, EditSOutline, GlobalOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
 import { LedgerContext } from "./Popup";
 import { BiHistory } from "react-icons/bi";
 import { FiAtSign } from "react-icons/fi";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
+import ProfileHome from "./messaging/components/profile/ProfileHome";
 
 export const ManageNetworks = ({}) => {
   const [networksSwitchVisible, setNetworksSwitchVisible] = useState(false)
@@ -255,7 +256,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
           </div>
         </div>
         <NetworkList showRepresentative={true} hidePrice={true} onClick={(ticker) => {
-          setNavOpen(false);
+          // setNavOpen(false);
           navigate('/' + ticker + "/" + "representative");
         }} />
       </Popup>
@@ -270,14 +271,14 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
 className="mb-24"
       // id="slider"
       >
-        <NavBar
+        {/* <NavBar
           className="text-slate-400 text-xxl app-navbar "
           onBack={() => {
             navigate("/");
           }}
           backArrow={true}>
           <span className="">Settings</span>
-        </NavBar>
+        </NavBar> */}
         <div
           className={``}
         >
@@ -340,10 +341,6 @@ className="mb-24"
             <List.Item
               prefix={<BellOutline fontSize={24} />}
             >Notifications</List.Item>
-             <List.Item prefix={<UserContactOutline fontSize={24}
-            />} onClick={() => navigate("/contacts")}>
-              Address Book
-            </List.Item>
           </List>
   <div className="my-4" />
 
@@ -496,13 +493,16 @@ className="mb-24"
                 Lock Wallet
               </Button>
             }
-            <ConnectLedger onConnect={() => {
+            <div className="mt-4">
+            <LedgerSelect 
+            onConnect={() => {
               navigate("/")
             }}
               onDisconnect={() => {
                 navigate("/")
               }}
             />
+            </div>
           </div>
         </div>
       </div>

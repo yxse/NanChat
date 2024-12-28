@@ -24,7 +24,14 @@ function walletsReducer(state, action) {
       // if (state.wallets[action.payload.ticker]) return state;
       return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };
     case "USE_LEDGER":
-      return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };
+      return { 
+        ...state, 
+        oldWallets: { ...state.oldWallets, [action.payload.ticker]: state.wallets[action.payload.ticker] },
+        oldAccounts: state.accounts,
+        wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet }
+       };
+    case "DISCONNECT_LEDGER":
+      return { ...state, wallets: {...state.oldWallets}, oldWallets: {}, accounts: state.oldAccounts, oldAccounts: [] };
     case "SET_ACTIVE_INDEX":
       for (let ticker of Object.keys(state.wallets)) {
         state.wallets[ticker].setActiveIndex(action.payload);
@@ -124,7 +131,7 @@ export default function InitialPopup() {
   const [ledger, setLedger] = useState(null);
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
   return (
-    <LedgerContext.Provider value={{ ledger, setLedger }}>
+    <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
       <PopupWrapper theme={theme}>
         <WalletProvider>
         {
@@ -174,6 +181,7 @@ export default function InitialPopup() {
 const initialState = {
   seed: null,
   wallets: {},
+  oldWallets: {},
   activeIndex: localStorage.getItem('activeIndex') ? parseInt(localStorage.getItem('activeIndex')) : 0,
   lastAccountIndex: localStorage.getItem('lastAccountIndex') ? parseInt(localStorage.getItem('lastAccountIndex')) : 1,
   hiddenIndexes: localStorage.getItem('hiddenIndexes') ? JSON.parse(localStorage.getItem('hiddenIndexes')) : [],

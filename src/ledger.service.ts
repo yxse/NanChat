@@ -17,6 +17,7 @@ import {DesktopService} from './desktop.service';
 import { AppSettingsService } from './app-settings.service';
 import RPC from './nano/rpc';
 import { networks } from './utils/networks';
+import { Capacitor } from '@capacitor/core';
 
 export const STATUS_CODES = {
   SECURITY_STATUS_NOT_SATISFIED: 0x6982,
@@ -71,10 +72,10 @@ export class LedgerService {
   supportsWebHID = false;
   supportsWebUSB = false;
   supportsBluetooth = false;
+  supportsBluetoothNative = false;
   supportsUSB = false;
-
   transportMode: 'U2F' | 'USB' | 'HID' | 'Bluetooth' = 'U2F';
-  DynamicTransport: typeof TransportUSB | typeof TransportHID | typeof TransportUSB | typeof BleTransport = BleTransport;
+  DynamicTransport: typeof TransportUSB | typeof TransportHID | typeof TransportUSB | typeof TransportBLE | typeof BleTransport = TransportUSB;
   device: any;
   ledgerStatus$: Subject<{ status: string, statusText: string }> = new Subject();
   desktopMessage$ = new Subject();
@@ -93,6 +94,7 @@ export class LedgerService {
 
   // Scraps binding to any existing transport/nano object
   resetLedger() {
+    this.ledger.transport?.close();
     this.ledger.transport = null;
     this.ledger.nano = null;
   }
@@ -127,10 +129,11 @@ export class LedgerService {
    */
   async checkBrowserSupport() {
     await Promise.all([
-    //   TransportU2F.isSupported().then(supported => this.supportsU2F = supported),
+      // TransportU2F.isSupported().then(supported => this.supportsU2F = supported),
       // TransportHID.isSupported().then(supported => this.supportsWebHID = supported),
-      // TransportUSB.isSupported().then(supported => this.supportsWebUSB = supported),
-      BleTransport.isSupported().then(supported => this.supportsBluetooth = supported),
+      TransportUSB.isSupported().then(supported => this.supportsWebUSB = supported),
+      TransportBLE.isSupported().then(supported => this.supportsBluetooth = supported),
+      BleTransport.isSupported().then(supported => this.supportsBluetoothNative = supported),
     ]);
     this.supportsUSB = this.supportsU2F || this.supportsWebHID || this.supportsWebUSB;
   }
@@ -142,7 +145,7 @@ export class LedgerService {
     if (this.supportsWebUSB) {
       // Prefer WebUSB
       this.transportMode = 'USB';
-      this.DynamicTransport = BleTransport;
+      this.DynamicTransport = TransportUSB;
     } else if (this.supportsWebHID) {
       // Fallback to WebHID
       this.transportMode = 'HID';
@@ -159,31 +162,33 @@ export class LedgerService {
    * @param enabled   The bluetooth enabled state
    */
   async enableBluetoothMode(enabled: boolean) {
-    console.log(`Bluetooth mode enabled: ${enabled}`);
-    // Check if @capacitor-community/bluetooth-le is setup
-    let supportsBluetooth = await BleTransport.isSupported()
-    // Check for bluetooth status
-    let enabledNative = await BleTransport.isEnabled()
-    console.log(`Native bluetooth enabled: ${enabledNative}`);
-    console.log(`Native Bluetooth supported: ${supportsBluetooth}`);
-    console.log(`Bluetooth supported: ${this.supportsBluetooth}`);
+    if (Capacitor.isNativePlatform()) {
+      console.log(`Bluetooth mode enabled: ${enabled}`);
+      // Check if @capacitor-community/bluetooth-le is setup
+      let supportsBluetooth = await BleTransport.isSupported()
+      // Check for bluetooth status
+      // let enabledNative = await TransportBLE.isEnabled()
+      // console.log(`Native bluetooth enabled: ${enabledNative}`);
+      console.log(`Native Bluetooth supported: ${supportsBluetooth}`);
+      console.log(`Bluetooth supported: ${this.supportsBluetooth}`);
 
-    const scannedDevices = await BleTransport.list()
-    const [scannedDevice] = scannedDevices
-    console.log(`Scanned devices: `, scannedDevices);
-    if (this.supportsBluetooth && enabled) {
-      this.transportMode = 'Bluetooth';
-      // this.DynamicTransport = TransportBLE;
-      console.log(scannedDevice);
-      this.device = scannedDevice;
-      // let result = await BleTransport.open(scannedDevice)
-      // console.log(`Opened transport: `, result);
-      // const transport = await BleTransport.open(scannedDevice)
+      const scannedDevices = await BleTransport.list()
+      const [scannedDevice] = scannedDevices
+      console.log(`Scanned devices: `, scannedDevices);
+        this.transportMode = 'Bluetooth';
+        // this.DynamicTransport = TransportBLE;
+        console.log(scannedDevice);
+        this.device = scannedDevice;
+        // let result = await TransportBLE.open(scannedDevice)
+        // console.log(`Opened transport: `, result);
+        // const transport = await TransportBLE.open(scannedDevice)
 
-      this.DynamicTransport = BleTransport;
-    } else {
-      this.detectUsbTransport();
+        this.DynamicTransport = BleTransport;
+      }
+      else{
+        this.DynamicTransport = TransportBLE;
     }
+    
   }
 
   /**
@@ -281,8 +286,13 @@ export class LedgerService {
   }
 
   async loadTransport() {
+    let loadFunction = this.DynamicTransport.create(3000, this.waitTimeout);
+    if (Capacitor.isNativePlatform() && this.device) {
+      loadFunction = this.DynamicTransport.open(this.device);
+    }
+
     return new Promise((resolve, reject) => {
-      this.DynamicTransport.open(this.device).then(trans => {
+      loadFunction.then(trans => {
         console.log(`transport`, trans);
         // LedgerLogs.listen((log: LedgerLog) => console.log(`Ledger: ${log.type}: ${log.message}`));
         this.ledger.transport = trans;

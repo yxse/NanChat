@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchBalance, fetchBalances, ModalReceive, showModalReceive } from "./Network";
-import { Badge, Button, Card, CenterPopup, Dialog, DotLoading, FloatingBubble, Image, List, Modal, NavBar, NoticeBar, Popup, PullToRefresh, SideBar, Toast } from "antd-mobile";
+import { Badge, Button, Card, CenterPopup, Dialog, DotLoading, FloatingBubble, Image, List, Modal, NavBar, NoticeBar, Popup, PullToRefresh, SafeArea, SideBar, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import { BiCopy, BiPaste, BiPlus } from "react-icons/bi";
@@ -15,9 +15,8 @@ import { GoCreditCard } from "react-icons/go";
 import { AiOutlineAccountBook, AiOutlineBank, AiTwotoneContainer } from "react-icons/ai";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { DownOutline, ScanCodeOutline } from "antd-mobile-icons";
-import { Scanner } from "@yudiel/react-qr-scanner";
 import { MdOutlineCheck, MdOutlineRefresh, MdOutlineUsb } from "react-icons/md";
-import { resetLedger } from "../Initialize/Start";
+import { DisconnectLedger, resetLedger } from "../Initialize/Start";
 import { LedgerContext, WalletContext } from "../Popup";
 import useLocalStorageState from "use-local-storage-state";
 import { FaExchangeAlt } from "react-icons/fa";
@@ -208,7 +207,8 @@ export default function Home({ }) {
     "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/4850f8da-6458-4e47-bc80-3765e7df3a92@webp", //brocco
     "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/628a9d75-28fb-414b-80d7-ff8896cced20@webp", // raistone
   ]
-  const {ledger, setLedger} = useContext(LedgerContext);
+  const {ledger, setLedger, setWalletState} = useContext(LedgerContext);
+  const { wallet, dispatch } = useContext(WalletContext);
   const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
   const {isMobile} = useWindowDimensions()
@@ -216,9 +216,8 @@ export default function Home({ }) {
     await mutate((key) => key.startsWith("balance-") || key === "prices");
   }
  
-  
   return (
-    <div className="w-full  relative mx-auto" style={{  }}>
+    <div className="w-full  " style={{  }}>
         <Popup
         destroyOnClose // else issue with history infinite scroll
           visible={selectedTicker !== null}
@@ -234,9 +233,9 @@ export default function Home({ }) {
           </Popup>
         <NavBar
         className="text-slate-400 text-xxl app-navbar "
-         back={
-          icon
-        } 
+        //  back={
+        //   icon
+        // } 
         onBack={() => {
           if (isMobile){
             navigate("/settings");
@@ -264,30 +263,8 @@ export default function Home({ }) {
 {/* <MenuBar mode="large-screen"/> */}
 
         <div className="flex items-center justify-center">
-          {
-            ledger && 
-          <MdOutlineUsb 
-        fontSize={24}
-            className="cursor-pointer text-gray-200 mr-3 mt-4 text-green-400"
-          onClick={() => {
-            Dialog.alert({
-              closeOnMaskClick: true,
-            content: 'Disconnect Ledger ?',
-          confirmText: 'Disconnect',
-        onConfirm: async () => {
-          await resetLedger();
-          setLedger(null);
-          Toast.show({
-            content: "Ledger disconnected.",
-          });
-        }
-      });
-    }
-  }
-/>
-}
-<CopyAddressPopup />
-          
+          { ledger && <DisconnectLedger icon={true} /> }
+          <CopyAddressPopup />
           <PasteAction mode="paste"/>
           <PasteAction mode="scan" />
        
