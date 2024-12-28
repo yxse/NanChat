@@ -26,7 +26,6 @@ import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard, getAccount } from "../Settings";
 import { send } from "../../nano/accounts";
-import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import NetworkList from "./NetworksList";
@@ -34,7 +33,7 @@ import SelectTickerAll from "../swap/SelectTickerAll";
 import { IoSwapVerticalOutline } from "react-icons/io5";
 import SwapHistory from "./SwapHistory";
 import { createOrder, fetcher, getAllCurrencies, getEstimate, getLimits, getOrder } from "../../nanswap/swap/service";
-
+import { Scanner } from "../Scanner";
 export default function Swap() {
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
     getAllCurrencies, fetcher, {
@@ -361,30 +360,16 @@ export default function Swap() {
                     rows={2}
                   />
                 </Form.Item>
-                <ScanCodeOutline
+                <Scanner
+                onScan={(result) => {
+                  form.setFieldValue("address", result);
+                }}
+                >
+                  <ScanCodeOutline
                   fontSize={24}
-                  className="cursor-pointer text-gray-200 mr-4 mt-4"
-                  onClick={() => {
-                    Modal.show({
-                      // style: { width: "100%", height: "268px" },
-                      // bodyStyle: { height: "268px" },
-                      closeOnMaskClick: true,
-                      title: "Scan QR Code Address",
-                      content: (
-                        <div style={{ height: 256 }}>
-                          <Scanner
-                            //   styles={
-                            onScan={(result) => {
-                              console.log(result);
-                              form.setFieldValue("address", result[0].rawValue);
-                              Modal.clear();
-                            }}
-                          />
-                        </div>
-                      ),
-                    });
-                  }}
-                />
+                  className="cursor-pointer text-gray-200 mr-3 mt-4"
+                  />
+                </Scanner>
               </div>
             }
             {
