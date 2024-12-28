@@ -587,3 +587,38 @@ html {
     transform: rotate(359deg);
   }
 }
+
+/* Hide all elements */
+body.barcode-scanner-active {
+  visibility: hidden;
+  background: transparent;
+}
+
+/* Show only the barcode scanner modal */
+.scanner-active  {
+  visibility: visible; 
+}
+
+body.barcode-scanner-active .adm-center-popup-wrap {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+body.barcode-scanner-active .adm-center-popup-mask {
+  background-color: transparent !important;
+}
+
+.square {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 16px;
+  width: 200px;
+  height: 200px;
+  border: 2px dashed rgb(90, 90, 90);
+  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.4);
+  visibility: visible !important;
+}
