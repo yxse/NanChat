@@ -16,9 +16,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      mode: 'development',
       strategies: 'injectManifest',
-      srcDir: 'src',
-      filename: 'sw.js',
+      srcDir: 'public',
+      filename: 'firebase-messaging-sw.js',
       devOptions: {
         enabled: false,
         type: 'module',
@@ -43,6 +44,7 @@ export default defineConfig({
         popup: resolve(__dirname, "index.html"),
         options: resolve(__dirname, "options.html"),
         service_worker: resolve(__dirname, "src/background.ts"),
+        // service_worker_firebase: resolve(__dirname, "src/firebase-messaging-sw.js"),
         content_script: resolve(__dirname, "src/content-script.ts"),
       },
       output: {

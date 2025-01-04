@@ -7,14 +7,16 @@ import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { useState } from "react";
 import { removeSeed, setSeed } from "../../utils/storage";
-
+import {BiometricAuth} from '@aparajita/capacitor-biometric-auth'
+import { authenticate, biometricAuthIfAvailable, webauthnAuthIfAvailable } from "../../utils/biometrics";
+import { Capacitor } from "@capacitor/core";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [hasPassword, setHasPassword] = useState(localStorage.getItem('seed') ? false : true);
     const [lockTimeSeconds, setLockTimeSeconds] = useLocalStorageState("lock-after-inactivity", {defaultValue: 
         60 * 30 // 30 minutes
       });
-    const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", {defaultValue: "none"});
+    const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", {defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none"});
     const [developerMode, setDeveloperMode] = useLocalStorageState("developer-mode", {defaultValue: false});
       const valuesLock = [
         { value: "-1", label: "Disabled" },
@@ -161,12 +163,12 @@ function SecuritySettings() {
             </List.Item>
             }
             <List.Item
-            extra={confirmationMethod === "webauthn" ? "Enabled" : "None"}
+            extra={confirmationMethod === "enabled" ? "Enabled" : "None"}
               prefix={<MdOutlineFingerprint size={24} />}
               onClick={() => {
                 let modal = Modal.show({
                   closeOnMaskClick: true,
-                  title: "Confirmation Method",
+                  title: "Authentication",
                   content: <div>
                     <CheckList
                     value={confirmationMethod}
@@ -176,7 +178,7 @@ function SecuritySettings() {
                     }
                     }>
                       <CheckList.Item
-                      value={"webauthn"}
+                      value={"enabled"}
                       onClick={async () => {
                         const challenge = crypto.randomUUID()
                         if (localStorage.getItem("webauthn-credential-id") && localStorage.getItem("webauthn-credential-id") !== "undefined") {
@@ -184,19 +186,25 @@ function SecuritySettings() {
                         }
                         else{
                           try {
-                          let r = await webauthn.client.register("Wallet #1", challenge, {
-                            "authenticatorType": "auto",
-                            "userVerification": "required",
-                            "discoverable": "preferred",
-                            "timeout": 60000,
-                            "attestation": true
-                          })
-                          localStorage.setItem("webauthn-credential-id", r.credential.id)
+                            await biometricAuthIfAvailable()
+                            await webauthnAuthIfAvailable()
+                            // await BiometricAuth.authenticate({
+                            //   // reason: "Confirm to enable biometric authentication"
+                            // })
+                          // let r = await webauthn.client.register("Wallet #1", challenge, {
+                          //   "authenticatorType": "auto",
+                          //   "userVerification": "required",
+                          //   "discoverable": "preferred",
+                          //   "timeout": 60000,
+                          //   "attestation": true
+                          // })
+                          // localStorage.setItem("webauthn-credential-id", r.credential.id)
+                          // localStorage.setItem("webauthn-credential-id", " ")
                           Toast.show({
                             icon: "success",
-                            content: "Confirmation enabled"
+                            content: "Authentication enabled"
                           })
-                          setConfirmationMethod("webauthn")
+                          setConfirmationMethod("enabled")
                           modal.close()
                         } catch (error) {
                           console.error(error)
@@ -214,14 +222,8 @@ function SecuritySettings() {
                       value={"none"}
                       onClick={async () => {
                         try {
-                            const challenge = crypto.randomUUID()
-                            let r = await webauthn.client.register("Wallet #1", challenge, {
-                                "authenticatorType": "auto",
-                                "userVerification": "required",
-                                "discoverable": "preferred",
-                                "timeout": 60000,
-                                "attestation": true
-                              })    
+                          await biometricAuthIfAvailable()
+                          await webauthnAuthIfAvailable()
                             localStorage.removeItem("webauthn-credential-id")
                             Toast.show({
                                 icon: "success",
@@ -247,7 +249,7 @@ function SecuritySettings() {
                     </div>
               })}}
             >
-              Confirmation Method
+              Authentication
             </List.Item>
             <List.Item
             extra={valuesLock.find((v) => v.value === lockTimeSeconds.toString())?.label}

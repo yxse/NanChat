@@ -49,6 +49,7 @@ import { fetchPrices } from "../../nanswap/swap/service";
 import { isTouchDevice } from "../../utils/isTouchDevice";
 import RefreshButton from "../RefreshButton";
 import { LedgerStatus } from "../../ledger.service";
+import Buy from "./Buy";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden

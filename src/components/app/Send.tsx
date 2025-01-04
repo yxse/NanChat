@@ -47,6 +47,7 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { Scanner } from "./Scanner";
+import { authenticate, secureAuthIfAvailable } from "../../utils/biometrics";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -407,9 +408,16 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 loading={isLoading}
                 size="large"
                  color="primary" onClick={async () => {
-                  await BiometricAuth.authenticate({
-                    // reason: "Confirm to enable biometric authentication"
-                  })
+
+                  try {
+                    await authenticate()
+                  } catch (error) {
+                    console.error("Error authenticating:", error);
+                    Toast.show({
+                      content: "Error authenticating",
+                    });
+                    return;
+                  }
                     // if (localStorage.getItem("webauthn-credential-id")) {
                     //   const challenge = crypto.randomUUID()
                     //   await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {

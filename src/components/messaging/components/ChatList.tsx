@@ -311,7 +311,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
 export const AccountAvatar = ({ url, account, badgeColor }) => {
     if (url == null) {
-        url = "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
+        url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
     }
 
     const icon = <img style={{borderRadius: "100%", padding: 6}} src={url} alt="account-pfp" width={64} />

@@ -56,7 +56,7 @@ export const parseURI = (uri) => {
     const address = url.pathname;
     const parsed = {
       address: address,
-      megaAmount: +rawToMega(ticker, searchParams.get("amount")),
+      megaAmount: searchParams.get("amount") ? +rawToMega(ticker, searchParams.get("amount")) : null,
       ticker: ticker,
     };
     return parsed;

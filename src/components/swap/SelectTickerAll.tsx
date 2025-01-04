@@ -66,7 +66,7 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
             onClick(currencyKey)
             setVisible(false)
           }}
-          clickable={false} key={currencyKey} value={currency.ticker} style={style}>
+          clickable={false} key={currencyKey || currency.ticker} value={currency.ticker} style={style}>
           {/* {tickerTitle(currency.ticker.toUpperCase(), currency.image, currency.name, onClick)} */}
           <TickerTitle logo={currency.image} name={currency.name} ticker={currency.ticker} />
         </List.Item>
@@ -132,7 +132,7 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
                 onClick={() => {
                   console.log('clicked')
                 }}
-                rowCount={810}
+                rowCount={filteredItems.length}
                 rowRenderer={rowRenderer}
                 width={width}
                 height={400}

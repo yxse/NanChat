@@ -8,6 +8,9 @@ project(':aparajita-capacitor-biometric-auth').projectDir = new File('../node_mo
 include ':capacitor-community-bluetooth-le'
 project(':capacitor-community-bluetooth-le').projectDir = new File('../node_modules/@capacitor-community/bluetooth-le/android')
 
+include ':capacitor-firebase-messaging'
+project(':capacitor-firebase-messaging').projectDir = new File('../node_modules/@capacitor-firebase/messaging/android')
+
 include ':capacitor-mlkit-barcode-scanning'
 project(':capacitor-mlkit-barcode-scanning').projectDir = new File('../node_modules/@capacitor-mlkit/barcode-scanning/android')
 
@@ -16,6 +19,9 @@ project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/
 
 include ':capacitor-clipboard'
 project(':capacitor-clipboard').projectDir = new File('../node_modules/@capacitor/clipboard/android')
+
+include ':capacitor-inappbrowser'
+project(':capacitor-inappbrowser').projectDir = new File('../node_modules/@capacitor/inappbrowser/android')
 
 include ':capacitor-secure-storage-plugin'
 project(':capacitor-secure-storage-plugin').projectDir = new File('../node_modules/capacitor-secure-storage-plugin/android')

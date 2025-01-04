@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "137198054925",
+    "project_id": "nanwallet-efce5",
+    "storage_bucket": "nanwallet-efce5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137198054925:android:19c6f2f1025f5a792aaf44",
+        "android_client_info": {
+          "package_name": "com.nanwallet.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDynjLsduu9pvKSAW4xQRo0wJSIMyaGvNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

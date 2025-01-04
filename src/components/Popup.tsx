@@ -14,6 +14,7 @@ import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
 import { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
+import { getSeed } from "../utils/storage";
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
 
@@ -81,18 +82,19 @@ const WalletProvider = ({ children }) => {
   
   useEffect(() => {
     
-    if (localStorage.getItem('seed')) {
+    getSeed().then((seed) => {
       // setWalletState("unlocked");
       // setSeed(localStorage.getItem('seed'));
       // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
+      
       for (let ticker of Object.keys(networks)) {
         if (wallet.wallets[ticker]) continue;
         // let newWallet = initWallet("XNO", "0", mutate, dispatch)
-        dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, localStorage.getItem('seed'), mutate, dispatch) } });
+        dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed, mutate, dispatch) } });
         // dispatch({ type: "ADD_WALLET", payload: { ticker: ticker, seed: localStorage.getItem('seed'), mutate: mutate } });
       }
-    }
-    else if (localStorage.getItem('encryptedMasterKey')) {
+    });
+     if (localStorage.getItem('encryptedMasterKey')) {
       // setWalletState("locked");
     }
     else {
@@ -114,9 +116,16 @@ export default function InitialPopup() {
   const [wallet, dispatch] = useReducer(walletsReducer, initialState);
 
   useEffect(() => {
-    
+    getSeed().then((seed) => {
+      if (seed) {
+        setWalletState("unlocked");
+      }
+      else {
+        setWalletState("no-wallet");
+      }
+    });
     if (localStorage.getItem('seed')) {
-      setWalletState("unlocked");
+      // setWalletState("unlocked");
       // setSeed(localStorage.getItem('seed'));
       // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
     }
@@ -124,7 +133,7 @@ export default function InitialPopup() {
       setWalletState("locked");
     }
     else {
-      setWalletState("no-wallet");
+      // setWalletState("no-wallet");
     }
   }, []);
 

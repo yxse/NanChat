@@ -39,6 +39,7 @@ function PasteAction({mode = "paste", uri = ""}) {
         search: `?amount=${amount}&to=${parsed.address}`,
       });
     } catch (error) {
+      console.error(error);
       Toast.show({
         content: "Paste a valid Address, Message to sign or URI",
       });

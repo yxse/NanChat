@@ -68,6 +68,7 @@ import ProfileHome from "../messaging/components/profile/ProfileHome";
 import { SideBarMenu } from "./desktop/SideBarMenu";
 // import SetUsername from "../messaging/components/profile/SetUsername";
 import AppUrlListener from "./AppUrlListener";
+import Buy from "./Buy";
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -362,6 +363,7 @@ export default function App() {
             <Route path="/settings/security" element={<SecuritySettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />
             <Route path="/settings/security/developer" element={<DeveloperSettings />} />
+            <Route path="/buy" element={<Buy />} />
             <Route path="/swap" element={<Swap />} />
             <Route path="/swap/:id" element={<SwapTransaction />} />
             <Route path="/history" element={<History />} />

@@ -1,4 +1,4 @@
-import localforage from "localforage";
+import { isTauri } from "@tauri-apps/api/core";
 import KeyringService from "../services/tauri-keyring-frontend";
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 
@@ -43,19 +43,39 @@ export function resetWallet(): void {
 }
 
 export async function setSeed(seed: string): Promise<void> {
-  localStorage.setItem("seed", seed);
-  // await KeyringService.saveSecret('nanwallet', 'seed', seed);
-  // const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
-  // console.log("Keyring seed: ", retrievedSeed);
-  SecureStoragePlugin.set({key: "seed", value: seed});
-  const value = await SecureStoragePlugin.get({key: "seed"});
-  console.log("SecureStorage seed: ", value);
-  await localforage.setItem("seed", seed);
+  // localStorage.setItem("seed", seed);
+  if (isTauri()) {
+    await KeyringService.saveSecret('nanwallet', 'seed', seed);
+  }
+  else {
+    // const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
+    // console.log("Keyring seed: ", retrievedSeed);
+    SecureStoragePlugin.set({key: "seed", value: seed});
+    const value = await SecureStoragePlugin.get({key: "seed"});
+    console.log("SecureStorage seed: ", value);
+  }
 }
 
-export async function removeSeed(): Promise<void> {
+export async function getSeed(): Promise<string> {
+  try {
+    if (isTauri()) {
+      const seed = await KeyringService.getSecret('nanwallet', 'seed');
+      return seed
+    }
+    else{
+      let seed = await SecureStoragePlugin.get({key: "seed"})
+      return seed.value;
+    }
+    
+  } catch (error) {
+    console.error("Error getting seed: ", error);
+    return localStorage.getItem("seed");
+  }
+  // return localStorage.getItem("seed");
+}
+
+export function removeSeed(): void {
   localStorage.removeItem("seed");
-  await localforage.removeItem("seed");
 }
 
 

@@ -1,7 +1,7 @@
 import { BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
-import { AiOutlineSwap } from "react-icons/ai";
+import { AiOutlineHistory, AiOutlineSwap } from "react-icons/ai";
 import {
   Button,
   Card,
@@ -16,65 +16,80 @@ import {
   Popup,
   Result,
   SearchBar,
+  Tag,
   TextArea,
   Toast,
 } from "antd-mobile";
-import { ScanCodeOutline } from "antd-mobile-icons";
+import { DownOutline, ScanCodeOutline } from "antd-mobile-icons";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
-import { CopyToClipboard, getAccount } from "../Settings";
-import { send } from "../../nano/accounts";
+import { CopyToClipboard } from "../Settings";
+import { getAccount } from "../getAccount";
+import { megaToRaw, send } from "../../nano/accounts";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import useSWR, { mutate } from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import NetworkList from "./NetworksList";
 import SelectTickerAll from "../swap/SelectTickerAll";
 import { IoSwapVerticalOutline } from "react-icons/io5";
 import SwapHistory from "./SwapHistory";
-import { createOrder, fetcher, getAllCurrencies, getEstimate, getLimits, getOrder } from "../../nanswap/swap/service";
-import { Scanner } from "../Scanner";
-export default function Swap() {
+import { createOrder, createOrderFiat, fetcher, getAllCurrencies, getEstimate, getEstimateFiat, getFiatCurrencies, getLimits, getLimitsFiat, getOrder } from "../../nanswap/swap/service";
+import { GoCreditCard } from "react-icons/go";
+import { fetchBalance } from "./Network";
+import { WalletContext } from "../Popup";
+import { convertAddress } from "../../utils/format";
+import { Scanner } from "./Scanner";
+import { Capacitor } from "@capacitor/core";
+import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+
+export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo = "XNO", onSuccess}) {
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
-    getAllCurrencies, fetcher, {
+    getFiatCurrencies, fetcher, {
     errorRetryCount: 0
   });
+  // filter with deposit_enabled
+  const fiatCurrenciesEnabled = allCurrencies && Object.fromEntries(Object.entries(allCurrencies).filter(([key, value]) => value.deposit_enabled));
   // const [result, setResult] = useState<string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [visibleSelectFrom, setVisibleSelectFrom] = useState<boolean>(false);
   const [visibleSelectTo, setVisibleSelectTo] = useState<boolean>(false);
-  const [selectedFrom, setSelectedFrom] = useState<string>("XNO");
-  const [selectedTo, setSelectedTo] = useState<string>("BAN");
-  const [amount, setAmount] = useState<number | string>("");
+  const [selectedFrom, setSelectedFrom] = useState<string>(defaultFrom);
+  const [selectedTo, setSelectedTo] = useState<string>(defaultTo);
+  const [amount, setAmount] = useState<number | string>(null);
   const [side, setSide] = useState<string>("from"); // ["from", "to"]
   const [form] = Form.useForm();
-  const { data: balance, isLoading: balanceLoading } = useSWR(
-    "balance-" + selectedFrom,
-    () => fetchBalance(selectedFrom),
-  );
+  const {wallet} = useContext(WalletContext);
+  const accountFrom = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedFrom);
+  // const { data: balance, isLoading: balanceLoading } = useSWR(
+  //   "balance-" + selectedFrom,
+  //   () => fetchBalance(selectedFrom, accountFrom),
+  // );
   const { data: estimate, isLoading: isLoadingEstimate } = useSWR(
-    getEstimate + '?from=' + selectedFrom + '&to=' + selectedTo + '&amount=' + amount,
+    getEstimateFiat + '?from=' + selectedFrom + '&to=' + selectedTo + '&amount=' + amount,
     fetcher,
   )
   const { data: limit, isLoading: isLoadingLimit } = useSWR(
-    getLimits + '?from=' + selectedFrom + '&to=' + selectedTo,
+    getLimitsFiat + '?from=' + selectedFrom + '&to=' + selectedTo + '&fromNetwork=undefined',
     fetcher,
   )
-
+  const {mutate}=useSWRConfig()
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const SelectTicker = ({ side, visible, setVisible }) => {
     const selected = side === "from" ? selectedFrom : selectedTo;
-    return <div className="flex items-center space-x-4 m-2 p-2 cursor-pointer mr-7" onClick={() => setVisible(true)}>
+    return <div className="flex items-center justify-center space-x-4 m-2 p-2 cursor-pointer  
+    " onClick={() => setVisible(true)}>
+
       <img
         style={{
           height: 32,
         }}
-        src={allCurrencies?.[selected]?.image}
+        src={fiatCurrenciesEnabled?.[selected]?.image}
         alt={`${selected} logo`} width={32} height={32} />
-      <div className="text-gray-400">
-        {selected}
+       <div className="text-gray-400 flex items-center gap-2">
+        {selected} <DownOutline />
       </div>
 
       {/* <Popup
@@ -105,7 +120,7 @@ export default function Swap() {
       {
         isLoadingCurrencies ? <DotLoading /> :
           <SelectTickerAll
-            allCurrencies={allCurrencies}
+            allCurrencies={fiatCurrenciesEnabled}
             isLoadingCurrencies={isLoadingCurrencies}
             onClick={(ticker) => {
               console.log(ticker, side);
@@ -130,13 +145,13 @@ export default function Swap() {
       console.log(values);
       let toAddress
       if (networks.hasOwnProperty(selectedTo)) {
-        toAddress = await getAccount(selectedTo);
+        toAddress = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedTo);
       } else {
         toAddress = values.address;
       }
       const fromAmount = amount
       console.log(toAddress, amount);
-      let exchange = await fetch(createOrder, {
+      let exchange = await fetch(createOrderFiat, {
         method: 'POST',
         body: JSON.stringify({
           from: selectedFrom,
@@ -154,6 +169,17 @@ export default function Swap() {
         });
         return;
       }
+      else{
+        const link = "https://payments.guardarian.com/checkout?tid=" + exchange.orderId;
+        if (Capacitor.isNativePlatform()) {
+            await InAppBrowser.openInSystemBrowser({url: link, options: DefaultSystemBrowserOptions})
+        }
+        else {
+          window.open(link, "_blank");
+        }
+      }
+      return
+
       let history = JSON.parse(localStorage.getItem('history_exchanges') || '[]')
       localStorage.setItem('history_exchanges', JSON.stringify([{
         id: exchange.id,
@@ -169,13 +195,23 @@ export default function Swap() {
         return;
       }
 
-      if (networks.hasOwnProperty(selectedFrom)) {
-        const fromAddress = await getAccount(selectedFrom);
-        await send(selectedFrom, fromAddress, exchange.payinAddress, amount);
-        mutate("balance-" + selectedFrom);
+      if (networks.hasOwnProperty(selectedFrom) && allCurrencies?.[selectedFrom]?.feeless == true) {
+        const fromAddress = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedFrom);
+        // await send(selectedFrom, fromAddress, exchange.payinAddress, amount);
+        let data = await wallet.wallets[selectedFrom].prepareSend({
+          source: fromAddress,
+          destination: exchange.payinAddress,
+          amount: megaToRaw(selectedFrom, amount),
+        })
+        await wallet.wallets[selectedFrom].send(data);
+        await mutate((key) => key.startsWith("history-" + selectedFrom) || key.startsWith("balance-" + selectedFrom));
+        onSuccess && onSuccess();
         await new Promise((resolve) => setTimeout(resolve, 1000));
         mutate("balance-" + selectedTo);
         mutate(`${getOrder}${exchange.id}`);
+        await mutate((key) => key.startsWith("history-" + selectedFrom) || key.startsWith("balance-" + selectedFrom));
+        await mutate((key) => key.startsWith("history-" + selectedTo) || key.startsWith("balance-" + selectedTo));
+
       }
       else {
         navigate(`/swap/${exchange.id}`);
@@ -214,14 +250,32 @@ export default function Swap() {
       setIsLoading(false);
     }
   }
+  useEffect(() => {
+    if (searchParams.has("from")) {
+      setSelectedFrom(searchParams.get("from"));
+    }
+    if (searchParams.has("to")) {
+      setSelectedTo(searchParams.get("to"));
+      if (searchParams.get("to") === "XNO") {
+        setSelectedFrom("BTC");
+      }
+    }
+  }, [])
 
   return (
-    <div className="divide-y divide-solid divide-gray-700 space-y-6">
+    <div className="">
       <div className="container  relative mx-auto">
-        <div className="text-center text-2xl flex-col">
-          <NavBar onBack={() => navigate(`/`)}>
-            Swap
+        <div className="">
+          <NavBar
+          backArrow={hideHistory ? false : true}
+            onBack={() => navigate(`/`)}>
+              <span className="text-xl">
+              Buy
+              </span>
           </NavBar>
+
+          <div style={{ float: "right" }}>
+          </div>
           <Form
             initialValues={{
               address: searchParams.get("to") || "",
@@ -229,21 +283,23 @@ export default function Swap() {
             }}
             form={form}
             onFinish={onSwap}
-            className="mt-4"
+            className="mt-2 swap-form"
             layout="horizontal"
             footer={
               <>
-                {
-                  amount != undefined && amount !== "" && networks.hasOwnProperty(selectedFrom) && !balanceLoading && amount > balance && <div
+                {/* {
+                  amount != undefined && amount !== "" 
+                  && networks.hasOwnProperty(selectedFrom) && allCurrencies?.[selectedFrom]?.feeless == true
+                  && !balanceLoading && amount > balance && <div
                     onClick={() => {
                       setAmount(balance)
                     }}
                     className="text-base text-orange-500 text-left mb-4 cursor-pointer">
                     Insufficient balance. Available: <span className="underline">{balance} {selectedFrom}</span>
                   </div>
-                }
+                } */}
                 {
-                  amount != undefined && amount !== "" && amount < limit?.min && <div
+                  amount != undefined && amount !== "" && +amount < limit?.min && <div
                     onClick={() => {
                       setAmount(limit?.min
                       )
@@ -253,7 +309,7 @@ export default function Swap() {
                   </div>
                 }
                 {
-                  limit?.max != null && amount > limit.max && <div
+                  limit?.max != null && +amount > limit.max && <div
                     onClick={() => {
                       setAmount((limit?.max - 0.0001))
                     }}
@@ -269,15 +325,18 @@ export default function Swap() {
                   type="submit"
                   color="primary"
                   size="large"
+                  shape="rounded"
                 >
-                  Swap
+                  Buy NANO
                 </Button>
               </>
             }
           >
 
 
+
             <div className="">
+
               <Form.Item
                 style={{ width: "100%" }}
                 name="from"
@@ -296,9 +355,10 @@ export default function Swap() {
                     }}
                     placeholder="0.0"
                   />
+
                   <SelectTicker side={"from"} visible={visibleSelectFrom} setVisible={setVisibleSelectFrom} />
                 </div>
-                <div
+                {/* <div
                   onClick={() => {
                     const from = selectedFrom;
                     const to = selectedTo;
@@ -310,11 +370,12 @@ export default function Swap() {
                     zIndex: 100,
                     right: 32,
                     borderRadius: 8,
+                    // backgroundColor: 'white',
                   }}
-                  className="cursor-pointer bg-gray-800"
+                  className="cursor-pointer btn-swap"
                 >
-                  <IoSwapVerticalOutline size={24} color="gray" style={{ padding: 2 }} />
-                </div>
+                  <IoSwapVerticalOutline size={28}  style={{ padding: 4 }} />
+                </div> */}
               </Form.Item>
             </div>
             <div className="">
@@ -334,6 +395,7 @@ export default function Swap() {
                         <DotLoading /> </div>
                       :
                       <Input
+                      disabled
                         value={+(+(estimate?.amountTo)).toPrecision(6)}
                         type="number"
                         inputMode="decimal"
@@ -341,13 +403,21 @@ export default function Swap() {
                         placeholder="0.0"
                       />
                   }
-                  <SelectTicker side="to" visible={visibleSelectTo} setVisible={setVisibleSelectTo} />
+                  {/* <SelectTicker side="to" visible={visibleSelectTo} setVisible={setVisibleSelectTo} /> */}
+                  
+                  <div className="flex items-center mr-8">
+      <img style={{height: 32}} src={networks['XNO'].logo} alt={`XNO logo`} width={32} height={32} />
+      <div className="text-gray-400 ml-3">
+        XNO
+      </div>
+      </div>
                 </div>
               </Form.Item>
             </div>
             {
-              !networks.hasOwnProperty(selectedTo) &&
-
+              (!networks.hasOwnProperty(selectedTo) ||
+              allCurrencies?.[selectedTo]?.feeless == false) // show address for btc if not nanbtc feeless 
+              &&
               <div className="flex justify-between">
                 <Form.Item
                   label="Address"
@@ -361,15 +431,16 @@ export default function Swap() {
                   />
                 </Form.Item>
                 <Scanner
-                onScan={(result) => {
-                  form.setFieldValue("address", result);
-                }}
-                >
-                  <ScanCodeOutline
+                  onScan={(result) => {
+                    form.setFieldValue("address", result);
+                  }
+                }>
+
+                <ScanCodeOutline
                   fontSize={24}
-                  className="cursor-pointer text-gray-200 mr-3 mt-4"
+                  className="cursor-pointer text-gray-200 mr-4 mt-4"
                   />
-                </Scanner>
+                  </Scanner>
               </div>
             }
             {
@@ -387,8 +458,27 @@ export default function Swap() {
             }
           </Form>
         </div>
-        <SwapHistory />
+     
       </div>
     </div >
   );
 }
+
+//    <List header="To">
+// {
+//   Object.keys(networks).map((network) => (
+//     <List.Item
+//       key={network}
+//       onClick={() => {
+
+//       }}
+//       prefix={
+//         <Image src={networks[network].logo} alt={`${network} logo`} width={24} fit="cover" />
+//       }
+//       description={networks[network].name}
+//     >
+//       {network}
+//     </List.Item>
+//   ))
+// }
+// </List>

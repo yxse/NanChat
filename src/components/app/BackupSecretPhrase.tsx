@@ -7,6 +7,7 @@ import { MnemonicWords } from '../Initialize/create/Mnemonic';
 import { saveAs } from 'file-saver';
 import useLocalStorageState from 'use-local-storage-state';
 import { WalletContext } from '../Popup';
+import { authenticate } from '../../utils/biometrics';
 function BackupSecretPhrase() {
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [visible, setVisible] = useState(false);
@@ -32,7 +33,10 @@ function BackupSecretPhrase() {
    
     return (
         <>
-            <List.Item prefix={icon} onClick={() => setVisible(true)}>
+            <List.Item prefix={icon} onClick={async () => {
+                await authenticate()
+                setVisible(true)
+            }}>
                 Backup Secret Phrase
             </List.Item>
             <Popup

@@ -9,7 +9,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { BiCopy, BiPaste, BiPlus } from "react-icons/bi";
 import NetworkList from "./NetworksList";
 import NetworksSwitch from "./NetworksSwitch";
-import { askPermission } from "../../nano/notifications";
+import { askPermission, getToken } from "../../nano/notifications";
 import { CgCreditCard } from "react-icons/cg";
 import { GoCreditCard } from "react-icons/go";
 import { AiOutlineAccountBook, AiOutlineBank, AiTwotoneContainer } from "react-icons/ai";
@@ -36,12 +36,14 @@ import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { MenuBar } from ".";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions"
 import Messaging from "../messaging/Messaging";
-import localForage from "localforage";
 import ReloadPrompt from "./ReloadPrompt/ReloadPrompt";
 import { SendReceive } from "./wallet/SendReceive";
 import ProfilePicture from "../messaging/components/profile/ProfilePicture";
 import RefreshButton from "../RefreshButton";
 import { isTouchDevice } from "../../utils/isTouchDevice";
+import { FirebaseMessaging } from "@capacitor-firebase/messaging";
+import { useWalletBalance } from "../../hooks/use-wallet-balance";
+import { Capacitor } from "@capacitor/core";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
@@ -114,13 +116,13 @@ export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits
 }
 
 export const accountIconUrl = (account) => {
-  return "https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account;
+  return "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account;
 }
 export const AccountIcon = ({ account, width=32 }) => {
   return <ProfilePicture address={account} width={width} fallback={accountIconUrl(account)} />
   return (
     <img
-      src={"https://i.nanswap.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account}
+      src={"https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account}
       alt="nantricon"
       width={width}
     />
@@ -139,34 +141,41 @@ export const AccountName = ({ }) => {
 }
 
 const WalletSummary = ({}) => {
-  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
-  const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
+  // const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+  // const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
   const { wallet, dispatch } = useContext(WalletContext);
   const {mutate,cache}=useSWRConfig()
+  const {
+    totalBalance,
+    isLoading: isLoadingBalancesA,
+    refreshBalances,
+  } = useWalletBalance();
 
-  const { data: prices, isLoading: isLoadingPrices } = useSWR(
-    "prices",
-    fetchPrices,
-  );
-  const balances = {};
-  for (const ticker of Object.keys(networks)) {
-    let account = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
+  // const { data: prices, isLoading: isLoadingPrices } = useSWR(
+  //   "prices",
+  //   fetchPrices,
+  // );
+  // const balances = {};
+  // for (const ticker of Object.keys(networks)) {
+  //   let account = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
 
-    // fetch balance for each network
-    balances[ticker] = useSWR("balance-" + ticker + "-" + account, () => fetchBalance(ticker, account));
-  }
+  //   // fetch balance for each network
+  //   balances[ticker] = useSWR("balance-" + ticker + "-" + account, () => fetchBalance(ticker, account));
+  // }
 
-  console.log({balances});
+  // console.log({balances});
   // if (isLoadingBalances) return <DotLoading />;
-  const isLoadingBalances = Object.keys(balances).some((ticker) => balances[ticker]?.isLoading);
-  if (isLoadingPrices) return <DotLoading />;
+  // const isLoadingBalances = Object.keys(balances).some((ticker) => balances[ticker]?.isLoading);
+  // if (isLoadingPrices) return <DotLoading />;
 
-  const sum = Object.keys(balances)?.reduce((acc, ticker) => acc + (
-    +balances[ticker]?.data * +prices?.[ticker]?.usd * +data?.[selected] 
-    || 0), 0);
+  // const sum = Object.keys(balances)?.reduce((acc, ticker) => acc + (
+  //   +balances[ticker]?.data * +prices?.[ticker]?.usd * +data?.[selected] 
+  //   || 0), 0);
   
-
-  const addressPfp = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
+// console.log("balances", sum);
+console.log("balance 2", totalBalance);
+    // Toast.show({content: "sum: " + sum});
+  // const addressPfp = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
 
   const onRefresh = async () => {
     await mutate((key) => key.startsWith("balance-") || key === "prices");
@@ -178,8 +187,8 @@ const WalletSummary = ({}) => {
     
     <div className="text-2xl">
     {
-      (isLoadingPrices || isLoadingBalances) ? <DotLoading /> : <>
-      <FormatBaseCurrency amountInBaseCurrency={sum} /> <RefreshButton onRefresh={onRefresh} />
+      isLoadingBalancesA ? <DotLoading /> : <>
+      <FormatBaseCurrency amountInBaseCurrency={totalBalance} /> <RefreshButton onRefresh={onRefresh} />
       
       </>
     }
@@ -200,12 +209,32 @@ export default function Home({ }) {
   useEffect(() => {
     // todo add modal
     askPermission();
+    
+    FirebaseMessaging.addListener("notificationReceived", (event) => {
+      console.log("notificationReceived: ", { event });
+      Toast.show({
+        content: event.notification.title + " " + event.notification.body,
+      })
+    });
+    if (Capacitor.getPlatform() === "web") {
+      console.log("adding service worker web event listenerw");
+      navigator.serviceWorker.addEventListener("message", (event: any) => {
+        console.log("serviceWorker message: ", { event });
+        const notification = new Notification(event.data.notification.title, {
+          body: event.data.notification.body,
+        });
+        notification.onclick = (event) => {
+          console.log("notification clicked: ", { event });
+        };
+      });
+    }
+
   }, [])
 
   const nanftsImage = [
-    "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/fb1f98ba-2d7d-49e3-8e85-a8f76bffb74b@webp", // nyano
-    "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/4850f8da-6458-4e47-bc80-3765e7df3a92@webp", //brocco
-    "https://i.nanswap.com/unsafe/plain/https://images.nanswap.com/628a9d75-28fb-414b-80d7-ff8896cced20@webp", // raistone
+    "https://i.nanwallet.com/unsafe/plain/https://images.nanswap.com/fb1f98ba-2d7d-49e3-8e85-a8f76bffb74b@webp", // nyano
+    "https://i.nanwallet.com/unsafe/plain/https://images.nanswap.com/4850f8da-6458-4e47-bc80-3765e7df3a92@webp", //brocco
+    "https://i.nanwallet.com/unsafe/plain/https://images.nanswap.com/628a9d75-28fb-414b-80d7-ff8896cced20@webp", // raistone
   ]
   const {ledger, setLedger, setWalletState} = useContext(LedgerContext);
   const { wallet, dispatch } = useContext(WalletContext);

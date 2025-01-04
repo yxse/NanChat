@@ -8,6 +8,11 @@ export const getOrder = BASE_URL + 'get-order?id=';
 export const getEstimate = BASE_URL + 'get-estimate';
 export const getLimits = BASE_URL + 'get-limits';
 export const createOrder = BASE_URL + 'create-order';
+
+export const getFiatCurrencies = BASE_URL + 'get-currencies-fiat';
+export const getEstimateFiat = BASE_URL + 'get-estimate-fiat';
+export const getLimitsFiat = BASE_URL + 'get-limits-fiat';
+export const createOrderFiat = BASE_URL + 'create-order-fiat';
 export const fetchPrices = async () => {
     const response = await fetch("https://api.nanexplorer.com/prices");
     return response.json();

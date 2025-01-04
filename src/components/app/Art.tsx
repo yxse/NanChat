@@ -44,7 +44,7 @@ import useSWRInfinite from "swr/infinite";
 
 export function ArtImages({onImageClick}) {
     const getKey = (pageIndex) => {
-        return `https://art.nanswap.com/public/collected?address=nano_3f8qys7cubej8pxrqmeotwsjsesg1pz7n8x6zwdjfymmnpwxtgtgkfuegdu6&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
+        return `https://nanft.nanwallet.com/public/collected?address=nano_3f8qys7cubej8pxrqmeotwsjsesg1pz7n8x6zwdjfymmnpwxtgtgkfuegdu6&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
     }
     const [page, setPage] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
@@ -70,7 +70,7 @@ export function ArtImages({onImageClick}) {
         loadMore()
     }, [])
     // const { data, size, setSize, isLoading } = useSWRInfinite(getKey, fetcher)
-    const proxyImage = (url) => `https://i.nanswap.com/unsafe/rs::400/plain/${url}@webp`
+    const proxyImage = (url) => `https://i.nanwallet.com/unsafe/rs::400/plain/${url}@webp`
     const allData = data?.flat()
     const styleCard = { height: "200px", width: "100%", borderRadius: 8 }
     if (hasMore && data.length == 0 && isLoading) {

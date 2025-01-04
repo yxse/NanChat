@@ -16,11 +16,12 @@ import {
   Popup,
   Result,
   SearchBar,
+  Space,
   Tag,
   TextArea,
   Toast,
 } from "antd-mobile";
-import { ScanCodeOutline } from "antd-mobile-icons";
+import { DownOutline, ScanCodeOutline } from "antd-mobile-icons";
 
 import { useContext, useEffect, useState } from "react";
 import Receive from "./Receive";
@@ -40,8 +41,11 @@ import { fetchBalance } from "./Network";
 import { WalletContext } from "../Popup";
 import { convertAddress } from "../../utils/format";
 import { Scanner } from "./Scanner";
+import { useWalletBalance } from "../../hooks/use-wallet-balance";
+import Buy from "./Buy";
 
 export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultTo = "BAN", onSuccess}) {
+ 
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
     getAllCurrencies, fetcher, {
     errorRetryCount: 0
@@ -84,8 +88,8 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
         }}
         src={allCurrencies?.[selected]?.image}
         alt={`${selected} logo`} width={32} height={32} />
-      <div className="text-gray-400">
-        {selected}
+      <div className="text-gray-400 flex items-center gap-2">
+        {selected} <DownOutline />
       </div>
 
       {/* <Popup
@@ -247,6 +251,15 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
     }
   }, [])
 
+  const {
+    totalBalance,
+    isLoading: isLoadingBalancesA,
+    refreshBalances,
+  } = useWalletBalance();
+
+  if (!isLoading && totalBalance < 1){
+    return <Buy hideHistory={true}  /> 
+  }
   return (
     <div className="">
       <div className="container  relative mx-auto">
@@ -254,8 +267,11 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
           <NavBar
           backArrow={hideHistory ? false : true}
             right={
-              <Button size="small">
-                <div className="flex text-xs items-center -mr-0"><GoCreditCard size={18} className="mr-2" /> Buy/Sell</div></Button>}
+              <Button
+              onClick={() => navigate(`/buy`)}
+               size="small">
+                <div 
+                className="flex text-xs items-center -mr-0"><GoCreditCard size={18} className="mr-2" /> Buy</div></Button>}
             onBack={() => navigate(`/`)}>
               <span className="text-xl">
               Swap

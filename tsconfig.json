@@ -16,5 +16,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "public/sw.js"]
+  "include": ["src", "public/sw.js", "public/firebase-messaging-sw.js"],
 }

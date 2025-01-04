@@ -39,7 +39,7 @@ self.addEventListener("push", async (event) => {
         return;
     }
 
-    const seed = await localforage.getItem('seed')
+    const seed = await localforage.getItem('seed') //https://stackoverflow.com/a/60667436
     if (body.type === "message" && seed) {
         // if not protected by password, we can locally decrypt the message and show it
         let accounts = seed?.length === 128 ? wallet.accounts(seed, 0, 5) : wallet.legacyAccounts(seed, 0, 5);
