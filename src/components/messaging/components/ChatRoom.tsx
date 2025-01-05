@@ -23,6 +23,7 @@ import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import GroupAvatar from "./group-avatar";
 import ProfilePicture from "./profile/ProfilePicture";
 import NewMessageWarning from "./NewMessageWarning";
+import { sendNotificationTauri } from "../../../nano/notifications";
 
 
 
@@ -74,7 +75,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         socket.on('message', (message: Message) => {
             // setMessages(prev => [...prev, message]);
-            if (message.fromAccount !== address && chat.type === 'private') {
+            if (message.fromAccount !== address && chat?.type === 'private') {
                 return;
             }
             mutate(currentPages => {
@@ -82,6 +83,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 newPages[0] = [message, ...(newPages[0] || [])];
                 return newPages;
             }, false);
+           sendNotificationTauri(message.fromAccountName, "New message");
             setTimeout(() => {
                 // window.scrollTo(0, document.body.scrollHeight);
             }, 1000);

@@ -6,6 +6,7 @@ import { Modal, Toast } from "antd-mobile";
 import { rawToMega } from "./accounts";
 import { setRepresentative } from "../components/getRepresentative";
 import { convertAddress } from "../utils/format";
+import { sendNotificationTauri } from "./notifications";
 
 var lock = new AsyncLock();
 
@@ -666,6 +667,7 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         icon: "success",
         content: "Received " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
       });
+      sendNotificationTauri(`Received ${+this.rawToMega(pendingTx.amount)} ${this.ticker}`);
       // localStorage.setItem("lastReceivedHash", received.hash);
       
       console.log(received);
