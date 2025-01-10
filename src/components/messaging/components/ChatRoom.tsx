@@ -3,14 +3,14 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Skeleton } from "antd-mobile";
+import { Button, DotLoading, Input, List, Skeleton, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { fetcherMessages } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -53,7 +53,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     } = useChat(account);
    
     // const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
-    const {data: chats} = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
+    const {data: chats, mutate: mutateChats} = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
@@ -65,7 +65,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         address = account;
     }
     const nameOrAccount = participant?.name || formatAddress(address);
-    
+    const location = useLocation();
     // useEffect(() => {
     //     if (pages) {
     //         setMessages(messagesHistory);
@@ -83,7 +83,25 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 newPages[0] = [message, ...(newPages[0] || [])];
                 return newPages;
             }, false);
-           sendNotificationTauri(message.fromAccountName, "New message");
+            mutateChats(currentChats => {
+                const newChats = [...(currentChats || [])];
+                const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
+                if (chatIndex !== -1) {
+                    const newChat = { ...newChats[chatIndex] };
+                    newChat.lastMessage = message.content;
+                    newChat.lastMessageTimestamp = new Date().toISOString();
+                    // move chat to top
+                    newChats.splice(chatIndex, 1);
+                    newChats.unshift(newChat);
+                }
+                return newChats;
+            }, false);
+
+            console.log("pathname", location.pathname);
+            console.log("chatId", message.chatId);
+            // if (location.pathname !== `/chat/${message.chatId}`) {
+                sendNotificationTauri(message.fromAccountName, "New message");
+            // }
             setTimeout(() => {
                 // window.scrollTo(0, document.body.scrollHeight);
             }, 1000);
@@ -162,7 +180,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     navigate(`/chat/${address}/info`);
                 }}
                     style={{ 
-                        height: '5vh',
+                        // height: '5vh',
                         touchAction: 'none',
                      }}
                     className="flex items-center cursor-pointer">
@@ -366,7 +384,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     <div className="flex items-center justify-center text-yellow-300 text-sm text-center" style={{ backgroundColor: 'var(--adm-color-background)', padding: '16px', margin: 32, borderRadius: 8 }}>
                         <div>
                     <LockFill className="mr-2 inline" />
-                    Messages are end-to-end encrypted using nano addresses. No one outside of this chat can read them.
+                    Messages are end-to-end encrypted using nano. No one outside of this chat can read them.
                     </div>
                     </div>
                 )
