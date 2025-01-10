@@ -153,9 +153,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     if (ledger) {
         return <LedgerNotCompatible />
     }
-    // if (!chats){
-    //     return <DotLoading />
-    // }
+    if (!chats){
+        return <DotLoading />
+    }
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
