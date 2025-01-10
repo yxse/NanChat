@@ -32,7 +32,23 @@ export async function getToken() {
     return token;
 }
 
+export async function sendNotificationTauri(title, body) {
+    if (isTauri()) {
+        let permissionGranted = await isPermissionGranted();
+        if (permissionGranted) {
+          sendNotification({ title: title, body: body });
+        }
+      }
+}
 async function askPermission() {
+    if (isTauri()){
+        let permissionGranted = await isPermissionGranted();
+        // If not we need to request it
+        if (!permissionGranted) {
+            const permission = await requestPermission();
+            permissionGranted = permission === 'granted';
+        }
+    }
     const permission = await FirebaseMessaging.requestPermissions();
     console.log({permission});
     Toast.show({
