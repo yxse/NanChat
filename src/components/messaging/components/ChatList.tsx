@@ -40,7 +40,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     const { data: chats, mutate, error } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages, {onError: (error) => {
         console.log({error})
-        if (error === 401) {
+        if (error === 401 || error === 403) {
             getNewChatToken(activeAccount, activeAccountPk).then(token => {
             });
         }
