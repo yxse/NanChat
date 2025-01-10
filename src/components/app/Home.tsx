@@ -4,7 +4,7 @@ import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchBalance, fetchBalances, ModalReceive, showModalReceive } from "./Network";
 import { Badge, Button, Card, CenterPopup, Dialog, DotLoading, FloatingBubble, Image, List, Modal, NavBar, NoticeBar, Popup, PullToRefresh, SafeArea, SideBar, Toast } from "antd-mobile";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import { BiCopy, BiPaste, BiPlus } from "react-icons/bi";
 import NetworkList from "./NetworksList";
@@ -183,7 +183,7 @@ console.log("balance 2", totalBalance);
 
   return   <div className="m-3 mb-5">
     <SelectAccount />
-  <div className="">
+  <div className="mt-2">
     
     <div className="text-2xl">
     {
@@ -205,32 +205,65 @@ export default function Home({ }) {
   const {mutate,cache}=useSWRConfig()
 
   const navigate = useNavigate();
-
+  const location = useLocation();
   useEffect(() => {
     // todo add modal
     askPermission();
-    
+    FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
+      console.log("notificationActionPerformed: ", { event });
+      Toast.show({
+        content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
+      })
+      navigate('/') // to prevent bug when navigating back
+      navigate(event.notification.data.url);
+    }
+    );
     FirebaseMessaging.addListener("notificationReceived", (event) => {
       console.log("notificationReceived: ", { event });
+      // focus window
+      // window.focus();
+      if (window.location.pathname === event.notification.data.url) {
+        return // prevent showing notification if already on the page
+      }
+      if (!event.notification.body?.includes("New message")) { // only show toast notification for message since already showing toast when receiving crypto
+        return 
+      }
       Toast.show({
-        content: event.notification.title + " " + event.notification.body,
+        position: "top",
+        content: <div>
+          {/* <div><b>{event.notification.data.url}</b></div> */}
+          {/* <div><b>{window.location.pathname }</b></div> */}
+          <div><b>{event.notification.title}</b></div>
+          <div>{event.notification.body}</div>
+        </div>
       })
+      // navigate(event.notification.data.url);
     });
     if (Capacitor.getPlatform() === "web") {
+      // return
       console.log("adding service worker web event listenerw");
       navigator.serviceWorker.addEventListener("message", (event: any) => {
         console.log("serviceWorker message: ", { event });
-        const notification = new Notification(event.data.notification.title, {
-          body: event.data.notification.body,
-        });
-        notification.onclick = (event) => {
-          console.log("notification clicked: ", { event });
-        };
+        if (event.data.messageType === "notification-clicked" && event.data.data.url) {
+          navigate(event.data.data.url); // navigate to url only when clicked
+        }
+        // const notification = new Notification(event.data.notification.title, {
+        //   body: event.data.notification.body,
+        // });
+
+        // notification.onclick = (eventClicked => {
+          // console.log("notification clicked: ", { eventClicked, event });
+          // navigate(event.data.data.url);
+          // event.data.notification.close()
+          // focuse
+          // window.focus();
+
+          // navigate(event.data.data.url);
+        // })
       });
     }
 
   }, [])
-
   const nanftsImage = [
     "https://i.nanwallet.com/unsafe/plain/https://images.nanswap.com/fb1f98ba-2d7d-49e3-8e85-a8f76bffb74b@webp", // nyano
     "https://i.nanwallet.com/unsafe/plain/https://images.nanswap.com/4850f8da-6458-4e47-bc80-3765e7df3a92@webp", //brocco
@@ -306,7 +339,10 @@ export default function Home({ }) {
           // onClick={(ticker) => navigate(`/${ticker}`)}
           onClick={(ticker) => {
             if (isMobile) {
-              navigate(`/${ticker}`)
+              // navigate(`/${ticker}`)
+              document.startViewTransition(() => {
+                navigate(`/${ticker}`, {unstable_viewTransition: true})
+            })
             }
             else {
               setSelectedTicker(ticker)

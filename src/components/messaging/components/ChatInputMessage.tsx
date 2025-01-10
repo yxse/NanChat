@@ -257,6 +257,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
             </Button>
           </div>
           <Button
+          style={{display: "none"}}
           onClick={() => {
             if (stickerVisible){
               setStickerVisible(false);

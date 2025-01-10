@@ -40,7 +40,7 @@
         { "host": "another.site.br" }
       ],
       "desktop": {
-        "schemes": ["nano", "web-nano"]
+        "schemes": ["nano", "web-nano", "ban", "nanauth", "nan"]
       }
     }
   }

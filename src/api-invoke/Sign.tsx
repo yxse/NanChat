@@ -2,11 +2,16 @@ import { BiX } from "react-icons/bi";
 import { tools } from 'multi-nano-web'
 import { useContext, useEffect, useState } from "react";
 import { Button, Result, TextArea, Toast } from "antd-mobile";
-import { getPk } from "../components/getSeed";
 import { WalletContext } from "../components/Popup";
 import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import { AccountIcon } from "../components/app/Home";
 import SelectAccount from "../components/app/SelectAccount";
+
+export const signMessage = (privateKey, message) => {
+  let messageToSign = "Signed Message: " + message // Add prefix to message as a security measure to prevent to sign a block by mistake / from an attacker request
+  const signed = tools.sign(privateKey, messageToSign)
+  return signed
+}
 export default function Sign() {
   const {wallet} = useContext(WalletContext)
   const [message, setMessage] = useState("")
@@ -89,8 +94,7 @@ export default function Sign() {
           <Button
           loading={isLoading}
             onClick={async () => {
-              let messageToSign = "Signed Message: " + message // Add prefix to message as a security measure to prevent to sign a block by mistake / from an attacker request
-              const signed = tools.sign(activeAccount.privateKey, messageToSign)
+              const signed = signMessage(activeAccount.privateKey, message)
               console.log(signed)
               setIsLoading(true)
               fetch(proxyWorker, {

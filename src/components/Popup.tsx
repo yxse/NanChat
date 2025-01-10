@@ -39,6 +39,7 @@ function walletsReducer(state, action) {
         state.wallets[ticker].receiveAllActiveAccount();
       }
       localStorage.setItem('activeIndex', action.payload);
+      localStorage.setItem('activeAddress', state.wallets['XNO'].getActiveAccount());
       return { ...state, activeIndex: action.payload };
     case "SYNC_WALLET":
       return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };

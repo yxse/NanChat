@@ -41,11 +41,13 @@ function SelectAccount({ }) {
   }
   , []);
   return (<>
-  <div className="text-sm text-gray-400 mb-1 flex items-center cursor-pointer" onClick={() => setVisible(true)}>
+  <div className="text-sm flex items-center cursor-pointer text-gray-400" onClick={() => setVisible(true)}>
     <span className="mr-2">
-      <AccountIcon account={activeAccount} />
+      <AccountIcon account={activeAccount} width={32}/>
     </span>
-    <ProfileName address={activeAccount} fallback={`Account ${wallet.activeIndex + 1}`} />
+    <div className="text-base	">
+      <ProfileName address={activeAccount} fallback={`Account ${wallet.activeIndex + 1}`} />
+    </div>
     <DownOutline className="ml-2" /> 
     {/* {activeAccount} - {wallet.activeIndex} */}
   </div>

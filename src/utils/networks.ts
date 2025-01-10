@@ -73,6 +73,7 @@ export const networks = {
     rpc: "https://nodes.nanwallet.com/XRO",
     rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
   },
+  ...JSON.parse(localStorage.getItem("newNetworks")),
     ...JSON.parse(localStorage.getItem("customNetworks")),
 };
 console.log(networks);

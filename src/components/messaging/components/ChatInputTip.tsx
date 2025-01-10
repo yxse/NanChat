@@ -18,7 +18,7 @@ import { SlArrowUpCircle } from "react-icons/sl";
 import { FaArrowUp } from "react-icons/fa6";
 import { useChat } from "../hooks/useChat";
 import Send from "../../app/Send";
-import { AiOutlineDollar } from "react-icons/ai";
+import { AiOutlineDollar, AiOutlineDollarCircle } from "react-icons/ai";
 import NetworkList from "../../app/NetworksList";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
@@ -39,6 +39,9 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
         <Button
         shape="rounded"
         style={{
+          flexShrink: 0,
+          padding: '0px',
+          border: "none",
             width: '40px',
             height: '40px',
             display: 'flex',
@@ -55,7 +58,8 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
                 setVisible(true);
             }
         }}>
-            <div style={{}} >
+            <div  style={{color: "gray", padding: 0, margin: 0}}>
+            {/* <AiOutlineDollarCircle size={40}/> */}
             $
             </div>
             
@@ -98,11 +102,13 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
               "Tip"
             }</div>
           </div>
+          <div style={{maxHeight: "50vh", overflowY: "auto"}}>
           <NetworkList hidePrice={true} onClick={(ticker) => {
             // navigate(ticker + "/" + action);
             setVisible(false);
             setActiveTicker(ticker);
           }} /></div>
+          </div>
         </Popup>
         </>
     );

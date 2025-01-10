@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { AiOutlineReload, AiOutlineSync } from 'react-icons/ai'
-import { MdOutlineCheck } from 'react-icons/md'
+import { MdOutlineCheck, MdOutlineSync, MdRefresh } from 'react-icons/md'
 import { isTouchDevice } from '../utils/isTouchDevice'
 
 
@@ -27,14 +27,14 @@ function RefreshButton({onRefresh}) {
         }, 2000)
     }
     const style = { opacity: 0.8 } 
-    const size = 20
+    const size = 22
     if (isTouchDevice()) {
         return null
     }
     return (
         <div style={{display: 'inline-block', alignItems: 'baseline'}}>
-            {state === 'idle' && <AiOutlineReload size={size} style={{ opacity: 0.8, cursor: "pointer" }} onClick={onClick} /> }
-            {state === 'loading' &&  <AiOutlineSync className='ai-spin' size={size} style={style} />}
+            {state === 'idle' && <MdRefresh size={size} style={{ opacity: 0.8, cursor: "pointer" }} onClick={onClick} /> }
+            {state === 'loading' &&  <MdOutlineSync className='ai-spin' size={size} style={style} />}
             {state === 'updated' && <UpdatedIcon size={size} style={style}/>}
         </div>
     )

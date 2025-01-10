@@ -13,7 +13,7 @@ import { WalletContext } from '../../../Popup';
 import { convertAddress, formatAddress } from '../../../../utils/format';
 import { QRCodeSVG } from 'qrcode.react';
 import icon from "../../../../../public/icons/icon.png";
-import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserOutline } from 'antd-mobile-icons';
+import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import SelectAccount from '../../../app/SelectAccount';
 import Settings from '../../../Settings';
 
@@ -61,7 +61,7 @@ const ProfileHome: React.FC = () => {
                 </List>
             <List className='my-4'>
             <List.Item
-                    prefix={<AddressBookFill fontSize={24} color="white" />}
+                    prefix={<UserContactOutline fontSize={24} color="white" />}
                     onClick={() => navigate('/contacts')}
                     >
                         Contacts

@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, Card, Input, List, Modal, Popover, SearchBar, Space, Toast } from "antd-mobile";
+import { Avatar, Badge, Button, Card, DotLoading, Input, List, Modal, Popover, SearchBar, Space, Toast } from "antd-mobile";
 import { FillinOutline, LockFill, LockOutline, MailOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -6,7 +6,7 @@ import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
 import { LedgerContext, WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
-import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
+import { fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -20,6 +20,7 @@ import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { QRCodeSVG } from "qrcode.react";
 import icon from "../../../../public/icons/icon.png";
 import { DisconnectLedger } from "../../Initialize/Start";
+import SelectAccount from "../../app/SelectAccount";
 
 export const LedgerNotCompatible = () => {
     return (
@@ -37,7 +38,13 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { account } = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const { data: chats, mutate } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
+    const { data: chats, mutate, error } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages, {onError: (error) => {
+        console.log({error})
+        if (error === 401) {
+            getNewChatToken(activeAccount, activeAccountPk).then(token => {
+            });
+        }
+    }});
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
     const {ledger, setLedger} = useContext(LedgerContext);
@@ -68,8 +75,17 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         if (localStorage.getItem('name') === null) {
             navigate('/profile/name');
         }
+        if (!activeAccountPk) {
+            return;
+        }
+        // getNewChatToken(activeAccount, activeAccountPk).then(token => {
+        //     // socket.auth = { token };
+        //     // socket.connect();
+        //     console.log('token', token);
+        // });
+
     }
-        , []);
+    , [activeAccountPk]);
 
     
     const ButtonNewChat = () => {
@@ -137,6 +153,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     if (ledger) {
         return <LedgerNotCompatible />
     }
+    // if (!chats){
+    //     return <DotLoading />
+    // }
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
@@ -145,7 +164,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 <List style={{ 
                     position: 'sticky', top: 0, zIndex: 1 }} className="">
                     <List.Item
-                    description={formatAddress(activeAccount)}
+                    // description={formatAddress(activeAccount)}
                     onClick={() => {
                         Modal.show({
 
@@ -180,7 +199,10 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                     extra={<SystemQRcodeOutline 
                         fontSize={24} color="white" style={{cursor: "pointer"}}/>}
                     >
+                        <div className="flex items-center gap-2">
+                        <AccountIcon account={activeAccount} width={32}/>
                         {accountData?.name}
+                        </div>
                     </List.Item>
                     {/* <div className="flex items-center gap-2 mt-1 align-middle">
             Share your Invitation Link: <CopyToClipboard text={`https://znbfmt6n-4173.euw.devtunnels.ms/messages/${activeAccount}`} />

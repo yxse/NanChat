@@ -45,7 +45,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 onClick={() => {
                     
                 }}
-                    style={{ height: '5vh' }}
+                    // style={{ height: '5vh' }}
                     className="flex items-center">
                     <BiChevronLeft
                         onClick={(e) => {

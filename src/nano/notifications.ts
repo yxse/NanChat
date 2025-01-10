@@ -11,7 +11,12 @@ import {
   } from "@capacitor-firebase/messaging";
 import { Toast } from "antd-mobile";
 import { Capacitor } from "@capacitor/core";
-  
+import { isTauri } from "@tauri-apps/api/core";
+import {
+    isPermissionGranted,
+    requestPermission,
+    sendNotification,
+  } from '@tauri-apps/plugin-notification';
 const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_SERVER_NOTIFICATIONS_URL;
 
 export async function getToken() {
@@ -24,11 +29,10 @@ export async function getToken() {
       }
     console.log({options});
     const { token } = await FirebaseMessaging.getToken(options);
-    FirebaseMessaging
-    Toast.show({
-        content: token
-    });
-    console.log(token);
+    // Toast.show({
+    //     content: token
+    // });
+    // console.log({token});
     return token;
 }
 
@@ -51,9 +55,9 @@ async function askPermission() {
     }
     const permission = await FirebaseMessaging.requestPermissions();
     console.log({permission});
-    Toast.show({
-        content: permission.receive
-    });
+    // Toast.show({
+    //     content: permission.receive
+    // });
     // return
     const activeAddressesLs = localStorage.getItem("activeAddresses");
     const activeAddresses = activeAddressesLs ? JSON.parse(activeAddressesLs) : [];
@@ -80,12 +84,12 @@ async function askPermission() {
 
 async function registerServiceWorker(accounts) {
     let old = localStorage.getItem("subscription");
-    if (old) {
-        old = JSON.parse(old);
-        if (old.join() === accounts.join()) { // same accounts, no need to resubscribe
-            return;
-        }
-    }
+    // if (old) {
+    //     old = JSON.parse(old);
+    //     if (old.join() === accounts.join()) { // same accounts, no need to resubscribe
+    //         return;
+    //     }
+    // }
     // const registration = await navigator.serviceWorker.getRegistration('/sw.js');
     // let subscription = await registration.pushManager.getSubscription();
     // // user is not already subscribed, we subscribe him to push notifications
@@ -114,13 +118,13 @@ async function getPublicKey() {
 */
 
 async function saveSubscription(token, accounts) {
-    let old = localStorage.getItem("subscription");
-    if (old) {
-        old = JSON.parse(old);
-        if (old.join() === accounts.join()) { // same accounts, no need to resubscribe
-            return;
-        }
-    }
+    // let old = localStorage.getItem("subscription");
+    // if (old) {
+    //     old = JSON.parse(old);
+    //     if (old.join() === accounts.join()) { // same accounts, no need to resubscribe
+    //         return;
+    //     }
+    // }
     // let body = subscription.toJSON();
     // body.addresses = accounts;
     // console.log(body);

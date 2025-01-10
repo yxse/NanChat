@@ -382,8 +382,8 @@ className="mb-24"
             </List.Item>
           </List>
         
-          <div className="my-4" />
-          <List>
+          {/* <div className="my-4" /> */}
+          {/* <List> */}
             {/* Currently /sign works only for requested signature, standalone sign might be not much useful for user */}
             {/* <List.Item
               prefix={<EditSOutline fontSize={24} />}
@@ -392,7 +392,7 @@ className="mb-24"
 
 
 
-          </List>
+          {/* </List> */}
           <div className="my-4" />
           <List>
             <List.Item

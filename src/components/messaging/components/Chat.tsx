@@ -10,6 +10,7 @@ import AccountInfo from './AccountInfo';
 import { askPermission } from '../../../nano/notifications';
 import { fetcherMessages } from '../fetcher';
 import useSWR from 'swr';
+import { getChatToken } from '../../../utils/storage';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
@@ -19,8 +20,10 @@ const Chat: React.FC = () => {
     const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
 
     useEffect(() => {
-        socket.auth = { account: activeAccount };
-        socket.connect();
+        getChatToken().then((token) => {
+            socket.auth = { token };
+            socket.connect();
+        });
         return () => {
             socket.disconnect();
         };

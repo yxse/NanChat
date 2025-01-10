@@ -56,6 +56,60 @@ export async function setSeed(seed: string): Promise<void> {
   }
 }
 
+const getActiveAccount = () => {
+  let activeAddress = localStorage.getItem('activeAddress');
+  if (!activeAddress){
+      const activeAddresses = JSON.parse(localStorage.getItem('activeAddresses'));
+      activeAddress = activeAddresses[0];
+      localStorage.setItem('activeAddress', activeAddress);
+  }
+  return activeAddress
+}
+
+export async function getChatToken(): Promise<string> {
+  const tokens = await getChatTokens();
+  return tokens?.[getActiveAccount()];
+}
+
+const keyTokenChat = "chatTokens";
+export async function getChatTokens(): Promise<string> {
+  try {
+    if (isTauri()) {
+      const token = await KeyringService.getSecret('nanwallet', keyTokenChat);
+      return JSON.parse(token);
+    }
+    else{
+      let token = await SecureStoragePlugin.get({key: keyTokenChat})
+      return JSON.parse(token.value);
+    }
+    
+  } catch (error) {
+    console.error("Error getting token: ", error);
+    return {};
+  }
+  // return localStorage.getItem("seed");
+}
+
+export async function setChatToken(account: string, token: string): Promise<void> {
+  let existingTokens = await getChatTokens();
+  if (!existingTokens) {
+    existingTokens = {};
+  }
+  existingTokens[account] = token;
+  let r
+  debugger;
+  if (isTauri()) {
+    r = 
+    await KeyringService.saveSecret('nanwallet', keyTokenChat, JSON.stringify(existingTokens));
+  }
+  else {
+    r = await
+    SecureStoragePlugin.set({key: keyTokenChat, value: JSON.stringify(existingTokens)});
+  }
+  console.log("Saved token: ", r);
+}
+
+
 export async function getSeed(): Promise<string> {
   try {
     if (isTauri()) {

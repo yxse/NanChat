@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { activeNetworks, networks } from "../../utils/networks";
 import Network, { fetchAccountInfo, fetchBalance, ModalReceive, showModalReceive } from "./Network";
-import { Button, Divider, DotLoading, Ellipsis, FloatingBubble, Grid, List, SearchBar, Space } from "antd-mobile";
+import { Button, Divider, DotLoading, Ellipsis, FloatingBubble, Grid, List, SearchBar, Space, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { BiPlus } from "react-icons/bi";
@@ -22,6 +22,7 @@ import { getAccount } from "../getAccount";
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineSend, AiOutlineSwap } from "react-icons/ai";
 import { CopyIcon } from "./Icons";
 import { WalletContext } from "../Popup";
+import { fetcherChat } from "../messaging/fetcher";
 
 
 
@@ -195,7 +196,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
 
   const ButtonAction = ({ action, ticker }) => { 
     return <Button 
-    shape="rectangular"
+    shape="default"
     onClick={(e) => {
       e.stopPropagation()
       setAction(action)
@@ -219,9 +220,14 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
               src={network.logo}
               alt={`${network.logo} logo`} />
             <div className="flex flex-col ml-3 justify-center">
-              <div>{ticker}</div>
-              <div className="text-sm text-gray-400">
-                {network.name}
+              <div>{network.name}
+
+              {
+                hidePrice &&
+                <span className="text-xs text-gray-400 ml-1">
+                {ticker}
+              </span>
+              }
               </div>
               {
                 !hidePrice &&
@@ -365,6 +371,30 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
+  
+  const {data: newNetworks, isLoading: isLoadingNewNetworks} = useSWR("/networks", fetcherChat);
+  if (newNetworks) {
+    let newNetworksToAdd = {}
+    let numberOfNewNetworks = 0
+    for (let ticker in newNetworks) {
+      if (!networks[ticker]) {
+        let newNetworksLs = JSON.parse(localStorage.getItem("newNetworks"))
+        if (!newNetworksLs?.[ticker]) {
+          newNetworksToAdd[ticker] = newNetworks[ticker]
+          numberOfNewNetworks++
+        }
+      }
+    }
+   
+    if (numberOfNewNetworks > 0) {
+      localStorage.setItem("newNetworks", JSON.stringify(newNetworks))
+      Toast.show({
+        content: `Restart NanWallet to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
+        duration: 7000
+      })
+    }
+  }
+
   return (<>
     <List >
 

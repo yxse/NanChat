@@ -9,7 +9,7 @@ import { ScanCodeOutline } from 'antd-mobile-icons';
 import { Scanner } from './Scanner';
 // import { Scanner } from '@yudiel/react-qr-scanner';
 
-function PasteAction({mode = "paste", uri = ""}) {
+function PasteAction({mode = "paste", uri = "", setUri}) {
   const [visible, setVisible] = React.useState(false);
   const [activeTicker, setActiveTicker] = React.useState<string | null>(null);
   const navigate = useNavigate();
@@ -19,10 +19,15 @@ function PasteAction({mode = "paste", uri = ""}) {
       executeURI(uri);
     }
   }
-  , [uri])
+  , [uri]);
 
   function executeURI(uri: string) {
     try {
+      if (uri.startsWith("nanauth://sign?")) {
+        navigate(uri.replace("nanauth://sign?", "/sign?"));
+        return;
+      }
+        
       let parsed = parseURI(uri);
       if (parsed)
         Toast.show({
@@ -30,6 +35,7 @@ function PasteAction({mode = "paste", uri = ""}) {
         });
       setActiveTicker(parsed.ticker);
       setVisible(true);
+      setUri(""); // Clear the URI, fix not opening the same URI twice
       let amount = parsed.megaAmount;
       let params = '?to=' + parsed.address
       if (amount) {

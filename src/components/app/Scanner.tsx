@@ -36,7 +36,7 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen}) => {
             content: (
                 <div className=''>
                 <div className="square"></div>
-                <div className="m-4 text-sm text-center" style={{marginTop: "300px"}}>
+                <div className="m-4 text-sm text-center" style={{marginTop: "300px", userSelect: "none", WebkitUserSelect: "none"}}>
                   Scan QR Code
                 </div>
               </div>

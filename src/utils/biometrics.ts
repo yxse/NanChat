@@ -25,6 +25,7 @@ export async function biometricAuthIfAvailable() {
     if (r.isAvailable){
         await BiometricAuth.authenticate({
             allowDeviceCredential: true,
+            iosFallbackTitle: "Use Passcode",
             // reason: "Confirm to enable biometric authentication"
         })
     }

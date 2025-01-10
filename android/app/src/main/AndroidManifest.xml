@@ -30,6 +30,7 @@ xmlns:tools="http://schemas.android.com/tools"
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="nano" />
+                <data android:scheme="nan" />
                 <data android:scheme="ban" />
                 <data android:scheme="xdg" />
                 <data android:scheme="ana" />

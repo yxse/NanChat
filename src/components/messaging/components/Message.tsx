@@ -10,6 +10,7 @@ import { AccountIcon } from "../../app/Home";
 import { fetcherAccount, fetcherMessages } from "../fetcher";
 import useSWR from "swr";
 import ProfilePicture from "./profile/ProfilePicture";
+import { DateHeader } from "../../app/History";
 
 const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const { wallet, dispatch
@@ -48,11 +49,16 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
 
         , []);
 
-    if (!decrypted) {
-        // return empty while decrypting message to avoid the "Messages are end-to-end encrypted" flickering
-        // eventually messages could be kept into localstorage unencrpted for faster loading
-        return <div style={{ height: '100px' }}></div>
-    }
+        if (!decrypted && 
+            !nextMessage // preven scroll flickering when newmessage
+        ) {
+            // return empty while decrypting message to avoid the "Messages are end-to-end encrypted" flickering
+            // eventually messages could be kept into localstorage unencrpted for faster loading
+            return <div style={{ height: '100px' }}></div>
+        }
+        if (!decrypted && nextMessage) {
+            return null
+        }
     // console.log(message.content);
 
     if (message?.tip) {
@@ -65,6 +71,11 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const isPreviousMessageFromSameAccount = prevMessage && prevMessage.fromAccount === message.fromAccount;
     const isNextMessageFromSameAccount = nextMessage && nextMessage.fromAccount === message.fromAccount;
     return (
+        <>
+        <div className="text-center text-sm text-gray-400">
+                    <DateHeader timestamp={message.timestamp} timestampPrev={prevMessage?.timestamp} timestampNext={nextMessage?.timestamp} reverse />
+
+        </div>
         <div
             // style={{marginLeft: '10px', marginRight: '10px'}}
             key={message._id}
@@ -92,15 +103,15 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
                     backgroundColor: message.fromAccount === activeAccount ? '#1677ff' : '#171718',
                 }}
                 className={
-                    `bubble max-w-[70%] p-2
+                    `max-w-[70%] p-2 rounded-lg 
                 ${message.fromAccount === activeAccount ?
 
                         isPreviousMessageFromSameAccount ?
-                            'bubble-right' : 'bubble-right-tail'
+                            '' : 'rounded-br-none'
                         :
                         isPreviousMessageFromSameAccount
                             ?
-                            'bubble-left' : ' bubble-left-tail'
+                            '' : 'rounded-bl-none'
 
                     }`}
             >
@@ -122,7 +133,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
                 </p>
                     <span 
                     style={{float: 'right'}}
-                    className="text-sm opacity-70">
+                    className="text-xs opacity-70">
                         {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
 
@@ -135,6 +146,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
                 {/* {type} */}
             </div>
         </div>
+        </>
     )
 }
 

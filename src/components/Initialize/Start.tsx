@@ -172,8 +172,17 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
     return <DisconnectLedger />
   }
   return <>
-    <Button onClick={() => setVisible(true)} className="w-full mt-2 mb-4" size="large" shape="rounded">
-      Use a Ledger
+    <Button onClick={() => setVisible(true)} className="w-full mt-2 mb-4 " size="large" shape="rounded">
+      <Space align="center">
+        {
+          Capacitor.getPlatform() === "ios" ? (
+            <MdOutlineBluetooth />
+          ) : (
+            <MdOutlineUsb />
+          )
+        }
+      Use Ledger
+      </Space>
     </Button>
     <Modal
       onClose={() => setVisible(false)}
@@ -215,7 +224,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
               setWalletState("unlocked")
             }}
           />
-          <div className="text-center mt-2">
+          <div className="text-center mt-2 text-sm">
             Ledger is an offline device that store your private keys in a Secure Element chip, providing additional layers of security. <br />
             <br />
             <a href="https://shop.ledger.com/?r=df3382d62bbf"

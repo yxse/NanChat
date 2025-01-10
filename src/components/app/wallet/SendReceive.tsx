@@ -83,7 +83,6 @@ export const SendReceive = () => {
         }}
          action={action} ticker={activeTicker} modalVisible={activeTicker} setModalVisible={setVisible} setAction={setAction} />
         <Popup
-        
         position={"bottom"}
         closeOnSwipe
           visible={visible}
@@ -93,17 +92,18 @@ export const SendReceive = () => {
           // onClick={() => setVisible(false)}
           closeOnMaskClick={true}
         >
-          <div>
+          <div           >
           <div>
             <div className="text-2xl  text-center p-2">{
               action === "receive" ? "Receive" : "Send"
             }</div>
           </div>
+          <div style={{maxHeight: "50vh", overflowY: "auto"}}>
           <NetworkList hidePrice={true} onClick={(ticker) => {
             // navigate(ticker + "/" + action);
             setVisible(false);
             setActiveTicker(ticker);
-          }} /></div>
+          }} /></div></div>
         </Popup>
       </>
     );

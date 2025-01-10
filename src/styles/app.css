@@ -249,8 +249,10 @@ html {
   color: var(--text-color-primary);
 }
 .adm-button {
-    font-weight: 500;
+    /* font-weight: 500; */
+    user-select: none;
 }
+
 .adm-capsule-tabs-tab-list {
   font-weight:500;
   color: var(--text-color-primary);
@@ -266,8 +268,8 @@ html {
 }
 
 :root:root {
-  --adm-button-border-radius: 12px;
-  --adm-color-background: #111111;
+  /* --adm-button-border-radius: 12px; */
+  --adm-color-background: #111;
 }
 
 .checkListContainer {
@@ -340,6 +342,7 @@ html {
   --adm-color-primary: #1677ff;
   /* --adm-color-background: #171718; */
   /* --adm-color-background: #171718; */
+  /* --main-background-color: var(--adm-color-fill-content); */
   --main-background-color: #000;
   /* --main-background-color: #1e1f21; */
   /* --adm-color-text: #d7d7d7; */
@@ -369,6 +372,9 @@ html {
 @media (hover: hover) {
 .adm-list-item:hover {
   background-color: var(--active-background-color	);
+}
+.adm-button:hover {
+  background-color: var(--adm-color-primary);
 }
 }
 .adm-list-item.active {
@@ -421,8 +427,8 @@ html {
 /* here we customize the transition, these are the shared styles for the old and new view*/      
 ::view-transition-new(root),
 ::view-transition-old(root) {
-  animation-duration: 150ms;
-  animation-timing-function: ease-out;
+  animation-duration: 200ms;
+  /* animation-timing-function: ease-in-out; */
   animation-direction: normal;
 }
 
@@ -600,7 +606,7 @@ body.barcode-scanner-active {
 }
 
 body.barcode-scanner-active .adm-center-popup-wrap {
-  height: 100vh;
+  height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;

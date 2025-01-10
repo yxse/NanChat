@@ -69,6 +69,7 @@ import { SideBarMenu } from "./desktop/SideBarMenu";
 // import SetUsername from "../messaging/components/profile/SetUsername";
 import AppUrlListener from "./AppUrlListener";
 import Buy from "./Buy";
+import ChatSocket from "../messaging/socket";
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -286,7 +287,10 @@ export default function App() {
       }
     }, [timeSinceLastActivity]);
     
-    
+    useEffect(() => {
+      
+    }
+    , []);
     return (<></>);
     }
   
@@ -339,6 +343,7 @@ export default function App() {
       <ReloadPrompt />
       <SafeArea position="top" style={{backgroundColor: "rgb(16, 16, 24)"}} />
       <Router>
+      <ChatSocket />
         <div className="w-full body " 
         // style={{overflow: 'auto'}}
         style={

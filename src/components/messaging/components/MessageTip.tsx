@@ -17,14 +17,14 @@ const MessageTip = ({ message, side, hash, ticker }) => {
         <div
         // style={{marginLeft: '10px', marginRight: '10px'}}
         key={message._id}
-        className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-4`}
+        className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
     >
         <Card
         style={{
         }}
             className={`max-w-[70%] p-2 rounded-lg ${side === "from"
-                    ? ' rounded-br-none'
-                    : ' rounded-bl-none'
+                    ? ' '
+                    : ' '
                 }`}
         >
             <p
