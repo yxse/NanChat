@@ -26,6 +26,11 @@ const AppUrlListener: React.FC<any> = () => {
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
           InAppBrowser.close();
           setUri(event.url);
+          try {
+            InAppBrowser.close()
+          } catch (error) {
+            console.log(error)
+          }
             // Toast.show({
             //     content: "Opening URL: " + event.url
             // });
