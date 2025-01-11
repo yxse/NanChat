@@ -373,9 +373,16 @@ html {
 .adm-list-item:hover {
   background-color: var(--active-background-color	);
 }
-.adm-button:hover {
+.adm-button:hover:not(.adm-button-danger):not(.adm-button-primary) {
   background-color: var(--adm-color-primary);
 }
+.adm-button-primary:hover {
+  box-shadow: 0 0 10px 0 var(--adm-color-primary);
+}
+.adm-button-danger:hover {
+  box-shadow: 0 0 10px 0 var(--adm-color-danger);
+}
+
 }
 .adm-list-item.active {
   background-color: var(--main-background-color) !important;

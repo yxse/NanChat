@@ -6,6 +6,7 @@ import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { Capacitor } from '@capacitor/core';
 import { isTauri } from '@tauri-apps/api/core';
+import { InAppBrowser } from '@capacitor/inappbrowser';
 
 const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const AppUrlListener: React.FC<any> = () => {
       }
       if (Capacitor.isNativePlatform()){
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+          InAppBrowser.close();
           setUri(event.url);
             // Toast.show({
             //     content: "Opening URL: " + event.url

@@ -1,4 +1,4 @@
-import { Button, Dialog, Divider, Modal, Space, Toast } from "antd-mobile";
+import { Button, Card, Dialog, Divider, Modal, Space, Toast } from "antd-mobile";
 import Navbar from "../Lock/Navbar";
 import { Dispatch, useContext, useState } from "react";
 import { LedgerService, LedgerStatus } from "../../ledger.service";
@@ -257,10 +257,12 @@ export default function Start({
   return (
     <div className="min-h-[554px]">
       <Navbar theme={theme} />
-      <div
+      <Card
+      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
         className={`${theme == "light" && "!bg-white !text-black"
           } flex flex-col justify-between align-center p-[20px] h-full`}
       >
+        <div style={{maxWidth: 500, margin: "auto"}} >
         <div className="init-wrapper">
           <div className="start-content">
             <div className="select-none items-center flex flex-col justify-center align-center w-full">
@@ -271,25 +273,7 @@ export default function Start({
                   alt="Cesium Wallet Logo"
                   draggable={false}
                 />
-                <div className="flex flex-col">
-                  <span className="text-sm text-gray-600">
-                    Created with 💙 by{" "}
-                    <a
-                      href="https://github.com/YXSE"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        return chrome.tabs.create({
-                          url: "",
-                        });
-                      }}
-                      className="text-blue-500 hover:underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      YXSE
-                    </a>
-                  </span>
-                </div>
+               
               </div>
               <p
                 className={`${theme == "light" && "!text-slate-700"
@@ -332,7 +316,29 @@ export default function Start({
           {/* <Link to="/XNO">XNO</Link> */}
 
         </div>
-      </div>
+          </div>
+          <div className="text-center mt-4">
+          <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">
+                    Created with 💙 by{" "}
+                    <a
+                      href="https://github.com/YXSE"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        return chrome.tabs.create({
+                          url: "",
+                        });
+                      }}
+                      className="text-blue-500 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      YXSE
+                    </a>
+                  </span>
+                </div>
+          </div>
+      </Card>
     </div>
   );
 }

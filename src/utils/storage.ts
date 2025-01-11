@@ -129,7 +129,17 @@ export async function getSeed(): Promise<string> {
 }
 
 export function removeSeed(): void {
-  localStorage.removeItem("seed");
+  try {
+    if (isTauri()) {
+      KeyringService.deleteSecret('nanwallet', 'seed');
+    }
+    else{
+      SecureStoragePlugin.remove({key: "seed"});
+    }
+  }
+  catch (error) {
+    console.error("Error removing seed: ", error);
+  }
 }
 
 
