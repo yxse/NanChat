@@ -28,6 +28,7 @@ import { BiHistory } from "react-icons/bi";
 import { FiAtSign } from "react-icons/fi";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import ProfileHome from "./messaging/components/profile/ProfileHome";
+import { removeSeed } from "../utils/storage";
 
 export const ManageNetworks = ({}) => {
   const [networksSwitchVisible, setNetworksSwitchVisible] = useState(false)
@@ -446,6 +447,7 @@ className="mb-24"
                             actionSheet1.close()
                             localStorage.removeItem('seed')
                             localStorage.removeItem('encryptedMasterKey')
+                            removeSeed()
                             window.location.reload()
                           }
                         },
