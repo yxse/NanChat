@@ -320,6 +320,7 @@ export default function Home({ }) {
        canReleaseText={<DotLoading />}
        refreshingText={<DotLoading />}
       onRefresh={onRefresh}>
+
       <div className="flex items-center justify-between" >
         <WalletSummary />
 {/* <MenuBar mode="large-screen"/> */}
@@ -332,7 +333,8 @@ export default function Home({ }) {
        
         </div>
       </div>
-      <div className="overflow-y-auto pb-10" >
+      {/* 211px is the height of navbar + wallet summary + menu bar */}
+      <div className="pb-10" style={{ height: "calc(100vh - 211px - env(safe-area-inset-bottom) - env(safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
         <NetworkList
         selectedTicker={selectedTicker}
