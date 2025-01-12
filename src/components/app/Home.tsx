@@ -332,7 +332,7 @@ export default function Home({ }) {
        
         </div>
       </div>
-      <div className="overflow-y-auto pb-10" style={{ height: "65dvh" }}>
+      <div className="overflow-y-auto pb-10" >
      <SendReceive />
         <NetworkList
         selectedTicker={selectedTicker}

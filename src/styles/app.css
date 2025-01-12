@@ -13,6 +13,8 @@
   border-bottom: 1px solid rgb(50, 50, 50);
   height: 46px;
   width: 100%;
+  position: sticky;
+  top: 0;
 }
 
 .app-navbar-menu {
@@ -76,6 +78,10 @@ body {
 html body {
   overflow: hidden;
 }
+::-webkit-scrollbar {
+  display: none; 
+}
+
 html {
   overscroll-behavior: none; 
   /* prevent ios scroll bounce down when scrolling pwa, especially in /chat */
@@ -356,7 +362,15 @@ html {
   --text-color-primary: white;
 }
 
-
+/*  animation keyboard ios native */
+.app {
+    padding-bottom: 0;
+    transition: padding-bottom 300ms;
+}
+.adm-popup-body {
+  margin-bottom: 0;
+  transition: margin-bottom 300ms;
+}
 
 .swap-btn:hover {
   transform: scale(1.1);

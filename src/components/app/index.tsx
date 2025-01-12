@@ -70,7 +70,45 @@ import { SideBarMenu } from "./desktop/SideBarMenu";
 import AppUrlListener from "./AppUrlListener";
 import Buy from "./Buy";
 import ChatSocket from "../messaging/socket";
+import { Capacitor } from "@capacitor/core";
+import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 
+if (Capacitor.getPlatform() === "ios"){
+Keyboard.setResizeMode({mode: KeyboardResize.None});
+Keyboard.addListener('keyboardWillShow', info => {
+  console.log('keyboard will show with height:', info.keyboardHeight);
+  const app: HTMLElement = document.querySelector('.app');
+  app.style.paddingBottom = info.keyboardHeight - 30 + 'px';
+
+  const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
+  console.log("popup", popup);
+  popup.forEach((element) => {
+      element.style.marginBottom = `${info.keyboardHeight}px`;
+  });
+
+});
+
+Keyboard.addListener('keyboardDidShow', info => {
+  console.log('keyboard did show with height:', info.keyboardHeight);
+});
+
+Keyboard.addListener('keyboardWillHide', () => {
+  console.log('keyboard will hide');
+  const app: HTMLElement = document.querySelector('.app');
+  app.style.paddingBottom = '0px';
+
+  const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
+  console.log("popup", popup);
+  popup.forEach((element) => {
+      element.style.marginBottom = `0px`;
+  });
+
+});
+
+Keyboard.addListener('keyboardDidHide', () => {
+  console.log('keyboard did hide');
+});
+}
 export const MenuBar = () => {
   const navigate = useNavigate();
   const {ticker}= useParams();
@@ -288,7 +326,7 @@ export default function App() {
     }, [timeSinceLastActivity]);
     
     useEffect(() => {
-      
+
     }
     , []);
     return (<></>);
