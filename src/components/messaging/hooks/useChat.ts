@@ -33,9 +33,10 @@ export function useChat(chatId) {
     isLoading,
     isValidating 
   } = useSWRInfinite(getKey, fetcher, {
-    revalidateFirstPage: false,
+    revalidateFirstPage: true ,
     revalidateOnFocus: false,
-    revalidateOnReconnect: true
+    revalidateOnReconnect: true,
+    revalidateOnMount: true
   });
 
   // Flatten all pages into a single array

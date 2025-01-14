@@ -72,7 +72,7 @@ const Chat: React.FC = () => {
             <Routes>
                 <Route path="/profile" element={<SetName />} />
                 <Route path="/:account" element={
-                    <div className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
+                    <div key={"chat-account"} className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
                         <div
                         className='hide-on-mobile'
                          style={{
@@ -108,7 +108,7 @@ const Chat: React.FC = () => {
                     </div>
                 } />
                 <Route path="/:account/info" element={<AccountInfo onlineAccount={onlineAccount} />} />
-                <Route path="/" element={<div className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
+                <Route path="/" element={<div key={"chat"} className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
                         <div
                         className='full-width-on-mobile'
                          style={{
