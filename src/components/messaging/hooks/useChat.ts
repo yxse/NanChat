@@ -96,6 +96,7 @@ export function useChat(chatId) {
     setSize(size + 1);
   }, [setSize, size]);
 
+  const hasMore = pages && pages[pages.length - 1]?.length === 50;
   return {
     messages,
     error,
@@ -104,6 +105,7 @@ export function useChat(chatId) {
     loadMore,
     sendMessage: sendNewMessage,
     unreadCount,
-    mutate
+    mutate,
+    hasMore
   };
 }

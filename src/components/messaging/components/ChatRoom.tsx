@@ -10,7 +10,7 @@ import { convertAddress, formatAddress } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Skeleton, Toast } from "antd-mobile";
+import { Button, DotLoading, Input, List, Skeleton, Space, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { fetcherMessages } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -50,7 +50,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         loadMore,
         mutate,
         isLoadingMore,
-        isLoadingInitial
+        isLoadingInitial,
+        hasMore,
     } = useChat(account);
 
     // const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
@@ -357,10 +358,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                         // }
                                     }}
 
-                                    hasMore={true}
-                                    loader={null}
+                                    hasMore={hasMore}
+                                    // loader={<Skeleton animated />}
                                     inverse={true}
-                                    scrollThreshold={"600px"}
+                                    // scrollThreshold={"300px"} // this cause scroll flickering issue
                                     onScroll={(e) => {
                                         //disable auto scroll when user scrolls up
                                         console.log(e.target.scrollTop);
@@ -394,23 +395,14 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     scrollableTarget="scrollableDiv"
 
                                 >
-                                    {/* {
+                                    {
                         isLoadingMore && (
                             <div className="text-center m-4">
                                 <DotLoading />
                             </div>
                         )
-                    } */}
-                                    {
-                                        chat?.type === 'private' && !isLoadingMore && !isLoadingInitial && (
-                                            <div className="flex items-center justify-center text-yellow-300 text-sm text-center" style={{ backgroundColor: 'var(--adm-color-background)', padding: '16px', margin: 32, borderRadius: 8 }}>
-                                                <div>
-                                                    <LockFill className="mr-2 inline" />
-                                                    Messages are end-to-end encrypted using nano. No one outside of this chat can read them.
-                                                </div>
-                                            </div>
-                                        )
-                                    }
+                    }
+                    
                                     {messages.reverse().map((message, index) => {
                                         return (
                                             <div
@@ -426,6 +418,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                                     activeAccount={activeAccount}
                                                     activeAccountPk={activeAccountPk}
                                                     type={chat?.type}
+                                                    hasMore={hasMore}
                                                 // toAccount={names?.find(participant => participant._id !== message.fromAccount)?._id}
                                                 />
                                             </div>

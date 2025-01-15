@@ -11,8 +11,9 @@ import { fetcherAccount, fetcherMessages } from "../fetcher";
 import useSWR from "swr";
 import ProfilePicture from "./profile/ProfilePicture";
 import { DateHeader } from "../../app/History";
+import { LockFill } from "antd-mobile-icons";
 
-const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
+const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore }) => {
     const { wallet, dispatch
     } = useContext(WalletContext);
     const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : type === 'private' ? null : message.content);
@@ -30,12 +31,19 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
         }
         else {
             try {
+                let cached = localStorage.getItem("message-" + message._id);
+                if (cached) {
+                    setDecrypted(cached);
+                    dispatch({ type: 'ADD_MESSAGE', payload: { _id: message._id, content: cached } });
+                    return;
+                }
                 console.log("decrypting", message.content);
                 let r = box.decrypt(message.content,
                     message.fromAccount === activeAccount ? toAccount : message.fromAccount
                     , activeAccountPk)
                 console.log("decrypted", r);
                 setDecrypted(r);
+                localStorage.setItem("message-" + message._id, r);
                 let id = message.isLocal ? Math.random().toString() : message._id;
                 dispatch({ type: 'ADD_MESSAGE', payload: { _id: id, content: r } });
             } catch (error) {
@@ -49,14 +57,14 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
 
         , []);
 
-        if (!decrypted && 
-            !nextMessage // preven scroll flickering when newmessage
-        ) {
-            // return empty while decrypting message to avoid the "Messages are end-to-end encrypted" flickering
-            // eventually messages could be kept into localstorage unencrpted for faster loading
-            return <div style={{ height: '100px' }}></div>
-        }
-        if (!decrypted && nextMessage) {
+        // if (!decrypted && 
+        //     !nextMessage // preven scroll flickering when newmessage
+        // ) {
+        //     // return empty while decrypting message to avoid the "Messages are end-to-end encrypted" flickering
+        //     // eventually messages could be kept into localstorage unencrpted for faster loading
+        //     return <div style={{ height: '100px' }}></div>
+        // }
+        if (!decrypted) {
             return null
         }
     // console.log(message.content);
@@ -72,6 +80,15 @@ const Message = ({ message, type = "private", prevMessage, nextMessage }) => {
     const isNextMessageFromSameAccount = nextMessage && nextMessage.fromAccount === message.fromAccount;
     return (
         <>
+        {
+            decrypted && !hasMore && !nextMessage && 
+            <div className="flex items-center justify-center text-yellow-300 text-sm text-center" style={{ backgroundColor: 'var(--adm-color-background)', padding: '16px', margin: 32, borderRadius: 8 }}>
+                                                <div>
+                                                    <LockFill className="mr-2 inline" />
+                                                    Messages are end-to-end encrypted using nano. No one outside of this chat can read them.
+                                                </div>
+                                            </div>
+        }
         <div className="text-center text-sm text-gray-400">
                     <DateHeader timestamp={message.timestamp} timestampPrev={prevMessage?.timestamp} timestampNext={nextMessage?.timestamp} reverse />
 
