@@ -5,6 +5,7 @@ import Lockscreen from "./Lock";
 import InitializeScreen from "./Initialize";
 
 import { ClipLoader as HashSpinner } from "react-spinners";
+import { SplashScreen } from '@capacitor/splash-screen';
 
 import App from "./app";
 import Confetti from "react-confetti-boom";
@@ -15,6 +16,7 @@ import { networks } from "../utils/networks";
 import { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { getSeed } from "../utils/storage";
+import { Capacitor } from "@capacitor/core";
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
 
@@ -117,13 +119,17 @@ export default function InitialPopup() {
   const [wallet, dispatch] = useReducer(walletsReducer, initialState);
 
   useEffect(() => {
+    SplashScreen.show({autoHide: false});
     getSeed().then((seed) => {
+      SplashScreen.hide();
       if (seed) {
         setWalletState("unlocked");
       }
       else {
         setWalletState("no-wallet");
       }
+    }).finally(() => {
+      SplashScreen.hide();
     });
     if (localStorage.getItem('seed')) {
       // setWalletState("unlocked");
@@ -169,7 +175,7 @@ export default function InitialPopup() {
             setWalletState={setWalletState} />
         }
         {
-          walletState === "loading" && <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
+          walletState === "loading" && !Capacitor.isNativePlatform() && <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
             <HashSpinner size={80} color="#0096FF" loading={true} />
           </div>
         }

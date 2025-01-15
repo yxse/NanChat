@@ -41,6 +41,9 @@ importers:
       '@capacitor/keyboard':
         specifier: ^6.0.3
         version: 6.0.3(@capacitor/core@6.2.0)
+      '@capacitor/splash-screen':
+        specifier: ^6.0.3
+        version: 6.0.3(@capacitor/core@6.2.0)
       '@emotion/react':
         specifier: ^11.11.4
         version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
@@ -235,7 +238,7 @@ importers:
         specifier: ^5.0.4
         version: 5.7.3
       vite:
-        specifier: ^5.4.11
+        specifier: ^5.0.7
         version: 5.4.11(@types/node@20.17.12)(terser@5.37.0)
       vite-plugin-pwa:
         specifier: ^0.20.5
@@ -803,6 +806,11 @@ packages:
 
   '@capacitor/keyboard@6.0.3':
     resolution: {integrity: sha512-V/mURxBI68HvClYjrGBlOriWkwYN7r+cWid/igJz/3scNc/V81DgQ9fpoLr4W0I5NY7YxOesjIJLuLO+LT18mQ==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
+  '@capacitor/splash-screen@6.0.3':
+    resolution: {integrity: sha512-tpVljeNGSwVCIc8lMQkyiCQFokk2PwgYPdDtPnGjFthqmXW/WhIxW8QYl4MUqyLwwgwTEbp4u3Kcv2zqQu2L6Q==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
@@ -5185,6 +5193,10 @@ snapshots:
       '@capacitor/core': 6.2.0
 
   '@capacitor/keyboard@6.0.3(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
+  '@capacitor/splash-screen@6.0.3(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
