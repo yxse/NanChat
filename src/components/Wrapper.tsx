@@ -3,6 +3,14 @@ import { SWRConfig } from "swr";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
+
+function saveCache(map) {
+  // return
+  let appCache = JSON.stringify(Array.from(map.entries())
+  .filter(([key, _]) => !key.startsWith('$inf$/messages')))// filter out inf messages to not load them all directly
+  localStorage.setItem('app-cache', appCache)
+}
 
 function localStorageProvider() {
   // localStorage.removeItem('app-cache')
@@ -10,11 +18,13 @@ function localStorageProvider() {
   const map = new Map(JSON.parse(localStorage.getItem('app-cache') || '[]'))
  
   // Before unloading the app, we write back all the data into `localStorage`.
-  // window.addEventListener('beforeunload', () => {
-  //   let appCache = JSON.stringify(Array.from(map.entries())
-  //   .filter(([key, _]) => !key.startsWith('$inf$/messages'))) // not keeping all message history in cache as decrypting all messages is expensive, eventually could be kept decrypted or use virtualized list
-  //   localStorage.setItem('app-cache', appCache)
-  // })
+  window.addEventListener('beforeunload', () => {
+    saveCache(map)
+  })
+  
+  App.addListener('pause', () => {
+    saveCache(map)
+  })
   // window.addEventListener('unload', () => {
   //   // console.log('unload')
   //   let appCache = JSON.stringify(Array.from(map.entries()).filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
@@ -47,7 +57,7 @@ export default function PopupWrapper({
 }) {
   if (Capacitor.getPlatform() === "web") {
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+    // const analytics = getAnalytics(app);
   }
   return (
     <SWRConfig value={{ provider: localStorageProvider }}>
