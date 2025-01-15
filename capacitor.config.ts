@@ -1,5 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli';
-
+import { KeyboardResize } from '@capacitor/keyboard';
 const config: CapacitorConfig = {
   appId: 'com.nanwallet.app',
   appName: 'NanWallet',
@@ -7,6 +7,9 @@ const config: CapacitorConfig = {
   plugins: {
     FirebaseMessaging: {
       presentationOptions: [],
+    },
+    Keyboard: {
+      resize: KeyboardResize.None,
     },
   },
 };
