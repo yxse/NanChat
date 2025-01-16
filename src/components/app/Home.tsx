@@ -283,7 +283,10 @@ export default function Home({ }) {
         <Popup
         destroyOnClose // else issue with history infinite scroll
           visible={selectedTicker !== null}
-          onClose={() => setSelectedTicker(null)}
+          onClose={() => {
+            setSelectedTicker(null)
+            navigate(location.pathname, {replace: true}) // reset send url params
+          }}
           closeOnMaskClick
           position="right"
           maskClosable

@@ -371,7 +371,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                   color: "#108ee9",
                   onClick: () => {
                     navigate(
-                      `/${ticker}/send?to=${tx.account}&amount=${+rawToMega(ticker, tx.amount)}`,
+                      `?to=${tx.account}&amount=${+rawToMega(ticker, tx.amount)}`,
                       { replace: true }
                     );
                     onSendClick()

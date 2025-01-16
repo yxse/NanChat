@@ -359,6 +359,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         
           <ModalReceive ticker={ticker} modalVisible={modalVisible} setModalVisible={setModalVisible} action={action} setAction={setAction} defaultScannerOpen={defaultScannerOpen} onClose={() => {
             setDefaultScannerOpen(false);
+            navigate(location.pathname, {replace: true}); // reset send url params on close
           }}/>
           <div className="flex justify-center m-2">
             <img
