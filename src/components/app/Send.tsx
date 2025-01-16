@@ -480,7 +480,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   } catch (error) {
                     console.error("Error sending:", error);
                     Toast.show({
-                      content: "Error sending",
+                      content: `Error sending: ${error}`,
                     });
                   } finally {
                     setIsLoading(false);
