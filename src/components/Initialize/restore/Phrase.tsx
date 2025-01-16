@@ -11,7 +11,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "../../../styles/restore.css";
-import { TextArea, Toast } from "antd-mobile";
+import { Card, TextArea, Toast } from "antd-mobile";
 import { networks } from "../../../utils/networks";
 import { initWallet } from "../../../nano/accounts";
 import { useSWRConfig } from "swr";
@@ -86,7 +86,10 @@ export default function ImportPhrase({
           <div className="step-dot !bg-slate-700" />
         </div>
       </div>
-
+<Card
+      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
+        
+      >
       <div className="w-full h-full flex flex-col justify-between">
         <div className="flex flex-col justify-start w-full align-center mt-10">
           <p className="step-r-p-h select-none">Secret Recovery Phrase</p>
@@ -165,6 +168,7 @@ export default function ImportPhrase({
           </div>
         </div>
       </div>
+      </Card>
 
       <ToastContainer
         position="top-center"

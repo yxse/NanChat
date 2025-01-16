@@ -40,7 +40,6 @@
   align-items: center;
   -webkit-box-pack: start;
   justify-content: flex-start;
-  margin: 20px 0px 30px;
 }
 
 .step-m-hp {
@@ -49,7 +48,6 @@
   font-weight: 500;
   opacity: 1;
   font-size: 28px;
-  margin: 0px 0px 10px;
   line-height: 34px;
   text-decoration: none;
   background-color: transparent;

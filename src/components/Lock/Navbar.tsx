@@ -8,13 +8,13 @@ export default function Navbar({ theme }: { theme: "dark" | "light" }) {
       } lockscreen-nav select-none`}
     >
       <div style={{ width: "10px" }}></div>
-      {/* <span
+      <span
         className={`${
           theme == "light" && "text-slate-600"
         } text-slate-400 text-xl`}
       >
-        cesium
-      </span> */}
+        NanWallet
+      </span>
       <div
         className="lockscreen-nav-q"
         role="button"
@@ -22,12 +22,7 @@ export default function Navbar({ theme }: { theme: "dark" | "light" }) {
           chrome.tabs.create({ url: "https://nano.gift/docs/cesium" })
         }
       >
-        <FaCircleQuestion
-          size={16}
-          className={`text-slate-400 hover:text-slate-200 ${
-            theme == "light" && "text-slate-600 hover:text-slate-400"
-          }`}
-        />
+       
       </div>
     </section>
   );
