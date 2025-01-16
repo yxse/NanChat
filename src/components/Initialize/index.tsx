@@ -22,7 +22,7 @@ export default function InitializeScreen({
   return (
     <>
       {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} />}
-      {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} />}
+      {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 2 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 3 && <Done setW={setWizardI} theme={theme} />}
       {wizardI == 4 && <ImportPhrase setW={setWizardI} />}

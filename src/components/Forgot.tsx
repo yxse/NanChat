@@ -4,7 +4,7 @@ import "../styles/forgot.css";
 import { BiLockAlt } from "react-icons/bi";
 import { BiX } from "react-icons/bi";
 
-import { resetWallet } from "../utils/storage";
+import { removeSeed, resetWallet } from "../utils/storage";
 
 // theme done!
 export default function Forgot({
@@ -62,8 +62,8 @@ export default function Forgot({
             className={`f-p-c-b ${
               theme == "light" && "!text-black/90"
             } hover:!bg-red-400`}
-            onClick={() => {
-              resetWallet();
+            onClick={async () => {
+              await removeSeed();
               return window.location.reload();
             }}
           >

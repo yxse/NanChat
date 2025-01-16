@@ -42,15 +42,19 @@ export function resetWallet(): void {
   // chrome.storage.local.clear();
 }
 
-export async function setSeed(seed: string): Promise<void> {
+export async function setSeed(seed: string, isPasswordEncrypted: boolean): Promise<void> {
   // localStorage.setItem("seed", seed);
+  let valueSeed = JSON.stringify({
+    seed: seed,
+    isPasswordEncrypted: isPasswordEncrypted
+  });
   if (isTauri()) {
-    await KeyringService.saveSecret('nanwallet', 'seed', seed);
+    await KeyringService.saveSecret('nanwallet', 'seed', valueSeed);
   }
   else {
     // const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
     // console.log("Keyring seed: ", retrievedSeed);
-    SecureStoragePlugin.set({key: "seed", value: seed});
+    SecureStoragePlugin.set({key: "seed", value: valueSeed});
     const value = await SecureStoragePlugin.get({key: "seed"});
     console.log("SecureStorage seed: ", value);
   }
@@ -114,16 +118,17 @@ export async function getSeed(): Promise<string> {
   try {
     if (isTauri()) {
       const seed = await KeyringService.getSecret('nanwallet', 'seed');
-      return seed
+      return JSON.parse(seed);
     }
     else{
       let seed = await SecureStoragePlugin.get({key: "seed"})
-      return seed.value;
+      return JSON.parse(seed.value);
     }
     
   } catch (error) {
     console.error("Error getting seed: ", error);
-    return localStorage.getItem("seed");
+    return null
+    // return JSON
   }
   // return localStorage.getItem("seed");
 }
@@ -132,9 +137,11 @@ export function removeSeed(): void {
   try {
     if (isTauri()) {
       KeyringService.deleteSecret('nanwallet', 'seed');
+      KeyringService.deleteSecret('nanwallet', keyTokenChat);
     }
     else{
       SecureStoragePlugin.remove({key: "seed"});
+      SecureStoragePlugin.remove({key: keyTokenChat});
     }
   }
   catch (error) {

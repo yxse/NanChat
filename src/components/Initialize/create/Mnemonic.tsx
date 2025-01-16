@@ -7,8 +7,8 @@ import { wallet as walletLib } from "multi-nano-web";
 import "../../../styles/mnemonic.css";
 import { BsEyeSlashFill } from "react-icons/bs";
 
-import storage from "../../../utils/storage";
-import { Button, DotLoading, Modal } from "antd-mobile";
+import storage, { setSeed } from "../../../utils/storage";
+import { Button, Card, DotLoading, Modal } from "antd-mobile";
 import { CopyButton } from "../../app/Icons";
 import { saveAs } from 'file-saver';
 import { WalletContext } from "../../Popup";
@@ -16,10 +16,14 @@ import { networks } from "../../../utils/networks";
 import { useSWRConfig } from "swr";
 import { initWallet } from "../../../nano/accounts";
 import { CopyToClipboard } from "../../Settings";
+import { isTauri } from "@tauri-apps/api/core";
+import { Capacitor } from "@capacitor/core";
 
 export default function Mnemonic({
   setW,
   theme,
+  setWalletState,
+  onCreated,
 }: {
   setW: Dispatch<React.SetStateAction<number>>;
   theme: "light" | "dark";
@@ -55,19 +59,22 @@ export default function Mnemonic({
           <div className="step-dot !bg-slate-700" />
         </div>
       </div>
-
+      <Card
+      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
+        className={`pb-4 px-4`}
+      >
       <div
-        className={`step-m-wrapper `}
+        className={``}
       >
         <form
-          className="step-m-form"
+          className=""
         >
           <div className="step-m-c select-none">
             <div className="step-m-h">
-              <p className={`step-m-hp ${theme == "light" && "!text-black"}`}>
+              <p className={`step-m-hp mb-4 ${theme == "light" && "!text-black"}`}>
                 Secret Recovery Phrase
               </p>
-              <p className="step-m-hs">
+              <p className="step-m-hs mb-4">
                 This phrase is the ONLY way to recover your wallet. Do NOT share
                 it with anyone!
               </p>
@@ -79,12 +86,22 @@ export default function Mnemonic({
           }
           <Button
           shape="rounded"
-          onClick={() => setW(2)}
+          onClick={async () => {
+            if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
+              await setSeed(wallet.wallets["XNO"].seed, false)
+              setWalletState("unlocked");
+              onCreated()
+            }
+            else{
+              setW(2)
+            }
+          }}
            type="submit" color="primary" size="large" className="mt-4 w-full">
             I saved my Secret Recovery Phrase
           </Button>
         </form>
       </div>
+      </Card>
     </>
   );
 

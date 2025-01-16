@@ -28,7 +28,7 @@ import { BiHistory } from "react-icons/bi";
 import { FiAtSign } from "react-icons/fi";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import ProfileHome from "./messaging/components/profile/ProfileHome";
-import { removeSeed } from "../utils/storage";
+import { getSeed, removeSeed } from "../utils/storage";
 
 export const ManageNetworks = ({}) => {
   const [networksSwitchVisible, setNetworksSwitchVisible] = useState(false)
@@ -95,7 +95,7 @@ export function CopyToClipboard({ text, hideCopyIcon = false, textToDisplay }: {
 
 export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean, setNavOpen: Function }) {
   const {ledger, setLedger} = useContext(LedgerContext);
-
+  const [isPasswordEncrypted, setIsPasswordEncrypted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [address, setAddress] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -152,6 +152,14 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
 
     return () => clearTimeout(timeout);
   }, []);
+
+  useEffect(() => {
+    getSeed().then((seed) => {
+      setIsPasswordEncrypted(seed.isPasswordEncrypted);
+    })
+  }
+  , [])
+
 
   const SelectBaseCurrency = () => {
     const { data, isLoading, error } = useSWR('fiat', fetchFiatRates)
@@ -442,12 +450,12 @@ className="mb-24"
                             text: 'Remove Secret Phrase and Log Out', 
                             danger: true,
                             description: '',
-                            onClick: () => {
+                            onClick: async () => {
                             actionSheet.close()
                             actionSheet1.close()
                             localStorage.removeItem('seed')
                             localStorage.removeItem('encryptedMasterKey')
-                            removeSeed()
+                            await removeSeed()
                             window.location.reload()
                           }
                         },
@@ -484,11 +492,10 @@ className="mb-24"
           </List>
           <div className="m-2 space-y-3 mb-4">
             {
-              !localStorage.getItem('seed') &&
+              isPasswordEncrypted &&
               <Button
                 className="w-full"
                 onClick={() => {
-                  global.seed = null;
                   window.location.reload();
                 }}
               >

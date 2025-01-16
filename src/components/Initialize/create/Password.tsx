@@ -90,6 +90,10 @@ export default function Password({
           <div className="step-dot !bg-slate-700" />
         </div>
       </div>
+       <Card
+            style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
+              className={`pb-4 px-4`}
+            >
       <div
         className={`step-m-wrapper `}
       >
@@ -109,7 +113,7 @@ export default function Password({
         > */}
         <div className="step-m-h">
           <p className={`step-m-hp`}>
-            Require a password to open Cesium ?
+            Require a password to open NanWallet ?
           <p className="text-sm text-gray-400 mt-2">
            Password will be used to encrypt your secret phrase.
           </p>
@@ -152,8 +156,8 @@ export default function Password({
                             return
                           }
 
-                          let encryptedMasterKey = await encrypt(wallet.wallets["XNO"].seed, password.value)
-                          localStorage.setItem("encryptedMasterKey", encryptedMasterKey)
+                          let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, password.value)
+                          setSeed(encryptedSeed, true)
                           setModalPasswordVisible(false)
                           setWalletState("unlocked")
                           onCreated()
@@ -175,10 +179,6 @@ export default function Password({
           }
         />
         <div className="w-full">
-            <div
-            className="m-4"
-          >
-
             <Button
             shape="rounded"
               size="large"
@@ -199,7 +199,7 @@ export default function Password({
               color={isMobile() ? "primary" : "default"}
               type="submit"
               onClick={async () => {
-                await setSeed(wallet.wallets["XNO"].seed)
+                await setSeed(wallet.wallets["XNO"].seed, false)
                 // setW(3)
                 setWalletState("unlocked");
                 onCreated()
@@ -207,9 +207,9 @@ export default function Password({
             >
               No, Skip
             </Button>
-          </div>
         </div>
       </div>
+      </Card>
     </div>
   );
 }

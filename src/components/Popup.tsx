@@ -78,14 +78,24 @@ function walletsReducer(state, action) {
   }
 }
 
-const WalletProvider = ({ children }) => {
+const WalletProvider = ({ children, setWalletState }) => {
   const {mutate,cache}=useSWRConfig()
   const [wallet, dispatch] = useReducer(walletsReducer, initialState);
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", {defaultValue: [0]});
   
   useEffect(() => {
-    
+    SplashScreen.show({autoHide: false});
     getSeed().then((seed) => {
+      if (seed?.seed && !seed?.isPasswordEncrypted) {
+        setWalletState("unlocked");
+      }
+      else if (seed?.seed && seed?.isPasswordEncrypted) {
+        setWalletState("locked");
+      }
+      else {
+        setWalletState("no-wallet");
+      }
+      SplashScreen.hide();
       // setWalletState("unlocked");
       // setSeed(localStorage.getItem('seed'));
       // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
@@ -93,16 +103,13 @@ const WalletProvider = ({ children }) => {
       for (let ticker of Object.keys(networks)) {
         if (wallet.wallets[ticker]) continue;
         // let newWallet = initWallet("XNO", "0", mutate, dispatch)
-        dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed, mutate, dispatch) } });
+        dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed.seed, mutate, dispatch) } });
         // dispatch({ type: "ADD_WALLET", payload: { ticker: ticker, seed: localStorage.getItem('seed'), mutate: mutate } });
       }
+    }).finally(() => {
+      SplashScreen.hide();
     });
-     if (localStorage.getItem('encryptedMasterKey')) {
-      // setWalletState("locked");
-    }
-    else {
-      // setWalletState("no-wallet");
-    }
+
   }, []);
   return (
     <WalletContext.Provider value={{ wallet, dispatch }}>
@@ -118,38 +125,13 @@ export default function InitialPopup() {
   const [confettiCount, setConfettiCount] = useState<number>(50);
   const [wallet, dispatch] = useReducer(walletsReducer, initialState);
 
-  useEffect(() => {
-    SplashScreen.show({autoHide: false});
-    getSeed().then((seed) => {
-      SplashScreen.hide();
-      if (seed) {
-        setWalletState("unlocked");
-      }
-      else {
-        setWalletState("no-wallet");
-      }
-    }).finally(() => {
-      SplashScreen.hide();
-    });
-    if (localStorage.getItem('seed')) {
-      // setWalletState("unlocked");
-      // setSeed(localStorage.getItem('seed'));
-      // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
-    }
-    else if (localStorage.getItem('encryptedMasterKey')) {
-      setWalletState("locked");
-    }
-    else {
-      // setWalletState("no-wallet");
-    }
-  }, []);
 
   const [ledger, setLedger] = useState(null);
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
   return (
     <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
       <PopupWrapper theme={theme}>
-        <WalletProvider>
+        <WalletProvider setWalletState={setWalletState}>
         {
           walletState === "locked" && <Lockscreen setWalletState={setWalletState} theme={theme} />
         }

@@ -5,13 +5,14 @@ import * as webauthn from '@passwordless-id/webauthn';
 import { decrypt, encrypt } from "../../worker/crypto";
 import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
-import { useState } from "react";
-import { removeSeed, setSeed } from "../../utils/storage";
+import { useEffect, useState } from "react";
+import { getSeed, removeSeed, setSeed } from "../../utils/storage";
 import {BiometricAuth} from '@aparajita/capacitor-biometric-auth'
 import { authenticate, biometricAuthIfAvailable, webauthnAuthIfAvailable } from "../../utils/biometrics";
 import { Capacitor } from "@capacitor/core";
 function SecuritySettings() {
     const navigate = useNavigate();
+    const [seed, setSeedLocal] = useState(undefined);
     const [hasPassword, setHasPassword] = useState(localStorage.getItem('seed') ? false : true);
     const [lockTimeSeconds, setLockTimeSeconds] = useLocalStorageState("lock-after-inactivity", {defaultValue: 
         60 * 30 // 30 minutes
@@ -27,7 +28,14 @@ function SecuritySettings() {
         { value: "3600", label: "1 hour" },
         { value: "21600", label: "6 hours" },
       ]
-    return (
+
+    useEffect(() => { 
+        getSeed().then((seed) => {  
+          setSeedLocal(seed)
+        })
+    }
+    , [])
+  return (
     <div>
         <NavBar
         className="text-slate-400 text-xxl app-navbar "
@@ -39,8 +47,7 @@ function SecuritySettings() {
         </NavBar>
         <List>
             {
-                hasPassword && 
-            
+                seed?.isPasswordEncrypted &&
         <List.Item
               prefix={<MdOutlinePassword size={24} />}
               onClick={() => {
@@ -67,7 +74,7 @@ function SecuritySettings() {
                           let isValid = false
                           let result = false
                           try {
-                            result = await decrypt(localStorage.getItem("encryptedMasterKey") as string, password.value)
+                            result = await decrypt(seed.seed, password.value)
                             if (result) {
                               isValid = true
                             }
@@ -76,6 +83,7 @@ function SecuritySettings() {
                           }
                           if (isValid) {
                             await setSeed(result)
+                            setSeedLocal({seed: result, isPasswordEncrypted: false})
                             Toast.show({
                               icon: "success",
                               content: "Password disabled"
@@ -101,7 +109,7 @@ function SecuritySettings() {
             </List.Item>
             }
             {
-                !hasPassword && 
+              !seed?.isPasswordEncrypted &&
             
             <List.Item
               prefix={<MdOutlinePassword size={24} />}
@@ -141,9 +149,10 @@ function SecuritySettings() {
                             return
                           }
 
-                          let encryptedMasterKey = await encrypt(localStorage.getItem("seed") as string, password.value)
-                          localStorage.setItem("encryptedMasterKey", encryptedMasterKey)
-                          await removeSeed()
+                          let encryptedSeed = await encrypt(seed.seed, password.value)
+                          await setSeedLocal({seed: encryptedSeed, isPasswordEncrypted: true})
+                          await setSeed(encryptedSeed, true)
+                          
                           Toast.show({
                             icon: "success",
                             content: "Password enabled"

@@ -260,7 +260,7 @@ export default function Start({
       <Card
       style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
         className={`${theme == "light" && "!bg-white !text-black"
-          } flex flex-col justify-between align-center p-[20px] h-full`}
+          } flex flex-col justify-between align-center p-4 h-full`}
       >
         <div style={{maxWidth: 500, margin: "auto"}} >
         <div className="init-wrapper">
@@ -270,7 +270,7 @@ export default function Start({
                 <img
                   src={icon}
                   className="w-auto h-32 mr-2"
-                  alt="Cesium Wallet Logo"
+                  alt="NanWallet Logo"
                   draggable={false}
                 />
                
@@ -323,12 +323,6 @@ export default function Start({
                     Created with 💙 by{" "}
                     <a
                       href="https://github.com/YXSE"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        return chrome.tabs.create({
-                          url: "",
-                        });
-                      }}
                       className="text-blue-500 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"

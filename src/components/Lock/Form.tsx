@@ -1,4 +1,4 @@
-import { Button, Toast } from "antd-mobile";
+import { Button, Card, Toast } from "antd-mobile";
 import { Dispatch, SetStateAction, useRef, useEffect, useState, useContext } from "react";
 import { decrypt } from "../../worker/crypto";
 import { wallet as walletLib} from "multi-nano-web";
@@ -7,6 +7,8 @@ import { networks } from "../../utils/networks";
 import { WalletContext } from "../Popup";
 import { useSWRConfig } from "swr";
 import { initWallet } from "../../nano/accounts";
+import { getSeed } from "../../utils/storage";
+import icon from "../../../public/icons/icon.png"
 
 // theme added I guess?
 export default function Form({
@@ -45,9 +47,8 @@ export default function Form({
   const handleUnlock = async () => {
     setLoading(true);
         try {
-          let encryptedMasterKey = localStorage.getItem("encryptedMasterKey");
-          let result = await decrypt(encryptedMasterKey, password);
-          console.log(result)
+          let seed = await getSeed();
+          let result = await decrypt(seed.seed, password);
           const res = result.length === 128 ? walletLib.fromSeed(result) : walletLib.fromLegacySeed(result);
           setInvalidPass(false);
           for (let ticker of Object.keys(networks)) {
@@ -71,6 +72,8 @@ export default function Form({
       className={`lockscreen-inner ${theme == "light" && "!bg-white !text-black"
         }`}
     >
+      <Card
+      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}>
       <form
         id="unlock"
         className="lockscreen-form"
@@ -86,7 +89,7 @@ export default function Form({
           <div className="unlock-form-img select-none">
             <div className="flex items-center justify-center w-screen">
               <img
-                src={`img/logo.svg`}
+                src={icon}
                 className="unlock-form-image"
                 draggable={false}
               />
@@ -141,6 +144,7 @@ export default function Form({
           <HashSpinner size={80} color="#0096FF" loading={loading} />
         </div>
       )}
+      </Card>
     </div>
   );
 }
