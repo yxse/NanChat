@@ -286,6 +286,8 @@ export class Wallet {
 
   verifyFrontier = async (account, accountInfo) => {
     // verify frontier signature
+      // https://docs.nano.org/releases/network-upgrades/#epoch-blocks
+    const epochV2SignerAccount = 'nano_3qb6o6i1tkzr6jwr5s7eehfxwg9x6eemitdinbpi7u8bjjwsgqfj4wzser3x';
     const hash = accountInfo.frontier;
     const blocksInfo = await this.rpc.blocks_info([hash]);
     if (blocksInfo.error) {
@@ -309,14 +311,23 @@ export class Wallet {
       throw new Error("Frontier block representative mismatch");
     }
     
-    const publicKey = this.getPublicKey(account);
     const validHash = tools.verifyBlockHash(blockContents, hash);
     if (!validHash) {
       throw new Error("Frontier block hash verification failed");
     }
-    const valid = tools.verifyBlock(publicKey, blockContents);
-    if (!valid) {
-      throw new Error("Frontier block signature verification failed");
+    if (blocksInfo.subtype === "epoch"){
+      const publicKey = tools.addressToPublicKey(epochV2SignerAccount);
+      const valid = tools.verifyBlock(publicKey, blockContents);
+      if (valid !== true) {
+        throw new Error("Frontier epoch block signature verification failed");
+      }
+    }
+    else{
+      const publicKey = this.getPublicKey(account);
+      const valid = tools.verifyBlock(publicKey, blockContents);
+      if (valid !== true) {
+        throw new Error("Frontier block signature verification failed");
+      }
     }
     return true;
   }
