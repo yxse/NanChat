@@ -18,6 +18,7 @@ dependencies {
     implementation project(':capacitor-inappbrowser')
     implementation project(':capacitor-keyboard')
     implementation project(':capacitor-splash-screen')
+    implementation project(':capacitor-native-settings')
     implementation project(':capacitor-secure-storage-plugin')
 
 }

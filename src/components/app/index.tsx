@@ -72,6 +72,7 @@ import Buy from "./Buy";
 import ChatSocket from "../messaging/socket";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
+import NotificationSettings from "./NotificationSettings";
 
 if (Capacitor.getPlatform() === "ios"){
 Keyboard.setResizeMode({mode: KeyboardResize.None});
@@ -404,6 +405,7 @@ export default function App() {
              />} />
             {/* <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} /> */}
             <Route path="/settings/security" element={<SecuritySettings />} />
+            <Route path="/settings/notification" element={<NotificationSettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />
             <Route path="/settings/security/developer" element={<DeveloperSettings />} />
             <Route path="/buy" element={<Buy />} />

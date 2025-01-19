@@ -348,6 +348,9 @@ className="mb-24"
             </List.Item>
             
             <List.Item
+            onClick={() => {
+              navigate("/settings/notification")
+            }}
               prefix={<BellOutline fontSize={24} />}
             >Notifications</List.Item>
           </List>

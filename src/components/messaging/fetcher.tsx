@@ -56,8 +56,7 @@ export const fetcherMessages = (url) => getChatToken().then(async (token) => {
             return Promise.reject(res.status)
         }
     })
-}
-)
+})
 
 export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/account?account=' + account)
 .then((res) => res.json()).then((data) => {
@@ -68,8 +67,12 @@ export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_CHA
     }
     return data
 })
-export const fetcherMessagesPost = (url, data) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url, {
+export const fetcherMessagesPost = (url, data) => getChatToken().then(async (token) => {
+    return fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+        'Content-Type': 'application/json',
+        'token': token
+     },
     body: JSON.stringify(data)
-    }).then((res) => res.json());
+})}).then((res) => res.json());
