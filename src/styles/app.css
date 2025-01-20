@@ -252,7 +252,7 @@ html {
   padding-left: 8px;
 }
 .adm-button-primary {
-  color: var(--text-color-primary);
+  /* color: var(--text-color-primary); */
 }
 .adm-button {
     /* font-weight: 500; */
@@ -334,12 +334,13 @@ html {
 }
 
 .natrium-theme {
-  --adm-color-primary: #A3CDFF;
+  /* --adm-color-primary: #A3CDFF; */
   --text-color-primary: #1E2C3D;
   --adm-color-background: #2A3A4D;
   --main-background-color: #1E2C3D;
-  --adm-color-text: #A3CDFF;
-  --adm-button-border-color: #A3CDFF;
+  /* --adm-color-text: #A3CDFF; */
+  --adm-button-border-color: #5b7697;
+  --adm-color-border: #1E2C3D;
 }
 /* #292A2D */
 /* #212124 */
@@ -355,11 +356,11 @@ html {
   --text-color-primary: var(--adm-color-text);
 }
 .light-theme {
-  --adm-color-primary: #1677ff;
+  /* --adm-color-primary: #4090ff; */
   --adm-color-background: rgb(255, 255, 255);
   --main-background-color: #efefef;
-  --adm-color-text: #333333;
-  --text-color-primary: white;
+  /* --adm-color-text: #dbdbdb; */
+  /* --text-color-primary: white; */
 }
 
 /*  animation keyboard ios native */
@@ -389,6 +390,7 @@ html {
 }
 .adm-button:hover:not(.adm-button-danger):not(.adm-button-primary) {
   background-color: var(--adm-color-primary);
+  /* color: var(--adm-color-background); */
 }
 .adm-button-primary:hover {
   box-shadow: 0 0 10px 0 var(--adm-color-primary);
