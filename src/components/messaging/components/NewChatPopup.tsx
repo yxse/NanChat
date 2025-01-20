@@ -11,6 +11,7 @@ import useLocalStorageState from 'use-local-storage-state';
 import Contacts from '../../app/Contacts';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
+import { RiVerifiedBadgeFill } from 'react-icons/ri';
 
 const AccountListItems = ({ accounts, badgeColor, onClick }) => {
     const navigate = useNavigate();
@@ -36,15 +37,19 @@ const AccountListItems = ({ accounts, badgeColor, onClick }) => {
                         }
                         prefix={
                             <AccountAvatar
+                            verified={account?.verified}
                                 url={account?.profilePicture?.url}
                                 account={account._id}
                                 badgeColor={badgeColor}
                             />
                         }
                     >
+                        <div className="flex items-center gap-2">
                         {
                             account.name
                         }
+                        {account?.verified && <RiVerifiedBadgeFill />}
+                        </div>
                     </List.Item>
                 ))
             }
@@ -52,10 +57,10 @@ const AccountListItems = ({ accounts, badgeColor, onClick }) => {
     );
 }
 
-function NewChatPopup() {
+function NewChatPopup({visible, setVisible}) {
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
-    const [visible, setVisible] = useState(false);
+    // const [visible, setVisible] = useState(false);
     const [searchText, setSearchText] = useState('')
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
@@ -114,11 +119,11 @@ function NewChatPopup() {
                             hasMore={pages[pages.length - 1]?.length > 0}
                             loader={<DotLoading />}
                         >
-                            <div className="text-base  pl-4 m-2">
+                            {/* <div className="text-base  pl-4 m-2">
                         Your Nano contacts
-                    </div>
-                    <Contacts onlyImport={true} />
-                    <AccountListItems
+                    </div> */}
+                    {/* <Contacts onlyImport={true} /> */}
+                    {/* <AccountListItems
                         onClick={(account) => {
                             setVisible(false);
                         }}
@@ -130,11 +135,11 @@ function NewChatPopup() {
                                 name: contact.name,
                             }
                         })}
-                        badgeColor={"gray"} />
+                        badgeColor={"gray"} /> */}
 
-                    <div className="text-base  pl-4 m-2">
+                    {/* <div className="text-base  pl-4 m-2">
                         All users
-                    </div>
+                    </div> */}
                             <AccountListItems
                                 onClick={(account) => {
                                     setVisible(false);

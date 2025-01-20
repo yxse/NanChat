@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, NavBar, Icon, Button, Popover, FloatingBubble, Space, Modal, Input, Popup, Card, Form, Toast, SwipeAction } from 'antd-mobile';
+import { List, NavBar, Icon, Button, Popover, FloatingBubble, Space, Modal, Input, Popup, Card, Form, Toast, SwipeAction, CenterPopup } from 'antd-mobile';
 import { AiOutlineDelete, AiOutlineExport, AiOutlineImport, AiOutlineMenu, AiOutlineMore, AiOutlinePlus } from 'react-icons/ai';
 import useLocalStorageState from 'use-local-storage-state';
 import NetworkList from './NetworksList';
@@ -10,6 +10,7 @@ import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
 import { useSearchParams } from 'react-router-dom';
 import { UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
+import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 
 const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
@@ -25,7 +26,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     });
     const [contactToEdit, setContactToEdit] = useState(null);
     const [editContactVisible, setEditContactVisible] = useState(false);
-
+  const {isMobile} = useWindowDimensions()
+  const ResponsivePopup = isMobile ? Popup : CenterPopup;
 
     const handleExport = () => {
         // Handle export logic here
@@ -376,7 +378,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                     <UserAddOutline/> Add Contact
                 </Space>
             </Button>
-            <Popup
+            <ResponsivePopup
                 destroyOnClose
                 visible={addContactVisible}
                 onClose={() => {
@@ -388,9 +390,9 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 {
                     contactToEdit === null ? <CardAddNewContact /> : isEditingAddress ? <CardEditAddress /> : <CardNewAddress />
                 }
-            </Popup>
+            </ResponsivePopup>
 
-            <Popup
+            <ResponsivePopup
                 visible={editContactVisible}
                 onClose={() => {
                     setEditContactVisible(false)
@@ -461,8 +463,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         Add Address
                     </Button>
                 </Card>
-            </Popup>
-            <Popup
+            </ResponsivePopup>
+            <ResponsivePopup
                 destroyOnClose
                 visible={selectNetworkVisible}
                 onClose={() => setSelectNetworkVisible(false)}
@@ -481,7 +483,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
 
                         }} />
                 </Card>
-            </Popup>
+            </ResponsivePopup>
         </div>
     );
 };

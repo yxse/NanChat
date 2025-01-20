@@ -25,6 +25,7 @@ function walletsReducer(state, action) {
   switch (action.type) {
     case "ADD_WALLET":
       // if (state.wallets[action.payload.ticker]) return state;
+      if (action.payload.ticker === "XNO") localStorage.setItem('activeAddress', action.payload.wallet.getActiveAccount());
       return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };
     case "USE_LEDGER":
       return { 

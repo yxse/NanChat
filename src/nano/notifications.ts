@@ -25,7 +25,7 @@ export async function getToken() {
     };
     if (Capacitor.getPlatform() === "web") {
         options.serviceWorkerRegistration =
-          await navigator.serviceWorker.register("firebase-messaging-sw.js");
+          await navigator.serviceWorker.register("/firebase-messaging-sw.js");
       }
     console.log({options});
     const { token } = await FirebaseMessaging.getToken(options);
@@ -45,6 +45,7 @@ export async function sendNotificationTauri(title, body) {
       }
 }
 async function askPermission() {
+    let permissionGranted = false;
     if (isTauri()){
         let permissionGranted = await isPermissionGranted();
         // If not we need to request it
@@ -55,6 +56,7 @@ async function askPermission() {
     }
     const permission = await FirebaseMessaging.requestPermissions();
     console.log({permission});
+    permissionGranted = permission.receive === "granted";
     // Toast.show({
     //     content: permission.receive
     // });
@@ -80,6 +82,7 @@ async function askPermission() {
         const token = await getToken();
         await saveSubscription(token, allAccounts);
     }
+    return permissionGranted;
 }
 
 async function registerServiceWorker(accounts) {

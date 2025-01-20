@@ -53,7 +53,7 @@ const SetName: React.FC = () => {
             footer={
                 <>
                 <div className='text-gray-400 text-sm mb-4'>
-                    This name will be visible to others. You can change it later. Name will be signed with your account.
+                    This name will be visible to others. You can change it later.
                 </div>
                 <Button 
                 className='w-full'

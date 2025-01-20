@@ -39,7 +39,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
     // const {data: names} = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
-    const {data: chats, mutate} = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
+    const {data: chats, mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
@@ -117,7 +117,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         let r = await fetcherMessagesPost(`/chat`, {
           type: "private",
           participants: [activeAccount, account],
-          creator: activeAccount,
         })
         
         chatId = r.id;

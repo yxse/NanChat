@@ -10,14 +10,15 @@ import { convertAddress, formatAddress } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Popup } from "antd-mobile";
+import { Button, Card, DotLoading, Input, List, Modal, Popup } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherMessages } from "../fetcher";
+import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import useLocalStorageState from "use-local-storage-state";
 import ProfilePicture from "./profile/ProfilePicture";
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {
@@ -25,6 +26,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     } = useParams();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const {mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
     const nameOrAccount = names?.[0]?.name || formatAddress(account);
     const [visible, setVisible] = useState(false);
@@ -58,9 +60,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         className="w-8 h-8 text-gray-500 cursor-pointer" />
                     
                     <div className="flex-1 text-center">
-                        <h2 className="font-medium flex items-center justify-center">
-                            <LockOutline  className="mr-2" />
-                            {nameOrAccount}
+                        <h2 className="font-medium flex items-center justify-center gap-2">
+                            {nameOrAccount} {names?.[0]?.verified && <RiVerifiedBadgeFill />}
                         </h2>
                         {
                             onlineAccount.includes(account) ? (
@@ -80,6 +81,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     </div>
                 </div>
             </List.Item>
+            <Card style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
             <Popup
                 visible={visible}
                 closeOnMaskClick
@@ -129,7 +131,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     <List.Item
                     children={
                         <Button
-                        shape="default"
+                        className="w-full"
+                        shape="rounded"
                         size="large"
                         color="primary"
                         onClick={() => {
@@ -151,8 +154,9 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         children={
                             <a href={`https://nanexplorer.com/nano/account/${account}`} target="_blank">
                             <Button
-                            shape="default"
+                            className="w-full"
                             size="large"
+                            shape="rounded"
                             color="default"
                             >
                                 View on explorer
@@ -163,15 +167,45 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             
                         </List.Item>
                 </List>
-                <Button
-                shape="default"
-                size="large"
-                color="danger"
-                
-                >
-                    Block
-                </Button>
-
+              
+                         <Button 
+            onClick={async () => {
+                Modal.show({
+                    closeOnMaskClick: true,
+                    closeOnAction: true,
+                    title: 'Block chat',
+                    content: 'It is not possible to undo this operation, and the conversation history will be deleted from your inbox.', 
+                    actions: [
+                        { 
+                            text: 'Block', 
+                            key: 'block',
+                            danger: true, 
+                            onClick: async () => {
+                                try {
+                                    await fetcherMessagesPost('/block-chat', {
+                                        chatId: account
+                                    })
+                                    await mutate()
+                                    navigate('/chat')
+                                } catch (error) {
+                                    console.error(error)
+                                } finally {
+                                }
+                            }
+                        },
+                        { text: 'Cancel', key: 'cancel' }
+                    ]
+                })
+            }}
+            className="w-full mt-4"
+            size="large"
+            shape="rounded"
+            color="danger">
+                Block
+            </Button>
+                   
+               
+                </Card>
         </div>
     );
 };

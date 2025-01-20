@@ -25,6 +25,7 @@ import ProfilePicture from "./profile/ProfilePicture";
 import NewMessageWarning from "./NewMessageWarning";
 import { sendNotificationTauri } from "../../../nano/notifications";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 
 
 
@@ -57,7 +58,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     } = useChat(account);
 
     // const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
-    const { data: chats, mutate: mutateChats } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages);
+    const { data: chats, mutate: mutateChats } = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
@@ -79,26 +80,36 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         socket.on('message', (message: Message) => {
             // setMessages(prev => [...prev, message]);
-            if (message.fromAccount !== address && chat?.type === 'private') {
-                return;
+            // if (message.fromAccount !== address && chat?.type === 'private') {
+            //     debugger
+            //     return;
+            // }
+           
+            if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
+                mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
+                    const newChats = [...(currentChats || [])];
+                    const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
+                    if (chatIndex !== -1) {
+                        const newChat = { ...newChats[chatIndex] };
+                        newChat.lastMessage = message.content;
+                        newChat.lastMessageTimestamp = new Date().toISOString();
+                        // move chat to top
+                        newChats.splice(chatIndex, 1);
+                        newChats.unshift(newChat);
+                    }
+                    return newChats;
+                }, false);
             }
+
+            if (account == null) return // don't mutate messages if on /chat page to prevent showing new message if chat not selected
+            if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate messages if not for this chat
+
             mutate(currentPages => {
+                if (account == null) return // don't mutate if on /chat page to prevent showing new message if chat not selected
+                if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
                 const newPages = [...(currentPages || [])];
                 newPages[0] = [message, ...(newPages[0] || [])];
                 return newPages;
-            }, false);
-            mutateChats(currentChats => {
-                const newChats = [...(currentChats || [])];
-                const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
-                if (chatIndex !== -1) {
-                    const newChat = { ...newChats[chatIndex] };
-                    newChat.lastMessage = message.content;
-                    newChat.lastMessageTimestamp = new Date().toISOString();
-                    // move chat to top
-                    newChats.splice(chatIndex, 1);
-                    newChats.unshift(newChat);
-                }
-                return newChats;
             }, false);
 
             console.log("pathname", location.pathname);
@@ -182,6 +193,11 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         console.log("height", infiniteScrollRef.current?.clientHeight);
     }, [chat, messages])
 
+    useEffect(() => {
+        if (messages[0]?.error && messages[0]?.chatId !== null){ // chat already exists
+            navigate('/chat/' + messages?.[0]?.chatId);
+        }
+    }, [messages])
 
     console.log("account", account);
 
@@ -204,9 +220,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     className="w-8 h-8 text-gray-500" />
 
                 <div className="flex-1 text-center">
-                    <h2 className="font-medium flex items-center justify-center">
-                        <LockOutline className="mr-2" />
-                        {nameOrAccount}
+                    <h2 className="font-medium flex items-center justify-center gap-2">
+                        {nameOrAccount} {participant?.verified && <RiVerifiedBadgeFill />}
                     </h2>
                     {
                         onlineAccount.includes(address) ? (
@@ -399,7 +414,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
                                 >
                                     {
-                        isLoadingMore && (
+                                        hasMore && isLoadingMore && (
                             <div className="text-center m-4">
                                 <DotLoading />
                             </div>

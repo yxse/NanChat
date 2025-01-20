@@ -10,7 +10,7 @@ function NewMessageWarning({fromAddress, account, chatId}) {
         defaultValue: []
     });
     const [isLoading, setIsLoading] = useState(false);
-    const {mutate} = useSWR<Chat[]>(`/chats?account=${account}`, fetcherMessages);
+    const {mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const navigate = useNavigate();
 
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === fromAddress));
@@ -35,14 +35,13 @@ function NewMessageWarning({fromAddress, account, chatId}) {
                     )
                 }
             </div>
-            <div>
+            <div style={{}}>
             <Button
             loading={isLoading}
             onClick={async () => {
                 setIsLoading(true)
                 try {
                     await fetcherMessagesPost('/accept-chat', {
-                        account: account, // todo use signature
                         chatId: chatId
                     })
                     await mutate()
@@ -62,6 +61,7 @@ function NewMessageWarning({fromAddress, account, chatId}) {
             <Button 
             onClick={async () => {
                 Modal.show({
+                    closeOnMaskClick: true,
                     closeOnAction: true,
                     title: 'Block chat',
                     content: 'It is not possible to undo this operation, and the conversation history will be deleted from your inbox.', 
@@ -74,7 +74,6 @@ function NewMessageWarning({fromAddress, account, chatId}) {
                                 setIsLoading(true)
                                 try {
                                     await fetcherMessagesPost('/block-chat', {
-                                        account: account,
                                         chatId: chatId
                                     })
                                     await mutate()

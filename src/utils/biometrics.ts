@@ -5,14 +5,25 @@ import { Toast } from "antd-mobile"
 
 
 export async function authenticate() {
-    const confirmationMethod = localStorage.getItem("confirmation-method");
+    let confirmationMethod = localStorage.getItem("confirmation-method");
+    if (confirmationMethod == null){
+        if (Capacitor.isNativePlatform()){
+            confirmationMethod = "enabled"
+        }
+        else {
+            confirmationMethod = "none"
+        }
+    }
+    else {
+        confirmationMethod = JSON.parse(confirmationMethod)
+    }
     if (
-        (confirmationMethod && JSON.parse(confirmationMethod) === "enabled")
+        (confirmationMethod === "enabled")
     ) {
         await biometricAuthIfAvailable()
         await webauthnAuthIfAvailable()
     }
-    else if (confirmationMethod && JSON.parse(confirmationMethod) === "none") {
+    else if (confirmationMethod === "none") {
         return
     }
     else  {

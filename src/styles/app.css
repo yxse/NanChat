@@ -388,7 +388,7 @@ html {
 .adm-list-item:hover {
   background-color: var(--active-background-color	);
 }
-.adm-button:hover:not(.adm-button-danger):not(.adm-button-primary) {
+.adm-button:hover:not(.adm-button-danger):not(.adm-button-primary):not(.adm-button-success){
   background-color: var(--adm-color-primary);
   /* color: var(--adm-color-background); */
 }
