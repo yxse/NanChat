@@ -224,8 +224,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
               sendTipMessage(ticker, hash);
             }} />
           <div 
-          style={{borderRadius: 32, width: '100%'}}
-          className="flex items-center gap-2 border border-solid border-gray-800 input-message">
+          style={{borderRadius: 32, width: '100%', borderColor: 'var(--adm-color-border)', filter: 'brightness(0.9)'}}
+          className="flex items-center gap-2 border border-solid input-message">
             <TextArea 
             onFocus={() => {
               if (isMobile){

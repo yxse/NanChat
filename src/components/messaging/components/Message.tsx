@@ -117,7 +117,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                     // borderBottomLeftRadius: 
                     // message.fromAccount === activeAccount ? 16 : 
                     // isPreviousMessageFromSameAccount ? 16 : 0,
-                    backgroundColor: message.fromAccount === activeAccount ? '#1677ff' : '#171718',
+                    backgroundColor: message.fromAccount === activeAccount ? 'var(--adm-color-primary)' : 'var(--adm-color-background)',
                 }}
                 className={
                     `max-w-[70%] p-2 rounded-lg 

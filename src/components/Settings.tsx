@@ -306,8 +306,11 @@ className="mb-24"
                   content: (
                     <div>
                       <CheckList
-                        onChange={(val) => {
+                      defaultValue={localStorage.getItem("theme") ? [localStorage.getItem("theme")] : ["system"]}
+                      onChange={(val) => {
+                          // setTheme(val);
                           console.log(val);
+                          localStorage.setItem("theme", val[0]);
                         }}
                       >
                         <CheckList.Item
@@ -315,6 +318,7 @@ className="mb-24"
                           onClick={() => {
                             document.body.classList = "dark-theme";
                             document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+                            // setTheme("dark");
                           }}
                         >
                           Dark
@@ -325,18 +329,36 @@ className="mb-24"
                             document.body.classList = "light-theme";
                             // set light data preferred
                             document.documentElement.setAttribute("data-prefers-color-scheme", "light");
+                            // setTheme("light");
                           }}
                         >
                           Light
                         </CheckList.Item>
                         <CheckList.Item
-                          value="light"
+                          value="natrium"
                           onClick={() => {
                             document.body.classList = "natrium-theme";
                             document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+                            // setTheme("natrium");
                           }}
                         >
-                          Blue
+                          Natrium
+                        </CheckList.Item>
+                        <CheckList.Item
+                          value="system"
+                          onClick={() => {
+                            localStorage.removeItem("theme");
+                            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                              document.body.classList = "dark-theme";
+                              document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+                            }
+                            else {
+                              document.body.classList = "light-theme";
+                              document.documentElement.setAttribute("data-prefers-color-scheme", "light");
+                            }
+                          }}
+                        >
+                          System
                         </CheckList.Item>
                       </CheckList>
                     </div>

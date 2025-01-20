@@ -80,7 +80,27 @@
       /* background-color: black; */
     }
 </style>
-
+<script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList = 'dark-theme';
+      document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+    } else if (localStorage.getItem('theme') === 'light') {
+      document.body.classList = 'light-theme';
+      document.documentElement.setAttribute("data-prefers-color-scheme", "light");
+    } 
+    else if (localStorage.getItem('theme') === 'natrium') {
+      document.body.classList = "natrium-theme";
+      document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+    }
+    else {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList = 'light-theme';
+        document.documentElement.setAttribute("data-prefers-color-scheme", "light");
+      }
+    }
+</script>
 </body>
 
 </html>
