@@ -1,6 +1,7 @@
 import {
   ActionSheet,
   Button,
+  CenterPopup,
   DotLoading,
   Ellipsis,
   ErrorBlock,
@@ -423,7 +424,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                       </div>
                     </div>
                   </div>
-                  <div className="text-gray-400 text-sm text-right font-mono">
+                  <div className="text-gray-400 text-sm text-right font-mono" style={{userSelect: "none"}}>
                     {
                       tx.subtype === "send" || tx.subtype === "receive" ? <div>
                         <div>
@@ -468,11 +469,37 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
               })
             }
           } hasMore={hasMore} />
-        <ActionSheet
-          visible={visible}
-          actions={actions}
-          onClose={() => setVisible(false)}
-        />
+          {
+            isMobile ? (
+              <ActionSheet
+              visible={visible}
+              actions={actions}
+              onClose={() => setVisible(false)}
+              />
+            ) : (
+              <CenterPopup
+              closeOnMaskClick
+              visible={visible}
+              onClose={() => setVisible(false)}
+              >
+              <Space wrap align="center" justify="center">
+                {
+                  actions.map((action) => (
+                    <Button
+                      key={action.key}
+                      onClick={() => {
+                        action.onClick();
+                        setVisible(false);
+                      }}
+                    >
+                      {action.text}
+                    </Button>
+                  ))
+                }
+              </Space>
+            </CenterPopup>
+            )
+          }
       </div>
         )}
       <div className="text-center mt-4 flex flex-col m-4">

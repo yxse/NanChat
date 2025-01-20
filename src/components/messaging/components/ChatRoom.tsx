@@ -24,6 +24,7 @@ import GroupAvatar from "./group-avatar";
 import ProfilePicture from "./profile/ProfilePicture";
 import NewMessageWarning from "./NewMessageWarning";
 import { sendNotificationTauri } from "../../../nano/notifications";
+import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 
 
 
@@ -43,6 +44,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     const [autoScroll, setAutoScroll] = useState(true);
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
     const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
+    const {isMobile, width} = useWindowDimensions();
     const [page, setPage] = useState(0);
     const [height, setHeight] = useState(2000)
     const {
@@ -157,21 +159,22 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
         if (account) {
-
-            // hide nabar when in chat
-            const admTabBar = document.querySelector('.adm-tab-bar.bottom');
-            if (admTabBar) {
-                admTabBar.setAttribute('style', 'display: none');
-            }
-            return () => {
-                setAutoScroll(true);
+            if (width <= 768) {
+                // hide nabar when in chat and chatlist hidden (screen < 768)
+                const admTabBar = document.querySelector('.adm-tab-bar.bottom');
                 if (admTabBar) {
-                    admTabBar.setAttribute('style', 'display: block');
+                    admTabBar.setAttribute('style', 'display: none');
                 }
-            };
+                return () => {
+                    setAutoScroll(true);
+                    if (admTabBar) {
+                        admTabBar.setAttribute('style', 'display: block');
+                    }
+                };
+            }
         }
 
-    }, [account]);
+    }, [account, width]);
 
     useEffect(() => {
         console.log("height", infiniteScrollRef.current?.scrollTop);
