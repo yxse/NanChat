@@ -19,7 +19,7 @@ function CopyAddressPopup({}) {
   return (
     <>
    <CopyIcon
-   className="cursor-pointer text-gray-200 mr-3 mt-4 active:text-gray-400"
+   className="cursor-pointer mr-3 mt-4"
     fontSize={24} onClick={() => {
             setPopupVisible(true);
    }} />

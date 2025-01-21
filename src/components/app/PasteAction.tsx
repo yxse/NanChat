@@ -54,7 +54,7 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
 
   const Paste = () => {
     return <PasteIcon fontSize={24}
-    className="cursor-pointer text-gray-200 mr-4 mt-4 active:text-gray-400"
+    className="cursor-pointer mr-4 mt-4"
     onClick={() => {
       navigator.clipboard.readText().then((text) => {
         executeURI(text);
@@ -71,7 +71,7 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
     >
     <ScanCodeOutline
     fontSize={24}
-    className="cursor-pointer text-gray-200 mr-4 mt-4"
+    className="cursor-pointer mr-4 mt-4"
     />
     </Scanner>
     // onClick={() => {

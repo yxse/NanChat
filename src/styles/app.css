@@ -22,6 +22,7 @@
 @media (max-width: 1200px) {
   .app-navbar {
     position: fixed;
+    top: env(safe-area-inset-top);
   }
   .content-nav {
     /* 46px is the header */

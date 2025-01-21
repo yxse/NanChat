@@ -21,6 +21,8 @@ PODS:
   - CapacitorMlkitBarcodeScanning (6.2.0):
     - Capacitor
     - GoogleMLKit/BarcodeScanning (= 5.0.0)
+  - CapacitorNativeSettings (6.0.2):
+    - Capacitor
   - CapacitorSecureStoragePlugin (0.10.0):
     - Capacitor
     - SwiftKeychainWrapper
@@ -133,6 +135,7 @@ DEPENDENCIES:
   - "CapacitorInappbrowser (from `../../node_modules/.pnpm/@capacitor+inappbrowser@1.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/inappbrowser`)"
   - "CapacitorKeyboard (from `../../node_modules/.pnpm/@capacitor+keyboard@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/keyboard`)"
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/.pnpm/@capacitor-mlkit+barcode-scanning@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor-mlkit/barcode-scanning`)"
+  - "CapacitorNativeSettings (from `../../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings`)"
   - "CapacitorSecureStoragePlugin (from `../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin`)"
   - "CapacitorSplashScreen (from `../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen`)"
 
@@ -178,6 +181,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor+keyboard@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/keyboard"
   CapacitorMlkitBarcodeScanning:
     :path: "../../node_modules/.pnpm/@capacitor-mlkit+barcode-scanning@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor-mlkit/barcode-scanning"
+  CapacitorNativeSettings:
+    :path: "../../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings"
   CapacitorSecureStoragePlugin:
     :path: "../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin"
   CapacitorSplashScreen:
@@ -194,6 +199,7 @@ SPEC CHECKSUMS:
   CapacitorInappbrowser: ff7837d4d03094bbabac22414f0b20977e8f01f6
   CapacitorKeyboard: e89189ad398b815b6ff7e52271f0fb4f911a0a0a
   CapacitorMlkitBarcodeScanning: 7652be9c7922f39203a361de735d340ae37e134e
+  CapacitorNativeSettings: 082f8d0cf79260b62adf4f6cad34e0a248c0d1e6
   CapacitorSecureStoragePlugin: 545b51d782d35e61a39231ecf99a966b060a2cbb
   CapacitorSplashScreen: fd8bf1bf9081d9aa8817b7cd37d740d1bdaf2fb2
   FirebaseCore: 30e9c1cbe3d38f5f5e75f48bfcea87d7c358ec16
@@ -215,6 +221,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 5a93860e764f0c466f9261b0ad7ea89c9d80217b
+PODFILE CHECKSUM: 68485b75f05d8257b6aadf8456a1109fe85ccf5d
 
 COCOAPODS: 1.16.2

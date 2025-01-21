@@ -195,7 +195,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
     useEffect(() => {
         if (messages[0]?.error && messages[0]?.chatId !== null){ // chat already exists
-            navigate('/chat/' + messages?.[0]?.chatId);
+            navigate('/chat/' + messages?.[0]?.chatId, { replace: true });
         }
     }, [messages])
 

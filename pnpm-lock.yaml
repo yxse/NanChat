@@ -101,6 +101,9 @@ importers:
       bip39:
         specifier: ^3.1.0
         version: 3.1.0
+      capacitor-native-settings:
+        specifier: ^6.0.2
+        version: 6.0.2(@capacitor/core@6.2.0)
       capacitor-secure-storage-plugin:
         specifier: ^0.10.0
         version: 0.10.0(@capacitor/core@6.2.0)
@@ -2100,6 +2103,11 @@ packages:
 
   caniuse-lite@1.0.30001692:
     resolution: {integrity: sha512-A95VKan0kdtrsnMubMKxEKUKImOPSuCpYgxSQBo036P5YYgVIcOYJEgt/txJWqObiRQeISNCfef9nvlQ0vbV7A==}
+
+  capacitor-native-settings@6.0.2:
+    resolution: {integrity: sha512-1Ez1pquq7X+VqoRevpsCudyYI7uHcH70ras2Riwp98zfGFCBE9mg4mw3mrmwDfPoQXXjlTJWziof5DnqZhsoXw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
 
   capacitor-secure-storage-plugin@0.10.0:
     resolution: {integrity: sha512-dV4E+HTZAJWC3gef7sBXaAkkb6wvcZHyXjJIHXNb3yz9gRQ/5VMLqCxa0khqpwgWh5oIbo4XFxg3g5tEkfaNMg==}
@@ -6610,6 +6618,10 @@ snapshots:
       lodash.uniq: 4.5.0
 
   caniuse-lite@1.0.30001692: {}
+
+  capacitor-native-settings@6.0.2(@capacitor/core@6.2.0):
+    dependencies:
+      '@capacitor/core': 6.2.0
 
   capacitor-secure-storage-plugin@0.10.0(@capacitor/core@6.2.0):
     dependencies:
