@@ -269,7 +269,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
           <NavBar
           backArrow={hideHistory ? false : true}
             onBack={() => navigate(`/`)}>
-              <span className="text-xl">
+              <span className="">
               Buy
               </span>
           </NavBar>

@@ -179,8 +179,11 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
       }
     }, [data, searchText])
 
-    return (<>
-      <div className="" onClick={() => setVisible(true)}>
+    return (<List.Item
+      onClick={() => setVisible(true)}
+      prefix={<BsCurrencyExchange size={24} />}
+      clickable={true}>
+      <div className="" >
         <div className="flex flex-row justify-between ">
           <div>
             Base Currency
@@ -243,7 +246,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
             </CheckList>
           }
         </div>
-      </Popup></>
+      </Popup></List.Item>
     )
   }
 
@@ -291,12 +294,10 @@ className="mb-24"
         <div
           className={``}
         >
-          <List>
-          <List.Item
-              prefix={<BsCurrencyExchange size={24} />}
-              clickable={true}>
+          <List mode="card">
+          
               <SelectBaseCurrency />
-            </List.Item>
+            
             <List.Item
               prefix={<AiOutlineFormatPainter size={24} />}
               onClick={() => {
@@ -378,7 +379,7 @@ className="mb-24"
           </List>
   <div className="my-4" />
 
-          <List>
+          <List mode="card">
           {/* <ManageNetworks /> */}
           
             <List.Item prefix={<MdOutlineSecurity size={24} />}
@@ -397,7 +398,7 @@ className="mb-24"
             </List.Item>
            </List>
           <div className="my-4" />
-          <List>
+          <List mode="card">
             <List.Item prefix={<BiHistory size={24} />} onClick={() => navigate("/swap")}>
               Swap History
             </List.Item>
@@ -428,7 +429,7 @@ className="mb-24"
 
           {/* </List> */}
           <div className="my-4" />
-          <List>
+          <List mode="card">
             <List.Item
               prefix={
                 <DeleteOutline fontSize={24} />
@@ -527,7 +528,7 @@ className="mb-24"
                 Lock Wallet
               </Button>
             }
-            <div className="mt-4">
+            <div className="mt-4 mx-2">
             <LedgerSelect 
             onConnect={() => {
               navigate("/")

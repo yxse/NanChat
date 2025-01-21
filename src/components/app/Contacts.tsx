@@ -212,7 +212,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
      const ImportContacts = () => {
         return  <div className='text-white'>
         <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
-            <List>
+            <List mode='card'>
             <List.Item
             className='w-full'
             clickable
@@ -292,7 +292,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     return (
         <div>
             <NavBar
-                className="text-slate-400 text-xxl app-navbar "
+                className="app-navbar "
                 onBack={() => window.history.back()}
                 right={<Popover.Menu
                     trigger='click'

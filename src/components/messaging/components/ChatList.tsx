@@ -1,12 +1,12 @@
-import { Avatar, Badge, Button, Card, DotLoading, Input, List, Modal, Popover, SearchBar, Space, Toast } from "antd-mobile";
-import { FillinOutline, LockFill, LockOutline, MailOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
+import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Space, Toast } from "antd-mobile";
+import { AddCircleOutline, FillinOutline, LockFill, LockOutline, MailOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
 import { LedgerContext, WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
-import { fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
+import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -21,6 +21,7 @@ import { QRCodeSVG } from "qrcode.react";
 import icon from "../../../../public/icons/icon.png";
 import { DisconnectLedger } from "../../Initialize/Start";
 import SelectAccount from "../../app/SelectAccount";
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 
 export const LedgerNotCompatible = () => {
     return (
@@ -38,7 +39,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { account } = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const { data: chats, mutate, error } = useSWR<Chat[]>(`/chats?account=${activeAccount}`, fetcherMessages, {onError: (error) => {
+    const { data: chats, mutate, error } = useSWR<Chat[]>(`/chats`, fetcherMessages, {onError: (error) => {
         console.log({error})
         if (error === 401 || error === 403) {
             getNewChatToken(activeAccount, activeAccountPk).then(token => {
@@ -47,9 +48,10 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     }});
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+    const [isNewChatVisible, setIsNewChatVisible] = useState(false);
     const {ledger, setLedger} = useContext(LedgerContext);
-
-    const { data: accounts } = useSWR<string[]>('/accounts?search=' + activeAccount, fetcherMessages);
+    const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
+    // const { data: accounts, isLoading } = useSWR<string[]>('/accounts?search=' + activeAccount, fetcherMessages);
     // const onlineAccount = accounts?.online;
     // const offlineAccount = accounts?.offline;
     // const all = onlineAccount?.concat(offlineAccount);
@@ -57,7 +59,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     // const filteredChats = chats?.filter(chat =>
     //     chat.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     // );
-    const accountData = accounts?.find(name => name._id === activeAccount)
+    // const accountData = accounts?.find(name => name._id === activeAccount)
     const filteredChats = chats
     const {isMobile} = useWindowDimensions()
     useEffect(() => {
@@ -72,8 +74,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
 
     useEffect(() => {
-        if (localStorage.getItem('name') === null) {
-            navigate('/profile/name');
+        if (!isLoading && activeAccount && !me?.name) {
+            navigate('/profile/name'); 
         }
         if (!activeAccountPk) {
             return;
@@ -85,7 +87,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         // });
 
     }
-    , [activeAccountPk]);
+    , [activeAccountPk, me]);
 
     
     const ButtonNewChat = () => {
@@ -156,13 +158,30 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     if (!chats){
         return <DotLoading />
     }
+    const right = (
+        <div style={{ fontSize: 24 }}>
+          <Space style={{ '--gap': '16px' }}>
+          <AddCircleOutline color='var(--adm-color-primary)' onClick={() => setIsNewChatVisible(true)} style={{cursor: "pointer"}} />
+            {/* <AiOutlinePlusCircle  onClick={() => setIsNewChatVisible(true)} style={{cursor: "pointer"}} /> */}
+          </Space>
+        </div>
+      )
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
         >
-            <div>
+            {
+                (location.pathname === "/chat" || !isMobile) &&
+            <NavBar
+            className="app-navbar "
+            right={right}
+            backArrow={false}>
+          <span className="">Chats </span>
+        </NavBar>
+        }
+            <div className="">
                 <List style={{ 
-                    position: 'sticky', top: 0, zIndex: 1 }} className="">
+                    position: 'sticky', top: 0, zIndex: 1, display: "none" }} className="">
                     <List.Item
                     // description={formatAddress(activeAccount)}
                     onClick={() => {
@@ -173,7 +192,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             content: (
                                 <div className="flex justify-center items-center flex-col">
                                     <div className="text-center text-xl mb-1">
-                                        {accountData?.name}                                        
+                                        {me?.name}                                        
                                     </div>
                                     <div className="text-sm mb-2">
                                         {formatAddress(activeAccount)}
@@ -201,7 +220,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                     >
                         <div className="flex items-center gap-2">
                         <AccountIcon account={activeAccount} width={32}/>
-                        {accountData?.name}
+                        {me?.name}
                         </div>
                     </List.Item>
                     {/* <div className="flex items-center gap-2 mt-1 align-middle">
@@ -209,9 +228,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             </div> */}
                   
                 </List>
-                <div className="text-gray-500 mt-2 mb-2 ml-2">
-                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted.
-                    </div>
+               
                 <div className="">
                     <List>
                         {filteredChats?.map(chat => {
@@ -266,9 +283,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                                 badgeColor={'gray'}
                                             />
                                     }
-                                    description={decrypted}
+                                    description={<Ellipsis content={decrypted || '...'} />}
                                 >
-                                    <div className="flex items-center">
+                                    <div className="flex items-center gap-2">
                                         {/* {
                                             chat.type === 'group' ?
                                                 <>
@@ -281,6 +298,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
                                         {
                                             hasName ? hasName : formatAddress(accountFrom)
+                                        }
+                                        {
+                                            from?.verified && <RiVerifiedBadgeFill />
                                         }
                                     </div>
                                     <div className="flex justify-between">
@@ -297,7 +317,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             <List.Item
                             onClick={() => {
                                 navigator.share({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${accountData?.username}`,
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${me?.username}`,
                                     url: window.location.href + `/${activeAccount}`
                                 })  
                             }}
@@ -305,7 +325,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             >
                                 Invite friends
                             </List.Item>
-                            <NewChatPopup />
+                            <NewChatPopup  visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
                         </List>
                     </div>
                     
@@ -325,6 +345,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             <AccountListItems accounts={offlineAccount} badgeColor="gray" />
                         </List>
                     </div> */}
+                </div>
+                <div className="text-gray-500 mt-4 mb-2 ml-2 text-center pb-4">
+                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted.
                 </div>
             </div>
         </div>

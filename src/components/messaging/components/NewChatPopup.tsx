@@ -87,7 +87,7 @@ function NewChatPopup({visible, setVisible}) {
                 visible={visible}
                 onClose={() => setVisible(false)}
                 closeOnMaskClick={true}
-                closeOnSwipe
+                closeOnSwipe={false}
             >
                 <div>
                     <div 

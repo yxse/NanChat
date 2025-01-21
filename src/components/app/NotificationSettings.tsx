@@ -84,7 +84,7 @@ function NotificationSettings() {
   return (
     <div>
         <NavBar
-        className="text-slate-400 text-xxl app-navbar "
+        className="app-navbar "
         onBack={() => {
           navigate("/settings");
         }}
@@ -129,7 +129,7 @@ function NotificationSettings() {
           </div>
         )
       }
-        <List>
+        <List mode="card">
         <ItemNotication
           title={"New receive"}
           description={"Get notified when you receive a new transaction"}

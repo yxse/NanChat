@@ -345,7 +345,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           >
           <div className="flex text-xs items-center -mr-0"><AiOutlineSwap size={18} className="mr-1" /> Swap</div></Button>
       }
-          className="text-slate-400 text-xxl app-navbar sticky top-0 z-10 "
+          className="app-navbar "
           onBack={() => {
           navigate("/");
         }}

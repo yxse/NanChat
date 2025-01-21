@@ -17,7 +17,7 @@ export default function AddNetwork({ }) {
       <div className="container  relative mx-auto">
         <div className="text-center text-2xl flex-col">
           <NavBar 
-          className="text-slate-400 text-xxl app-navbar "
+          className="app-navbar "
           onBack={() => navigate("/")}>Add custom nano network</NavBar>
         </div>
         <NoticeBar className="mb-2 text-sm" wrap content="Add only trusted networks. A malicious network can potentially steal your funds, even on other networks."

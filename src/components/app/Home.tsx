@@ -296,8 +296,8 @@ export default function Home({ }) {
               </div>
           }
           </Popup>
-        <NavBar
-        className="text-slate-400 text-xxl app-navbar "
+        {/* <NavBar
+        className="text-xxl app-navbar "
         //  back={
         //   icon
         // } 
@@ -311,7 +311,7 @@ export default function Home({ }) {
         }}
         backArrow={false}>
           <span className="text-xl">Home </span>
-        </NavBar>
+        </NavBar> */}
         <div className="flex">
         <div style={{width: "100%"}}>
       <PullToRefresh
@@ -337,7 +337,7 @@ export default function Home({ }) {
         </div>
       </div>
       {/* 211px is the height of navbar + wallet summary + menu bar */}
-      <div className="pb-10" style={{ height: "calc(100vh - 211px - env(safe-area-inset-bottom) - env(safe-area-inset-top))", overflowY: "auto" }}>
+      <div className="pb-10" style={{ height: "calc(100dvh - 211px + 46px + env(safe-area-inset-bottom) - env(safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
         <NetworkList
         selectedTicker={selectedTicker}

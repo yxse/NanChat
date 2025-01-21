@@ -27,7 +27,7 @@ function NanoAlias() {
     return (
     <div >
         <NavBar
-        className="text-slate-400 text-xxl app-navbar "
+        className="app-navbar "
         onBack={() => {
           navigate("/settings");
         }}

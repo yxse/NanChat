@@ -14,14 +14,14 @@ function DeveloperSettings() {
     return (
     <div>
         <NavBar
-        className="text-slate-400 text-xxl app-navbar "
+        className="app-navbar "
         onBack={() => {
           navigate("/settings/security");
         }}
         backArrow={true}>
           <span className="">Developer Mode</span>
         </NavBar>
-        <List>
+        <List mode="card">
           <List.Item
           extra={<Switch
           checked={developerMode}
@@ -58,7 +58,7 @@ function DeveloperSettings() {
             Developer Mode
           </List.Item>
         </List>
-        <div className="p-2">
+        <div className="p-4">
             If you're developing a network your can enable Developer Mode to add custom networks.
             When Developer Mode is turned on, wallet security is reduced. Adding a malicious network can result in loss of funds.
             <br />

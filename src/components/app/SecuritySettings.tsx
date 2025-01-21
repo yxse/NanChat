@@ -38,14 +38,14 @@ function SecuritySettings() {
   return (
     <div>
         <NavBar
-        className="text-slate-400 text-xxl app-navbar "
+        className="app-navbar "
         onBack={() => {
           navigate("/settings");
         }}
         backArrow={true}>
           <span className="">Security Settings</span>
         </NavBar>
-        <List>
+        <List mode="card">
             {
                 seed?.isPasswordEncrypted &&
         <List.Item
@@ -302,7 +302,7 @@ function SecuritySettings() {
             prefix={<MdOutlineTimer size={24} />}>Lock After Inactivity</List.Item>
         </List>
         <Divider />
-        <List>
+        <List mode="card">
             <List.Item
             extra={developerMode ? "Enabled" : "Disabled"}
             onClick={() => {

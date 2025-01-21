@@ -4,7 +4,7 @@ import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { socket } from '../socket';
 import { AccountIcon } from '../../app/Home';
-import { Button, Divider, Form, Input, List, Modal } from 'antd-mobile';
+import { Button, Divider, Form, Input, List, Modal, NavBar } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
 import useSWR from 'swr';
@@ -26,7 +26,12 @@ const ProfileHome: React.FC = () => {
 
     return (
         <div className="">
-            <List>
+                <NavBar
+        className="app-navbar "
+        backArrow={false}>
+          <span className="">Settings</span>
+        </NavBar>
+            <List mode='card'>
                 <List.Item
                 onClick={() => {
                     navigate('/profile/pfp')
@@ -59,7 +64,7 @@ const ProfileHome: React.FC = () => {
                     Username
                 </List.Item> */}
                 </List>
-            <List className='my-4'>
+            <List className='my-4' mode='card'>
             <List.Item
                     prefix={<UserContactOutline fontSize={24} color="white" />}
                     onClick={() => navigate('/contacts')}

@@ -1,6 +1,7 @@
 .app-navbar {
   z-index: 1;
-  background-color: rgb(16, 16, 24);
+  /* background-color: rgb(16, 16, 24); */
+  /* background-color: var(--main-background-color); */
   padding: 10px 16px;
   display: flex;
   flex-shrink: 0;
@@ -10,11 +11,27 @@
   -webkit-box-pack: justify;
   justify-content: space-between;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgb(50, 50, 50);
+  /* border-bottom: 1px solid rgb(50, 50, 50, 0.5); */
   height: 46px;
   width: 100%;
   position: sticky;
   top: 0;
+  
+}
+
+@media (max-width: 1200px) {
+  .app-navbar {
+    position: fixed;
+  }
+  .content-nav {
+    /* 46px is the header */
+    padding-top: 46px; 
+  }
+  .app:has(.app-navbar) {
+    /* 46px is the header */
+    padding-top: 46px; 
+  }
+  
 }
 
 .app-navbar-menu {
@@ -76,11 +93,11 @@ body {
   /* animation-fill-mode: forwards; */
 }
 html body {
-  overflow: hidden;
+  /* overflow: hidden; */
 }
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   display: none; 
-}
+} */
 
 html {
   overscroll-behavior: none; 

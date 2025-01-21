@@ -341,46 +341,10 @@ export default function App() {
       {/* <PWAInstallComponent   /> */}
       <div className="app">
       
-      <section className="app-navbar hidden">
-        <div className="app-navbar-menu">
-          <div
-            className="app-nav-m hover:!bg-black p-1 rounded-md"
-            onClick={() => setNavOpen(!isNavOpen)}
-          >
-            {isNavOpen ? (
-              <FaBarsStaggered
-                size={16}
-                className="!text-slate-500 transform scale-x-[-1]"
-              />
-            ) : (
-              <FaBars size={16} className="!text-slate-500" />
-            )}
-          </div>
-         
-        </div>
-
-        <div className="app-nav-c">
-          {widget == "home" && (
-            <span className="text-slate-400 text-xl select-none cursor-pointer">
-              Nanswap Wallet
-            </span>
-          )}
-          {widget == "network" && (
-            <span className="text-slate-400 text-md select-none cursor-pointer">
-              Manage Network
-            </span>
-          )}
-        </div>
-        {/* <div
-            className="text-slate-400 "
-            onClick={() => setNavOpen(!isNavOpen)}
-          >
-              <BellOutline fontSize={18}  />
-          </div> */}
-          
-      </section>
       <ReloadPrompt />
-      <SafeArea position="top" style={{backgroundColor: "rgb(16, 16, 24)"}} />
+      <SafeArea position="top" style={{
+        // backgroundColor: "rgb(16, 16, 24)"
+        }} />
       <Router>
       <ChatSocket />
         <div className="w-full body " 
