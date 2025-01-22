@@ -1,38 +1,15 @@
 import { Capacitor } from "@capacitor/core";
-import { List, NavBar } from "antd-mobile";
+import { DotLoading, List, NavBar } from "antd-mobile";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import { fetcherMessagesNoAuth } from "../../messaging/fetcher";
+import useSWR from "swr";
 export const Discover: React.FC = () => {
 
-    const services = [
-        {
-            name: 'Art',
-            description: 'Buy, sell & collect NanFTs',
-            image: '🎨',
-            favicon: 'https://nanswap.com/faviconArt.png',
-            link: 'https://nanswap.com/art'
-        },
-        {
-            name: 'Shop',
-            description: 'Buy gift cards from over 5,000 brands',
-            image: '🛍️',
-            link: 'https://nanswap.com/shop',
-            favicon: 'https://bucket.nanwallet.com/logo/nanshop.png',
-        },
-        {
-            name: 'Nano-GPT',
-            description: 'Use state-of-the-art AI models',
-            image: '֎ ',
-            link: 'https://nano-gpt.com',
-            favicon: 'https://nano-gpt.com/logo.png',
-        },
-        {
-            name: 'Nanogotchi',
-            description: 'Grow your nanogotchi',
-            image: '🔎',
-            link: 'https://nanogotchi.com/',
-            favicon: 'https://nanogotchi.com/favicon.ico',
-        },
-    ]
+    const {data: services, isLoading} = useSWR('/services', fetcherMessagesNoAuth);
+
+    if (isLoading) {
+        return <div ><DotLoading /></div>
+    }
 
     return (
         <div className="">

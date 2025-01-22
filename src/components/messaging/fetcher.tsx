@@ -40,7 +40,7 @@ export const getNewChatToken = async (account, privateKey) => {
 }
 
 export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url).then((res) => res.json());
-
+export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url).then((res) => res.json());
 export const fetcherMessages = (url) => getChatToken().then(async (token) => {
     return fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url, {
         headers: {

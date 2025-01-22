@@ -104,7 +104,7 @@ export default function Sign() {
                   'X-Target-URL': submitURL
                 },
                 body: JSON.stringify({
-                  "message": messageToSign,
+                  "message": "Signed Message: " + message,
                   "signature": signed,
                   "account": activeAccount.address,
                   "signatureType": "nanocurrency-web",

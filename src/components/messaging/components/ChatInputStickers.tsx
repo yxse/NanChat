@@ -12,7 +12,7 @@ import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, DotLoading, Input, List, Modal, Popup, TextArea } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
+import { fetcherMessages, fetcherMessagesNoAuth, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import { SlArrowUpCircle } from "react-icons/sl";
 import { FaArrowUp } from "react-icons/fa6";
@@ -25,7 +25,7 @@ import { networks } from "../../../utils/networks";
 
 const ChatInputStickers: React.FC<{ onStickerSelect  }> = ({ onStickerSelect  }) => {
 
-    const {data, isLoading} = useSWR('/stickers', fetcherMessages);
+    const {data, isLoading} = useSWR('/stickers', fetcherMessagesNoAuth);
 
 
     return (

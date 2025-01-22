@@ -9,10 +9,10 @@ import useSWR from "swr";
 import { fetchAccountInfo, fetchBlock } from "../../app/Network";
 import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
-import { fetcherMessages } from "../fetcher";
+import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 
 const MessageSticker = ({ message, side, hash, ticker }) => {
-    const {data, isLoading} = useSWR('/stickers', fetcherMessages);
+    const {data, isLoading} = useSWR('/stickers', fetcherMessagesNoAuth);
     
     let url = data?.find(sticker => sticker.id == message.stickerId)?.cache_url;
     return (
