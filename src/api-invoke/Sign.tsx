@@ -15,6 +15,7 @@ export const signMessage = (privateKey, message) => {
 export default function Sign() {
   const {wallet} = useContext(WalletContext)
   const [message, setMessage] = useState("")
+  const [callback, setCallback] = useState(false)
   const [hostname, setHostname] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState("")
@@ -27,6 +28,7 @@ export default function Sign() {
     setMessage(searchParams.get("message"))
     try {
       let submitHost = new URL(submitURL).hostname
+      setCallback(searchParams.get("callback"))
       setHostname(submitHost)
     } catch (error) {
       console.log(error)
@@ -34,7 +36,7 @@ export default function Sign() {
     }
   }, [])
   return (
-    <div className="flex flex-col overflow-hidden justify-between w-full h-full">
+    <div className="flex flex-col overflow-hidden  w-full h-full">
       <nav className="flex select-none w-full shadow-md items-center rounded-b-lg justify-start p-2 bg-slate-800 text-center">
         <div className="w-full flex flex-row items-center">
           <div className="justify-center flex w-full">
@@ -44,11 +46,11 @@ export default function Sign() {
           </div>
         </div>
       </nav>
-<div style={{maxWidth: "550px", margin: "auto"}} className={result ? "hidden" : ""}>
+<div style={{maxWidth: "550px", marginRight: "auto", marginLeft: "auto"}} className={result ? "hidden" : ""}>
       <div className="flex justify-center h-full p-4">
         <div className="flex flex-col justify-between h-full w-full">
-          <div className="flex flex-col w-full justify-start mt-0 items-center mb-6">
-            <div className="flex flex-col space-y-2 overflow-hidden justify-center text-center w-full">
+          <div className="flex flex-col w-full justify-start mt-0 items-center mb-4">
+            <div className="flex flex-col space-y-1 overflow-hidden justify-center text-center w-full">
               <div className="flex mb-2 items-center justify-center">
                 {/** image placeholder */}
                
@@ -62,9 +64,16 @@ export default function Sign() {
             </div>
           </div>
           {
-            hostname && <><p>Request From:</p>
-          <div className="p-3 bg-slate-800/70 rounded-md mt-4 mb-4">
+            hostname && <><p>Submit to:</p>
+          <div className="p-3 bg-slate-800/70 rounded-md ">
           {hostname}
+          </div>
+            </>
+          }
+          {
+            callback && <><p>Callback:</p>
+          <div className="p-3 bg-slate-800/70 rounded-md ">
+          {callback.replace("https://", "")}
           </div>
             </>
           }
@@ -73,14 +82,12 @@ export default function Sign() {
           autoSize={{ minRows: 3}}
             value={message}
             onChange={(e) => setMessage(e)}
-            className="p-3 bg-slate-800/70 rounded-md mt-4"
+            className="p-3 bg-slate-800/70 rounded-md "
           />
         </div>
       </div>
 
       <div className="relative select-none justify-end">
-        <div className="absolute inset-x-0 top-0 w-full h-0.5 bg-gray-800/50" />
-
         {/** buttons */}
         <div className="flex flex-row items-center justify-center space-x-5 p-3">
           <Button
@@ -114,7 +121,7 @@ export default function Sign() {
               .then((data) => {
                 console.log(data)
                 setResult(data)
-                window.open("https://znbfmt6n-3001.euw.devtunnels.ms/art/account", "_blank")
+                window.open(callback, "_blank")
             })
               .catch((error) => {
                 Toast.show({content: "An error occurred while signing the message", icon: 'fail'})
@@ -150,7 +157,6 @@ export default function Sign() {
                     </div>
                     
                     </div>
-                    <a href="https://znbfmt6n-3001.euw.devtunnels.ms/art/account" target="_blank">
                 <Button
             onClick={() => navigate("/")}
             className="w-full mt-4"
@@ -159,7 +165,6 @@ export default function Sign() {
           >
             Go Home
           </Button>
-          </a>
                 </>
                 }
                 />

@@ -3,8 +3,12 @@ import { DotLoading, List, NavBar } from "antd-mobile";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 import { fetcherMessagesNoAuth } from "../../messaging/fetcher";
 import useSWR from "swr";
+import { useContext } from "react";
+import { WalletContext } from "../../Popup";
+import { convertAddress } from "../../../utils/format";
 export const Discover: React.FC = () => {
-
+    const {wallet} = useContext(WalletContext);
+    const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: services, isLoading} = useSWR('/services', fetcherMessagesNoAuth);
 
     if (isLoading) {
@@ -31,12 +35,18 @@ export const Discover: React.FC = () => {
                             // prefix={service.image}
                             prefix={<img src={service.favicon} alt={service.name} style={{width: 40}} />}
                             onClick={async () => {
+                                let url = service.link
+                                if (service?.includeAddress) {
+                                    url = url + "?address=" + activeAccount
+                                }
                                 if (Capacitor.isNativePlatform()) {
-                                    await InAppBrowser.openInSystemBrowser({url: service.link, options: DefaultSystemBrowserOptions})
+                                    //use external browser because otherwise can't resume the web state after deeplink (auth or send)
+                                    // eventually should use a whole embedded browser to handle multiple tabs
+                                    await InAppBrowser.openInExternalBrowser({url: url})
                                     
                                 }
                                 else{
-                                    window.open(service.link, '_blank')
+                                    window.open(url, '_blank')
                                 }
                             }}
                             description={service.description}
