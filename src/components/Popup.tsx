@@ -85,7 +85,7 @@ const WalletProvider = ({ children, setWalletState }) => {
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", {defaultValue: [0]});
   
   useEffect(() => {
-    SplashScreen.show({autoHide: false});
+    SplashScreen.show({autoHide: true, showDuration: 2000});
     getSeed().then((seed) => {
       if (seed?.seed && !seed?.isPasswordEncrypted) {
         setWalletState("unlocked");
