@@ -276,6 +276,9 @@ export default function Home({ }) {
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
   const {isMobile} = useWindowDimensions()
   const onRefresh = async () => {
+    Haptics.impact({
+      style: ImpactStyle.Medium
+    });
     await mutate((key) => key.startsWith("balance-") || key === "prices");
   }
  

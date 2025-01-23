@@ -342,6 +342,9 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     //   updateBalanceOnWsMessage()
     //   }, [])
   const onRefresh = async () => {
+    Haptics.impact({
+      style: ImpactStyle.Medium
+    });
     await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
     await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
   }
