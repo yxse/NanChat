@@ -9,6 +9,8 @@ PODS:
     - Capacitor
   - CapacitorCommunityBluetoothLe (6.1.0):
     - Capacitor
+  - CapacitorCommunityInAppReview (6.0.0):
+    - Capacitor
   - CapacitorCordova (6.2.0)
   - CapacitorFirebaseMessaging (6.1.0):
     - Capacitor
@@ -132,6 +134,7 @@ DEPENDENCIES:
   - "CapacitorApp (from `../../node_modules/.pnpm/@capacitor+app@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/app`)"
   - "CapacitorClipboard (from `../../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard`)"
   - "CapacitorCommunityBluetoothLe (from `../../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le`)"
+  - "CapacitorCommunityInAppReview (from `../../node_modules/.pnpm/@capacitor-community+in-app-review@6.0.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/in-app-review`)"
   - "CapacitorCordova (from `../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios`)"
   - "CapacitorFirebaseMessaging (from `../../node_modules/.pnpm/@capacitor-firebase+messaging@6.1.0_@capacitor+core@6.2.0_firebase@11.1.0/node_modules/@capacitor-firebase/messaging`)"
   - "CapacitorHaptics (from `../../node_modules/.pnpm/@capacitor+haptics@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/haptics`)"
@@ -174,6 +177,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard"
   CapacitorCommunityBluetoothLe:
     :path: "../../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le"
+  CapacitorCommunityInAppReview:
+    :path: "../../node_modules/.pnpm/@capacitor-community+in-app-review@6.0.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/in-app-review"
   CapacitorCordova:
     :path: "../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios"
   CapacitorFirebaseMessaging:
@@ -199,6 +204,7 @@ SPEC CHECKSUMS:
   CapacitorApp: e1e6b7d05e444d593ca16fd6d76f2b7c48b5aea7
   CapacitorClipboard: 4443c3cdb7c77b1533dfe3ff0f9f7756aa8579df
   CapacitorCommunityBluetoothLe: 0d4d197e0d0eadb84d4c3a6683768088253419d9
+  CapacitorCommunityInAppReview: e5c93959637a956ce993134734d7df90390ea167
   CapacitorCordova: b33e7f4aa4ed105dd43283acdd940964374a87d9
   CapacitorFirebaseMessaging: 5241b825d7f2bf4d02616c3cc63d374f178092b4
   CapacitorHaptics: 4fc15afe22b123d093e6ace24d95e8e3b1f261b9
@@ -227,6 +233,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 899142e4ae74c890a17bf6c0ff9e239b93efdc40
+PODFILE CHECKSUM: a21e9b87b27aa69a3d12fd5775112f80c8777970
 
 COCOAPODS: 1.16.2

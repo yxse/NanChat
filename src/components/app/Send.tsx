@@ -38,7 +38,7 @@ import { CgArrowsExchangeV } from "react-icons/cg";
 import { fetchAliasInternet, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
 import { ConvertToBaseCurrency } from "./Home";
 import useLocalStorageState from "use-local-storage-state";
-import { Alias, AliasContact, AliasInternetIdentifier } from "./History";
+import { Alias, AliasContact, AliasInternetIdentifier, askForReview } from "./History";
 import { FaAddressBook } from "react-icons/fa6";
 import { SelectContact } from "./Contacts";
 import { fetchBalance } from "./Network";
@@ -549,6 +549,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
             onClose={() => {
               setSuccessPopupOpen(false)
               onClose()
+              askForReview(0)
             }}
             closeOnMaskClick
           ><Card>
@@ -579,6 +580,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 onClick={() => {
                   setSuccessPopupOpen(false);
                   onClose()
+                  askForReview(0)
                 }}
                 >
                 Close

@@ -14,6 +14,9 @@ importers:
       '@capacitor-community/bluetooth-le':
         specifier: ^6.1.0
         version: 6.1.0(@capacitor/core@6.2.0)
+      '@capacitor-community/in-app-review':
+        specifier: ^6.0.0
+        version: 6.0.0(@capacitor/core@6.2.0)
       '@capacitor-firebase/messaging':
         specifier: 6.1.0
         version: 6.1.0(@capacitor/core@6.2.0)(firebase@11.1.0)
@@ -131,6 +134,9 @@ importers:
       multi-nano-web:
         specifier: ^1.7.0
         version: 1.7.0
+      nano-address-validator:
+        specifier: ^3.0.0
+        version: 3.0.0
       nanocurrency:
         specifier: ^2.5.0
         version: 2.5.0
@@ -760,6 +766,11 @@ packages:
 
   '@capacitor-community/bluetooth-le@6.1.0':
     resolution: {integrity: sha512-hnNChEwV+xNOVqDYI4bfkQtFtvEyzBMlgYs+6xsLYTJVl0v8h6Hn3nCwjW9l6LH0tMzYaRYlFLCiGHKPHt1N0Q==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
+  '@capacitor-community/in-app-review@6.0.0':
+    resolution: {integrity: sha512-k4GxGepsNV7YFf/GdAG0+M05U4Ew3SbzvrWVNUut+0tdTqxvLPCMzVBA41dolDSgRW7iDt923AKcRkKTJcv5FA==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
@@ -3156,6 +3167,9 @@ packages:
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
+  nano-address-validator@3.0.0:
+    resolution: {integrity: sha512-tt5YvBcbBQ7Wp4viHTNzo4mKFbtFuUAI56VcBLoqp48UmfWhcxYORZQjpCJ0b7DbLA3Omj2k1zWAWJ5sEXoItA==}
+
   nano-base32@1.0.1:
     resolution: {integrity: sha512-sxEtoTqAPdjWVGv71Q17koMFGsOMSiHsIFEvzOM7cNp8BXB4AnEwmDabm5dorusJf/v1z7QxaZYxUorU9RKaAw==}
 
@@ -5151,6 +5165,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
       '@types/web-bluetooth': 0.0.20
+
+  '@capacitor-community/in-app-review@6.0.0(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
 
   '@capacitor-firebase/messaging@6.1.0(@capacitor/core@6.2.0)(firebase@11.1.0)':
     dependencies:
@@ -7809,6 +7827,11 @@ snapshots:
       any-promise: 1.3.0
       object-assign: 4.1.1
       thenify-all: 1.6.0
+
+  nano-address-validator@3.0.0:
+    dependencies:
+      blakejs: 1.2.1
+      nano-base32: 1.0.1
 
   nano-base32@1.0.1: {}
 

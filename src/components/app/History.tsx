@@ -35,7 +35,23 @@ import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import CopyAddressPopup from "./CopyAddressPopup";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { InAppReview } from '@capacitor-community/in-app-review';
+import { Capacitor } from "@capacitor/core";
 
+export function askForReview(delay = 500) {
+  // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
+  
+  if (Capacitor.isNativePlatform() && 
+     (new Date().getTime() - parseInt(localStorage.getItem("lastReview")) > 1000 * 60 * 60 * 24 * 60) &&
+     Object.keys(localStorage).filter((k) => k.startsWith("history-")).length > 5
+    ) {
+    localStorage.setItem("lastReview", new Date().getTime().toString())
+    setTimeout(() => {
+      InAppReview.requestReview()
+    }
+    , delay) // 2 seconds delay to let the new transaction appear or success send message to be shown
+  }
+}
 
 export const getKeyHistory = (pageIndex, previousPageData) => {
   if (previousPageData && (!previousPageData.length || previousPageData == "")) return null;
@@ -352,6 +368,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                 ref={(el) => {
                   if (el == null) return
                   el.nativeElement.onanimationend = () => {
+                    askForReview()
                     // console.log("animation end for ", tx.hash)
                     let hashes = JSON.parse(localStorage.getItem("receiveHashesToAnimate"))
                     hashes = hashes.filter((h) => h !== tx.hash)
