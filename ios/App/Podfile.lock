@@ -13,6 +13,8 @@ PODS:
   - CapacitorFirebaseMessaging (6.1.0):
     - Capacitor
     - FirebaseMessaging (~> 10.25)
+  - CapacitorHaptics (6.0.2):
+    - Capacitor
   - CapacitorInappbrowser (1.0.2):
     - Capacitor
     - OSInAppBrowserLib (~> 1.0)
@@ -132,6 +134,7 @@ DEPENDENCIES:
   - "CapacitorCommunityBluetoothLe (from `../../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le`)"
   - "CapacitorCordova (from `../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios`)"
   - "CapacitorFirebaseMessaging (from `../../node_modules/.pnpm/@capacitor-firebase+messaging@6.1.0_@capacitor+core@6.2.0_firebase@11.1.0/node_modules/@capacitor-firebase/messaging`)"
+  - "CapacitorHaptics (from `../../node_modules/.pnpm/@capacitor+haptics@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/haptics`)"
   - "CapacitorInappbrowser (from `../../node_modules/.pnpm/@capacitor+inappbrowser@1.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/inappbrowser`)"
   - "CapacitorKeyboard (from `../../node_modules/.pnpm/@capacitor+keyboard@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/keyboard`)"
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/.pnpm/@capacitor-mlkit+barcode-scanning@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor-mlkit/barcode-scanning`)"
@@ -175,6 +178,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios"
   CapacitorFirebaseMessaging:
     :path: "../../node_modules/.pnpm/@capacitor-firebase+messaging@6.1.0_@capacitor+core@6.2.0_firebase@11.1.0/node_modules/@capacitor-firebase/messaging"
+  CapacitorHaptics:
+    :path: "../../node_modules/.pnpm/@capacitor+haptics@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/haptics"
   CapacitorInappbrowser:
     :path: "../../node_modules/.pnpm/@capacitor+inappbrowser@1.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/inappbrowser"
   CapacitorKeyboard:
@@ -196,6 +201,7 @@ SPEC CHECKSUMS:
   CapacitorCommunityBluetoothLe: 0d4d197e0d0eadb84d4c3a6683768088253419d9
   CapacitorCordova: b33e7f4aa4ed105dd43283acdd940964374a87d9
   CapacitorFirebaseMessaging: 5241b825d7f2bf4d02616c3cc63d374f178092b4
+  CapacitorHaptics: 4fc15afe22b123d093e6ace24d95e8e3b1f261b9
   CapacitorInappbrowser: ff7837d4d03094bbabac22414f0b20977e8f01f6
   CapacitorKeyboard: e89189ad398b815b6ff7e52271f0fb4f911a0a0a
   CapacitorMlkitBarcodeScanning: 7652be9c7922f39203a361de735d340ae37e134e
@@ -221,6 +227,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 68485b75f05d8257b6aadf8456a1109fe85ccf5d
+PODFILE CHECKSUM: 899142e4ae74c890a17bf6c0ff9e239b93efdc40
 
 COCOAPODS: 1.16.2

@@ -188,6 +188,12 @@ export const MenuBar = () => {
       <TabBar
       safeArea={false}
       // style={style}
+      style={{
+        userSelect: "none",
+        "WebkitUserSelect": "none",
+        "MozUserSelect": "none",
+        "msUserSelect": "none",
+      }}
         className={"bottom"}
         activeKey={location.pathname.split("/")[1]}
         onChange={(key) => {

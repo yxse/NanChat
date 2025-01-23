@@ -48,6 +48,7 @@ import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { Scanner } from "./Scanner";
 import { authenticate, secureAuthIfAvailable } from "../../utils/biometrics";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -408,7 +409,10 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 loading={isLoading}
                 size="large"
                  color="primary" onClick={async () => {
-
+                  Haptics.impact({
+                    style: ImpactStyle.Medium
+                  });
+                  setIsLoading(true);
                   try {
                     await authenticate()
                   } catch (error) {
@@ -418,6 +422,10 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     });
                     return;
                   }
+                  finally {
+                    setIsLoading(false);
+                  }
+
                     // if (localStorage.getItem("webauthn-credential-id")) {
                     //   const challenge = crypto.randomUUID()
                     //   await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
@@ -428,7 +436,6 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     // }
              
                     try {
-                    setIsLoading(true);
                     console.log(form.getFieldsValue());
                     const fromAddress = activeAccount
                     const toAddress = form.getFieldValue("address");

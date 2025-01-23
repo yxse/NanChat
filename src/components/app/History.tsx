@@ -34,6 +34,7 @@ import { convertAddress, formatAddress } from "../../utils/format";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import CopyAddressPopup from "./CopyAddressPopup";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 
 export const getKeyHistory = (pageIndex, previousPageData) => {
@@ -371,6 +372,9 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                   key: "send-again",
                   color: "#108ee9",
                   onClick: () => {
+                    Haptics.impact({
+                      style: ImpactStyle.Medium
+                    });
                     navigate(
                       `?to=${tx.account}&amount=${+rawToMega(ticker, tx.amount)}`,
                       { replace: true }

@@ -24,6 +24,7 @@ import { WalletContext } from "../Popup";
 import React from 'react'
 import { DownOutline, EditSOutline, EyeFill, EyeInvisibleFill } from "antd-mobile-icons";
 import ProfileName from "../messaging/components/profile/ProfileName";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 const MAX_ACCOUNTS = 5;
 function SelectAccount({ }) {
@@ -41,7 +42,12 @@ function SelectAccount({ }) {
   }
   , []);
   return (<>
-  <div className="text-sm flex items-center cursor-pointer text-gray-400" onClick={() => setVisible(true)}>
+  <div className="text-sm flex items-center cursor-pointer text-gray-400" onClick={() => {
+    setVisible(true)
+    Haptics.impact({
+      style: ImpactStyle.Medium
+    });
+  }}>
     <span className="mr-2">
       <AccountIcon account={activeAccount} width={32}/>
     </span>
