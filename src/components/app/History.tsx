@@ -37,6 +37,7 @@ import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { InAppReview } from '@capacitor-community/in-app-review';
 import { Capacitor } from "@capacitor/core";
+import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -207,10 +208,19 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
     {
       text: "View Details",
       key: "view-details",
-      onClick: () =>
-        window.open(
-          `https://nanexplorer.com/${networks[ticker].id}/block/${activeTx.hash}`,
-        ),
+      onClick: () => {
+        if (Capacitor.isNativePlatform()) {
+          InAppBrowser.openInSystemBrowser({
+            url: `https://nanexplorer.com/${networks[ticker].id}/block/${activeTx.hash}`,
+            options: DefaultSystemBrowserOptions
+          })
+        }
+        else {          
+          window.open(
+            `https://nanexplorer.com/${networks[ticker].id}/block/${activeTx.hash}`
+          )
+        }
+      }
     },
     {
       text: "Create contact",
