@@ -13,7 +13,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 import { RiVerifiedBadgeFill } from 'react-icons/ri';
 
-const AccountListItems = ({ accounts, badgeColor, onClick }) => {
+const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true }) => {
     const navigate = useNavigate();
     return (
         <List>
@@ -22,9 +22,14 @@ const AccountListItems = ({ accounts, badgeColor, onClick }) => {
                     <List.Item
                         onClick={() => {
                             onClick && onClick(account)
-                            document.startViewTransition(() => {
-                                navigate(`/chat/${account._id}`, { unstable_viewTransition: true })
-                            })
+                            if (viewTransition) {
+                                document.startViewTransition(() => {
+                                    navigate(`/chat/${account._id}`, { unstable_viewTransition: true })
+                                })
+                            }
+                            else {
+                                navigate(`/chat/${account._id}`)
+                            }
                             // navigate(`/chat/${account._id}`, { unstable_viewTransition: false })
                         }}
                         key={account._id + badgeColor}
@@ -141,6 +146,7 @@ function NewChatPopup({visible, setVisible}) {
                         All users
                     </div> */}
                             <AccountListItems
+                            viewTransition={false} // view transition bugged cause of the popup close
                                 onClick={(account) => {
                                     setVisible(false);
                                 }}
