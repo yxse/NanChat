@@ -52,7 +52,9 @@ export const fetchAliasInternet = async (email, ticker) => {
     const url = `https://${domain}/.well-known/${route}?names=${identifier}`;
     const proxy = `https://proxy.xno.link/?url=${encodeURIComponent(url)}`;
     const response = await fetch(proxy);
+    if (!response.ok) return null;
     const data = await response.json();
+    if (data == null || data['names'] == null || data['names'].length === 0) return null;
     const address = data['names'].find((name) => name.name.toLowerCase() === identifier.toLowerCase());
     return address?.address;
 }

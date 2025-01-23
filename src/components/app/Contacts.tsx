@@ -508,7 +508,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
         className="cursor-pointer text-gray-200 mr-4 mt-4" onClick={() => {
             setVisible(true);
         }} /> */}
-        <UserContactOutline className="cursor-pointer" fontSize={24} onClick={() => {
+        <UserContactOutline className="cursor-pointer" fontSize={22} onClick={() => {
             setVisible(true);
         }} />
         <Popup
