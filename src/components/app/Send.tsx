@@ -135,7 +135,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
     rules.push({
       validator: async (rule, value) => {
         if (value <= 0) {
-          // throw new Error("Amount must be greater than 0");
+          throw new Error("Amount must be greater than 0");
         }
       },
     });
