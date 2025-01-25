@@ -669,12 +669,11 @@ body.barcode-scanner-active .adm-center-popup-mask {
   box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.4);
   visibility: visible !important;
 }
-.adm-passcode-input-cell {
-  border-radius: 100% !important;
-}
+
 .passcode-input {
-  --dot-size: 25px;
+  --dot-size: 23px;
   --cell-size: 25px;
   --cell-gap: 10px;
   --adm-color-text: var(--adm-color-primary);
+  --border-radius: 50%;
 }
