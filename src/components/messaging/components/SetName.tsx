@@ -45,8 +45,8 @@ const SetName: React.FC = () => {
                     body: JSON.stringify({name: values.name, signature, account})
                 }).then((res) => {
                     console.log(res);
-                    navigate('/chat');
-                    localStorage.setItem('name', values.name);
+                    navigate(-1);
+                    // localStorage.setItem('name', values.name);
                     mutate({name: values.name});
                 });
             }}

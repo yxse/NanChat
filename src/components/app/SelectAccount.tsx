@@ -41,7 +41,9 @@ function SelectAccount({ }) {
   }
   , []);
   return (<>
-  <div className="text-sm flex items-center cursor-pointer text-gray-400" onClick={() => setVisible(true)}>
+  <div
+  style={{color: "var(--adm-color-text-secondary)"}}
+   className="text-sm flex items-center cursor-pointer" onClick={() => setVisible(true)}>
     <span className="mr-2">
       <AccountIcon account={activeAccount} width={32}/>
     </span>

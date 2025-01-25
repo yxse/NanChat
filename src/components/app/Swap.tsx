@@ -88,7 +88,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
         }}
         src={allCurrencies?.[selected]?.image}
         alt={`${selected} logo`} width={32} height={32} />
-      <div className="text-gray-400 flex items-center gap-2">
+      <div className="flex items-center gap-2">
         {selected} <DownOutline />
       </div>
 
@@ -329,6 +329,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
                   type="submit"
                   color="primary"
                   size="large"
+                  shape="rounded"
                 >
                   Swap
                 </Button>
@@ -433,7 +434,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
 
                 <ScanCodeOutline
                   fontSize={24}
-                  className="cursor-pointer text-gray-200 mr-4 mt-4"
+                  className="cursor-pointer mr-4 mt-4"
                   />
                   </Scanner>
               </div>

@@ -57,7 +57,6 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         hasMore,
     } = useChat(account);
 
-    // const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
     const { data: chats, mutate: mutateChats } = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
@@ -69,7 +68,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     if (account?.startsWith('nano_')) {
         address = account;
     }
-    const nameOrAccount = participant?.name || formatAddress(address);
+    const { data: names2 } = useSWR<Chat[]>(`/names?accounts=${address}`, fetcherMessages);
+    const nameOrAccount = names2?.[0]?.name || formatAddress(address);
+    // const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
     // useEffect(() => {
     //     if (pages) {

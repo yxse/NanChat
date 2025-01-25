@@ -12,6 +12,8 @@ import Contacts from '../../app/Contacts';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 import { RiVerifiedBadgeFill } from 'react-icons/ri';
+import { MailOutline } from 'antd-mobile-icons';
+import { useWallet } from '../../Popup';
 
 const AccountListItems = ({ accounts, badgeColor, onClick }) => {
     const navigate = useNavigate();
@@ -61,6 +63,7 @@ function NewChatPopup({visible, setVisible}) {
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
+    const {wallet, activeAccount} = useWallet( )
     const [searchText, setSearchText] = useState('')
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
@@ -89,10 +92,21 @@ function NewChatPopup({visible, setVisible}) {
                 closeOnMaskClick={true}
                 closeOnSwipe={false}
             >
-                <div>
+                <div className=" ">
+                    <span
+                    style={{float: 'left', color: 'var(--adm-color-primary)', position: 'absolute', cursor: 'pointer'}}
+                     onClick={() => {
+                                navigator.share({
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
+                                    url: window.location.href + `/${activeAccount}`
+                                })  
+                            }}
+                            className="text-xl ml-2 mt-2">
+                                <MailOutline style={{display: 'inline-block', marginRight: 4}} />
+                                invite
+                            </span>
                     <div 
                 style={isMobile ? {} : { minWidth: 500 }}
-
                     className="text-xl  text-center p-2">Create new chat</div>
                 </div>
                 <div className={"searchBarContainer"}>

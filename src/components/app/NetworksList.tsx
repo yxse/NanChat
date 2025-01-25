@@ -34,12 +34,15 @@ export function TickerTitle({ ticker, logo, name }) {
         width={42}
         src={logo}
         alt={`${name} logo`} />
-      <div className="flex flex-col ml-3 justify-center">
-        <div>{ticker}</div>
-        <div className="text-sm text-gray-400">
-          {name}
+      <div className="flex ml-3 justify-center align-middle gap-2">
+        <div>
+        {name}
         </div>
-
+        <div
+        style={{color: "var(--adm-color-text-secondary)"}}
+         className="text-sm">
+        {ticker?.toUpperCase()}
+        </div>
       </div>
     </div>
 
