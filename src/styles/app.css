@@ -672,3 +672,9 @@ body.barcode-scanner-active .adm-center-popup-mask {
 .adm-passcode-input-cell {
   border-radius: 100% !important;
 }
+.passcode-input {
+  --dot-size: 25px;
+  --cell-size: 25px;
+  --cell-gap: 10px;
+  --adm-color-text: var(--adm-color-primary);
+}

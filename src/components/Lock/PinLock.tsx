@@ -62,7 +62,7 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
         const [pin, setPin] = useState("")
         useEffect(() => {
             setTimeout(() => {
-                if (visible) {
+                if (visible && !isTouchDevice()) {  // only focus if not on touch device, so the user can directly use the keyboard
                     ref.current?.focus()
                 }
             }
@@ -71,7 +71,7 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
         , [visible, attemptRemaining])
 
         return <Popup
-            bodyStyle={{ height: '100%' }}
+        bodyStyle={{height: 'calc(100vh - env(safe-area-inset-top))'}}
             visible={visible}
             onClose={() => setVisible(false)}
             closeOnMaskClick
@@ -91,7 +91,8 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                 <div className="text-center">
 
                     <PasscodeInput
-                        onFill={async () => {
+                    className="passcode-input"
+                    onFill={async () => {
                             let result = await verifyPin(pin)
                             if (result?.error) {
                                 setPin("")
@@ -110,10 +111,10 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                             }
                         }}
 
-                        
+                        caret={false}
                         value={pin} onChange={
                             setPin} ref={ref} seperated
-                        // keyboard={}
+                        // keyboard={<div></div>}
 
                     />
                 </div>

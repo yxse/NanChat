@@ -12,7 +12,7 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
     const [pin2, setPin2] = useState("")
     const [step, setStep] = useState(0)
     useEffect(() => {
-        if (visible) {
+        if (visible  && !isTouchDevice()){
                 // ref.current.focus()
                 setTimeout(() => {
                     ref.current.focus()
@@ -22,7 +22,7 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
 
     return (
         <Popup
-        bodyStyle={{height: '100%'}}
+        bodyStyle={{height: 'calc(100vh - env(safe-area-inset-top))'}}
             visible={visible}
             onClose={() => setVisible(false)}
             closeOnMaskClick
@@ -40,6 +40,7 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
             </div>
             <div className="text-center">
             <PasscodeInput
+            className="passcode-input"
             onFill={async () => {
                 if (step === 0) {
                     setStep(1)
@@ -61,9 +62,8 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
                     }
                 }
             }}
-            caret={true}
+            caret={false}
              value={pin} onChange={setPin}  ref={ref} seperated
-            keyboard={undefined}
             showCloseButton={true} /> 
             <div className="text-center mt-6">
                 <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
