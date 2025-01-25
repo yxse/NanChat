@@ -6,6 +6,8 @@ import useLocalStorageState from "use-local-storage-state"
 import { Capacitor } from "@capacitor/core"
 import { getIsPasswordEncrypted, getPinInfo, verifyPin } from "../../utils/storage"
 import { showLogoutSheet } from "../Settings"
+import PasscodeKeyboard from "./PasscodeKeyboard"
+
 
 
 
@@ -111,11 +113,11 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                         
                         value={pin} onChange={
                             setPin} ref={ref} seperated
-                        keyboard={isTouchDevice() && visible ? <NumberKeyboard
-                            showCloseButton={false} /> : null}
+                        // keyboard={}
 
                     />
                 </div>
+               
                 {error !== "" && <div className="text-center mt-6">{error}</div>}
                 {
                     attemptRemaining <= 7 && <div className="text-center text-base mt-6" style={{ color: "var(--adm-color-warning)" }}>
@@ -123,6 +125,9 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                     </div>
                 }	
                 {attemptRemaining <= 7 && <ForgotYourPin />}
+                <div className="text-center mt-6">
+                <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
+                </div>
             </div>
         </Popup>
     }

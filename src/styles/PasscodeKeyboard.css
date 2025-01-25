@@ -1,0 +1,23 @@
+.passcode-keyboard {
+  width: 300px;
+  margin: 0 auto;
+}
+
+.keyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.keyboard-button {
+  padding: 15px;
+  font-size: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+
+.delete-button {
+  grid-column: 3;
+}

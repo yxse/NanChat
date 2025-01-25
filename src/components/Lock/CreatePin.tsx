@@ -5,6 +5,7 @@ import { authenticate } from "../../utils/biometrics"
 import useLocalStorageState from "use-local-storage-state"
 import { Capacitor } from "@capacitor/core"
 import { setPin as setPinStorage } from "../../utils/storage"
+import PasscodeKeyboard from "./PasscodeKeyboard"
 export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
     const ref = useRef()
     const [pin, setPin] = useState("")
@@ -35,7 +36,7 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
             <div 
             style={{color: "var(--adm-color-text-secondary)"}}
             className="text-center text-base mb-6">
-                {step === 0 ? "Enter a 6-digit PIN to unlock your wallet" : ""}
+                {step === 0 ? "Set a 6-digit passcode to unlock your wallet" : "Confirm your passcode"}
             </div>
             <div className="text-center">
             <PasscodeInput
@@ -62,13 +63,11 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
             }}
             caret={true}
              value={pin} onChange={setPin}  ref={ref} seperated
-            keyboard={isTouchDevice() && visible ? <NumberKeyboard 
-                onInput={() => {
-                    
-                }}
-                showCloseButton={false} /> : null}
-            
-            />
+            keyboard={undefined}
+            showCloseButton={true} /> 
+            <div className="text-center mt-6">
+                <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
+                </div>
             </div>
             </div>
         </Popup>
