@@ -50,6 +50,7 @@ import { isTouchDevice } from "../../utils/isTouchDevice";
 import RefreshButton from "../RefreshButton";
 import { LedgerStatus } from "../../ledger.service";
 import Buy from "./Buy";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
@@ -193,6 +194,9 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           size="large"
             color="default"
             onClick={async () => {
+              Haptics.impact({
+                style: ImpactStyle.Medium
+              });
               if (ledger.ledger.status !== LedgerStatus.READY) {
                 Toast.show({icon: 'fail', content: "Ledger is not yet ready. Please try again."})
                 return;
@@ -229,6 +233,9 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         size="large"
           color="default"
           onClick={() => {
+            Haptics.impact({
+              style: ImpactStyle.Medium
+            });
             navigator.share({
               text: address,
             });
@@ -243,6 +250,9 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         size="large"
           color="default"
           onClick={() => {
+            Haptics.impact({
+                  style: ImpactStyle.Medium
+                });
             setEnterAmountVisible(true);
               // Modal.confirm({
               //   content: <Input type="number" placeholder="Amount" autoFocus/>,
@@ -298,7 +308,10 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     setAction('send');
     setModalVisible(true);
     setDefaultScannerOpen(true);    
-    navigator.vibrate(100);
+    // navigator.vibrate(100);
+    Haptics.impact({
+      style: ImpactStyle.Heavy
+    });
     }, 400);
 
   useEffect(() => {
@@ -329,6 +342,9 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     //   updateBalanceOnWsMessage()
     //   }, [])
   const onRefresh = async () => {
+    Haptics.impact({
+      style: ImpactStyle.Medium
+    });
     await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
     await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
   }
@@ -407,8 +423,25 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         {/* <Divider /> */}
       </div>
       {/* center  */}
-      <div className="flex justify-center mt-4 space-x-4 bottom-btn">
-      <Button color="primary" shape="rounded" size="large" className="w-full" onClick={() => {
+      <div
+      style={{
+        userSelect: "none",
+        "WebkitUserSelect": "none",
+        "MozUserSelect": "none",
+        "msUserSelect": "none",
+      }} 
+      className="flex justify-center mt-4 space-x-4 bottom-btn">
+      <Button
+      style={{
+        userSelect: "none",
+        "WebkitUserSelect": "none",
+        "MozUserSelect": "none",
+        "msUserSelect": "none",
+      }}
+       color="primary" shape="rounded" size="large" className="w-full" onClick={() => {
+        Haptics.impact({
+          style: ImpactStyle.Medium
+        });
         setModalVisible(true);
         setAction('receive');
       }}>
@@ -424,6 +457,9 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         
       }}
        color="primary" shape="rounded" size="large" className="w-full select-none" onClick={() => {
+        Haptics.impact({
+          style: ImpactStyle.Medium
+        });
         setModalVisible(true);
         setAction('send');
       }}>Send

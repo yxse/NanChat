@@ -7,20 +7,27 @@ import { WalletContext } from '../Popup';
 import { convertAddress } from '../../utils/format';
 import { activeNetworks } from '../../utils/networks';
 import { Clipboard } from '@capacitor/clipboard';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
+export const writeToClipboard = async (string) => {
+    Haptics.impact({
+        style: ImpactStyle.Medium
+    });
+    try {
+        await Clipboard.write({
+          string: string
+        });
+    } catch (error) {
+        Toast.show({
+            icon: "fail",
+            content: "Failed to copy"
+        });
+    }
+  };
+  
 function CopyAddressPopupCustom({addresses = [], title = "Your Addresses", popupVisible, setPopupVisible, isLoading = false}) {
     const {isMobile} = useWindowDimensions()
-    const writeToClipboard = async () => {
-        await Clipboard.write({
-          string: "Hello World!"
-        });
-      };
       
-      const checkClipboard = async () => {
-        const { type, value } = await Clipboard.read();
-      
-        console.log(`AZE Got ${type} from clipboard: ${value}`);
-      };
   return (
     <>
   
@@ -50,13 +57,7 @@ function CopyAddressPopupCustom({addresses = [], title = "Your Addresses", popup
         {addresses.length > 0 && addresses.map(({ address, ticker }) => {
             return <ItemCopyAddress address={address} ticker={ticker} onClick={async (ticker, account) => {
                 navigator.clipboard.writeText(account);
-                console.log(`Copied ${ticker} address to clipboard: ${account}`);
-                await Clipboard.write({
-                    string: account
-                });
-                let { type, value } = await checkClipboard()
-                console.log(`Got ${type} from clipboard: ${value}`);
-
+                await writeToClipboard(account);
                 Toast.show({
                     icon: "success",
                     content: `${ticker} address copied`

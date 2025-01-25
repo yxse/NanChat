@@ -21,6 +21,7 @@ import {
 } from "antd-mobile";
 import { ScanCodeOutline, TextOutline, ScanningOutline } from "antd-mobile-icons";
 import * as webauthn from '@passwordless-id/webauthn'
+import isValid from 'nano-address-validator';
 
 import { useContext, useEffect, useRef, useState } from "react";
 import Receive from "./Receive";
@@ -37,7 +38,7 @@ import { CgArrowsExchangeV } from "react-icons/cg";
 import { fetchAliasInternet, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
 import { ConvertToBaseCurrency } from "./Home";
 import useLocalStorageState from "use-local-storage-state";
-import { Alias, AliasContact, AliasInternetIdentifier } from "./History";
+import { Alias, AliasContact, AliasInternetIdentifier, askForReview } from "./History";
 import { FaAddressBook } from "react-icons/fa6";
 import { SelectContact } from "./Contacts";
 import { fetchBalance } from "./Network";
@@ -49,6 +50,7 @@ import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { Scanner } from "./Scanner";
 import { authenticate, secureAuthIfAvailable } from "../../utils/biometrics";
 import { PinAuthPopup } from "../Lock/PinLock";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -131,6 +133,13 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       type: "number",
       transform: (value) => parseFloat(value),
     });
+    rules.push({
+      validator: async (rule, value) => {
+        if (value <= 0) {
+          throw new Error("Amount must be greater than 0");
+        }
+      },
+    });
     rules.push( {
       required: true,
       message: `Available: ${getAvailableAmount()}`,
@@ -148,7 +157,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       validateFirst
       required={false}
       extra={
-        <div className="flex justify-between space-x-2 items-center">
+        <div className="flex justify-between space-x-2 items-center mr-2">
           <div className="flex items-center cursor-pointer" onClick={switchAmountType}>
             {currency}
             <CgArrowsExchangeV size={20} />
@@ -257,17 +266,27 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               let toAddress = values.address;
               const amount = form.getFieldValue("amount");
               if (values.address.includes('@')){
-                let resolved = await fetchAliasInternet(values.address)
-                if (resolved != null){
-                  form.setFieldsValue({ address: resolved })
-                  toAddress = resolved;
-                }
-                else{
+                let resolved = await fetchAliasInternet(values.address, ticker)
+
+                if (resolved == null) {
                   Toast.show({
-                    content: "Address not found",
+                    icon: "fail",
+                    content: "Alias not found",
                   });
                   setConfirmPopupOpen(false);
                   return;
+                }
+                else if (!isValid(resolved, networks[ticker].prefix)) {
+                  Toast.show({
+                    icon: "fail",
+                    content: "Invalid address",
+                  });
+                  setConfirmPopupOpen(false);
+                  return;
+                }
+                else{
+                  form.setFieldsValue({ address: resolved })
+                  toAddress = resolved;
                 }
               }
               setConfirmPopupOpen(true);
@@ -310,6 +329,22 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 label=""
                 name={"address"}
                 style={{ width: "100%" }}
+                rules={[
+                  {
+                    required: true,
+                    message: `Please enter a valid ${networks[ticker].name} address`,
+                    validator: async (rule, value) => {
+                      if (!value) {
+                        throw new Error("Please enter an address");
+                      }
+                      if (!value.includes('@') && // if not an alias
+                        !isValid(value, networks[ticker].prefix)) {
+                        throw new Error("Invalid address");
+                      }
+                    },
+                  }
+                ]
+                }
               >
                 <TextArea
                   autoSize={{ minRows: 3, maxRows: 4 }}
@@ -317,8 +352,8 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   rows={2}
                 />
               </Form.Item>
-              <div className="flex items-center space-x-2">
-              <PasteIcon fontSize={24}  className=""
+              <div className="flex items-center gap-3 mr-4">
+              <PasteIcon fontSize={22}  className=""
                 onClick={() => {
                   try {
                     (async () =>
@@ -341,7 +376,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   form.setFieldValue("amount", parsed.megaAmount);
                 }}
               >
-                <ScanCodeOutline fontSize={24} className="cursor-pointer"/>
+                <ScanCodeOutline fontSize={22} className="cursor-pointer"/>
               </Scanner>
               <SelectContact  ticker={ticker} onSelect={(contact) => {
                 let correctAddressTicker = contact.addresses.find((a) => a.network === ticker)
@@ -478,6 +513,9 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 size="large"
                  color="primary" onClick={async () => {
                     setPinVisible(true)
+                    Haptics.impact({
+                      style: ImpactStyle.Medium
+                    });
                   // try {
                   //   await authenticate()
                   // } catch (error) {
@@ -519,6 +557,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
             onClose={() => {
               setSuccessPopupOpen(false)
               onClose()
+              askForReview(0)
             }}
             closeOnMaskClick
           ><Card>
@@ -549,6 +588,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 onClick={() => {
                   setSuccessPopupOpen(false);
                   onClose()
+                  askForReview(0)
                 }}
                 >
                 Close

@@ -35,7 +35,9 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         });
       setActiveTicker(parsed.ticker);
       setVisible(true);
-      setUri(""); // Clear the URI, fix not opening the same URI twice
+      if (setUri){
+        setUri(""); // Clear the URI, fix not opening the same URI twice
+      }
       let amount = parsed.megaAmount;
       let params = '?to=' + parsed.address
       if (amount) {

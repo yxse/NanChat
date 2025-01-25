@@ -15,6 +15,7 @@ import { ModalReceive } from "../Network";
 import Swap from "../Swap";
 import NetworkList from "../NetworksList";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 
 export const SendReceive = () => {
@@ -53,6 +54,9 @@ export const SendReceive = () => {
         <Button
         onClick={() => {
             showAction("receive");
+            Haptics.impact({
+              style: ImpactStyle.Medium
+          });
         }}
         style={{width: "50%"}}
             type="button"
@@ -65,6 +69,9 @@ export const SendReceive = () => {
           <Button
           onClick={() => {
             showAction("send");
+            Haptics.impact({
+              style: ImpactStyle.Medium
+          });
           }}
           style={{width: "50%"}}
             type="button"

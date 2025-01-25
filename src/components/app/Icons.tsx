@@ -1,6 +1,8 @@
 import { Button, Toast } from "antd-mobile"
 import { useState } from "react"
 import { AiOutlineCopy, AiOutlineSnippets } from "react-icons/ai"
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { writeToClipboard } from "./CopyAddressPopupCustom";
 
 export const CopyIcon = ({fontSize, className, onClick}) => {
     return (
@@ -21,8 +23,7 @@ export const CopyButton = ({textToCopy, copyText, copiedText, color = "primary",
           size="large"
           color={isCopied ? "success" : color}
           onClick={() => {
-            navigator.clipboard.writeText(textToCopy).then(
-              () => {
+            writeToClipboard(textToCopy).then(() => {
                 setIsCopied(true);
                 if (onCopy) {
                     onCopy();
@@ -33,13 +34,8 @@ export const CopyButton = ({textToCopy, copyText, copiedText, color = "primary",
                         onAnimationEnd();
                     }
                 }, 1500);
-              },
-              (err) => {
-                Toast.show({
-                  content: "Failed to copy",
-                });
-              },
-            );
+            }
+            )
           }}
           // bacground animation
           style={{ 

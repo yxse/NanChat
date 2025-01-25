@@ -9,6 +9,7 @@ import useSWR from "swr";
 import { BiPlus } from "react-icons/bi";
 import { AiOutlineDelete } from "react-icons/ai";
 import useLocalStorageState from "use-local-storage-state";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export default function NetworksSwitch({ onClick }) {
   const navigate = useNavigate();
@@ -39,6 +40,9 @@ export default function NetworksSwitch({ onClick }) {
       key={ticker}
       className="network-card flex justify-between p-2 m-1 cursor-pointer"
       onClick={() => {
+        Haptics.impact({
+          style: ImpactStyle.Medium
+        });
         let checked = hiddenNetworks.includes(ticker);
         console.log(ticker, checked, hiddenNetworks);
         setHiddenNetworks(checked ? hiddenNetworks.filter((t) => t !== ticker) : [...hiddenNetworks, ticker]);

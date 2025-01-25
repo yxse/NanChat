@@ -44,6 +44,7 @@ import { isTouchDevice } from "../../utils/isTouchDevice";
 import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
@@ -275,6 +276,9 @@ export default function Home({ }) {
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
   const {isMobile} = useWindowDimensions()
   const onRefresh = async () => {
+    Haptics.impact({
+      style: ImpactStyle.Medium
+    });
     await mutate((key) => key.startsWith("balance-") || key === "prices");
   }
  
@@ -345,9 +349,9 @@ export default function Home({ }) {
           onClick={(ticker) => {
             if (isMobile) {
               // navigate(`/${ticker}`)
-              document.startViewTransition(() => {
+              // document.startViewTransition(() => {
                 navigate(`/${ticker}`, {unstable_viewTransition: true})
-            })
+            // })
             }
             else {
               setSelectedTicker(ticker)
