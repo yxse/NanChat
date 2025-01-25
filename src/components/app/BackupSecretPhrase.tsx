@@ -8,9 +8,11 @@ import { saveAs } from 'file-saver';
 import useLocalStorageState from 'use-local-storage-state';
 import { WalletContext } from '../Popup';
 import { authenticate } from '../../utils/biometrics';
+import { PinAuthPopup } from '../Lock/PinLock';
 function BackupSecretPhrase() {
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [visible, setVisible] = useState(false);
+    const [pinVisible, setPinVisible] = useState(false);
     const [isRevealed, setIsRevealed] = useState(false);
     const {wallet} = useContext(WalletContext)
     let mnemonic = ""
@@ -33,9 +35,16 @@ function BackupSecretPhrase() {
    
     return (
         <>
-            <List.Item prefix={icon} onClick={async () => {
-                await authenticate()
+       <PinAuthPopup
+       location={"backup-secret-phrase"}
+       description={"Backup secret phrase"}
+        visible={pinVisible} setVisible={setPinVisible} onAuthenticated={() => {
                 setVisible(true)
+        }} />
+            <List.Item prefix={icon} onClick={async () => {
+                // await authenticate()
+                setPinVisible(true)
+                // setVisible(true)
             }}>
                 Backup Secret Phrase
             </List.Item>

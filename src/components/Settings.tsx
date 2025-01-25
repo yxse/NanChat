@@ -21,7 +21,7 @@ import { RiContactsFill } from "react-icons/ri";
 import BackupSecretPhrase from "./app/BackupSecretPhrase";
 import { decrypt, encrypt } from "../worker/crypto";
 import { BsCurrencyExchange } from "react-icons/bs";
-import { AddressBookFill, BellOutline, DeleteOutline, EditSOutline, GlobalOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
+import { AddressBookFill, BellOutline, DeleteOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
 import { LedgerContext } from "./Popup";
 import { BiHistory } from "react-icons/bi";
@@ -92,7 +92,61 @@ export function CopyToClipboard({ text, hideCopyIcon = false, textToDisplay }: {
     </div>
   );
 }
-
+export const showLogoutSheet = async () => {
+  let actionSheet1 = showActionSheet({
+    actions: [
+      { key: '1',
+        text: 'Continue',
+        danger: false,
+        description: '',
+        onClick: () => {
+        // actionSheet1.close()
+        let actionSheet = showActionSheet({
+          actions: [
+            { key: '1',
+              text: <div className="flex items-center gap-2 justify-center">
+                <ExclamationCircleOutline />
+                Remove Secret Phrase and Log Out</div>,
+              danger: true,
+              description: '',
+              onClick: async () => {
+              actionSheet.close()
+              actionSheet1.close()
+              localStorage.removeItem('seed')
+              localStorage.removeItem('encryptedMasterKey')
+              await removeSeed()
+              window.location.reload()
+            }
+          },
+          { 
+            key: '2',
+            text: 'Cancel', onClick: () => {
+              actionSheet.close()
+              actionSheet1.close()
+            }
+          }
+          ]
+        })
+        // localStorage.clear()
+        // navigate("/")
+      }
+    },
+    { 
+      key: '2',
+      text: 'Cancel', onClick: () => {
+        actionSheet1.close()
+      }
+    }
+    ]
+    , extra: <div
+    className="text-center text-xl flex items-center justify-center gap-2"
+    style={{color: 'var(--adm-color-warning)'}}
+    ><ExclamationTriangleOutline fontSize={24} style={{minWidth: 24}} />
+    Make sure you have saved the secret recovery phrase of your wallet. You will not be able to recover your funds without it.
+    </div>
+  })
+}
+      
 export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean, setNavOpen: Function }) {
   const {ledger, setLedger} = useContext(LedgerContext);
   const [isPasswordEncrypted, setIsPasswordEncrypted] = useState(false);
@@ -461,56 +515,8 @@ className="mb-24"
             </List.Item> */}
             <List.Item
               prefix={<MdLogout fontSize={24} color="red" />}
-              onClick={() => {
-                let actionSheet1 = showActionSheet({
-                  actions: [
-                    { key: '1',
-                      text: 'Continue',
-                      danger: false,
-                      description: '',
-                      onClick: () => {
-                      // actionSheet1.close()
-                      let actionSheet = showActionSheet({
-                        actions: [
-                          { key: '1',
-                            text: 'Remove Secret Phrase and Log Out', 
-                            danger: true,
-                            description: '',
-                            onClick: async () => {
-                            actionSheet.close()
-                            actionSheet1.close()
-                            localStorage.removeItem('seed')
-                            localStorage.removeItem('encryptedMasterKey')
-                            await removeSeed()
-                            window.location.reload()
-                          }
-                        },
-                        { 
-                          key: '2',
-                          text: 'Cancel', onClick: () => {
-                            actionSheet.close()
-                            actionSheet1.close()
-                          }
-                        }
-                        ]
-                      })
-                      // localStorage.clear()
-                      // navigate("/")
-                    }
-                  },
-                  { 
-                    key: '2',
-                    text: 'Cancel', onClick: () => {
-                      actionSheet1.close()
-                    }
-                  }
-                  ]
-                  , extra: <div
-                  className="text-center text-xl text-red-500">
-                  Make sure you have saved the secret recovery phrase of your wallet. You will not be able to recover your funds without it.
-                  </div>
-                })
-                    
+              onClick={async () => {
+                await showLogoutSheet()
               }}
             >
               Log Out

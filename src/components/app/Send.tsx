@@ -48,6 +48,7 @@ import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { Scanner } from "./Scanner";
 import { authenticate, secureAuthIfAvailable } from "../../utils/biometrics";
+import { PinAuthPopup } from "../Lock/PinLock";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -205,6 +206,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
   const [amountType, setAmountType] = useState<string>("crypto");
   const [amountInFiat, setAmountInFiat] = useState<number>(0);
   const [inputRef, setInputFocus] = useFocus()
+  const [pinVisible, setPinVisible] = useState(false)
   const {isMobile} = useWindowDimensions()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   const {mutate,cache}=useSWRConfig()
@@ -403,31 +405,13 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     </div>
                 </div>
                 </div>
-                <Button
-                shape="rounded"
-                loading={isLoading}
-                size="large"
-                 color="primary" onClick={async () => {
-
+                <PinAuthPopup
+                location={"send"}
+                description={`Send ${form.getFieldValue("amount")} ${ticker}`}
+                visible={pinVisible}
+                setVisible={setPinVisible}
+                onAuthenticated={async () => {
                   try {
-                    await authenticate()
-                  } catch (error) {
-                    console.error("Error authenticating:", error);
-                    Toast.show({
-                      content: "Error authenticating",
-                    });
-                    return;
-                  }
-                    // if (localStorage.getItem("webauthn-credential-id")) {
-                    //   const challenge = crypto.randomUUID()
-                    //   await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
-                    //     // "authenticatorType": "both",
-                    //     // "userVerification": "discouraged",
-                    //     "timeout": 5000
-                    //   })
-                    // }
-             
-                    try {
                     setIsLoading(true);
                     console.log(form.getFieldsValue());
                     const fromAddress = activeAccount
@@ -486,6 +470,33 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     setIsLoading(false);
                   }
                    setConfirmPopupOpen(false);
+                }}
+                />
+                <Button
+                shape="rounded"
+                loading={isLoading}
+                size="large"
+                 color="primary" onClick={async () => {
+                    setPinVisible(true)
+                  // try {
+                  //   await authenticate()
+                  // } catch (error) {
+                  //   console.error("Error authenticating:", error);
+                  //   Toast.show({
+                  //     content: "Error authenticating",
+                  //   });
+                  //   return;
+                  // }
+                    // if (localStorage.getItem("webauthn-credential-id")) {
+                    //   const challenge = crypto.randomUUID()
+                    //   await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
+                    //     // "authenticatorType": "both",
+                    //     // "userVerification": "discouraged",
+                    //     "timeout": 5000
+                    //   })
+                    // }
+             
+                    
                 }}
                 className="w-full mt-4"
                 >

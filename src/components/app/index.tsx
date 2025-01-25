@@ -73,6 +73,8 @@ import ChatSocket from "../messaging/socket";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import NotificationSettings from "./NotificationSettings";
+import { authenticate } from "../../utils/biometrics";
+import { getIsPasswordEncrypted } from "../../utils/storage";
 
 if (Capacitor.getPlatform() === "ios"){
 Keyboard.setResizeMode({mode: KeyboardResize.None});
@@ -137,7 +139,7 @@ export const MenuBar = () => {
     // color: '#000034',
     // color: '#ccc',
     // backgroundColor: '#4A90E2',
-    backgroundColor: '#1677ff',
+    backgroundColor: 'var(--adm-color-background)',
     // boxShadow: "0 0 0 4px #4A90E2",
     // color: '#4A90E2',
     // backgroundColor: '#000034',
@@ -300,7 +302,6 @@ export default function App() {
 
     useEffect(() => {
       // const myworker = new Worker(new URL("./src/service-worker.js", import.meta.url));
-     
 
       const interval = setInterval(() => {
           setTimeSinceLastActivity((prev) => prev + 1);
@@ -321,8 +322,12 @@ export default function App() {
 
     useEffect(() => {
       if (timeSinceLastActivity > lockTimeSeconds && lockTimeSeconds !== -1) {
-        Toast.show("Locking wallet due to inactivity");
-        window.location.reload();
+        getIsPasswordEncrypted().then((isPasswordEncrypted) => {
+          if (isPasswordEncrypted) { // no need to lock wallet if no password is set
+            Toast.show("Locking wallet due to inactivity");
+            window.location.reload();
+          }
+        });
       }
     }, [timeSinceLastActivity]);
     

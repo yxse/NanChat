@@ -41,23 +41,95 @@ export function resetWallet(): void {
   localStorage.clear();
   // chrome.storage.local.clear();
 }
+const PIN_DELAYS = [
+  // based on iOS delay https://support.apple.com/guide/security/sec20230a10d/web
+  5000, 
 
-export async function setSeed(seed: string, isPasswordEncrypted: boolean): Promise<void> {
+
+  // 0, 
+  // 0,
+  // 0, 
+  // 0, 
+  // 1000 * 60, // 1 minute
+  // 1000 * 60 * 5, // 5 minutes
+  // 1000 * 60 * 15, // 15 minutes
+  // 1000 * 60 * 60, // 1 hour
+  // 1000 * 60 * 60 * 3, // 3 hours
+  // 1000 * 60 * 60 * 8, // 8 hours
+];
+const PIN_MAX_ATTEMPTS = 100;
+export async function setPin(pin: string): Promise<void> {
+  // localStorage.setItem("pin", pin);
+  const pinValue = JSON.stringify({
+    pin: pin,
+    attemptsRemaining: PIN_MAX_ATTEMPTS,
+    nextAttempt: 0,
+  });
+  await saveInSecureStorage('pin', pinValue);
+}
+
+
+
+export async function verifyPin(pin: string): Promise<{error: string, nextAttempt: number, valid: boolean, attemptsRemaining?: number}> {
+  const pinValue = await getFromSecureStorage('pin');
+  const pinObj = JSON.parse(pinValue);
+  if (pinObj.nextAttempt > Date.now()) {
+    return {
+      error: `Please wait ${Math.ceil((pinObj.nextAttempt - Date.now()) / 1000)} seconds before trying again`,
+      nextAttempt: pinObj.nextAttempt,
+      attemptsRemaining: pinObj.attemptsRemaining,
+      valid: false
+    }
+  }
+  if (pinObj.pin === pin) {
+    pinObj.attemptsRemaining = PIN_MAX_ATTEMPTS;
+    pinObj.nextAttempt = 0;
+    await saveInSecureStorage('pin', JSON.stringify(pinObj));
+    return {
+      valid: true,
+    }
+  }
+  else{
+    pinObj.attemptsRemaining -= 1;
+    const failedAttempts = PIN_MAX_ATTEMPTS - pinObj.attemptsRemaining;
+    const delay = failedAttempts < PIN_DELAYS.length ? PIN_DELAYS[failedAttempts] : PIN_DELAYS[PIN_DELAYS.length - 1]; 
+    if (delay > 0) {
+      pinObj.nextAttempt = Date.now() + delay;
+    }
+    if (pinObj.attemptsRemaining <= 0) {
+      console.log("Erasing wallet after too many failed pin attempts");
+      await removeSeed();
+      window.location.reload();
+      return;
+    }
+    await saveInSecureStorage('pin', JSON.stringify(pinObj));
+    return {
+      error: "Incorrect, try again",
+      nextAttempt: pinObj.nextAttempt,
+      attemptsRemaining: pinObj.attemptsRemaining,
+      valid: false
+    }
+  }
+}
+export async function getPinInfo(): Promise<{nextAttempt: number, attemptsRemaining: number}> {
+  const pinValue = await getFromSecureStorage('pin');
+  const pinObj = JSON.parse(pinValue);
+  return {
+    nextAttempt: pinObj.nextAttempt,
+    attemptsRemaining: pinObj.attemptsRemaining
+  }
+}
+export async function getIsPasswordEncrypted(): Promise<boolean> {
+  const seed = await getSeed();
+  return seed.isPasswordEncrypted;
+}
+export async function setSeed(seed: string, isPasswordEncrypted: boolean, pin: string = ""): Promise<void> {
   // localStorage.setItem("seed", seed);
   let valueSeed = JSON.stringify({
     seed: seed,
     isPasswordEncrypted: isPasswordEncrypted
   });
-  if (isTauri()) {
-    await KeyringService.saveSecret('nanwallet', 'seed', valueSeed);
-  }
-  else {
-    // const retrievedSeed = await KeyringService.getSecret('nanwallet', 'seed');
-    // console.log("Keyring seed: ", retrievedSeed);
-    SecureStoragePlugin.set({key: "seed", value: valueSeed});
-    const value = await SecureStoragePlugin.get({key: "seed"});
-    console.log("SecureStorage seed: ", value);
-  }
+  await saveInSecureStorage('seed', valueSeed);
 }
 
 const getActiveAccount = () => {
@@ -94,37 +166,38 @@ export async function getChatTokens(): Promise<string> {
   // return localStorage.getItem("seed");
 }
 
+export async function saveInSecureStorage(key: string, value: string): Promise<void> {
+  if (isTauri()) {
+    await KeyringService.saveSecret('nanwallet', key, value);
+  }
+  else {
+    await SecureStoragePlugin.set({key: key, value: value});
+  }
+}
+export async function getFromSecureStorage(key: string): Promise<string> {
+  if (isTauri()) {
+    return await KeyringService.getSecret('nanwallet', key);
+  }
+  else {
+    const value = await SecureStoragePlugin.get({key: key});
+    return value.value;
+  }
+}
 export async function setChatToken(account: string, token: string): Promise<void> {
   let existingTokens = await getChatTokens();
   if (!existingTokens) {
     existingTokens = {};
   }
   existingTokens[account] = token;
-  let r
-  debugger;
-  if (isTauri()) {
-    r = 
-    await KeyringService.saveSecret('nanwallet', keyTokenChat, JSON.stringify(existingTokens));
-  }
-  else {
-    r = await
-    SecureStoragePlugin.set({key: keyTokenChat, value: JSON.stringify(existingTokens)});
-  }
+  await saveInSecureStorage(keyTokenChat, JSON.stringify(existingTokens));
   console.log("Saved token: ", r);
 }
 
 
 export async function getSeed(): Promise<string> {
   try {
-    if (isTauri()) {
-      const seed = await KeyringService.getSecret('nanwallet', 'seed');
-      return JSON.parse(seed);
-    }
-    else{
-      let seed = await SecureStoragePlugin.get({key: "seed"})
-      return JSON.parse(seed.value);
-    }
-    
+    const seed = await getFromSecureStorage('seed');
+    return JSON.parse(seed);
   } catch (error) {
     console.error("Error getting seed: ", error);
     return null
@@ -133,16 +206,19 @@ export async function getSeed(): Promise<string> {
   // return localStorage.getItem("seed");
 }
 
-export function removeSeed(): void {
+export async function removeSeed(): Promise<void> {
   try {
     if (isTauri()) {
-      KeyringService.deleteSecret('nanwallet', 'seed');
-      KeyringService.deleteSecret('nanwallet', keyTokenChat);
+      await KeyringService.deleteSecret('nanwallet', 'seed');
+      await KeyringService.deleteSecret('nanwallet', keyTokenChat);
+      await KeyringService.deleteSecret('nanwallet', 'pin');
     }
     else{
-      SecureStoragePlugin.remove({key: "seed"});
-      SecureStoragePlugin.remove({key: keyTokenChat});
+      await SecureStoragePlugin.remove({key: "seed"});
+      await SecureStoragePlugin.remove({key: keyTokenChat});
+      await SecureStoragePlugin.remove({key: "pin"});
     }
+    localStorage.clear();
   }
   catch (error) {
     console.error("Error removing seed: ", error);

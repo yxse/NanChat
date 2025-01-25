@@ -1,5 +1,5 @@
 
-import { Button, Toast, CheckList, Modal, List, Input, Form, NavBar, Divider } from "antd-mobile";
+import { Button, Toast, CheckList, Modal, List, Input, Form, NavBar, Divider, Switch } from "antd-mobile";
 import { MdOutlineFingerprint, MdOutlinePassword, MdOutlineTimer } from "react-icons/md";
 import * as webauthn from '@passwordless-id/webauthn';
 import { decrypt, encrypt } from "../../worker/crypto";
@@ -10,6 +10,8 @@ import { getSeed, removeSeed, setSeed } from "../../utils/storage";
 import {BiometricAuth} from '@aparajita/capacitor-biometric-auth'
 import { authenticate, biometricAuthIfAvailable, webauthnAuthIfAvailable } from "../../utils/biometrics";
 import { Capacitor } from "@capacitor/core";
+import { CreatePin } from "../Lock/CreatePin";
+import { PinAuthPopup } from "../Lock/PinLock";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [seed, setSeedLocal] = useState(undefined);
@@ -18,7 +20,11 @@ function SecuritySettings() {
         60 * 30 // 30 minutes
       });
     const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", {defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none"});
+    const [confirmationMethodToSet, setConfirmationMethodToSet] = useState("")
     const [developerMode, setDeveloperMode] = useLocalStorageState("developer-mode", {defaultValue: false});
+    const [createPinVisible, setCreatePinVisible] = useState(false);
+    const [pinVisible, setPinVisible] = useState(false);
+    const isPasswordMandatory = Capacitor.getPlatform() === "web" ? true : false; // Password is only mandatory on web version
       const valuesLock = [
         { value: "-1", label: "Disabled" },
         { value: "60", label: "1 minute" },
@@ -35,6 +41,46 @@ function SecuritySettings() {
         })
     }
     , [])
+
+    const WhenToAuthenticateSettings = () => {
+      const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", {defaultValue: ["launch"]});
+      const [pinVisible, setPinVisible] = useState(false);
+      const [actionToRemove, setActionToRemove] = useState("")
+      const WhenToAuthenticateItem = ({value, children}) => {
+          return <List.Item
+          extra={<Switch checked={whenToAuthenticate.includes(value)} onChange={(checked) => {
+              if (checked) {
+                  setWhenToAuthenticate([...whenToAuthenticate, value])
+              }
+              else if (whenToAuthenticate.length === 1) {
+                Toast.show({
+                  icon: "fail",
+                  content: "At least one option must be enabled",
+                  position: "top"
+                })
+              }
+              else{
+                
+                setActionToRemove(value)
+                setPinVisible(true)
+              }
+          }} />}
+          >
+              {children}
+          </List.Item>
+      }
+      return <List mode="card">
+        <PinAuthPopup
+        location={"change-confirmation-method"}
+        visible={pinVisible}
+        setVisible={setPinVisible}
+        onAuthenticated={() => setWhenToAuthenticate(whenToAuthenticate.filter((v) => v !== actionToRemove))} />
+        {!seed?.isPasswordEncrypted && <WhenToAuthenticateItem value={"launch"}>Authenticate on launch</WhenToAuthenticateItem>}
+          <WhenToAuthenticateItem value={"send"}>Authenticate on send</WhenToAuthenticateItem>
+          </List>
+  }
+
+  
   return (
     <div>
         <NavBar
@@ -56,7 +102,7 @@ function SecuritySettings() {
                   title: "Disable Password",
                   content: (
                     <div>
-                      <div>You will no longer need a password to open Cesium.</div>
+                      <div>You will no longer need a password to open NanWallet.</div>
                       <div>
                         Your secret phrase will be stored unencrypted on this device. <br/>Make sure your device cannot be accessed by unauthorized users.
                       </div>
@@ -100,6 +146,9 @@ function SecuritySettings() {
                       >
                         Disable Password
                       </Button>
+                      {isPasswordMandatory && <div className="text-sm mt-4">
+                        <div>Password is mandatory on web version. <a href="https://nanwallet.com" target="_blank">Download NanWallet</a> to use secure storage without a password.</div>
+                      </div>}
                     </div>
                   ),
                 });
@@ -171,95 +220,28 @@ function SecuritySettings() {
               Set a Password
             </List.Item>
             }
-            <List.Item
-            extra={confirmationMethod === "enabled" ? "Enabled" : "None"}
-              prefix={<MdOutlineFingerprint size={24} />}
-              onClick={() => {
-                let modal = Modal.show({
-                  closeOnMaskClick: true,
-                  title: "Authentication",
-                  content: <div>
-                    <CheckList
-                    value={confirmationMethod}
-                    defaultValue={localStorage.getItem("webauthn-credential-id") ? ["webauthn"] : ["none"]} 
-                    onChange={(val) => {
-                      console.log(val)
-                    }
-                    }>
-                      <CheckList.Item
-                      value={"enabled"}
-                      onClick={async () => {
-                        const challenge = crypto.randomUUID()
-                        if (localStorage.getItem("webauthn-credential-id") && localStorage.getItem("webauthn-credential-id") !== "undefined") {
-                            return
-                        }
-                        else{
-                          try {
-                            await biometricAuthIfAvailable()
-                            await webauthnAuthIfAvailable()
-                            // await BiometricAuth.authenticate({
-                            //   // reason: "Confirm to enable biometric authentication"
-                            // })
-                          // let r = await webauthn.client.register("Wallet #1", challenge, {
-                          //   "authenticatorType": "auto",
-                          //   "userVerification": "required",
-                          //   "discoverable": "preferred",
-                          //   "timeout": 60000,
-                          //   "attestation": true
-                          // })
-                          // localStorage.setItem("webauthn-credential-id", r.credential.id)
-                          // localStorage.setItem("webauthn-credential-id", " ")
-                          Toast.show({
-                            icon: "success",
-                            content: "Authentication enabled"
-                          })
-                          setConfirmationMethod("enabled")
-                          modal.close()
-                        } catch (error) {
-                          console.error(error)
-                          Toast.show({
-                            icon: "fail",
-                            content: "Failed to authenticate. This method may be not supported on your device.",
-                            duration: 5000
-                          })
-                        }
-                      }}}
-                      >
-                        Face ID/Fingerprint/Key
-                      </CheckList.Item>
-                      <CheckList.Item 
-                      value={"none"}
-                      onClick={async () => {
-                        try {
-                          await biometricAuthIfAvailable()
-                          await webauthnAuthIfAvailable()
-                            localStorage.removeItem("webauthn-credential-id")
-                            Toast.show({
-                                icon: "success",
-                                content: "Confirmation disabled"
-                            })
-                            setConfirmationMethod("none")
-                            modal.close()
-                        } catch (error) {
-                            
-                        }
-                        }}>
-                        None
-                        </CheckList.Item>
-                        </CheckList>
-                        <div className="text-gray-300 text-sm mt-4">
-                      <div>
-                      If enabled, confirmation will be required to send transactions.
-                      </div>
-                      <div className="mt-2">
-                      Please note that this does not encrypt your secret key. To encrypt your secret key, always use a password.
-                      </div>
-                    </div>
-                    </div>
-              })}}
-            >
-              Authentication
-            </List.Item>
+            <PinAuthPopup 
+            location={"change-confirmation-method"}
+            visible={pinVisible} setVisible={setPinVisible} onAuthenticated={async () => {
+              if (confirmationMethodToSet === "pin") {
+                setCreatePinVisible(true)
+              }
+              else if (confirmationMethodToSet === "enabled") { 
+                // ensure user has access to biometrics before enabling
+                await biometricAuthIfAvailable()
+                await webauthnAuthIfAvailable()
+              }
+              setConfirmationMethod(confirmationMethodToSet)
+            }} description={"Change confirmation method"} />
+            <CreatePin
+             visible={createPinVisible} 
+             setVisible={setCreatePinVisible} 
+             onAuthenticated={(pin) => {
+                setConfirmationMethod("pin")
+                Modal.clear()
+              }} />
+             
+            {seed?.isPasswordEncrypted &&
             <List.Item
             extra={valuesLock.find((v) => v.value === lockTimeSeconds.toString())?.label}
             onClick={() => {
@@ -300,7 +282,127 @@ function SecuritySettings() {
               });
             }}
             prefix={<MdOutlineTimer size={24} />}>Lock After Inactivity</List.Item>
+            }
         </List>
+       
+          <>
+        <List 
+        mode="card">
+          <List.Item
+            extra={confirmationMethod}
+              prefix={<MdOutlineFingerprint size={24} />}
+              onClick={() => {
+                let modal = Modal.show({
+                  closeOnMaskClick: true,
+                  title: "Authentication",
+                  content: <div>
+                    <CheckList
+                    value={[confirmationMethod]}
+                    defaultValue={localStorage.getItem("webauthn-credential-id") ? ["webauthn"] : ["none"]} 
+                    onChange={(val) => {
+                      console.log(val)
+                    }
+                    }>
+                      <CheckList.Item
+                      value={"enabled"}
+                      onClick={async () => {
+                        setConfirmationMethodToSet("enabled")
+                        setPinVisible(true)
+                        modal.close()
+                        const challenge = crypto.randomUUID()
+                        if (localStorage.getItem("webauthn-credential-id") && localStorage.getItem("webauthn-credential-id") !== "undefined") {
+                            // return
+                        }
+                        else{
+                          try {
+                          //   await biometricAuthIfAvailable()
+                          //   await webauthnAuthIfAvailable()
+                          //   // await BiometricAuth.authenticate({
+                          //   //   // reason: "Confirm to enable biometric authentication"
+                          //   // })
+                          // // let r = await webauthn.client.register("Wallet #1", challenge, {
+                          // //   "authenticatorType": "auto",
+                          // //   "userVerification": "required",
+                          // //   "discoverable": "preferred",
+                          // //   "timeout": 60000,
+                          // //   "attestation": true
+                          // // })
+                          // // localStorage.setItem("webauthn-credential-id", r.credential.id)
+                          // // localStorage.setItem("webauthn-credential-id", " ")
+                          // Toast.show({
+                          //   icon: "success",
+                          //   content: "Authentication enabled"
+                          // })
+                          // setConfirmationMethodToSet("enabled")
+                          // setPinVisible(true)
+                        } catch (error) {
+                          console.error(error)
+                          Toast.show({
+                            icon: "fail",
+                            content: "Failed to authenticate. This method may be not supported on your device.",
+                            duration: 5000
+                          })
+                        }
+                      }}}
+                      >
+                        Face ID/Fingerprint/Key
+                      </CheckList.Item>
+                      <CheckList.Item
+                      value={"pin"}
+                      onClick={async () => {
+                        setPinVisible(true)
+                        setConfirmationMethodToSet("pin")
+                        }}>
+                        PIN
+                      </CheckList.Item>
+                      <CheckList.Item 
+                      value={"none"}
+                      onClick={async () => {
+                        setConfirmationMethodToSet("none")
+                        setPinVisible(true)
+                        modal.close()
+                        // try {
+                        //   await biometricAuthIfAvailable()
+                        //   await webauthnAuthIfAvailable()
+                        //     localStorage.removeItem("webauthn-credential-id")
+                        //     Toast.show({
+                        //         icon: "success",
+                        //         content: "Confirmation disabled"
+                        //     })
+                        //     setConfirmationMethod("none")
+                        //     modal.close()
+                        // } catch (error) {
+                            
+                        // }
+                        }}>
+                        None
+                        </CheckList.Item>
+                        </CheckList>
+                        <div className="text-gray-300 text-sm mt-4">
+                      <div>
+                      If enabled, confirmation will be required to send transactions.
+                      </div>
+                      <div className="mt-2">
+                      Please note that this does not encrypt your secret key. To encrypt your secret key, always use a password.
+                      </div>
+                    </div>
+                    </div>
+              })}}
+            >
+              Authentication
+            </List.Item>
+            </List>
+            {
+          confirmationMethod !== "none" && 
+          <WhenToAuthenticateSettings />
+      }
+        </>
+        {
+          confirmationMethod !== "none" && 
+        <div className="text-sm px-4" style={{color: "var(--adm-color-text-secondary)"}}>
+          At least one option must be enabled.
+        </div> 
+        }
         <Divider />
         <List mode="card">
             <List.Item
@@ -315,5 +417,6 @@ function SecuritySettings() {
     </div>
   )
 }
+
 
 export default SecuritySettings
