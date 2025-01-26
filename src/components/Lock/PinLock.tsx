@@ -34,15 +34,17 @@ export const ForgotYourPin = ({ type = "PIN" }) => {
 }
 
 export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description, title = "Enter your PIN", location }) => {
-    const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", { defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none" });
+    // const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", { defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none" });
+    const confirmationMethod = localStorage.getItem("confirmation-method")
     const [locked, setLocked] = useState(false)
     const [nextAttemptDate, setNextAttemptDate] = useState(0)
     const [attemptRemaining, setAttemptRemaining] = useState(10)
     const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", { defaultValue: ["launch"] })
-    const alwaysAuthenticate = ["backup-secret-phrase", "change-confirmation-method"]
+    const alwaysAuthenticate = ["backup-secret-phrase", "change-confirmation-method", "create-wallet" ]
     const [error, setError] = useState("")
     const showCloseButton = location === "launch" ? false : true
     const ref = useRef()
+    const byPassAuthentication = !whenToAuthenticate.includes(location) && !alwaysAuthenticate.includes(location)
     useEffect(() => {
         async function authenticateByConfirmationMethod() {
             if (location === "launch") {
@@ -53,8 +55,7 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                     return
                 }
             }
-            if (confirmationMethod !== "pin") {
-
+            if (confirmationMethod !== '"pin"') {
                 authenticate().then(() => {
                     setVisible(false)
                     onAuthenticated()
@@ -75,7 +76,7 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
         }
         if (visible) {
 
-            if (!whenToAuthenticate.includes(location) && !alwaysAuthenticate.includes(location)) {
+            if (byPassAuthentication) {
                 // bypass authentication if disabled in settings
                 onAuthenticated()
                 setVisible(false)
@@ -121,6 +122,9 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                     <PasscodeInput
                         className="passcode-input"
                         onFill={async () => {
+                            try {
+                                
+                            
                             let result = await verifyPin(pin)
                             if (result?.error) {
                                 setPin("")
@@ -137,6 +141,21 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                                 setVisible(false)
                                 setPin("")
                             }
+                        } catch (error) {
+                            // if pin enabled but not set
+                            // should not happen but fallback to allow reset wallet
+                                Modal.show({
+                                    title: "Error verifying PIN",
+                                    content: error.message,
+                                    closeOnAction: true,
+                                    actions: [
+                                        { key: "signout", text: "Sign out", onClick: async () => {
+                                            await showLogoutSheet()
+                                        } },
+                                        { key: "cancel", text: "Cancel" }
+                                    ]
+                                })
+                        }
                         }}
 
                         caret={false}
@@ -200,8 +219,8 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
             </div>
         </Popup>
     }
-
-    if (confirmationMethod !== "pin") return null
+    if (byPassAuthentication) return null
+    if (confirmationMethod !== '"pin"') return null
     if (locked) return <PinPopupLocked />
     return <PinPopup />
 }

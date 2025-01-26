@@ -8,7 +8,7 @@ import "../../../styles/mnemonic.css";
 import { BsEyeSlashFill } from "react-icons/bs";
 
 import storage, { setSeed } from "../../../utils/storage";
-import { Button, Card, DotLoading, Modal } from "antd-mobile";
+import { Button, Card, DotLoading, Modal, Toast } from "antd-mobile";
 import { CopyButton } from "../../app/Icons";
 import { saveAs } from 'file-saver';
 import { WalletContext } from "../../Popup";
@@ -18,6 +18,10 @@ import { initWallet } from "../../../nano/accounts";
 import { CopyToClipboard } from "../../Settings";
 import { isTauri } from "@tauri-apps/api/core";
 import { Capacitor } from "@capacitor/core";
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
+import { PinAuthPopup } from "../../Lock/PinLock";
+import { CreatePin } from "../../Lock/CreatePin";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export default function Mnemonic({
   setW,
@@ -32,6 +36,8 @@ export default function Mnemonic({
   const {wallet, dispatch} = useContext(WalletContext);
   const [checked, setChecked] = useState<boolean>(false);
   const [mnemonic, setMnemonic] = useState<string>("");
+  const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
+  const [pinVisible, setPinVisible] = useState<boolean>(false);
   useEffect(() => {
     const generatedWallet = walletLib.generateLegacy()
     setMnemonic(generatedWallet.mnemonic);
@@ -87,20 +93,46 @@ export default function Mnemonic({
           <Button
           shape="rounded"
           onClick={async () => {
+            Haptics.impact({
+              style:ImpactStyle.Medium
+            });
             if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
-              await setSeed(wallet.wallets["XNO"].seed, false)
-              setWalletState("unlocked");
-              onCreated()
+              let biometricAuth = await BiometricAuth.checkBiometry()
+              Toast.show({icon: "success", content: biometricAuth.strongBiometryIsAvailable})
+              if (biometricAuth.strongBiometryIsAvailable){
+                localStorage.setItem('confirmation-method', '"enabled"')
+                setPinVisible(true)
+              }
+              else{
+                localStorage.setItem('confirmation-method', '"pin"')
+                setCreatePinVisible(true)
+              }
             }
             else{
               setW(2)
             }
           }}
-           type="submit" color="primary" size="large" className="mt-4 w-full">
+           color="primary" size="large" className="mt-4 w-full">
             I saved my Secret Recovery Phrase
           </Button>
         </form>
       </div>
+      <PinAuthPopup
+      location={"create-wallet"}
+      visible={pinVisible}
+      setVisible={setPinVisible}
+      onAuthenticated={async () => {
+        await setSeed(wallet.wallets["XNO"].seed, false)
+        setWalletState("unlocked");
+        onCreated()
+      }
+      } />
+      <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={async () => {
+        await setSeed(wallet.wallets["XNO"].seed, false)
+        setWalletState("unlocked");
+        onCreated()
+      }
+      } />
       </Card>
     </>
   );

@@ -14,6 +14,7 @@ import { initWallet } from "../../nano/accounts";
 import icon from "../../../public/icons/icon.png"
 import { Capacitor } from "@capacitor/core";
 import { getMobileOperatingSystem } from "../../hooks/use-windows-dimensions";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 // export async function resetLedger() {
 // }
 
@@ -280,16 +281,17 @@ export default function Start({
             <div className="select-none items-center flex flex-col justify-center align-center w-full">
               <div className="flex flex-col space-y-3 items-center justify-center w-full">
                 <img
+                style={{borderRadius: 24}}
                   src={icon}
-                  className="w-auto h-32 mr-2"
+                  width={128}
                   alt="NanWallet Logo"
                   draggable={false}
                 />
                
               </div>
               <p
-                className={`${theme == "light" && "!text-slate-700"
-                  } start-content-text`}
+                className={"text-xl text-center mt-4 select-none"}
+                style={{ color: "var(--adm-color-text-secondary)", marginBottom: 64, marginTop: 64 }}
               >
                 To get started, create a new wallet or import one from a seed
                 phrase.
@@ -300,7 +302,12 @@ export default function Start({
 
           <Button
             shape="rounded"
-            onClick={() => setW(1)}
+            onClick={() => {
+              Haptics.impact({
+                style:ImpactStyle.Medium
+              });
+              setW(1)
+            }}
             className="w-full mt-4"
             size="large"
             color="primary">
@@ -308,7 +315,12 @@ export default function Start({
           </Button>
           <Button
             shape="rounded"
-            onClick={() => setW(4)}
+            onClick={() => {
+              Haptics.impact({
+                style:ImpactStyle.Medium
+              });
+              setW(4)
+            }}
             className="w-full mt-2 mb-2"
             size="large"
             color="default">
@@ -329,9 +341,10 @@ export default function Start({
 
         </div>
           </div>
-          <div className="text-center mt-4">
+      </Card>
+          {/* <div className="text-center mt-4">
           <div className="flex flex-col">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm" style={{ color: "var(--adm-color-text-secondary)", marginTop: 128}}>
                     Created with 💙 by{" "}
                     <a
                       href="https://github.com/YXSE"
@@ -343,8 +356,7 @@ export default function Start({
                     </a>
                   </span>
                 </div>
-          </div>
-      </Card>
+          </div> */}
     </div>
   );
 }

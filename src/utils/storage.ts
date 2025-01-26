@@ -121,7 +121,7 @@ export async function getPinInfo(): Promise<{nextAttempt: number, attemptsRemain
 }
 export async function getIsPasswordEncrypted(): Promise<boolean> {
   const seed = await getSeed();
-  return seed.isPasswordEncrypted;
+  return seed?.isPasswordEncrypted;
 }
 export async function setSeed(seed: string, isPasswordEncrypted: boolean, pin: string = ""): Promise<void> {
   // localStorage.setItem("seed", seed);
@@ -208,17 +208,15 @@ export async function getSeed(): Promise<string> {
 
 export async function removeSeed(): Promise<void> {
   try {
+    localStorage.clear();
     if (isTauri()) {
       await KeyringService.deleteSecret('nanwallet', 'seed');
       await KeyringService.deleteSecret('nanwallet', keyTokenChat);
       await KeyringService.deleteSecret('nanwallet', 'pin');
     }
     else{
-      await SecureStoragePlugin.remove({key: "seed"});
-      await SecureStoragePlugin.remove({key: keyTokenChat});
-      await SecureStoragePlugin.remove({key: "pin"});
+      await SecureStoragePlugin.clear();
     }
-    localStorage.clear();
   }
   catch (error) {
     console.error("Error removing seed: ", error);

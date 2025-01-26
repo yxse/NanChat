@@ -5,7 +5,7 @@ import { IoArrowBack } from "react-icons/io5";
 import words from "../../../utils/words";
 import { tools, wallet as walletLib } from "multi-nano-web";
 
-import storage from "../../../utils/storage";
+import storage, { setSeed } from "../../../utils/storage";
 
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,11 +18,20 @@ import { useSWRConfig } from "swr";
 import { WalletContext } from "../../Popup";
 import * as bip39 from 'bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
+import { isTauri } from "@tauri-apps/api/core";
+import { Capacitor } from "@capacitor/core";
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
+import { PinAuthPopup } from "../../Lock/PinLock";
+import { CreatePin } from "../../Lock/CreatePin";
 
 export default function ImportPhrase({
   setW,
+  setWalletState,
+  onCreated,
 }: {
   setW: Dispatch<React.SetStateAction<number>>;
+  setWalletState: React.Dispatch<React.SetStateAction<"locked" | "unlocked" | "no-wallet" | "loading">>;
+  onCreated: () => any;
 }) {
   const [mnemonicInputs, setMnemonicInputs] = useState<string[]>(
     new Array(0).fill(""),
@@ -34,6 +43,8 @@ export default function ImportPhrase({
     new Array(24).fill(false),
   );
   const [canContinue, setCanContinue] = useState<boolean>(false);
+  const [pinVisible, setPinVisible] = useState<boolean>(false);
+  const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
 
   const handleInputChange = (index: number, value: string) => {
     const newInputs = [...mnemonicInputs];
@@ -114,7 +125,8 @@ export default function ImportPhrase({
                 ? "!cursor-pointer !bg-blue-600 hover:!bg-blue-500"
                 : "opacity-60 !cursor-not-allowed"
               }`}
-            onClick={(e) => {
+              
+            onClick={async (e) => {
               let seed
               if (mnemonicInputs[0].length === 64 || mnemonicInputs[0].length === 128) {
                 seed = mnemonicInputs[0];
@@ -130,12 +142,42 @@ export default function ImportPhrase({
               for (let ticker of Object.keys(networks)) {
                 dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed, mutate, dispatch) } });
               }
-              return setW(2);
-            }}
+
+                if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
+                  let biometricAuth = await BiometricAuth.checkBiometry()
+                  if (biometricAuth.strongBiometryIsAvailable){
+                    localStorage.setItem('confirmation-method', '"enabled"')
+                    setPinVisible(true)
+                  }
+                  else{
+                    localStorage.setItem('confirmation-method', '"pin"')
+                    setCreatePinVisible(true)
+                  }
+                }
+                else{
+                  setW(2)
+                }
+              }}
           >
             Import Wallet
           </button>
         </div>
+        <PinAuthPopup
+              location={"create-wallet"}
+              visible={pinVisible}
+              setVisible={setPinVisible}
+              onAuthenticated={async () => {
+                await setSeed(wallet.wallets["XNO"].seed, false)
+                setWalletState("unlocked");
+                onCreated()
+              }
+              } />
+              <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={async () => {
+                await setSeed(wallet.wallets["XNO"].seed, false)
+                setWalletState("unlocked");
+                onCreated()
+              }
+              } />
         <div className="justify-center h-full items-center m-3">
           <div className="bg-transparent w-full  scroll-auto p-3 overflow-y-auto rounded-md">
             <div className="w-full h-full grid grid-cols-3 gap-3">

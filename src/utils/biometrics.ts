@@ -8,7 +8,7 @@ export async function authenticate() {
     let confirmationMethod = localStorage.getItem("confirmation-method");
     if (confirmationMethod == null){
         if (Capacitor.isNativePlatform()){
-            confirmationMethod = "enabled"
+            confirmationMethod = (await BiometricAuth.checkBiometry()).strongBiometryIsAvailable ? "enabled" : "pin"
         }
         else {
             confirmationMethod = "none"
@@ -26,6 +26,9 @@ export async function authenticate() {
     else if (confirmationMethod === "none") {
         return
     }
+    else if (confirmationMethod === "pin") {
+        return
+    }
     else  {
         throw new Error("Confirmation method not set")
     }
@@ -40,7 +43,7 @@ export async function biometricAuthIfAvailable() {
             // reason: "Confirm to enable biometric authentication"
         })
     }
-    else {
+    else if (Capacitor.isNativePlatform()){
         throw new Error("Biometry not available")
     }
 }
