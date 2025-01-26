@@ -172,14 +172,6 @@ body {
   height: auto;
 }
 
-.unlock-form-blank {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 62%;
-  height: 50%;
-}
 
 .unlock-form-label {
   color: white;

@@ -1,6 +1,7 @@
 .passcode-keyboard {
-  width: 300px;
+  max-width: 350px;
   margin: 0 auto;
+  margin-top: 264px;
 }
 
 .keyboard-grid {
@@ -11,8 +12,7 @@
 
 .keyboard-button {
   padding: 15px;
-  font-size: 24px;
-  border-radius: 5px;
+  font-size: 28px;
   cursor: pointer;
   user-select: none;
 }

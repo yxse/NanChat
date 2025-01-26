@@ -174,7 +174,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
     return <DisconnectLedger />
   }
   return <>
-    <Button onClick={() => setVisible(true)} className="w-full mt-2 mb-4 " size="large" shape="rounded">
+    <Button onClick={() => setVisible(true)} className="w-full " size="large" shape="rounded">
       <Space align="center">
         {
           Capacitor.getPlatform() === "ios" ? (

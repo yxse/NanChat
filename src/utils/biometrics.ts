@@ -40,6 +40,9 @@ export async function biometricAuthIfAvailable() {
             // reason: "Confirm to enable biometric authentication"
         })
     }
+    else {
+        throw new Error("Biometry not available")
+    }
 }
 
 export async function webauthnAuthIfAvailable(){

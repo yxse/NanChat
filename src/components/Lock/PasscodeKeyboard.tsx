@@ -16,6 +16,9 @@ const PasscodeKeyboard = ({ passcode, setPasscode, maxLength = 6 }) => {
   const handleDelete = () => {
     const newPasscode = passcode.slice(0, -1);
     setPasscode(newPasscode);
+    Haptics.impact({
+      style: ImpactStyle.Light,
+    });
   };
 
   return (

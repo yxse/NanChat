@@ -677,3 +677,14 @@ body.barcode-scanner-active .adm-center-popup-mask {
   --adm-color-text: var(--adm-color-primary);
   --border-radius: 50%;
 }
+
+#unlock-pass {
+  text-align: center;
+}
+
+input {
+  --tw-ring-shadow: 0 0 #000 !important;
+}
+textarea {
+  --tw-ring-shadow: 0 0 #000 !important;
+}

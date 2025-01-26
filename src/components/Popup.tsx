@@ -9,16 +9,19 @@ import { SplashScreen } from '@capacitor/splash-screen';
 
 import App from "./app";
 import Confetti from "react-confetti-boom";
-import { Toast } from "antd-mobile";
+import { Modal, Toast } from "antd-mobile";
 import { Wallet } from "../nano/wallet";
 import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
 import { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { getSeed } from "../utils/storage";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, PluginListenerHandle } from "@capacitor/core";
 import { convertAddress } from "../utils/format";
 import { PinAuthPopup } from "./Lock/PinLock";
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
+import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-settings";
+import { showLogoutSheet } from "./Settings";
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
 
@@ -85,13 +88,58 @@ export const useWallet = () => {
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
   return {wallet, activeAccount}
 }
+let appListener: PluginListenerHandle;
 
 const WalletProvider = ({ children, setWalletState }) => {
   const {mutate,cache}=useSWRConfig()
   const [wallet, dispatch] = useReducer(walletsReducer, initialState);
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", {defaultValue: [0]});
   const [authVisible, setAuthVisible] = useState(true);  
+      const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", {defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none"});
+  
   useEffect(() => {
+    function updateBiometryInfo(info: CheckBiometryResult): void {
+      if (info.isAvailable) {
+        // Biometry is available, info.biometryType will tell you the primary type.
+        
+      } else if (confirmationMethod === "enabled") {
+        // Biometry is not available, info.reason and info.code will tell you why.
+        setWalletState("loading");
+         Modal.show({
+                    title: "Biometry changed",
+                    closeOnMaskClick: false,
+                    closeOnAction: false,
+                    content: "It seems that biometry settings have changed. Please re-enable biometry in your device settings or sign out of your wallet and restore it using your secret recovery phrase.",
+                    actions: [
+                        { key: "settings", text: "Open settings", onClick: async () => {
+                          NativeSettings.open({
+                            optionAndroid: AndroidSettings.ApplicationDetails, 
+                            optionIOS: IOSSettings.App
+                          })
+                        }},
+                        {
+                            danger: true,
+                            key: "signout", text: "Sign out", onClick: async () => {
+                                await showLogoutSheet()
+                            }
+                        },
+                    ]
+                })
+      }
+    }
+    
+    async function updateBiometry() {
+      updateBiometryInfo(await BiometricAuth.checkBiometry())
+
+      try {
+        appListener = await BiometricAuth.addResumeListener(updateBiometryInfo)
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message)
+      }
+    }
+    }
+    updateBiometry();
     // SplashScreen.show({autoHide: false});
     // getSeed().then((seed) => {
     //   if (seed?.seed && !seed?.isPasswordEncrypted) {

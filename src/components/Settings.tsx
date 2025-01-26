@@ -21,7 +21,7 @@ import { RiContactsFill } from "react-icons/ri";
 import BackupSecretPhrase from "./app/BackupSecretPhrase";
 import { decrypt, encrypt } from "../worker/crypto";
 import { BsCurrencyExchange } from "react-icons/bs";
-import { AddressBookFill, BellOutline, DeleteOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
+import { AddressBookFill, BellOutline, DeleteOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
 import { LedgerContext } from "./Popup";
 import { BiHistory } from "react-icons/bi";
@@ -526,15 +526,20 @@ className="mb-24"
             {
               isPasswordEncrypted &&
               <Button
+              shape="rounded"
+              size="large"
                 className="w-full"
                 onClick={() => {
                   window.location.reload();
                 }}
               >
+                <Space className="flex items-center justify-center">
+                  <LockOutline />
                 Lock Wallet
+                </Space>
               </Button>
             }
-            <div className="mt-4 mx-2">
+            <div className="mt-4 pb-4">
             <LedgerSelect 
             onConnect={() => {
               navigate("/")

@@ -1,4 +1,4 @@
-import { Button, Card, Toast } from "antd-mobile";
+import { Button, Card, Input, List, Toast } from "antd-mobile";
 import { Dispatch, SetStateAction, useRef, useEffect, useState, useContext } from "react";
 import { decrypt } from "../../worker/crypto";
 import { wallet as walletLib} from "multi-nano-web";
@@ -9,6 +9,8 @@ import { useSWRConfig } from "swr";
 import { initWallet } from "../../nano/accounts";
 import { getSeed } from "../../utils/storage";
 import icon from "../../../public/icons/icon.png"
+import { LockOutline } from "antd-mobile-icons";
+import { ForgotYourPin } from "./PinLock";
 
 // theme added I guess?
 export default function Form({
@@ -31,18 +33,18 @@ export default function Form({
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (inputRef.current && !inputRef.current.contains(event.target)) {
-        setInvalidPass(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event: any) => {
+  //     if (inputRef.current && !inputRef.current.contains(event.target)) {
+  //       setInvalidPass(false);
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [setInvalidPass]);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [setInvalidPass]);
 
   const handleUnlock = async () => {
     setLoading(true);
@@ -69,14 +71,14 @@ export default function Form({
 
   return (
     <div
-      className={`lockscreen-inner ${theme == "light" && "!bg-white !text-black"
+      className={` ${theme == "light" && "!bg-white !text-black"
         }`}
     >
       <Card
       style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}>
       <form
         id="unlock"
-        className="lockscreen-form"
+        className=""
         onSubmit={async (e) => {
           e.preventDefault();
           handleUnlock();
@@ -86,54 +88,53 @@ export default function Form({
 
       >
         <div className="unlock-form">
-          <div className="unlock-form-img select-none">
-            <div className="flex items-center justify-center w-screen">
-              <img
+          <div className=" ">
+            <div className="flex items-center justify-center w-screen mt-8">
+              {/* <img
+              style={{borderRadius: 24}}
                 src={icon}
                 className="unlock-form-image"
                 draggable={false}
-              />
+              /> */}
+              <LockOutline fontSize={64} />
             </div>
             <div className="unlock-form-blank" />
           </div>
 
           <p
-            className={`${theme == "light" && "!text-black/90"
-              } unlock-form-label select-none`}
+            className={` text-2xl mb-6 mt-4`}
           >
-            Enter your password
+            Wallet Locked 
           </p>
-          <div style={{ width: "100%", transform: "none" }}>
-            <div className="w-full">
-              <input
+          <div style={{ textAlign: "center", width: "300px" }}>
+              <List mode="card">
+                <List.Item style={{backgroundColor: "var(--active-background-color)"}}>
+              <Input
                 autoFocus
                 autoComplete="current-password"
-                className={`relative select-text z-10 unlock-form-input ${invalidPass && "invalid-password"
+                className={` ${invalidPass && "invalid-password"
                   } ${theme == "light" &&
                   "!bg-slate-300 !text-slate-700 !border-slate-400"
                   }`}
                 type="password"
                 id="unlock-pass"
-                placeholder="Password"
-                ref={inputRef}
+                placeholder="Enter your password"
+                // ref={inputRef}
                 maxLength={48}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                onChange={(e) => setPassword(e)}
+              /></List.Item>
+              </List>
+            {invalidPass &&  <div className="text-center text-sm mt-2" style={{color: "var(--adm-color-danger)"}}>Invalid password</div> }
+            { invalidPass &&  <ForgotYourPin type="password" />   }
+           
             </div>
-            <p
-              className={`unlock-form-footer ${theme == "light" && "!text-slate-800 hover:!text-slate-500"
-                } select-none`}
-              role="button"
-              onClick={() => goForth(true)}
-            >
-              Forgot password
-            </p>
-          </div>
           <Button
-            color="primary"
-            size="large"
-            type="submit"
-            className="w-full mt-4"
+          shape="rounded"
+          color="primary"
+          size="large"
+          type="submit"
+          style={{marginTop: 64, marginBottom: 64}}
+          className=" mt-4 w-full"
           >
             Unlock
           </Button>

@@ -9,9 +9,31 @@ import { showLogoutSheet } from "../Settings"
 import PasscodeKeyboard from "./PasscodeKeyboard"
 
 
+export const ForgotYourPin = ({ type = "PIN" }) => {
+    return <div
+        onClick={() => {
+            Modal.show({
+                closeOnMaskClick: true,
+                title: "Sign out of your wallet",
+                closeOnAction: true,
+                content: `If you don't remember your ${type}, you'll need to sign out of your wallet and restore it using your secret recovery phrase.`,
+                actions: [
+                    { key: "cancel", text: "Cancel" },
+                    {
+                        danger: true,
+                        key: "signout", text: "Delete Secret Phrase and Sign out", onClick: async () => {
+                            await showLogoutSheet()
+                        }
+                    },
+                ]
+            })
+        }}
+        className="text-base text-center mt-6" style={{ color: "var(--adm-color-primary)", cursor: "pointer" }}>
+        Forgot your {type} ?
+    </div>
+}
 
-
-export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description, title = "Enter PIN", location }) => {
+export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description, title = "Enter your PIN", location }) => {
     const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", { defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none" });
     const [locked, setLocked] = useState(false)
     const [nextAttemptDate, setNextAttemptDate] = useState(0)
@@ -22,27 +44,22 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
     const showCloseButton = location === "launch" ? false : true
     const ref = useRef()
     useEffect(() => {
-        if (visible) {
-            if (location === "launch"){
-                getIsPasswordEncrypted().then((isPasswordEncrypted) => {
-                    if (isPasswordEncrypted) { // no need to authenticate on launch if the wallet is already password protected
-                        onAuthenticated()
-                        setVisible(false)
-                    }
-                })
-            }
-            if (!whenToAuthenticate.includes(location) && !alwaysAuthenticate.includes(location)) {
-                onAuthenticated()
-                setVisible(false)
-                return
+        async function authenticateByConfirmationMethod() {
+            if (location === "launch") {
+                let isPasswordEncrypted = await getIsPasswordEncrypted()
+                if (isPasswordEncrypted) { // no need to authenticate on launch if the wallet is already password protected
+                    onAuthenticated()
+                    setVisible(false)
+                    return
+                }
             }
             if (confirmationMethod !== "pin") {
 
                 authenticate().then(() => {
                     setVisible(false)
                     onAuthenticated()
-                }).catch(() => {
-                    Toast.show({ icon: "fail", content: "Authentication failed" })
+                }).catch((e) => {
+                    Toast.show({ icon: "fail", content: e.message })
                     setVisible(false)
                 })
             }
@@ -56,8 +73,19 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                 })
             }
         }
+        if (visible) {
+
+            if (!whenToAuthenticate.includes(location) && !alwaysAuthenticate.includes(location)) {
+                // bypass authentication if disabled in settings
+                onAuthenticated()
+                setVisible(false)
+                return
+            }
+            // authenticate using biometrics or pin depending on the setting
+            authenticateByConfirmationMethod()
+        }
     }, [visible])
-   
+
     const PinPopup = () => {
         const [pin, setPin] = useState("")
         useEffect(() => {
@@ -68,10 +96,10 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
             }
                 , 0)
         }
-        , [visible, attemptRemaining])
+            , [visible, attemptRemaining])
 
         return <Popup
-        bodyStyle={{height: 'calc(100dvh - env(safe-area-inset-top))'}}
+            bodyStyle={{ height: 'calc(100dvh - env(safe-area-inset-top))' }}
             visible={visible}
             onClose={() => setVisible(false)}
             closeOnMaskClick
@@ -80,23 +108,23 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
         >
             <div className="">
                 <div className="text-2xl  text-center  mb-4 mt-10">
-                    {title}
+                    {description}
                 </div>
-               
+
                 <div
                     style={{ color: "var(--adm-color-text-secondary)" }}
                     className="text-center text-base mb-6">
-                    {description}
+                    {title}
                 </div>
                 <div className="text-center">
 
                     <PasscodeInput
-                    className="passcode-input"
-                    onFill={async () => {
+                        className="passcode-input"
+                        onFill={async () => {
                             let result = await verifyPin(pin)
                             if (result?.error) {
                                 setPin("")
-                                if(result.nextAttempt > 0){
+                                if (result.nextAttempt > 0) {
                                     setNextAttemptDate(result.nextAttempt)
                                     setLocked(true)
                                 }
@@ -114,46 +142,25 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                         caret={false}
                         value={pin} onChange={
                             setPin} ref={ref} seperated
-                        // keyboard={<div></div>}
+                        keyboard={<div></div>}
 
                     />
                 </div>
-               
+
                 {error !== "" && <div className="text-center mt-6">{error}</div>}
                 {
                     attemptRemaining <= 7 && <div className="text-center text-base mt-6" style={{ color: "var(--adm-color-warning)" }}>
                         {attemptRemaining} attempts left before the wallet is erased
                     </div>
-                }	
+                }
                 {attemptRemaining <= 7 && <ForgotYourPin />}
                 <div className="text-center mt-6">
-                <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
+                    <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
                 </div>
             </div>
         </Popup>
     }
-    const ForgotYourPin = () => {
-        return <div 
-        onClick={() => {
-            Modal.show({
-                closeOnMaskClick: true,
-                title: "Sign out of your wallet",
-                closeOnAction: true,
-                content: "If you don't remember your PIN, you'll need to sign out of your wallet and restore it using your secret recovery phrase.",
-                actions: [
-                    { key: "cancel", text: "Cancel" },
-                    {
-                        danger: true, 
-                        key: "signout", text: "Delete Secret Phrase and Sign out", onClick: async () => {
-                        await showLogoutSheet()
-                    }},
-                ]
-            })
-        }}
-        className="text-center text-base mt-6" style={{ color: "var(--adm-color-primary)", cursor: "pointer" }}>
-            Forgot your PIN? 
-        </div>
-    }
+
 
     const PinPopupLocked = () => {
         const [time, setTime] = useState(new Date())

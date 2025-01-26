@@ -62,6 +62,7 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
                     }
                 }
             }}
+            keyboard={<div></div>}
             caret={false}
              value={pin} onChange={setPin}  ref={ref} seperated
             showCloseButton={true} /> 

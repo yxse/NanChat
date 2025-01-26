@@ -66,7 +66,7 @@ const ProfileHome: React.FC = () => {
                 </List>
             <List className='my-4' mode='card'>
             <List.Item
-                    prefix={<UserContactOutline fontSize={24} color="white" />}
+                    prefix={<UserContactOutline fontSize={24} />}
                     onClick={() => navigate('/contacts')}
                     >
                         Contacts
