@@ -1,4 +1,4 @@
-import { LockFill, LockOutline, MessageOutline, PhoneFill, SendOutline, TeamOutline } from "antd-mobile-icons";
+import { LockFill, LockOutline, MailOutline, MessageOutline, PhoneFill, SendOutline, TeamOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -222,7 +222,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
                 <div className="flex-1 text-center">
                     <h2 className="font-medium flex items-center justify-center gap-2">
-                        {nameOrAccount} {participant?.verified && <RiVerifiedBadgeFill />}
+                        {nameOrAccount} {names2?.[0]?.verified && <RiVerifiedBadgeFill />}
                     </h2>
                     {
                         onlineAccount.includes(address) ? (
@@ -468,7 +468,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     <NewMessageWarning fromAddress={address} account={activeAccount} chatId={account} />
                 }
                 <div
-                    style={account == null ? { display: 'none' } : {}}
+                    style={(account == null
+                        || names2?.length === 0
+                    ) ? { display: 'none' } : {}}
                 >
                     <ChatInputMessage
                         messageInputRef={messageInputRef}
@@ -491,6 +493,48 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         }}
                     />
                 </div>
+                {
+                    names2?.length === 0 && account != null && (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    borderRadius: 32,
+                                    padding: 8,
+                                    paddingRight: 16,
+                                    paddingLeft: 16,
+                                    backgroundColor: 'var(--adm-color-background)',
+                                }}
+                            >
+                                This account is not yet on NanWallet
+                            </div>
+                            <Button 
+                            color="primary"
+                            onClick={() => {
+                                navigator.share({
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${address}`,
+                                    url: `https://app.nanwallet.com/chat/${address}`
+                                })  
+                            }}
+                            className="mt-4"
+                            size="middle"
+                            shape="rounded"
+                            >
+                                <Space align="center">
+                                <MailOutline />
+                                Invite
+                                </Space>
+                            </Button>
+                        </div>
+                    )
+                }
             </div>
         </div>
     );

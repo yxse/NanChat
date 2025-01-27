@@ -1,4 +1,4 @@
-import { CenterPopup, DotLoading, List, Popup, SearchBar } from 'antd-mobile'
+import { CenterPopup, DotLoading, Ellipsis, List, Popup, SearchBar } from 'antd-mobile'
 import React, { useState } from 'react'
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
@@ -52,9 +52,7 @@ const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true
                         }
                     >
                         <div className="flex items-center gap-2">
-                        {
-                            account.name
-                        }
+                            <Ellipsis content={account.name} />
                         {account?.verified && <RiVerifiedBadgeFill />}
                         </div>
                     </List.Item>
@@ -98,7 +96,7 @@ function NewChatPopup({visible, setVisible}) {
                 closeOnSwipe={false}
             >
                 <div className=" ">
-                    <span
+                    {/* <span
                     style={{float: 'left', color: 'var(--adm-color-primary)', position: 'absolute', cursor: 'pointer'}}
                      onClick={() => {
                                 navigator.share({
@@ -109,14 +107,14 @@ function NewChatPopup({visible, setVisible}) {
                             className="text-xl ml-2 mt-2">
                                 <MailOutline style={{display: 'inline-block', marginRight: 4}} />
                                 invite
-                            </span>
+                            </span> */}
                     <div 
                 style={isMobile ? {} : { minWidth: 500 }}
                     className="text-xl  text-center p-2">Create new chat</div>
                 </div>
                 <div className={"searchBarContainer"}>
                     <SearchBar
-                        placeholder='Search'
+                        placeholder='Search Name or Address'
                         value={searchText}
                         onChange={v => {
                             setSearchText(v)
@@ -168,16 +166,6 @@ function NewChatPopup({visible, setVisible}) {
                         </InfiniteScroll>
                 </div>
             </ResponsivePopup>
-            <List>
-                <List.Item
-                    onClick={() => {
-                        setVisible(true);
-                    }}
-                    prefix={<AiOutlinePlusCircle />}
-                >
-                    New Chat
-                </List.Item>
-            </List>
         </>
     )
 }

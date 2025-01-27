@@ -1,5 +1,5 @@
 import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Space, Toast } from "antd-mobile";
-import { AddCircleOutline, FillinOutline, LockFill, LockOutline, MailOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
+import { AddCircleOutline, ChatAddOutline, FillinOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
@@ -22,6 +22,8 @@ import icon from "../../../../public/icons/icon.png";
 import { DisconnectLedger } from "../../Initialize/Start";
 import SelectAccount from "../../app/SelectAccount";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { Scanner } from "../../app/Scanner";
+import isValid from 'nano-address-validator';
 
 export const LedgerNotCompatible = () => {
     return (
@@ -160,10 +162,100 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     }
     const right = (
         <div style={{ fontSize: 24 }}>
+            <Popover.Menu
+          mode='dark'
+          actions={[
+            { key: 'new_chat', icon: <MessageFill />, text: 'New Chat' },
+            { key: 'invite', icon: <MailOutline />, text: 'Invite Friends' },
+            { key: 'my_qr', icon: <SystemQRcodeOutline />, text: 'My QR Code' },
+            { key: 'scan_qr', icon: <ScanCodeOutline />, text: 'Scan QR Code' },
+
+          ]}
+          placement='right-start'
+          onAction={(node) => {
+            if (node.key === 'new_chat') {
+              setIsNewChatVisible(true);
+            }
+            if (node.key === 'invite') {
+              navigator.share({
+                title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${me?.username}`,
+                url: window.location.href + `/${activeAccount}`
+              })  
+            }
+            if (node.key === 'my_qr') {
+              Modal.show({
+                showCloseButton: true,
+                closeOnMaskClick: true,
+                content: (
+                  <div className="flex justify-center items-center flex-col">
+                    <div className="text-center text-xl mb-1">
+                      {me?.name}
+                    </div>
+                    <div className="text-sm mb-2">
+                      {formatAddress(activeAccount)}
+                    </div>
+                    <QRCodeSVG
+                      imageSettings={{
+                        src: icon,
+                        height: 24,
+                        width: 24,
+                        excavate: false,
+                      }}
+                      includeMargin
+                      value={`https://app.nanwallet.com/chat/${activeAccount}`}
+                      size={200}
+                      style={{borderRadius: 8}}
+                    />
+                    <div className="text-sm mt-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
+                      Scan to start an encrypted chat with me
+                    </div>
+                  </div>
+                )
+              })
+            }
+            if (node.key === 'scan_qr') {
+              Modal.show({
+                showCloseButton: false,
+                closeOnMaskClick: true,
+                content: (
+                      <Scanner
+                      defaultOpen
+                      onClose={() => {
+                        Modal.clear();
+                      }}
+      onScan={(result) => {
+        if (result){
+          let address = false
+            if (result.includes('https://app.nanwallet.com/chat/')) {
+                address = result.split('https://app.nanwallet.com/chat/')[1];
+            }
+            else if (result.startsWith('nano_') && isValid(result)){
+                address = result;
+            }
+            else if (result.startsWith('nano:') && isValid(result.split('nano:')[1])){
+                address = result.split('nano:')[1];
+            }
+            if (address){
+              Modal.clear();
+              onChatSelect(address);
+            }
+            else{
+              Toast.show({content: "Invalid QR Code. Please scan a valid NanWallet chat QR code or a Nano address"});
+            }
+        }
+      }}
+    />
+                )
+              })
+        }}}
+
+          trigger='click'
+        >
           <Space style={{ '--gap': '16px' }}>
-          <AddCircleOutline color='var(--adm-color-primary)' onClick={() => setIsNewChatVisible(true)} style={{cursor: "pointer"}} />
+              <AddCircleOutline  style={{cursor: "pointer"}} />
             {/* <AiOutlinePlusCircle  onClick={() => setIsNewChatVisible(true)} style={{cursor: "pointer"}} /> */}
           </Space>
+        </Popover.Menu>
         </div>
       )
     return (
@@ -249,6 +341,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                     decrypted = chat.lastMessage;
                                 }
                             } catch (error) {
+                                decrypted = chat.lastMessage; // welcome message might not be encrypted
                                 console.log(error);
                             }
                             return (
@@ -309,25 +402,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             )
                         })}
                     </List>
+        <NewChatPopup  visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
                     
-                    <div className="mt-2">
-                        
-                        
-                        <List className="mt-2">
-                            <List.Item
-                            onClick={() => {
-                                navigator.share({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${me?.username}`,
-                                    url: window.location.href + `/${activeAccount}`
-                                })  
-                            }}
-                            prefix={<MailOutline />}
-                            >
-                                Invite friends
-                            </List.Item>
-                            <NewChatPopup  visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
-                        </List>
-                    </div>
+                    
                     
                     {/* <div className="text-center text-gray-500 mt-4 flex items-center justify-start ml-2">
                         Online - {onlineAccount?.length}
@@ -346,9 +423,28 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         </List>
                     </div> */}
                 </div>
-                <div className="text-gray-500 mt-4 mb-2 ml-2 text-center pb-4">
-                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted.
+                <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
+                        <LockFill className="mr-2 inline" />Chats are end-to-end encrypted using nano.
                 </div>
+                <div className="text-center mb-6">
+                        <Button 
+                            color="default"
+                            onClick={() => {
+                                navigator.share({
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
+                                    url: `https://app.nanwallet.com/chat/${activeAccount}`
+                                })  
+                            }}
+                            className="mt-4"
+                            size="middle"
+                            shape="rounded"
+                            >
+                                <Space align="center">
+                                <MailOutline />
+                                Invite Friends
+                                </Space>
+                            </Button>
+                    </div>
             </div>
         </div>
     );

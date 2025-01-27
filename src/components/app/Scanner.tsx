@@ -14,13 +14,14 @@ fontSize={24}
 className="cursor-pointer text-gray-200 mr-4 mt-4"
 />;
 
-const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen}) => {
+const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClose}) => {
     let isScanning = false;
 
     const handleScanClick = () => {
         let modal = Modal.show({
             onClose: () => {
                 stopScan();
+                if (onClose) onClose();
             },
             showCloseButton: true,
             bodyClassName: "bg-transparent scanner-active",
@@ -64,10 +65,11 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen}) => {
     );
 };
 
-const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen}) => {
+const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen, onClose}) => {
     let isScanning = false;
     const handleScanClick = () => {
         let modal = Modal.show({
+          onClose: () => { if (onClose) onClose(); },
             closeOnMaskClick: true,
             title: "Scan QR Code",
             content: (
@@ -104,11 +106,11 @@ const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen}
     );
 }
 
-export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = false}) => {
+export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = false, onClose}) => {
     if (Capacitor.isNativePlatform()) {
-        return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen}  />;
+        return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
     } else {
-        return <ScannerWebComponent onScan={onScan} children={children} defaultOpen={defaultOpen} />;
+        return <ScannerWebComponent onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
     }
 };
   const startScan = async (onScan, modal) => {
