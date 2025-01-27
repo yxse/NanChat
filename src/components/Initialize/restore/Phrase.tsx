@@ -23,6 +23,7 @@ import { Capacitor } from "@capacitor/core";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { PinAuthPopup } from "../../Lock/PinLock";
 import { CreatePin } from "../../Lock/CreatePin";
+import * as webauthn from '@passwordless-id/webauthn'
 
 export default function ImportPhrase({
   setW,
@@ -145,7 +146,9 @@ export default function ImportPhrase({
 
                 if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
                   let biometricAuth = await BiometricAuth.checkBiometry()
-                  if (biometricAuth.strongBiometryIsAvailable){
+                  let webauthnAuth = webauthn.client.isAvailable()
+                  const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
+                  if (hasStrongAuth){
                     localStorage.setItem('confirmation-method', '"enabled"')
                     setPinVisible(true)
                   }

@@ -22,6 +22,7 @@ import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { PinAuthPopup } from "../../Lock/PinLock";
 import { CreatePin } from "../../Lock/CreatePin";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import * as webauthn from '@passwordless-id/webauthn'
 
 export default function Mnemonic({
   setW,
@@ -98,8 +99,11 @@ export default function Mnemonic({
             });
             if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
               let biometricAuth = await BiometricAuth.checkBiometry()
+              let webauthnAuth = webauthn.client.isAvailable()
+              
               Toast.show({icon: "success", content: biometricAuth.strongBiometryIsAvailable})
-              if (biometricAuth.strongBiometryIsAvailable){
+              const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
+              if (hasStrongAuth){
                 localStorage.setItem('confirmation-method', '"enabled"')
                 setPinVisible(true)
               }

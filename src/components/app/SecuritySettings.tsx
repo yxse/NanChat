@@ -5,13 +5,15 @@ import * as webauthn from '@passwordless-id/webauthn';
 import { decrypt, encrypt } from "../../worker/crypto";
 import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getSeed, removeSeed, setSeed } from "../../utils/storage";
 import {BiometricAuth} from '@aparajita/capacitor-biometric-auth'
 import { authenticate, biometricAuthIfAvailable, webauthnAuthIfAvailable } from "../../utils/biometrics";
 import { Capacitor } from "@capacitor/core";
 import { CreatePin } from "../Lock/CreatePin";
 import { PinAuthPopup } from "../Lock/PinLock";
+import { PasswordForm } from "../Initialize/create/Password";
+import { WalletContext } from "../Popup";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [seed, setSeedLocal] = useState(undefined);
@@ -24,6 +26,7 @@ function SecuritySettings() {
     const [developerMode, setDeveloperMode] = useLocalStorageState("developer-mode", {defaultValue: false});
     const [createPinVisible, setCreatePinVisible] = useState(false);
     const [pinVisible, setPinVisible] = useState(false);
+    const {wallet} = useContext(WalletContext);
     const isPasswordMandatory = Capacitor.getPlatform() === "web" ? true : false; // Password is only mandatory on web version
       const valuesLock = [
         { value: "-1", label: "Disabled" },
@@ -157,6 +160,31 @@ function SecuritySettings() {
               Disable Password
             </List.Item>
             }
+            <List.Item 
+            prefix={<MdOutlinePassword size={24} />}
+            onClick={() => {
+              let modal = Modal.show({
+                closeOnMaskClick: true,
+                title: "Change Password",
+                content: (
+                  <div>
+                    <PasswordForm 
+                    buttonText={"Change Password"}
+                    seed={wallet.wallets["XNO"].seed}
+                    onFinish={() => {
+                      modal.close()
+                      Toast.show({
+                        icon: "success",
+                        content: "Password updated"
+                      })
+                    }} />
+                  </div>
+                ),
+              });
+            }}
+            >
+              Change Password
+            </List.Item>
             {
               !seed?.isPasswordEncrypted &&
             

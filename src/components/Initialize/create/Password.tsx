@@ -4,9 +4,68 @@ import React, { Dispatch, useState, useEffect, useContext } from "react";
 import { IoArrowBack } from "react-icons/io5";
 
 import storage, { setSeed } from "../../../utils/storage";
-import { Button, Card, Form, Input, Modal, Toast } from "antd-mobile";
+import { Button, Card, Form, Input, List, Modal, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../Popup";
+import { LockOutline } from "antd-mobile-icons";
+
+export const PasswordForm = ({onFinish, seed, buttonText = "Create Wallet"}) => {
+  return <Form 
+        onFinish={async (values) => {
+            let encryptedSeed = await encrypt(seed, values.password)
+            setSeed(encryptedSeed, true)
+            // setModalPasswordVisible(false)
+            onFinish()
+            // setW(3)
+          }}
+        className="form-list"
+        footer={<Button
+          type='submit' 
+          size="large"
+          color="primary"
+          shape="rounded"
+          className="mt-4 w-full"
+          >
+            {buttonText}
+          </Button>}
+        mode="card" style={{}}>
+          <Form.Item className="form-list" style={{}} rules={[{ required: true, message: "Password cannot be empty" }]} name={"password"} label="">
+                      <Input
+                      autoFocus
+                        id="password"
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="Password"
+                        className="mt-2"
+                      />
+                      </Form.Item>
+                      <Form.Item 
+                      className="form-list"
+                      validateFirst
+                      rules={
+                        [
+                          { required: true, message: "Please confirm your password" },
+                          { validator: async (rule, value) => {
+                            if (value !== document.getElementById("password")?.value) {
+                              return Promise.reject("Passwords do not match")
+                            }
+                            return Promise.resolve()
+                          } }
+
+                        ]
+                      }
+                      name={"verify-password"} label=""
+                      >
+                      <Input
+                        id="verify-password"
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="Confirm Password"
+                        className="mt-2"
+                      />
+                      </Form.Item>
+                      </Form>
+}
 
 export default function Password({
   setW,
@@ -91,11 +150,12 @@ export default function Password({
         </div>
       </div>
        <Card
+       
             style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
               className={`pb-4 px-4`}
             >
       <div
-        className={`step-m-wrapper `}
+        className={` `}
       >
         {/* <form
           className=""
@@ -113,72 +173,26 @@ export default function Password({
         > */}
         <div className="step-m-h">
           <p className={`step-m-hp`}>
-            Require a password to open NanWallet ?
-          <p className="text-sm text-gray-400 mt-2">
-           Password will be used to encrypt your secret phrase.
+            Set a password to open NanWallet
+          <p className="text-sm mt-2 flex items-center gap-2" style={{color: "var(--adm-color-text-secondary)"}}>
+            <LockOutline />
+           Password will be used to encrypt your secret phrase
           </p>
           </p>
         </div>
-        <Modal
-          visible={modalPasswordVisible}
-          closeOnMaskClick={true}
-          onClose={() => setModalPasswordVisible(false)}
-          title=""
-          content={
-<Form>
-                      <Input
-                      autoFocus
-                        id="password"
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder="Password"
-                        className="mt-2"
-                      />
-                      <Input
-                        id="verify-password"
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder="Verify Password"
-                        className="mt-2"
-                      />
-                      <Button
-                      color="primary"
-                      shape="rounded"
-                        className="mt-4 w-full"
-                        onClick={async () => {
-                          let password = document.getElementById("password") as HTMLInputElement;
-                          let verifyPassword = document.getElementById("verify-password") as HTMLInputElement;
-                          if (password.value !== verifyPassword.value) {
-                            Toast.show({
-                              icon: "fail",
-                              content: "Passwords do not match"
-                            })
-                            return
-                          }
-
-                          let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, password.value)
-                          setSeed(encryptedSeed, true)
-                          setModalPasswordVisible(false)
+        <div>
+        {/* <List mode="card">
+        <List.Item style={{backgroundColor: "var(--active-background-color)"}}> */}
+        
+                        <PasswordForm 
+                        seed={wallet.wallets["XNO"]?.seed}
+                        onFinish={() => {
                           setWalletState("unlocked")
                           onCreated()
-                          // setW(3)
                         }}
-                      >
-                        Enable Password
-                      </Button>
-                      <Button
-                      color="default"
-                      shape="rounded"
-                        className="mt-4 w-full"
-                        onClick={() => {setModalPasswordVisible(false)}
-                        }
-                      >
-                        Cancel
-                      </Button>
-                      </Form>
-          }
-        />
-        <div className="w-full">
+                        />
+                      </div>
+        {/* <div className="w-full">
             <Button
             shape="rounded"
               size="large"
@@ -207,7 +221,7 @@ export default function Password({
             >
               No, Skip
             </Button>
-        </div>
+        </div> */}
       </div>
       </Card>
     </div>
