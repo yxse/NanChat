@@ -402,11 +402,11 @@ html {
   
 }
 
-@media (hover: hover) {
-.adm-list-item:hover {
+@media (hover: hover){
+.adm-list-item:hover:not(.form-list) {
   background-color: var(--active-background-color	);
 }
-.adm-button:hover:not(.adm-button-danger):not(.adm-button-primary):not(.adm-button-success){
+.adm-button:hover:not(.adm-button-danger):not(.adm-button-primary):not(.adm-button-success):not(.form-list) {
   background-color: var(--adm-color-primary);
   /* color: var(--adm-color-background); */
 }
@@ -418,12 +418,10 @@ html {
 }
 
 }
-.adm-list-item.active {
+.adm-list-item.active:not(.form-list) {
   background-color: var(--main-background-color) !important;
 }
-.adm-list-item:active {
-  background-color: var(--main-background-color);
-}
+
 .btn-swap {
   background-color: var(--main-background-color);
 }
@@ -687,4 +685,18 @@ input {
 }
 textarea {
   --tw-ring-shadow: 0 0 #000 !important;
+}
+
+.adm-list-item-content-main:has(.adm-input) {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.adm-list-item:has(.adm-input) {
+  padding-left: 0px !important; 
+}
+.adm-list-item-content:has(.adm-input) {
+  padding-right: 0px !important; 
+}
+.adm-input-element {
+  padding: 12px !important;
 }

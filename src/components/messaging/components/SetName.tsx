@@ -6,11 +6,12 @@ import { socket } from '../socket';
 import { LedgerContext, WalletContext } from '../../Popup';
 import { convertAddress } from '../../../utils/format';
 import { AccountIcon } from '../../app/Home';
-import { Button, Form, Input } from 'antd-mobile';
+import { Button, Form, Input, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
 import { fetcherAccount } from '../fetcher';
 import useSWR from 'swr';
+import { LockOutline } from 'antd-mobile-icons';
 
 const SetName: React.FC = () => {
     const navigate = useNavigate();
@@ -20,16 +21,31 @@ const SetName: React.FC = () => {
     const activeAccountNano = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: me, isLoading, mutate} = useSWR(activeAccountNano, fetcherAccount);
     const {ledger} = useContext(LedgerContext);
-    
+    const isRegistered = me?.name;
     if (ledger) {
         return <LedgerNotCompatible />
     }
     return (
         <div className="flex flex-col items-center justify-center h-full">
-            {/* <span className='text-lg mx-2'>
-                To get started, set your display name:
-            </span> */}
+            {
+                isRegistered ? 
+                <div className='text-2xl mb-4'>
+                    Update your name
+                </div>
+                :
+            <div className="text-center">
+                <div className='text-2xl mb-4'>
+                    NanChat
+                </div>
+                <div className='text-base flex items-center mb-6'>
+                    <LockOutline className='mr-2' />
+                    End-to-end encrypted chat using nano
+                </div>
+            </div>
+            }
             <Form 
+            initialValues={{name: me?.name}}
+            mode='card'
             onFinish={(values) => {
                 console.log(values);
                 console.log(activeAccount);
@@ -45,16 +61,19 @@ const SetName: React.FC = () => {
                     body: JSON.stringify({name: values.name, signature, account})
                 }).then((res) => {
                     console.log(res);
-                    navigate(-1);
+                    Toast.show({icon: 'success'});
+                    if (isRegistered) {
+                        navigate(-1);
+                    }
+                    else{
+                        navigate('/chat');
+                    }
                     // localStorage.setItem('name', values.name);
                     mutate({name: values.name});
                 });
             }}
             footer={
                 <>
-                <div className='text-gray-400 text-sm mb-4'>
-                    This name will be visible to others. You can change it later.
-                </div>
                 <Button 
                 className='w-full'
                 type='submit' color='primary' size='large'>
@@ -62,17 +81,20 @@ const SetName: React.FC = () => {
                 </Button>
                     </>
             }>
-                {/* <Form.Header>
-                    Set a Name to get started
-                </Form.Header> */}
+                {
+                    !isRegistered &&
+                <Form.Header>
+                    Enter your name to get started. You can change it later.
+                </Form.Header>
+                }
                 <Form.Item
+                rules={[{required: true, min: 2, max: 24, message: 'Name must be between 2 and 24 characters'}]}
                  extra='' name={'name'}>
                     <Input
-                    defaultValue={me?.name}
-                    // autoFocus
+                    clearable
+                    autoFocus
                         placeholder="Enter your name"
                     />
-
                 </Form.Item>
             </Form>
             </div>
