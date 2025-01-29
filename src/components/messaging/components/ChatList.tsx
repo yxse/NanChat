@@ -24,6 +24,8 @@ import SelectAccount from "../../app/SelectAccount";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { Scanner } from "../../app/Scanner";
 import isValid from 'nano-address-validator';
+import useMessageDecryption from "../hooks/use-message-decryption";
+import MessageRaw from "./MessageRaw";
 
 export const LedgerNotCompatible = () => {
     return (
@@ -41,7 +43,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { account } = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const { data: chats, mutate, error } = useSWR<Chat[]>(`/chats`, fetcherMessages, {onError: (error) => {
+    const { data: chats, mutate, error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages, {onError: (error) => {
         console.log({error})
         if (error === 401 || error === 403) {
             getNewChatToken(activeAccount, activeAccountPk).then(token => {
@@ -157,7 +159,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     if (ledger) {
         return <LedgerNotCompatible />
     }
-    if (!chats){
+    if (!chats || isLoadingChat) {
         return <DotLoading />
     }
     const right = (
@@ -188,7 +190,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 closeOnMaskClick: true,
                 content: (
                   <div className="flex justify-center items-center flex-col">
-                    <div className="text-center text-xl mb-1">
+                    <div className="text-xl mb-1 flex  gap-2">
+                    <AccountIcon account={activeAccount} width={32}/>
                       {me?.name}
                     </div>
                     <div className="text-sm mb-2">
@@ -268,59 +271,10 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             className="app-navbar "
             right={right}
             backArrow={false}>
-          <span className="">Chats </span>
+          <span className="">NanChat </span>
         </NavBar>
         }
             <div className="">
-                <List style={{ 
-                    position: 'sticky', top: 0, zIndex: 1, display: "none" }} className="">
-                    <List.Item
-                    // description={formatAddress(activeAccount)}
-                    onClick={() => {
-                        Modal.show({
-
-                            showCloseButton: true,
-                            closeOnMaskClick: true,
-                            content: (
-                                <div className="flex justify-center items-center flex-col">
-                                    <div className="text-center text-xl mb-1">
-                                        {me?.name}                                        
-                                    </div>
-                                    <div className="text-sm mb-2">
-                                        {formatAddress(activeAccount)}
-                                    </div>
-                                    <QRCodeSVG
-                                    imageSettings={{
-                                        src: icon,
-                                        height: 24,
-                                        width: 24,
-                                        excavate: false,
-                                      }}
-                                    includeMargin
-                                    value={`${window.location.href}/${activeAccount}`}
-                                    size={200}
-                                    />
-                                    <div className="text-sm mt-2 text-gray-500 text-center">
-                                        Scan to start an encrypted chat with me
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }}
-                    extra={<SystemQRcodeOutline 
-                        fontSize={24} color="white" style={{cursor: "pointer"}}/>}
-                    >
-                        <div className="flex items-center gap-2">
-                        <AccountIcon account={activeAccount} width={32}/>
-                        {me?.name}
-                        </div>
-                    </List.Item>
-                    {/* <div className="flex items-center gap-2 mt-1 align-middle">
-            Share your Invitation Link: <CopyToClipboard text={`https://znbfmt6n-4173.euw.devtunnels.ms/messages/${activeAccount}`} />
-            </div> */}
-                  
-                </List>
-               
                 <div className="">
                     <List>
                         {filteredChats?.map(chat => {
@@ -331,19 +285,14 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             const accountFrom = from?._id;
                             const hasName = from?.name;
                             const pfp = from?.profilePicture?.url
-                            
-                            let decrypted = false
-                            try {
-                                if (chat.type === 'private') {
-                                    decrypted = box.decrypt(chat.lastMessage, accountFrom, activeAccountPk)
-                                }
-                                else {
-                                    decrypted = chat.lastMessage;
-                                }
-                            } catch (error) {
-                                decrypted = chat.lastMessage; // welcome message might not be encrypted
-                                console.log(error);
-                            }
+                            // const decrypted = useMessageDecryption({
+                            //     message: {
+                            //         content: chat.lastMessage,
+                            //         fromAccount: accountFrom,
+                            //         toAccount: activeAccount,
+                            //         _id: chat.lastMessageId,
+                            //     }})
+                            if (!accountFrom) return null;
                             return (
                                 <List.Item
                                     className={chat.id === account ? 'active' : ''}
@@ -376,7 +325,17 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                                 badgeColor={'gray'}
                                             />
                                     }
-                                    description={<Ellipsis content={decrypted || '...'} />}
+                                    // Ellipsis component is laggy when there are many messages
+                                    // description={<Ellipsis content={decrypted || '...'} />}
+                                    description={<MessageRaw 
+                                        key={chat.lastMessageId}
+                                        message={{
+                                        content: chat.lastMessage,
+                                        fromAccount: accountFrom,
+                                        toAccount: activeAccount,
+                                        _id: chat.lastMessageId,
+                                        isLocal: chat.isLocal,
+                                    }} />}
                                 >
                                     <div className="flex items-center gap-2">
                                         {/* {
@@ -424,7 +383,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                     </div> */}
                 </div>
                 <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                        <LockFill className="mr-2 inline" />Chats are end-to-end encrypted using nano.
+                        <LockFill className="mr-2 inline" />Your messages are end-to-end encrypted using nano.
                 </div>
                 <div className="text-center mb-6">
                         <Button 

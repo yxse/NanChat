@@ -12,50 +12,60 @@ import useSWR from "swr";
 import ProfilePicture from "./profile/ProfilePicture";
 import { DateHeader } from "../../app/History";
 import { LockFill } from "antd-mobile-icons";
+import useMessageDecryption from "../hooks/use-message-decryption";
 
 const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore }) => {
     const { wallet, dispatch
     } = useContext(WalletContext);
-    const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : type === 'private' ? null : message.content);
+    // const [decrypted, setDecrypted] = useState(message.isLocal ? message.content : type === 'private' ? null : message.content);
     const [loading, setLoading] = useState(true);
     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     const toAccount = message.toAccount;
-    const { data: account} = useSWR(type === "private" ? null : message.fromAccount, fetcherAccount);
+    // const { data: account} = useSWR(type === "private" ? null : message.fromAccount, fetcherAccount);
+    const decrypted = useMessageDecryption({message})
     useEffect(() => {
-        // if (!toAccount) return;
-        // if (type !== 'private') return;
-        if (decrypted) return;
-        if (wallet.messages.hasOwnProperty(message._id)) {
-            setDecrypted(wallet.messages[message._id]);
+        if (decrypted) {
+            dispatch({
+                type: 'ADD_MESSAGE',
+                payload: { _id: message._id, content: decrypted }
+            });
         }
-        else {
-            try {
-                let cached = localStorage.getItem("message-" + message._id);
-                if (cached) {
-                    setDecrypted(cached);
-                    dispatch({ type: 'ADD_MESSAGE', payload: { _id: message._id, content: cached } });
-                    return;
-                }
-                console.log("decrypting", message.content);
-                let r = box.decrypt(message.content,
-                    message.fromAccount === activeAccount ? toAccount : message.fromAccount
-                    , activeAccountPk)
-                console.log("decrypted", r);
-                setDecrypted(r);
-                localStorage.setItem("message-" + message._id, r);
-                let id = message.isLocal ? Math.random().toString() : message._id;
-                dispatch({ type: 'ADD_MESSAGE', payload: { _id: id, content: r } });
-            } catch (error) {
-                // debugger
-                console.log(error);
-                setDecrypted(message.content);
-            }
-        }
-    }
+    }, [decrypted])
+    // useEffect(() => {
+    //     // if (!toAccount) return;
+    //     // if (type !== 'private') return;
+    //     if (decrypted) return;
+    //     if (wallet.messages.hasOwnProperty(message._id)) {
+    //         setDecrypted(wallet.messages[message._id]);
+    //     }
+    //     else {
+    //         try {
+    //             let cached = localStorage.getItem("message-" + message._id);
+    //             if (cached) {
+    //                 setDecrypted(cached);
+    //                 dispatch({ type: 'ADD_MESSAGE', payload: { _id: message._id, content: cached } });
+    //                 return;
+    //             }
+    //             console.log("decrypting", message.content);
+    //             let r = box.decrypt(message.content,
+    //                 message.fromAccount === activeAccount ? toAccount : message.fromAccount
+    //                 , activeAccountPk)
+    //             console.log("decrypted", r);
+    //             setDecrypted(r);
+    //             localStorage.setItem("message-" + message._id, r);
+    //             let id = message.isLocal ? Math.random().toString() : message._id;
+    //             dispatch({ type: 'ADD_MESSAGE', payload: { _id: id, content: r } });
+    //         } catch (error) {
+    //             // debugger
+    //             console.log(error);
+    //             setDecrypted(message.content);
+    //         }
+    //     }
+    // }
 
 
-        , []);
+    //     , []);
 
         // if (!decrypted && 
         //     !nextMessage // preven scroll flickering when newmessage

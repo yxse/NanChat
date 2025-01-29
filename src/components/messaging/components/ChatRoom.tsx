@@ -68,9 +68,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     if (account?.startsWith('nano_')) {
         address = account;
     }
-    const { data: names2 } = useSWR<Chat[]>(`/names?accounts=${address}`, fetcherMessages);
-    const nameOrAccount = names2?.[0]?.name || formatAddress(address);
-    // const nameOrAccount = participant?.name || formatAddress(address);
+    // const { data: names2 } = useSWR<Chat[]>(`/names?accounts=${address}`, fetcherMessages);
+    // const nameOrAccount = names2?.[0]?.name || formatAddress(address);
+    const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
     // useEffect(() => {
     //     if (pages) {
@@ -85,7 +85,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             //     debugger
             //     return;
             // }
-           
+            console.log('message', message);
             if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
                 mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
                     const newChats = [...(currentChats || [])];
@@ -94,6 +94,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         const newChat = { ...newChats[chatIndex] };
                         newChat.lastMessage = message.content;
                         newChat.lastMessageTimestamp = new Date().toISOString();
+                        newChat.lastMessageId = message._id;
+                        newChat.isLocal = false;
                         // move chat to top
                         newChats.splice(chatIndex, 1);
                         newChats.unshift(newChat);
@@ -222,7 +224,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
                 <div className="flex-1 text-center">
                     <h2 className="font-medium flex items-center justify-center gap-2">
-                        {nameOrAccount} {names2?.[0]?.verified && <RiVerifiedBadgeFill />}
+                        {nameOrAccount} {participant?.verified && <RiVerifiedBadgeFill />}
                     </h2>
                     {
                         onlineAccount.includes(address) ? (
@@ -274,7 +276,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         )
     }
 
-    console.log("messages", messages);
+    // console.log("messages", messages);
     return (
         <div
             style={{
@@ -461,17 +463,18 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 color="primary">
                     Load more
                 </Button> */}
-                {
+                
+                <div
+                    style={(account == null
+                        || participant?.length === 0
+                    ) ? { display: 'none' } : {}}
+                >
+                     {
                     chat &&
                     !chat?.accepted &&
                     activeAccount !== chat?.creator &&
                     <NewMessageWarning fromAddress={address} account={activeAccount} chatId={account} />
                 }
-                <div
-                    style={(account == null
-                        || names2?.length === 0
-                    ) ? { display: 'none' } : {}}
-                >
                     <ChatInputMessage
                         messageInputRef={messageInputRef}
                         onSent={(message) => {
@@ -479,12 +482,27 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             // mutate(prev => {
                             //     return [...prev, { ...message, isLocal: true }];
                             // }, false);
+                            const id = Math.random().toString();
                             mutate(currentPages => {
                                 const newPages = [...(currentPages || [])];
                                 // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
                                 // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
-                                newPages[0] = [{ ...message, isLocal: true }, ...(newPages[0] || [])];
+                                newPages[0] = [{ ...message, isLocal: true, _id: id}, ...(newPages[0] || [])];
                                 return newPages;
+                            }, false);
+                            mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
+                                const newChats = [...(currentChats || [])];
+                                const chatIndex = newChats.findIndex(chat => chat.id === account);
+                                if (chatIndex !== -1) {
+                                    const newChat = { ...newChats[chatIndex] };
+                                    newChat.lastMessage = message.content;
+                                    newChat.lastMessageTimestamp = new Date().toISOString();
+                                    newChat.lastMessageId = id;
+                                    newChat.isLocal = true;
+                                    newChats.splice(chatIndex, 1);
+                                    newChats.unshift(newChat);
+                                }
+                                return newChats;
                             }, false);
                             setTimeout(() => {
                                 scrollToBottom();
@@ -494,7 +512,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     />
                 </div>
                 {
-                    names2?.length === 0 && account != null && (
+                    participant?.length === 0 && account != null && (
                         <div
                             style={{
                                 display: 'flex',
@@ -536,6 +554,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     )
                 }
             </div>
+           
         </div>
     );
 };

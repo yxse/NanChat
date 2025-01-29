@@ -9,7 +9,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 
 import App from "./app";
 import Confetti from "react-confetti-boom";
-import { Modal, Toast } from "antd-mobile";
+import { ConfigProvider, Modal, Toast } from "antd-mobile";
 import { Wallet } from "../nano/wallet";
 import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
@@ -22,6 +22,8 @@ import { PinAuthPopup } from "./Lock/PinLock";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-settings";
 import { showLogoutSheet } from "./Settings";
+import enUS from 'antd-mobile/es/locales/en-US'
+
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
 
@@ -213,6 +215,7 @@ export default function InitialPopup() {
   const [ledger, setLedger] = useState(null);
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
   return (
+    <ConfigProvider locale={enUS}>
     <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
       <PopupWrapper theme={theme}>
         <WalletProvider setWalletState={setWalletState} walletState={walletState}>
@@ -259,6 +262,7 @@ export default function InitialPopup() {
         </WalletProvider>
       </PopupWrapper>
     </LedgerContext.Provider>
+    </ConfigProvider>
   );
 }
 
