@@ -19,7 +19,7 @@ export const fetchPrices = async () => {
   };
 export const fetchAlias = async (account) => {
     const response = await fetch(`https://api.nanexplorer.com/alias?account=${account}`);
-    return response.json();
+    return response.json().then((data) => data.alias);
 }
 export const fetchAliasIdentifierMulti = async (email) => {
     const {identifier, domain} = parseEmailIdentifier(email);
