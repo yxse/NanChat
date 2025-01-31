@@ -11,7 +11,19 @@ import { getAccount } from '../getAccount';
 import { useSearchParams } from 'react-router-dom';
 import { UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
+import ProfilePicture from '../messaging/components/profile/ProfilePicture';
+import { useWallet } from '../Popup';
+import ProfileName from '../messaging/components/profile/ProfileName';
 
+
+const defaultContacts = [
+        {
+            name: 'NanWallet Team',
+            addresses: [
+                { network: 'XNO', address: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij' },
+            ]
+        },
+]
 const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
     const [addContactVisible, setAddContactVisible] = useState( searchParams.get("add") === "true" );
@@ -21,9 +33,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const name = Form.useWatch('newName', form)
     const network = Form.useWatch('network', form)
 
-    const [contacts, setContacts] = useLocalStorageState('contacts', {
-        defaultValue: []
-    });
+    const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const [contactToEdit, setContactToEdit] = useState(null);
     const [editContactVisible, setEditContactVisible] = useState(false);
   const {isMobile} = useWindowDimensions()
@@ -32,7 +42,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const handleExport = () => {
         // Handle export logic here
         const blob = new Blob([JSON.stringify(contacts)], { type: 'application/json' });
-        saveAs(blob, 'cesium-contacts.json');
+        saveAs(blob, 'nanwallet-contacts.json');
     };
 
     const handleAddContact = () => {
@@ -237,7 +247,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         if (!exists) {
                             let addressesFormatted = [];
                             let addresses = []
-                            if (contact.addresses !== undefined) { // Cesium export file
+                            if (contact.addresses !== undefined) { // nanwallet export file
                                 addresses = contact.addresses
                             }
                             else if (contact.account) { // Nault export file
@@ -250,7 +260,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                 if (address.network in networks) {
                                     addressesFormatted.push({ network: address.network, address: address.address })
                                 }
-                                else if (address.network == null) { // retrieve network from address prefix
+                                else if (address.network == null && address.address?.includes('_')) {
+                                     // retrieve network from address prefix
                                     let prefix = address.address.split('_')[0]
                                     let network = Object.keys(networks).find((ticker) => networks[ticker].prefix === prefix)
                                     if (network) {
@@ -356,7 +367,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         ]}>
 
                         <List.Item
-                        prefix={<UserCircleOutline fontSize={24} />}
+                        prefix={<ProfilePicture address={contact.addresses[0]?.address} />}
                          key={index}
                             onClick={() => {
                                 setContactToEdit(contact);
@@ -489,20 +500,16 @@ const Contacts: React.FC = ({onlyImport = false}) => {
 };
 
 export const SelectContact = ({ ticker, onSelect }) => {
-    const [mainAddress, setMainAddress] = useState(null);
     const [visible, setVisible] = useState(false);
     const [contacts, setContacts] = useLocalStorageState('contacts', {
-        defaultValue: []
+        defaultValue: defaultContacts
     });
     let filtered = contacts.filter((contact) => contact?.addresses?.find((address) => address?.network === ticker));
+    const {wallet} = useWallet()
     // if (filtered.length === 0) {
     //     return null;
     // }
-    useEffect(() => {
-        getAccount(ticker).then((address) => {
-            setMainAddress(address);
-        });
-    }, [ticker]);
+    
     return <>
         {/* <FaAddressBook fontSize={32} 
         className="cursor-pointer text-gray-200 mr-4 mt-4" onClick={() => {
@@ -524,19 +531,30 @@ export const SelectContact = ({ ticker, onSelect }) => {
             </div>
             <List>
                 {filtered.map((contact, index) => (
-                    <List.Item key={index}
+                    <List.Item
+                    prefix={<ProfilePicture address={contact.addresses[0]?.address} />}
+                     key={index}
                         onClick={() => {
                             onSelect(contact);
                             setVisible(false);
                         }}
                     >{contact.name}</List.Item>
                 ))}
-                <List.Item key={"main"} onClick={() => {
-                    onSelect({ name: 'Main Wallet', addresses: [{ network: ticker, address: mainAddress }] });
-                    setVisible(false);
-                }}>
-                    Main Wallet
-                </List.Item>
+                {
+                    wallet?.accounts?.map((account, index) => (
+                        <List.Item
+                        prefix={<ProfilePicture address={account.address} />}
+                         key={index}
+                            onClick={() => {
+                                onSelect({ name: `Account ${account.accountIndex + 1}`, addresses: [{ network: ticker, address: account.address }] });
+                                setVisible(false);
+                            }}
+                        >
+                            <ProfileName address={account.address} fallback={`Account ${account.accountIndex + 1}`} />
+                        </List.Item>
+                    ))
+                }
+            
             </List>
         </Popup>
     </>

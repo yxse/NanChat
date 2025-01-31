@@ -117,6 +117,9 @@ export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits
 }
 
 export const accountIconUrl = (account) => {
+  if (!account.startsWith("nano_")){
+    account = "nano_" + account.split("_")[1];
+  }
   return "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account;
 }
 export const AccountIcon = ({ account, width=32 }) => {
