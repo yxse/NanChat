@@ -530,17 +530,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
                 Contacts for {networks[ticker].name}
             </div>
             <List>
-                {filtered.map((contact, index) => (
-                    <List.Item
-                    prefix={<ProfilePicture address={contact.addresses[0]?.address} />}
-                     key={index}
-                        onClick={() => {
-                            onSelect(contact);
-                            setVisible(false);
-                        }}
-                    >{contact.name}</List.Item>
-                ))}
-                {
+            {
                     wallet?.accounts?.map((account, index) => (
                         <List.Item
                         prefix={<ProfilePicture address={account.address} />}
@@ -554,7 +544,16 @@ export const SelectContact = ({ ticker, onSelect }) => {
                         </List.Item>
                     ))
                 }
-            
+                {filtered.map((contact, index) => (
+                    <List.Item
+                    prefix={<ProfilePicture address={contact.addresses[0]?.address} />}
+                     key={index}
+                        onClick={() => {
+                            onSelect(contact);
+                            setVisible(false);
+                        }}
+                    >{contact.name}</List.Item>
+                ))}
             </List>
         </Popup>
     </>

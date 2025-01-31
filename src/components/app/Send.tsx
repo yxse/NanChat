@@ -128,12 +128,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
   ]
   if (type === "send") {
     rules.push({
-      required: true,
-      message: "Please enter a valid amount",
-      type: "number",
-      transform: (value) => parseFloat(value),
-    });
-    rules.push({
+      validateTrigger: "onConfirm",
       validator: async (rule, value) => {
         if (value <= 0) {
           throw new Error("Amount must be greater than 0");
@@ -141,6 +136,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       },
     });
     rules.push( {
+      validateTrigger: "onConfirm", // allow to not show error while typing amount, only on submit
       required: true,
       message: `Available: ${getAvailableAmount()}`,
       type: "number",

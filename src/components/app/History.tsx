@@ -22,7 +22,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { BiSend, BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { Action } from "antd-mobile/es/components/action-sheet";
-import { MinusCircleOutline, AddCircleOutline } from "antd-mobile-icons";
+import { MinusCircleOutline, AddCircleOutline, UserOutline } from "antd-mobile-icons";
 import useSWRInfinite from "swr/infinite";
 import { MdHowToVote, MdOutlineAlternateEmail } from "react-icons/md";
 import { AiOutlineContacts, AiOutlineTag } from "react-icons/ai";
@@ -38,6 +38,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { InAppReview } from '@capacitor-community/in-app-review';
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import ProfileName from "../messaging/components/profile/ProfileName";
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -136,13 +137,23 @@ export const Alias = ({ account }) => {
   const { data, isLoading } = useSWR('alias-' + account, () => fetchAlias(account), {
     dedupingInterval: 1000 * 60 * 60 * 24 // 1 day
   })
+  const {wallet} = useContext(WalletContext)
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })
   let contact = contacts?.find((c) => c?.addresses?.find((a) => a?.address == account))
+  let isWalletAccount = wallet.accounts.find((a) => a.address == account)
   if (contact) {
     return (
       <div className="flex items-center ">
         <AiOutlineContacts className="inline mr-1" />
         {contact?.name}
+      </div>
+    )
+  }
+  if (isWalletAccount) {
+    return (
+      <div className="flex items-center ">
+        <UserOutline className="inline mr-1" />
+        <ProfileName address={account} fallback={"Account " + +wallet.accounts.findIndex((a) => a.address == account) + 1} />
       </div>
     )
   }

@@ -385,9 +385,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
                         <LockFill className="mr-2 inline" />Your messages are end-to-end encrypted using nano.
                 </div>
-                <div className="text-center mb-6">
+                <div className="text-center mb-6 pb-6">
                         <Button 
-                            color="default"
+                            color="primary"
                             onClick={() => {
                                 navigator.share({
                                     title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,

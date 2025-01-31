@@ -47,7 +47,7 @@ export const fetchAliasInternet = async (email, ticker) => {
     if (!identifier || !domain) return null;
 
     let route = "nano-currency.json";
-    route = networks[ticker].name + "-" + "currency.json";
+    route = networks[ticker].name.toLowerCase() + "-" + "currency.json";
 
     const url = `https://${domain}/.well-known/${route}?names=${identifier}`;
     const proxy = `https://proxy.xno.link/?url=${encodeURIComponent(url)}`;
