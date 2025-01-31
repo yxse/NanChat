@@ -175,7 +175,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       <Input
       autoFocus={type === "receive"}
         clearable
-        type="number"
+        // type="number"
         inputMode="decimal"
         onChange={handleInputChange}
         placeholder={`Enter Amount`}
@@ -231,7 +231,9 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
 
   let dataPrepareSend = null;
   return (
-    <div className="divide-y divide-solid divide-gray-700 space-y-6">
+    <div
+    style={{width: isMobile ? "100%" : 400}}
+     className="divide-y divide-solid divide-gray-700 space-y-6">
       <div className="container  relative mx-auto">
         <div className="text-center text-xl p-2">
           {/* <NavBar onBack={() => navigate(`/${ticker}`)}> */}
