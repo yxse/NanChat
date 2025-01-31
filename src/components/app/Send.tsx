@@ -173,6 +173,8 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       rules={rules}
     >
       <Input
+      type="number"
+      step={"any"}
       autoFocus={type === "receive"}
         clearable
         // type="number"
