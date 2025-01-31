@@ -24,6 +24,11 @@ const AppUrlListener: React.FC<any> = () => {
       }
       if (Capacitor.isNativePlatform()){
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+          if (event.url.startsWith("https://nanwallet.com/") && !event.url.includes("?uri=")){
+            // no valid action detected, we just open the app and redirect to the correct page
+            navigate(event.url.replace("https://nanwallet.com/", "/"));
+            return; 
+          }
           InAppBrowser.close();
           setUri(event.url);
           try {

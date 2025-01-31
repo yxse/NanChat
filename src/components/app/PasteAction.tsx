@@ -27,6 +27,10 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         navigate(uri.replace("nanauth://sign?", "/sign?"));
         return;
       }
+      if (uri.startsWith("https://nanwallet.com/?uri=")) { // handle universal link
+        uri = uri.replace("https://nanwallet.com/?uri=", "");
+        uri = decodeURIComponent(uri);
+      }
         
       let parsed = parseURI(uri);
       if (parsed)

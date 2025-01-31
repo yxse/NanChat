@@ -253,13 +253,18 @@ function SecuritySettings() {
             visible={pinVisible} setVisible={setPinVisible} onAuthenticated={async () => {
               if (confirmationMethodToSet === "pin") {
                 setCreatePinVisible(true)
+                // we don't set confirmation method here since pin is not yet created
+                // it will be set in onAuthenticated of CreatePin, allowing to cancel the operation withut have pin confirmation method set without a pin
               }
               else if (confirmationMethodToSet === "enabled") { 
                 // ensure user has access to biometrics before enabling
                 await biometricAuthIfAvailable()
                 await webauthnAuthIfAvailable()
+                setConfirmationMethod(confirmationMethodToSet)
               }
-              setConfirmationMethod(confirmationMethodToSet)
+              else if (confirmationMethodToSet === "none") {
+                setConfirmationMethod(confirmationMethodToSet)
+              }
             }} description={"Change confirmation method"} />
             <CreatePin
              visible={createPinVisible} 
