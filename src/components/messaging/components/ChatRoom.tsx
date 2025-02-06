@@ -144,7 +144,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         // window.scrollTo(0, document.body.scrollHeight);
         // messagesEndRef.current?.scrollTo(0, -1);
         // messagesEndRef.current?.scrollTo(0, messagesEndRef.current.offsetHeight + 1000);
-        // messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
 
     };
 
