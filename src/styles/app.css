@@ -687,7 +687,7 @@ textarea {
   --tw-ring-shadow: 0 0 #000 !important;
 }
 
-.adm-list-item-content-main:has(.adm-input) {
+/* .adm-list-item-content-main:has(.adm-input) {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -699,4 +699,20 @@ textarea {
 }
 .adm-input-element {
   padding: 12px !important;
+} */
+
+/* hide input number arrow up/down */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+
+/* hide account button on no touch devices */
+.eye-icon {
+  color: var(--adm-color-text-secondary);
+}
+.eye-icon:hover {
+  color: var(--adm-color-primary);
 }

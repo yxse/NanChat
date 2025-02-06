@@ -27,35 +27,6 @@ export default function Footer({
   const [loading, setLoading] = useState<boolean>(false);
 
 
-  useEffect(() => {
-    return
-    if (password === "" && !localStorage.getItem("seed")) return;
-    setLoading(true);
-    async function decryptData() {
-      if (localStorage.getItem("seed")) {
-        const seed = localStorage.getItem("seed");
-        const res = seed.length === 128 ? wallet.fromSeed(seed) : wallet.fromLegacySeed(seed);
-        setSeed(res.seed);
-        setLoggedIn(true);
-        return;
-      }
-      else {
-        try {
-          let encryptedMasterKey = await storage.get("encryptedMasterKey", "local");
-          let result = await decrypt(encryptedMasterKey, password);
-          const res = result.length === 128 ? wallet.fromSeed(result) : wallet.fromLegacySeed(result); 
-          setInvalidPass(false);
-          setSeed(res.seed);
-          setLoggedIn(true);
-        } catch (error) {
-          console.log(error)
-          setLoading(false);
-        }
-      }
-    }
-    decryptData();
-  }, [password]);
-
   const handleUnlock = () => {
     // @ts-expect-error unlock
     // add focus to input

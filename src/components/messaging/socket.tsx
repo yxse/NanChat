@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-export const socket = io(import.meta.env.VITE_PUBLIC_CHAT_SOCKET, {
+export const socket = io(import.meta.env.VITE_PUBLIC_BACKEND, {
     autoConnect: false,
 });
 

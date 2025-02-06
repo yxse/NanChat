@@ -5,22 +5,11 @@ import { signMessage } from "../../api-invoke/Sign";
 import { Toast } from "antd-mobile";
 
 
-const getMessageToSign = async () => {
-
-    return fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/message', {
-        headers: {
-            'Content-Type': 'application/json',
-            'account': account
-        }
-    }).then((res) => res.json());
-}
-
-
 export const getNewChatToken = async (account, privateKey) => {
     const message = "Login to nanwallet.com chat. Date:" + new Date().toISOString();
     const signature = signMessage(privateKey, message);
 
-    return fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/token', {
+    return fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/token', {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -39,10 +28,10 @@ export const getNewChatToken = async (account, privateKey) => {
     });
 }
 
-export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url).then((res) => res.json());
-export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url).then((res) => res.json());
+export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
+export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessages = (url) => getChatToken().then(async (token) => {
-    return fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url, {
+    return fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
         headers: {
             'Content-Type': 'application/json',
             'token': token
@@ -58,7 +47,7 @@ export const fetcherMessages = (url) => getChatToken().then(async (token) => {
     })
 })
 
-export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/account?account=' + account)
+export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/account?account=' + account)
 .then((res) => res.json()).then((data) => {
     if (data?.profilePicture == null){
         data.profilePicture = {
@@ -68,7 +57,7 @@ export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_CHA
     return data
 })
 export const fetcherMessagesPost = (url, data) => getChatToken().then(async (token) => {
-    return fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + url, {
+    return fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
     method: 'POST',
     headers: { 
         'Content-Type': 'application/json',

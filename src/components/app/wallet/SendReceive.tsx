@@ -16,6 +16,7 @@ import Swap from "../Swap";
 import NetworkList from "../NetworksList";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { HapticsImpact } from "../../../utils/haptic";
 
 
 export const SendReceive = () => {
@@ -54,7 +55,7 @@ export const SendReceive = () => {
         <Button
         onClick={() => {
             showAction("receive");
-            Haptics.impact({
+            HapticsImpact({
               style: ImpactStyle.Medium
           });
         }}
@@ -69,7 +70,7 @@ export const SendReceive = () => {
           <Button
           onClick={() => {
             showAction("send");
-            Haptics.impact({
+            HapticsImpact({
               style: ImpactStyle.Medium
           });
           }}

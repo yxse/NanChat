@@ -27,7 +27,7 @@ import { CopyToClipboard } from "../Settings";
 import { getAccount } from "../getAccount";
 import Send, { AmountFormItem } from "./Send";
 import History from "./History";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR, { mutate, useSWRConfig } from "swr";
 import { getWalletRPC, initWallet, rawToMega } from "../../nano/accounts";
 import RPC from "../../nano/rpc";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -51,6 +51,8 @@ import RefreshButton from "../RefreshButton";
 import { LedgerStatus } from "../../ledger.service";
 import Buy from "./Buy";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import NetworkStatus from "./NetworkStatus";
+import { HapticsImpact } from "../../utils/haptic";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
@@ -194,7 +196,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           size="large"
             color="default"
             onClick={async () => {
-              Haptics.impact({
+              HapticsImpact({
                 style: ImpactStyle.Medium
               });
               if (ledger.ledger.status !== LedgerStatus.READY) {
@@ -233,7 +235,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         size="large"
           color="default"
           onClick={() => {
-            Haptics.impact({
+            HapticsImpact({
               style: ImpactStyle.Medium
             });
             navigator.share({
@@ -250,7 +252,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         size="large"
           color="default"
           onClick={() => {
-            Haptics.impact({
+            HapticsImpact({
                   style: ImpactStyle.Medium
                 });
             setEnterAmountVisible(true);
@@ -302,14 +304,13 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
   const [modalVisible, setModalVisible] = useState(defaultReceiveVisible);
   const [action, setAction] = useState(defaultAction);
   const [defaultScannerOpen, setDefaultScannerOpen] = useState(false);
-  const {mutate,cache}=useSWRConfig()
   
   const onLongPress = useLongPress(() => {
     setAction('send');
     setModalVisible(true);
     setDefaultScannerOpen(true);    
     // navigator.vibrate(100);
-    Haptics.impact({
+    HapticsImpact({
       style: ImpactStyle.Heavy
     });
     }, 400);
@@ -342,7 +343,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     //   updateBalanceOnWsMessage()
     //   }, [])
   const onRefresh = async () => {
-    Haptics.impact({
+    HapticsImpact({
       style: ImpactStyle.Medium
     });
     await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
@@ -439,7 +440,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         "msUserSelect": "none",
       }}
        color="primary" shape="rounded" size="large" className="w-full" onClick={() => {
-        Haptics.impact({
+        HapticsImpact({
           style: ImpactStyle.Medium
         });
         setModalVisible(true);
@@ -457,7 +458,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         
       }}
        color="primary" shape="rounded" size="large" className="w-full select-none" onClick={() => {
-        Haptics.impact({
+        HapticsImpact({
           style: ImpactStyle.Medium
         });
         setModalVisible(true);
@@ -517,6 +518,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           />
         } */}
       </CapsuleTabs>
+      <NetworkStatus ticker={ticker} />
       <div className="mt-4">
       <PullToRefresh
       disabled={isTouchDevice() ? false : true}

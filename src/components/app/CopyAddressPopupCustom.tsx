@@ -8,9 +8,10 @@ import { convertAddress } from '../../utils/format';
 import { activeNetworks } from '../../utils/networks';
 import { Clipboard } from '@capacitor/clipboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { HapticsImpact } from '../../utils/haptic';
 
 export const writeToClipboard = async (string) => {
-    Haptics.impact({
+    HapticsImpact({
         style: ImpactStyle.Medium
     });
     try {

@@ -4,7 +4,7 @@ import { AiOutlineDelete, AiOutlineExport, AiOutlineImport, AiOutlineMenu, AiOut
 import useLocalStorageState from 'use-local-storage-state';
 import NetworkList from './NetworksList';
 import { networks } from '../../utils/networks';
-import { formatAddress } from '../../utils/format';
+import { convertAddress, formatAddress } from '../../utils/format';
 import { saveAs } from 'file-saver';
 import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
@@ -536,7 +536,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
                         prefix={<ProfilePicture address={account.address} />}
                          key={index}
                             onClick={() => {
-                                onSelect({ name: `Account ${account.accountIndex + 1}`, addresses: [{ network: ticker, address: account.address }] });
+                                onSelect({ name: `Account ${account.accountIndex + 1}`, addresses: [{ network: ticker, address: convertAddress(account.address, ticker) }] });
                                 setVisible(false);
                             }}
                         >

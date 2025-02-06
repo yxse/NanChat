@@ -1,10 +1,49 @@
 // const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+import { Toast } from "antd-mobile";
 import { networks } from "../utils/networks";
 
 /**
  * Simple RPC client for Nano node
  */
+
+function saveWorkCache(hash, work) {
+  const keyCache = "works-cache";
+  let cached = localStorage.getItem(keyCache);
+  if (!cached) {
+    cached = {};
+  } else {
+    cached = JSON.parse(cached);
+  }
+  cached[hash] = work;
+  localStorage.setItem(keyCache, JSON.stringify(cached));
+}
+function removeWork(work){
+  const keyCache = "works-cache";
+  let cached = localStorage.getItem(keyCache);
+  if (!cached) {
+    cached = {};
+  } else {
+    cached = JSON.parse(cached);
+  }
+  for (const [hash, value] of Object.entries(cached)) {
+    if (value === work) {
+      delete cached[hash];
+      console.log("removed work from cache", work);
+      break;
+    }
+  }
+  localStorage.setItem(keyCache, JSON.stringify(cached));
+}
+function getWorkCache(hash) {
+  const keyCache = "works-cache";
+  let cached = localStorage.getItem(keyCache);
+  if (!cached) {
+    return false
+  }
+  cached = JSON.parse(cached);
+  return cached[hash];
+}
 export default class RPC {
   constructor(ticker) {
     this.rpcURL = networks[ticker].rpc;
@@ -60,6 +99,15 @@ export default class RPC {
     return r;
   }
   work_generate = async (hash) => {
+    // check cache
+    if (hash === undefined) {
+      throw new Error("work_generate hash is undefined");
+    }
+    let cached = getWorkCache(hash);
+    if (cached) {
+      console.log("work_generate cache hit");
+      return cached;
+    }
     let params = {
       action: "work_generate",
       hash: hash,
@@ -72,6 +120,8 @@ export default class RPC {
         `work_generate failed on ${this.worURL}: ${JSON.stringify(r)}`,
       );
     }
+    // save in cache
+    saveWorkCache(hash, r.work);
     return r.work;
   };
   receivable = async (account) => {
@@ -95,6 +145,11 @@ export default class RPC {
     };
 
     let r = await this.req(params);
+    
+    console.log("process", r);
+    // remove work from cache
+    removeWork(block.work);
+    
     return r;
   };
 
@@ -103,20 +158,38 @@ export default class RPC {
     if (params.action === "work_generate") {
       url = this.worURL;
     }
-    let data = await fetch(url, {
-      method: "POST",
-      headers: this.headerAuth,
-      body: JSON.stringify(params),
-    });
+    let data
+    try {
+      data = await fetch(url, {
+        method: "POST",
+        headers: this.headerAuth,
+        body: JSON.stringify(params),
+      });
+    } catch (error) {
+      console.error("RPC error", error);
+      Toast.show({content: `Cannot connect to node. Please try again later. (${error})`, icon: 'fail'});
+      throw new Error(`RPC error: ${error}`);
+    }
 
     // console.log("ratelimit-limit: " + data.headers.get('ratelimit-limit'));
     // console.log("ratelimit-remaining: " + data.headers.get('ratelimit-remaining'));
     // console.log("ratelimit-reset: " + data.headers.get('ratelimit-reset'));
-    try {
+    if (data.ok){
       data = await data.json();
       return data;
-    } catch (error) {
-      return { error: error.message };
+    }
+    else{
+      console.error("RPC error", data);
+      if (data.status === 429){
+        data.text().then((text) => {
+          Toast.show({content: text, icon: 'fail'});
+        });
+        throw new Error(`RPC error: ${data.statusText}`);
+      }
+      else{
+        Toast.show({content: "Cannot connect to node. Please try again later. Status: " + data.status, icon: 'fail'});
+        throw new Error(`RPC error: ${data.status}`);
+      }
     }
   };
 }

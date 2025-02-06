@@ -45,8 +45,9 @@ import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { HapticsImpact } from "../../utils/haptic";
 
-export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined}) => {
+export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined, isLoading = false}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
 
   let formatted = null
@@ -85,6 +86,9 @@ export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigi
       formatted = new Intl.NumberFormat("en-US", {maximumSignificantDigits: maximumSignificantDigits }).format(amountInBaseCurrency) + " " + selected;
     }
     // +amountInBaseCurrency.toPrecision(6) + " " + selected;
+  }
+  if (isLoading) {
+    return <DotLoading />
   }
   return (
     <>
@@ -279,7 +283,7 @@ export default function Home({ }) {
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
   const {isMobile} = useWindowDimensions()
   const onRefresh = async () => {
-    Haptics.impact({
+    HapticsImpact({
       style: ImpactStyle.Medium
     });
     await mutate((key) => key.startsWith("balance-") || key === "prices");

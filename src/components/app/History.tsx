@@ -25,7 +25,7 @@ import { Action } from "antd-mobile/es/components/action-sheet";
 import { MinusCircleOutline, AddCircleOutline, UserOutline } from "antd-mobile-icons";
 import useSWRInfinite from "swr/infinite";
 import { MdHowToVote, MdOutlineAlternateEmail } from "react-icons/md";
-import { AiOutlineContacts, AiOutlineTag } from "react-icons/ai";
+import { AiOutlineContacts, AiOutlineTag, AiOutlineWallet } from "react-icons/ai";
 import { fetchAlias, fetchAliasInternet } from "../../nanswap/swap/service";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 import useLocalStorageState from "use-local-storage-state";
@@ -39,6 +39,7 @@ import { InAppReview } from '@capacitor-community/in-app-review';
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 import ProfileName from "../messaging/components/profile/ProfileName";
+import { HapticsImpact } from "../../utils/haptic";
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -140,7 +141,8 @@ export const Alias = ({ account }) => {
   const {wallet} = useContext(WalletContext)
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })
   let contact = contacts?.find((c) => c?.addresses?.find((a) => a?.address == account))
-  let isWalletAccount = wallet.accounts.find((a) => a.address == account)
+  let accountNano = convertAddress(account, "XNO")
+  let isWalletAccount = wallet.accounts.find((a) => a.address == accountNano)
   if (contact) {
     return (
       <div className="flex items-center ">
@@ -152,8 +154,9 @@ export const Alias = ({ account }) => {
   if (isWalletAccount) {
     return (
       <div className="flex items-center ">
-        <UserOutline className="inline mr-1" />
-        <ProfileName address={account} fallback={"Account " + +wallet.accounts.findIndex((a) => a.address == account) + 1} />
+        <AiOutlineWallet className="inline mr-1" />
+        {/* <UserOutline className="inline mr-1" /> */}
+        <ProfileName address={accountNano} fallback={"Account " + +(wallet.accounts.findIndex((a) => a.address == accountNano)) + 1} />
       </div>
     )
   }
@@ -410,7 +413,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                   key: "send-again",
                   color: "#108ee9",
                   onClick: () => {
-                    Haptics.impact({
+                    HapticsImpact({
                       style: ImpactStyle.Medium
                     });
                     navigate(

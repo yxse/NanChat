@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import '../../styles/PasscodeKeyboard.css';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { HapticsImpact } from '../../utils/haptic';
 const PasscodeKeyboard = ({ passcode, setPasscode, maxLength = 6 }) => {
 
   const handleKeyPress = (number) => {
-    Haptics.impact({
+    HapticsImpact({
       style: ImpactStyle.Light,
     });
     if (passcode.length < maxLength) {
@@ -16,7 +17,7 @@ const PasscodeKeyboard = ({ passcode, setPasscode, maxLength = 6 }) => {
   const handleDelete = () => {
     const newPasscode = passcode.slice(0, -1);
     setPasscode(newPasscode);
-    Haptics.impact({
+    HapticsImpact({
       style: ImpactStyle.Light,
     });
   };

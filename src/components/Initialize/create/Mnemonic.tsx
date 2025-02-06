@@ -23,6 +23,7 @@ import { PinAuthPopup } from "../../Lock/PinLock";
 import { CreatePin } from "../../Lock/CreatePin";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import * as webauthn from '@passwordless-id/webauthn'
+import { HapticsImpact } from "../../../utils/haptic";
 
 export default function Mnemonic({
   setW,
@@ -94,7 +95,7 @@ export default function Mnemonic({
           <Button
           shape="rounded"
           onClick={async () => {
-            Haptics.impact({
+            HapticsImpact({
               style:ImpactStyle.Medium
             });
             if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used

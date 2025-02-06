@@ -47,7 +47,7 @@
     "@tauri-apps/plugin-deep-link": "~2",
     "@tauri-apps/plugin-notification": "~2",
     "@yudiel/react-qr-scanner": "^2.0.1",
-    "antd-mobile": "^5.36.0",
+    "antd-mobile": "^5.38.1",
     "antd-mobile-icons": "^0.3.0",
     "async-lock": "^1.4.1",
     "bignumber.js": "^9.1.2",

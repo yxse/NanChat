@@ -15,6 +15,7 @@ import icon from "../../../public/icons/icon.png"
 import { Capacitor } from "@capacitor/core";
 import { getMobileOperatingSystem } from "../../hooks/use-windows-dimensions";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { HapticsImpact } from "../../utils/haptic";
 // export async function resetLedger() {
 // }
 
@@ -303,7 +304,7 @@ export default function Start({
           <Button
             shape="rounded"
             onClick={() => {
-              Haptics.impact({
+              HapticsImpact({
                 style:ImpactStyle.Medium
               });
               setW(1)
@@ -316,7 +317,7 @@ export default function Start({
           <Button
             shape="rounded"
             onClick={() => {
-              Haptics.impact({
+              HapticsImpact({
                 style:ImpactStyle.Medium
               });
               setW(4)

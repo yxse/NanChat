@@ -6,8 +6,7 @@ export const networks = {
     prefix: "nano",
     logo: "https://bucket.nanwallet.com/logo/XNO.svg",
     defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq", 
-    rpc: "https://nodes.nanwallet.com/XNO",
-    rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/XNO",
     icon: "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D"
   },
   // "BTC-NANSWAP": {
@@ -19,7 +18,7 @@ export const networks = {
   //   logo: "https://cdn.discordapp.com/attachments/1057888614618505226/1291757371374174279/btc_nanswap.svg?ex=6701424d&is=66fff0cd&hm=9f3fb196e07a2b50dae33d53c1216db23ab08b14465ce29b4bfcb6d89ac627cc&",
   //   defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq",
   //   rpc: "https://nodes.nanwallet.com/BAN",
-  //   rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+  
   // },
   // USDC: {
   //   name: "NanUSDC",
@@ -29,7 +28,7 @@ export const networks = {
   //   logo: "https://cdn.discordapp.com/attachments/1057888614618505226/1291770469342511104/usdc_nanswap.svg?ex=67014e7f&is=66fffcff&hm=232cacaa94b59132bcabcbf539d2283d7c711426ea413c72891e0fdf9246c4ba&",
   //   defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq",
   //   rpc: "https://nodes.nanwallet.com/BAN",
-  //   rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+  
   // },
   BAN: {
     name: "Banano",
@@ -38,8 +37,7 @@ export const networks = {
     prefix: "ban",
     logo: "https://bucket.nanwallet.com/logo/BAN.svg",
     defaultRep: "ban_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq",
-    rpc: "https://nodes.nanwallet.com/BAN",
-    rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/BAN",
     icon: "https://i.nanwallet.com/u/plain/https%3A%2F%2Fmonkey.banano.cc%2Fapi%2Fv1%2Fmonkey%2F",
   },
   XDG: {
@@ -49,8 +47,7 @@ export const networks = {
     prefix: "xdg",
     logo: "https://bucket.nanwallet.com/logo/XDG.png",
     defaultRep: "xdg_1e4ecrhmcws6kwiegw8dsbq5jstq7gqj7fspjmgiu11q55s6xnsnp3t9jqxf",
-    rpc: "https://nodes.nanwallet.com/XDG",
-    rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/XDG",
     icon: "https://i.nanwallet.com/u/plain/https%3A%2F%2Fdoggycon.dogenano.io%2Fapi%2Fv1%2Fpilou%2F",
   },
   ANA: {
@@ -60,8 +57,7 @@ export const networks = {
     prefix: "ana",
     logo: "https://bucket.nanwallet.com/logo/ANA.png",
     defaultRep: "ana_1nanswapnscbjjr6nd8bjbyp7o3gby1r8m18rbmge3mj8y5bihh71sura9dx",
-    rpc: "https://nodes.nanwallet.com/ANA",
-    rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/ANA",
   },
   XRO: {
     name: "RaiblocksOne",
@@ -70,8 +66,7 @@ export const networks = {
     prefix: "xro",
     logo: "https://bucket.nanwallet.com/logo/XRO.png",
     defaultRep: "xro_1nanswapnscbjjr6nd8bjbyp7o3gby1r8m18rbmge3mj8y5bihh71sura9dx",
-    rpc: "https://nodes.nanwallet.com/XRO",
-    rpcAuth: import.meta.env.VITE_PUBLIC_NODES_API_KEY,
+    rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/XRO",
   },
   ...JSON.parse(localStorage.getItem("newNetworks")),
     ...JSON.parse(localStorage.getItem("customNetworks")),

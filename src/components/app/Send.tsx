@@ -51,6 +51,7 @@ import { Scanner } from "./Scanner";
 import { authenticate, secureAuthIfAvailable } from "../../utils/biometrics";
 import { PinAuthPopup } from "../Lock/PinLock";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { HapticsImpact } from "../../utils/haptic";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -513,7 +514,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 size="large"
                  color="primary" onClick={async () => {
                     setPinVisible(true)
-                    Haptics.impact({
+                    HapticsImpact({
                       style: ImpactStyle.Medium
                     });
                   // try {

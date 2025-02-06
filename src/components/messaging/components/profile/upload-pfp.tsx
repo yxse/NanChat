@@ -64,7 +64,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
       formData.append('profilePicture', file);
       formData.append('account', activeAccount)
 
-      const response = await fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET +
+      const response = await fetch(import.meta.env.VITE_PUBLIC_BACKEND +
         '/upload/upload-profile-picture', {
         method: 'POST',
         body: formData,
@@ -163,7 +163,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
                 key={icon}
                 onClick={async () => {
                     setCurrentAvatar(networks[icon].icon + convertAddress(activeAccount, icon));
-                    fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/upload/update-pfp', {
+                    fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/upload/update-pfp', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -190,7 +190,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
       </div>
       <ArtImages onImageClick={(url) => {
           setCurrentAvatar(url);
-          fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/upload/update-pfp', {
+          fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/upload/update-pfp', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json'

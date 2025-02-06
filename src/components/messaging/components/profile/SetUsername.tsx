@@ -33,7 +33,7 @@ const SetUsername: React.FC = () => {
                 const signature = tools.sign(activeAccount.privateKey, message);
                 const account = activeAccount.address;
                 console.log(signature);
-                fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/set-username', {
+                fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/set-username', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

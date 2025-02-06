@@ -39,7 +39,7 @@ const SetName: React.FC = () => {
                 </div>
                 <div className='text-base flex items-center mb-6'>
                     <LockOutline className='mr-2' />
-                    End-to-end encrypted chat using nano
+                    End-to-end encrypted chat and tipping using nano
                 </div>
             </div>
             }
@@ -53,7 +53,7 @@ const SetName: React.FC = () => {
                 const signature = tools.sign(activeAccount.privateKey, message);
                 const account = activeAccount.address;
                 console.log(signature);
-                fetch(import.meta.env.VITE_PUBLIC_CHAT_SOCKET + '/set-name', {
+                fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/set-name', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

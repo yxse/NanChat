@@ -15,6 +15,7 @@ import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-s
 import useSWR from "swr";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../messaging/fetcher";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { HapticsImpact } from "../../utils/haptic";
 
 function NotificationSettings() {
     const navigate = useNavigate();
@@ -62,7 +63,7 @@ function NotificationSettings() {
             <Switch
               checked={isGranted && notificationSettings[keyNotification]}
               onChange={(checked) => {
-                Haptics.impact({
+                HapticsImpact({
                   style: ImpactStyle.Medium
                 });
                 updateNotificationSettings(keyNotification, checked)

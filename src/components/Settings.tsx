@@ -492,7 +492,7 @@ className="mb-24"
                 // clean all history cache
                 let count = 0
                 for (var key in localStorage) {
-                  if (key.startsWith("history-")) {
+                  if (key.startsWith("history-") || key.startsWith("work-")) {
                     localStorage.removeItem(key)
                     count++
                   }
@@ -501,7 +501,7 @@ className="mb-24"
                 localStorage.removeItem("app-cache")
                 Toast.show({
                   icon: "success",
-                  content: `Cleared ${count} history items from cache`
+                  content: `Cleared ${count} items from cache`
                 })
               }}
             >

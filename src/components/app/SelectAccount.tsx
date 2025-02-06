@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import "../../styles/app/home.css";
 import { networks } from "../../utils/networks";
 import Network, { fetchAccountInfo, fetchBalance, ModalReceive, showModalReceive } from "./Network";
-import { Button, CheckList, Divider, DotLoading, Ellipsis, FloatingBubble, Grid, Image, List, Popup, SearchBar, Space, SwipeAction, Toast } from "antd-mobile";
+import { Button, CenterPopup, CheckList, Divider, DotLoading, Ellipsis, FloatingBubble, Grid, Image, List, Popup, SearchBar, Space, SwipeAction, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { BiPlus } from "react-icons/bi";
@@ -15,7 +15,7 @@ import { FaCheck, FaCopy, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { TbWorldQuestion } from "react-icons/tb";
 import useLocalStorageState from "use-local-storage-state";
-import { AccountIcon, ConvertToBaseCurrency } from "./Home";
+import { AccountIcon, ConvertToBaseCurrency, FormatBaseCurrency } from "./Home";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { getAccount } from "../getAccount";
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineSend, AiOutlineSwap } from "react-icons/ai";
@@ -25,14 +25,35 @@ import React from 'react'
 import { DownOutline, EditSOutline, EyeFill, EyeInvisibleFill } from "antd-mobile-icons";
 import ProfileName from "../messaging/components/profile/ProfileName";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { HapticsImpact } from "../../utils/haptic";
+import { useWalletMultiBalance } from "../../hooks/use-wallet-multi-balance";
+import { isTouchDevice } from "../../utils/isTouchDevice";
 
-const MAX_ACCOUNTS = 5;
+const MAX_ACCOUNTS = 15;
 function SelectAccount({ }) {
   const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
   const {wallet, dispatch} = useContext(WalletContext);
   const [visible, setVisible] = useState(false);
+  
   const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address;
- 
+  const {isMobile} = useWindowDimensions()
+  const ResponsivePopup = isMobile ? Popup : CenterPopup;
+  const {balances, balancesConverted, totalBalance, isLoading} = useWalletMultiBalance();
+  console.log({balances});
+  const onClickHide = (accountIndex) => {
+    if (accountIndex === 0){
+      Toast.show({content: "Cannot hide the first account"});
+    }
+    else{
+      // dispatch({type: "HIDE_INDEX", payload: accountIndex});
+      // dispatch({type: "REMOVE_ACCOUNT", payload: accountIndex});
+      wallet.wallets['XNO'].removeAccount(accountIndex);
+      if (wallet.activeIndex === accountIndex){
+        dispatch({type: "SET_ACTIVE_INDEX", payload: 0});
+      }
+    }
+  }
   useEffect(() => {
     // todo handle that better
     // if (localStorage.getItem('activeAddresses') === null) {
@@ -44,7 +65,7 @@ function SelectAccount({ }) {
   return (<>
   <div style={{color: "var(--adm-color-text-secondary)"}} className="text-sm flex items-center cursor-pointer" onClick={() => {
     setVisible(true)
-    Haptics.impact({
+    HapticsImpact({
       style: ImpactStyle.Medium
     });
   }}>
@@ -66,14 +87,23 @@ function SelectAccount({ }) {
       )}
     )}
   </div> */}
-  <Popup
+  <ResponsivePopup
+  
     visible={visible}
     onClose={() => setVisible(false)}
     closeOnMaskClick={true}
     >
-    <CheckList value={[wallet.activeIndex]}>
+      <div className="text-center text-lg flex items-center justify-between p-4 mr-1">
+      <span>Total Balance:</span>
+      <FormatBaseCurrency amountInBaseCurrency={totalBalance} isLoading={isLoading}/>
+      </div>
+      <div style={{maxHeight: "40vh", overflowY: "auto", minWidth: 400}}>
+    <CheckList 
+    
+    value={[wallet.activeIndex]}>
         {
           wallet.accounts.map((account) => {
+            let baseAccount = account.address.split("_")[1];
             return (
               <SwipeAction
               rightActions={[
@@ -92,19 +122,11 @@ function SelectAccount({ }) {
                 {
                   key: 'hide',
                   text: <EyeInvisibleFill />,
-                  onClick: () => {
-                    if (account.accountIndex === 0){
-                      Toast.show({content: "Cannot hide the first account"});
-                    }
-                    else{
-                      // dispatch({type: "HIDE_INDEX", payload: account.accountIndex});
-                      // dispatch({type: "REMOVE_ACCOUNT", payload: account.accountIndex});
-                      wallet.wallets['XNO'].removeAccount(account.accountIndex);
-                    }
-                  }
+                  onClick: () => onClickHide(account.accountIndex)
                 }
               ]}>
               <CheckList.Item
+              className="account-item"
               value={account.accountIndex}
                 onClick={() => {
                   dispatch({type: "SET_ACTIVE_INDEX", payload: account.accountIndex});
@@ -112,10 +134,29 @@ function SelectAccount({ }) {
                 }}
                 key={account.address}
                 prefix={
+                  <div className="flex items-center">
+                    {
+                      !isTouchDevice() &&
+                  <EyeInvisibleFill 
+                  color="var(--adm-color-text-secondary)"
+                  className="eye-icon mr-2" onClick={(e) => {
+                    e.stopPropagation();
+                    onClickHide(account.accountIndex)
+                  }} />
+                }
                   <AccountIcon account={account.address} />
+                  </div>
                 }
               >
+                <div style={{display: "flex", justifyContent: "space-between"}}>
                 <ProfileName address={account.address} fallback={`Account ${account.accountIndex + 1}`} />
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>
+                    {
+                      balancesConverted[baseAccount] ? <FormatBaseCurrency amountInBaseCurrency={balancesConverted[baseAccount]} isLoading={isLoading} /> : 
+                      <FormatBaseCurrency amountInBaseCurrency={0} />
+                    }
+                    </div>
+                </div>
               </CheckList.Item>
               </SwipeAction>
             );
@@ -123,6 +164,8 @@ function SelectAccount({ }) {
           )
         }
     </CheckList>
+</div>
+
     {
       wallet.accounts.length < MAX_ACCOUNTS &&
       <div className="m-4">
@@ -153,8 +196,7 @@ function SelectAccount({ }) {
         Add Account
       </Button></div>
     }
-
-    </Popup>
+    </ResponsivePopup>
   </>
   );
 }

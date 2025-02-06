@@ -10,6 +10,7 @@ import { BiPlus } from "react-icons/bi";
 import { AiOutlineDelete } from "react-icons/ai";
 import useLocalStorageState from "use-local-storage-state";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { HapticsImpact } from "../../utils/haptic";
 
 export default function NetworksSwitch({ onClick }) {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function NetworksSwitch({ onClick }) {
       key={ticker}
       className="network-card flex justify-between p-2 m-1 cursor-pointer"
       onClick={() => {
-        Haptics.impact({
+        HapticsImpact({
           style: ImpactStyle.Medium
         });
         let checked = hiddenNetworks.includes(ticker);
