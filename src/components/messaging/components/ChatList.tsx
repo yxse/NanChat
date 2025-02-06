@@ -5,7 +5,7 @@ import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
 import { LedgerContext, WalletContext } from "../../Popup";
-import { convertAddress, formatAddress } from "../../../utils/format";
+import { convertAddress, formatAddress, ShareModal } from "../../../utils/format";
 import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
@@ -93,7 +93,12 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     }
     , [activeAccountPk, me]);
 
-    
+    const inviteFriends = () => {   
+        ShareModal({
+            text: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
+            url: window.location.href + `/${activeAccount}`,
+        })
+    }
     const ButtonNewChat = () => {
         const actions: Action[] = [
             // { key: 'private_chat', icon: <UserOutline />, text: 'New Private Chat' },
@@ -106,7 +111,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 <Popover.Menu
                     mode='dark'
                     actions={actions}
-                    placement='right-start'
+                    placement='left-start'
                     onAction={node => {
                         if (node.key === 'public_group') {
                             let modal = Modal.show({
@@ -170,19 +175,37 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             { key: 'new_chat', icon: <MessageFill />, text: 'New Chat' },
             { key: 'invite', icon: <MailOutline />, text: 'Invite Friends' },
             { key: 'my_qr', icon: <SystemQRcodeOutline />, text: 'My QR Code' },
-            { key: 'scan_qr', icon: <ScanCodeOutline />, text: 'Scan QR Code' },
-
+            { key: 'scan_qr', icon: <ScanCodeOutline />, text: <Scanner
+                onScan={(result) => {
+                    if (result){
+                      let address = false
+                        if (result.includes('https://app.nanwallet.com/chat/')) {
+                            address = result.split('https://app.nanwallet.com/chat/')[1];
+                        }
+                        else if (result.startsWith('nano_') && isValid(result)){
+                            address = result;
+                        }
+                        else if (result.startsWith('nano:') && isValid(result.split('nano:')[1])){
+                            address = result.split('nano:')[1];
+                        }
+                        if (address){
+                          Modal.clear();
+                          onChatSelect(address);
+                        }
+                        else{
+                          Toast.show({content: "Invalid QR Code. Please scan a valid NanWallet chat QR code or a Nano address", duration: 4000});
+                        }
+                    }
+                  }}
+            >Scan QR Code</Scanner> },
           ]}
-          placement='right-start'
+        //   placement='left'
           onAction={(node) => {
             if (node.key === 'new_chat') {
               setIsNewChatVisible(true);
             }
             if (node.key === 'invite') {
-              navigator.share({
-                title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at @${me?.username}`,
-                url: window.location.href + `/${activeAccount}`
-              })  
+              inviteFriends();
             }
             if (node.key === 'my_qr') {
               Modal.show({
@@ -217,6 +240,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
               })
             }
             if (node.key === 'scan_qr') {
+                return
               Modal.show({
                 showCloseButton: false,
                 closeOnMaskClick: true,
@@ -389,10 +413,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         <Button 
                             color="primary"
                             onClick={() => {
-                                navigator.share({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
-                                    url: `https://app.nanwallet.com/chat/${activeAccount}`
-                                })  
+                                inviteFriends()
                             }}
                             className="mt-4"
                             size="middle"

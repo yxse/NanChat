@@ -23,6 +23,8 @@
   .app-navbar {
     position: fixed;
     top: env(safe-area-inset-top);
+    width: 100vw; 
+    /* width 100vw fix bug with popover new chat */
   }
   .content-nav {
     /* 46px is the header */
@@ -645,7 +647,7 @@ body.barcode-scanner-active {
 }
 
 body.barcode-scanner-active .adm-center-popup-wrap {
-  height: 90vh;
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -653,6 +655,13 @@ body.barcode-scanner-active .adm-center-popup-wrap {
 }
 body.barcode-scanner-active .adm-center-popup-mask {
   background-color: transparent !important;
+}
+body.barcode-scanner-active .adm-center-popup-close {
+    color: rgb(186, 186, 186);
+    font-size: 1.1em;
+    border: 1px white solid;
+    border-radius: 8px;
+    right: -24px;
 }
 
 .square {

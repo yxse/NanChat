@@ -4,9 +4,9 @@ import {
     LensFacing,
   } from '@capacitor-mlkit/barcode-scanning';
 import { Capacitor } from '@capacitor/core';
-import { Button, Modal, Toast } from 'antd-mobile';
+import { Button, Modal, Popup, Toast } from 'antd-mobile';
 import { ScanCodeOutline } from 'antd-mobile-icons';
-import { cloneElement, useEffect } from 'react';
+import { cloneElement, useEffect, useState } from 'react';
 import { Scanner as ScannerWeb } from '@yudiel/react-qr-scanner';
 
 const defaultScanButton = <ScanCodeOutline
@@ -15,35 +15,37 @@ className="cursor-pointer text-gray-200 mr-4 mt-4"
 />;
 
 const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClose}) => {
+    const [visible, setVisible] = useState(defaultOpen);
     let isScanning = false;
 
     const handleScanClick = () => {
-        let modal = Modal.show({
-            onClose: () => {
-                stopScan();
-                if (onClose) onClose();
-            },
-            showCloseButton: true,
-            bodyClassName: "bg-transparent scanner-active",
-            style: {
-                visibility: "visible",
-                display: "flex",
-                height: "100vh",
-                width: "100%",
-            },
-            maskClassName: "bg-transparent",
-            closeOnMaskClick: true,
-            title: null,
-            content: (
-                <div className=''>
-                <div className="square"></div>
-                <div className="m-4 text-sm text-center" style={{marginTop: "300px", userSelect: "none", WebkitUserSelect: "none"}}>
-                  Scan QR Code
-                </div>
-              </div>
-            ),
-        });
-        startScan(onScan, modal);
+        setVisible(true);
+        // let modal = Modal.show({
+        //     onClose: () => {
+        //         stopScan();
+        //         if (onClose) onClose();
+        //     },
+        //     showCloseButton: true,
+        //     bodyClassName: "bg-transparent scanner-active",
+        //     style: {
+        //         visibility: "visible",
+        //         display: "flex",
+        //         height: "100vh",
+        //         width: "100%",
+        //     },
+        //     maskClassName: "bg-transparent",
+        //     closeOnMaskClick: true,
+        //     title: null,
+        //     content: (
+        //         <div className=''>
+        //         <div className="square"></div>
+        //         <div className="m-4 text-sm text-center" style={{marginTop: "300px", userSelect: "none", WebkitUserSelect: "none"}}>
+        //           Scan QR Code
+        //         </div>
+        //       </div>
+        //     ),
+        // });
+        startScan(onScan, setVisible);
     };
     useEffect(() => {
         if (!isScanning && defaultOpen) {
@@ -56,11 +58,44 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
     
 
     return (
-        <div className='scanner'>
+        <div className='scanner' onClick={handleScanClick}>
+          <Popup
+          destroyOnClose
+          showCloseButton
+          style={{
+                    visibility: "visible",
+                    display: "flex",
+                    height: "100vh",
+                    width: "100%",
+            }}
+          onClose={() => {
+            stopScan();
+            setVisible(false)
+            if (onClose) onClose();
+          }}
+          maskClassName='bg-transparent'
+          bodyClassName='bg-transparent scanner-active'
+          visible={visible}
+          onMaskClick={() => {
+            stopScan();
+            setVisible(false)
+          }}
+          bodyStyle={{ height: '100dvh' }}
+        >
+<div className=''>
+                <div className="square">
+
+                <div className="m-4 text-sm text-center" style={{userSelect: "none", WebkitUserSelect: "none", marginTop: "220px"}}>
+                  Scan QR Code
+                </div>
+                </div>
+              </div>
+        </Popup>
             {/* On clone l'élément enfant en lui ajoutant le onClick */}
-            {cloneElement(children, {
+            {/* {cloneElement(children, {
                 onClick: handleScanClick
-            })}
+            })} */}
+            {children}
         </div>
     );
 };
@@ -98,10 +133,11 @@ const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen,
     }, []);
 
     return (
-        <div className='scanner'>
-            {cloneElement(children, {
+        <div className='scanner' onClick={handleScanClick}>
+            {/* {cloneElement(children, {
                 onClick: handleScanClick
-            })}
+            })} */}
+            {children}
         </div>
     );
 }
@@ -113,7 +149,7 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
         return <ScannerWebComponent onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
     }
 };
-  const startScan = async (onScan, modal) => {
+  const startScan = async (onScan, setVisible) => {
     
     // The camera is visible behind the WebView, so that you can customize the UI in the WebView.
     // However, this means that you have to hide all elements that should not be visible.
@@ -131,9 +167,10 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
           ?.classList.remove('barcode-scanner-active');
         if (onScan) {
             onScan(result.barcode.displayValue);
-        }
-        
-        modal.close();
+          }
+          
+        stopScan();
+        setVisible(false);
         console.log(result.barcode);
       },
     );
