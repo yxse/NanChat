@@ -23,15 +23,15 @@ const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true
                 accounts?.map(account => (
                     <List.Item
                         onClick={() => {
-                            onClick && onClick(account)
-                            if (viewTransition) {
-                                document.startViewTransition(() => {
-                                    navigate(`/chat/${account._id}`, { unstable_viewTransition: true })
-                                })
-                            }
-                            else {
-                                navigate(`/chat/${account._id}`)
-                            }
+                            // onClick && onClick(account)
+                            // if (viewTransition) {
+                            //     document.startViewTransition(() => {
+                            //         navigate(`/chat/${account._id}`, { viewTransition: true })
+                            //     })
+                            // }
+                            // else {
+                                navigate(`/chat/${account._id}`, { viewTransition: false, replace: true })
+                            // }
                             // navigate(`/chat/${account._id}`, { unstable_viewTransition: false })
                         }}
                         key={account._id + badgeColor}
@@ -89,6 +89,7 @@ function NewChatPopup({visible, setVisible}) {
     return (
         <>
             <ResponsivePopup
+            key={"newChatPopup"}
                 showCloseButton
                 visible={visible}
                 onClose={() => setVisible(false)}

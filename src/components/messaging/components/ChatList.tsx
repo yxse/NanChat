@@ -9,7 +9,7 @@ import { convertAddress, formatAddress, ShareModal } from "../../../utils/format
 import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { box } from "multi-nano-web";
 import GroupAvatar from "./group-avatar";
 import Contacts from "../../app/Contacts";
@@ -52,6 +52,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     }});
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+
     const [isNewChatVisible, setIsNewChatVisible] = useState(false);
     const {ledger, setLedger} = useContext(LedgerContext);
     const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
@@ -202,6 +204,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
           onAction={(node) => {
             if (node.key === 'new_chat') {
               setIsNewChatVisible(true);
+                // add open true param allow to fix newchat popup iphone when navigating back by creating a new route
+                navigate(`${location.pathname}?open=true`);
             }
             if (node.key === 'invite') {
               inviteFriends();
