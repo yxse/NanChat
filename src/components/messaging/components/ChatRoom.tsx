@@ -12,7 +12,7 @@ import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, DotLoading, Input, List, Skeleton, Space, Toast } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherMessages } from "../fetcher";
+import { fetcherAccount, fetcherMessages } from "../fetcher";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
@@ -70,8 +70,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     }
     // const { data: names2 } = useSWR<Chat[]>(`/names?accounts=${address}`, fetcherMessages);
     // const nameOrAccount = names2?.[0]?.name || formatAddress(address);
+    const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(address, fetcherAccount);
     const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
+    const accountExists = isLoadingNanwalletAccount || nanwalletAccount?.error === undefined;
     // useEffect(() => {
     //     if (pages) {
     //         setMessages(messagesHistory);
@@ -466,7 +468,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 
                 <div
                     style={(account == null
-                        || participant?.length === 0
+                        || (!accountExists)
                     ) ? { display: 'none' } : {}}
                 >
                      {
@@ -512,7 +514,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     />
                 </div>
                 {
-                    participant?.length === 0 && account != null && (
+                    !accountExists && account != null && (
                         <div
                             style={{
                                 display: 'flex',
@@ -537,8 +539,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             color="primary"
                             onClick={() => {
                                 ShareModal({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${address}`,
-                                    url: `https://app.nanwallet.com/chat/${address}`
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
+                                    url: `https://nanwallet.com/chat/${activeAccount}`
                                 })
                             }}
                             className="mt-4"
