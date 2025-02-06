@@ -5,6 +5,7 @@ import { Share } from '@capacitor/share';
 import { Clipboard } from "@capacitor/clipboard";
 import { HapticsImpact } from "./haptic";
 import { ImpactStyle } from "@capacitor/haptics";
+import { Capacitor } from "@capacitor/core";
 
 export const convertAddress = (address, ticker) => {
   if (address == null) {
@@ -75,26 +76,30 @@ export const parseURI = (uri) => {
     return `${networks[ticker].prefix}:${address}?amount=${amountRaw}`;
   }
 
-  export const ShareModal = async ({title, text, url}) => {
-    if (navigator.share) {
-      navigator.share({
-        text: text,
-        url: url,
-      })
-    }
-    else if (await Share.canShare()) {
-      Share.share({
-        title: title,
-        text: text,
-        url: url,
-      });
-    }
-    else{
-      copyToClipboard(text);
-      Toast.show({
-        icon: "success",
-        content: "Invite link copied to clipboard"
-      });
+  export const ShareModal = async ({title}) => {
+    try {
+      if (!Capacitor.isNativePlatform() && navigator.share) {
+        navigator.share({
+          text: title,
+        })
+      }
+      else {
+        throw new Error("Share API not supported");
+      }
+    } catch (error) {
+      if (await Share.canShare()) {
+        Share.share({
+          text: title,
+        });
+      }
+      else{
+        copyToClipboard(title);
+        Toast.show({
+          icon: "success",
+          content: "Invite link copied to clipboard"
+        });
+      }
+      
     }
   }
 

@@ -539,8 +539,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             color="primary"
                             onClick={() => {
                                 ShareModal({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
-                                    url: `https://nanwallet.com/chat/${activeAccount}`
+                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
                                 })
                             }}
                             className="mt-4"

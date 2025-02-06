@@ -239,7 +239,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
               style: ImpactStyle.Medium
             });
             ShareModal({
-              text: address,
+              title: address,
             });
           }}
           className="w-1/2"

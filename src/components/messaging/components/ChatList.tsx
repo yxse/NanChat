@@ -95,8 +95,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
     const inviteFriends = () => {   
         ShareModal({
-            text: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
-            url: window.location.href + `/${activeAccount}`,
+            title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
         })
     }
     const ButtonNewChat = () => {
