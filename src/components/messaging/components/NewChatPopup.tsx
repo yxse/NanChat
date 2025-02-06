@@ -23,7 +23,7 @@ const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true
                 accounts?.map(account => (
                     <List.Item
                         onClick={() => {
-                            // onClick && onClick(account)
+                            onClick && onClick(account)
                             // if (viewTransition) {
                             //     document.startViewTransition(() => {
                             //         navigate(`/chat/${account._id}`, { viewTransition: true })
