@@ -6,7 +6,7 @@ import { IoSendOutline } from "react-icons/io5";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { WalletContext } from "../../Popup";
-import { convertAddress, formatAddress } from "../../../utils/format";
+import { convertAddress, formatAddress, ShareModal } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
@@ -536,10 +536,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             <Button 
                             color="primary"
                             onClick={() => {
-                                navigator.share({
+                                ShareModal({
                                     title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${address}`,
                                     url: `https://app.nanwallet.com/chat/${address}`
-                                })  
+                                })
                             }}
                             className="mt-4"
                             size="middle"

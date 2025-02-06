@@ -32,7 +32,7 @@ import { megaToRaw, send } from "../../nano/accounts";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import { MdContentPaste, MdCurrencyExchange } from "react-icons/md";
-import { convertAddress, formatAddress, parseURI } from "../../utils/format";
+import { convertAddress, formatAddress, parseURI, pasteFromClipboard } from "../../utils/format";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { CgArrowsExchangeV } from "react-icons/cg";
 import { fetchAliasInternet, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
@@ -358,7 +358,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 onClick={() => {
                   try {
                     (async () =>
-                      form.setFieldValue("address", await navigator.clipboard.readText()))();
+                      form.setFieldValue("address", await pasteFromClipboard()))();
                   }
                   catch (error) {
                     console.error("Error pasting:", error);

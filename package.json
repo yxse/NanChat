@@ -32,6 +32,7 @@
     "@capacitor/inappbrowser": "^1.0.2",
     "@capacitor/ios": "^6.2.0",
     "@capacitor/keyboard": "^6.0.3",
+    "@capacitor/share": "6",
     "@capacitor/splash-screen": "^6.0.3",
     "@emotion/react": "^11.11.4",
     "@khmyznikov/pwa-install": "^0.4.0",

@@ -24,6 +24,7 @@ import { CreatePin } from "../../Lock/CreatePin";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import * as webauthn from '@passwordless-id/webauthn'
 import { HapticsImpact } from "../../../utils/haptic";
+import { copyToClipboard } from "../../../utils/format";
 
 export default function Mnemonic({
   setW,
@@ -154,7 +155,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       confirmText: "I understand",
       cancelText: "I don't understand",
       onCancel: () => {
-        navigator.clipboard.writeText("")
+        copyToClipboard("") // clear clipboard
         setIsRevealed(false)
         setWarningShown(false)
       }

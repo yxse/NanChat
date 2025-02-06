@@ -40,7 +40,7 @@ import { SiExpertsexchange } from "react-icons/si";
 import { RiTokenSwapLine } from "react-icons/ri";
 import SetAmountModal from "./SetAmountModal";
 import { CloseCircleFill } from "antd-mobile-icons";
-import { convertAddress, getURI } from "../../utils/format";
+import { convertAddress, getURI, ShareModal } from "../../utils/format";
 import { CopyButton } from "./Icons";
 import { LedgerContext, WalletContext } from "../Popup";
 import { Wallet } from "../../nano/wallet";
@@ -238,7 +238,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
             HapticsImpact({
               style: ImpactStyle.Medium
             });
-            navigator.share({
+            ShareModal({
               text: address,
             });
           }}

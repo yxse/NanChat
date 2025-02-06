@@ -29,6 +29,7 @@ import { FiAtSign } from "react-icons/fi";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import ProfileHome from "./messaging/components/profile/ProfileHome";
 import { getSeed, removeSeed } from "../utils/storage";
+import { copyToClipboard } from "../utils/format";
 
 export const ManageNetworks = ({}) => {
   const [networksSwitchVisible, setNetworksSwitchVisible] = useState(false)
@@ -61,16 +62,10 @@ export function CopyToClipboard({ text, hideCopyIcon = false, textToDisplay }: {
       className="flex items-center group py-1 rounded cursor-pointer justify-center"
       role="button"
       onClick={() => {
-        navigator.clipboard.writeText(text).then(
-          () => {
+        copyToClipboard(text).then(() => {
             Toast.show({
               content: "Copied!",
               duration: 1000,
-            });
-          },
-          (err) => {
-            Toast.show({
-              content: "Failed to copy",
             });
           },
         );
@@ -110,11 +105,9 @@ export const showLogoutSheet = async () => {
               danger: true,
               description: '',
               onClick: async () => {
+              await removeSeed()
               actionSheet.close()
               actionSheet1.close()
-              localStorage.removeItem('seed')
-              localStorage.removeItem('encryptedMasterKey')
-              await removeSeed()
               window.location.reload()
             }
           },

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { BiPaste } from 'react-icons/bi';
-import { parseURI } from '../../utils/format';
+import { parseURI, pasteFromClipboard } from '../../utils/format';
 import { Modal, Toast } from 'antd-mobile';
 import { ModalReceive } from './Network';
 import { useNavigate } from 'react-router-dom';
@@ -62,9 +62,9 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
     return <PasteIcon fontSize={24}
     className="cursor-pointer mr-4 mt-4"
     onClick={() => {
-      navigator.clipboard.readText().then((text) => {
+      pasteFromClipboard().then((text) => {
         executeURI(text);
-      })
+      });
     }}
   />
   }

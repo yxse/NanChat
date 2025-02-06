@@ -30,7 +30,7 @@ import { fetchAlias, fetchAliasInternet } from "../../nanswap/swap/service";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 import useLocalStorageState from "use-local-storage-state";
 import { WalletContext } from "../Popup";
-import { convertAddress, formatAddress } from "../../utils/format";
+import { convertAddress, copyToClipboard, formatAddress } from "../../utils/format";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import CopyAddressPopup from "./CopyAddressPopup";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
@@ -204,16 +204,11 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
       text: "Copy address",
       key: "copy-address",
       onClick: () => {
-        navigator.clipboard.writeText(activeTx.account).then(
+        copyToClipboard(activeTx.account).then(
           () => {
             Toast.show({
               content: "Copied!",
               duration: 1000,
-            });
-          },
-          (err) => {
-            Toast.show({
-              content: "Failed to copy",
             });
           },
         );

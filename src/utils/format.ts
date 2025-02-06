@@ -1,5 +1,10 @@
+import { Toast } from "antd-mobile";
 import { megaToRaw, rawToMega } from "../nano/accounts";
 import { networks } from "./networks";
+import { Share } from '@capacitor/share';
+import { Clipboard } from "@capacitor/clipboard";
+import { HapticsImpact } from "./haptic";
+import { ImpactStyle } from "@capacitor/haptics";
 
 export const convertAddress = (address, ticker) => {
   if (address == null) {
@@ -68,4 +73,54 @@ export const parseURI = (uri) => {
     }
     const amountRaw = megaToRaw(ticker, megaAmount);
     return `${networks[ticker].prefix}:${address}?amount=${amountRaw}`;
+  }
+
+  export const ShareModal = async ({title, text, url}) => {
+    if (navigator.share) {
+      navigator.share({
+        text: text,
+        url: url,
+      })
+    }
+    else if (await Share.canShare()) {
+      Share.share({
+        title: title,
+        text: text,
+        url: url,
+      });
+    }
+    else{
+      copyToClipboard(text);
+      Toast.show({
+        icon: "success",
+        content: "Invite link copied to clipboard"
+      });
+    }
+  }
+
+  export const copyToClipboard = async (text) => {
+    try {
+      HapticsImpact({
+        style: ImpactStyle.Medium
+      });
+      await Clipboard.write({
+        string: text
+      });
+    } catch (error) {
+      Toast.show({
+        icon: "fail",
+        content: "Failed to copy"
+      });
+    }
+  }
+  export const pasteFromClipboard = async () => {
+    try {
+      const { value } = await Clipboard.read();
+      return value;
+    } catch (error) {
+      Toast.show({
+        icon: "fail",
+        content: "Failed to paste"
+      });
+    }
   }

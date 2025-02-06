@@ -27,7 +27,7 @@ import useSWR, { mutate } from "swr";
 import { MdContentPaste } from "react-icons/md";
 import { Representative, RepresentativeList } from "./NetworksList";
 import { WalletContext } from "../Popup";
-import { convertAddress } from "../../utils/format";
+import { convertAddress, pasteFromClipboard } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { PasteIcon } from "./Icons";
 
@@ -152,7 +152,7 @@ export default function ChangeRep() {
                             onClick={() => {
                               try {
                                 (async () =>
-                                  form.setFieldValue("address", await navigator.clipboard.readText()))();
+                                  form.setFieldValue("address", await pasteFromClipboard()))();
                               }
                               catch (error) {
                                 console.error("Error pasting:", error);

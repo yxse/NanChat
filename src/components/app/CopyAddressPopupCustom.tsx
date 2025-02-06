@@ -4,27 +4,12 @@ import NetworkList, { ItemCopyAddress } from './NetworksList';
 import { CopyIcon } from './Icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import { WalletContext } from '../Popup';
-import { convertAddress } from '../../utils/format';
+import { convertAddress, copyToClipboard } from '../../utils/format';
 import { activeNetworks } from '../../utils/networks';
 import { Clipboard } from '@capacitor/clipboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { HapticsImpact } from '../../utils/haptic';
 
-export const writeToClipboard = async (string) => {
-    HapticsImpact({
-        style: ImpactStyle.Medium
-    });
-    try {
-        await Clipboard.write({
-          string: string
-        });
-    } catch (error) {
-        Toast.show({
-            icon: "fail",
-            content: "Failed to copy"
-        });
-    }
-  };
   
 function CopyAddressPopupCustom({addresses = [], title = "Your Addresses", popupVisible, setPopupVisible, isLoading = false}) {
     const {isMobile} = useWindowDimensions()
@@ -57,8 +42,7 @@ function CopyAddressPopupCustom({addresses = [], title = "Your Addresses", popup
 
         {addresses.length > 0 && addresses.map(({ address, ticker }) => {
             return <ItemCopyAddress address={address} ticker={ticker} onClick={async (ticker, account) => {
-                navigator.clipboard.writeText(account);
-                await writeToClipboard(account);
+                copyToClipboard(account);
                 Toast.show({
                     icon: "success",
                     content: `${ticker} address copied`

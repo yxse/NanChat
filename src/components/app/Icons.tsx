@@ -2,7 +2,7 @@ import { Button, Toast } from "antd-mobile"
 import { useState } from "react"
 import { AiOutlineCopy, AiOutlineSnippets } from "react-icons/ai"
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { writeToClipboard } from "./CopyAddressPopupCustom";
+import { copyToClipboard } from "../../utils/format";
 
 export const CopyIcon = ({fontSize, className, onClick}) => {
     return (
@@ -23,7 +23,7 @@ export const CopyButton = ({textToCopy, copyText, copiedText, color = "primary",
           size="large"
           color={isCopied ? "success" : color}
           onClick={() => {
-            writeToClipboard(textToCopy).then(() => {
+            copyToClipboard(textToCopy).then(() => {
                 setIsCopied(true);
                 if (onCopy) {
                     onCopy();
