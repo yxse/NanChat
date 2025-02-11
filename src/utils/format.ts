@@ -27,6 +27,12 @@ export const formatAmountRaw = (amountRaw, ticker) => {
     }
     return rawToMega(ticker, amountRaw);
   }
+  export const formatAmountMega = (amountMega, ticker) => {
+    if (amountMega == null) {
+      return "";
+    }
+    return +(+amountMega).toFixed(networks[ticker]?.decimalsToShow);
+  }
 export const parseURI = (uri) => {
     const parts = uri.split(":");
     let prefix = parts[0];
@@ -76,11 +82,12 @@ export const parseURI = (uri) => {
     return `${networks[ticker].prefix}:${address}?amount=${amountRaw}`;
   }
 
-  export const ShareModal = async ({title}) => {
+  export const ShareModal = async ({title, url}) => {
     try {
       if (!Capacitor.isNativePlatform() && navigator.share) {
         navigator.share({
-          text: title,
+          title: title,
+          url: url
         })
       }
       else {
@@ -103,7 +110,7 @@ export const parseURI = (uri) => {
     }
   }
 
-  export const copyToClipboard = async (text) => {
+  export const copyToClipboard = async (text, error = "Failed to copy") => {
     try {
       HapticsImpact({
         style: ImpactStyle.Medium
@@ -114,8 +121,9 @@ export const parseURI = (uri) => {
     } catch (error) {
       Toast.show({
         icon: "fail",
-        content: "Failed to copy"
+        content: error
       });
+      console.error("Error copying to clipboard", error);
     }
   }
   export const pasteFromClipboard = async () => {

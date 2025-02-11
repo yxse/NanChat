@@ -107,7 +107,9 @@ export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits
   );
 
   if (isLoadingPrices) return <DotLoading />;
-  
+  if (prices?.[ticker] === undefined) {
+    return "--"
+  }
   let converted = 0
   if (selected === ticker) {
     converted = amount;
@@ -329,9 +331,9 @@ export default function Home({ }) {
       disabled={
          isTouchDevice() ? false : true
       }
-       pullingText={<MdOutlineRefresh />}
+      //  pullingText={<MdOutlineRefresh />}
        completeText={<>Updated <MdOutlineCheck /></>}
-       canReleaseText={<DotLoading />}
+      //  canReleaseText={<DotLoading />}
        refreshingText={<DotLoading />}
       onRefresh={onRefresh}>
 

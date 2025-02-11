@@ -30,7 +30,7 @@ import { fetchAlias, fetchAliasInternet } from "../../nanswap/swap/service";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 import useLocalStorageState from "use-local-storage-state";
 import { WalletContext } from "../Popup";
-import { convertAddress, copyToClipboard, formatAddress } from "../../utils/format";
+import { convertAddress, copyToClipboard, formatAddress, formatAmountMega } from "../../utils/format";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import CopyAddressPopup from "./CopyAddressPopup";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
@@ -457,7 +457,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                       <div className="text-gray-400">
                         {
                           tx.subtype === "send" || tx.subtype === "receive" ? <>
-                            {+rawToMega(ticker, tx.amount)} {ticker}
+                            {formatAmountMega((+rawToMega(ticker, tx.amount)), ticker)} {ticker}
                           </> : null
                         }
 
