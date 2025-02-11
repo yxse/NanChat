@@ -28,7 +28,7 @@ export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
 
 function walletsReducer(state, action) {
-  console.log("walletsReducer", action);
+  // console.log("walletsReducer", action);
   switch (action.type) {
     case "ADD_WALLET":
       // if (state.wallets[action.payload.ticker]) return state;
