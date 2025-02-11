@@ -10,7 +10,7 @@ import { BiPlus } from "react-icons/bi";
 import { fetchPrices, fetcher } from "../../nanswap/swap/service";
 import { CopyToClipboard } from "../Settings";
 import { getRepresentative } from "../getRepresentative";
-import { convertAddress, formatAddress } from "../../utils/format";
+import { convertAddress, formatAddress, formatAmountMega } from "../../utils/format";
 import { FaExchangeAlt, FaSortAmountDown } from "react-icons/fa";
 import { FaCheck, FaCopy, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
@@ -97,7 +97,7 @@ export const Representative = ({ ticker, condensed = false, newLocalRep = null }
     </div>
   }
   else {
-    return <div className="text-base text-gray-400 appearance-none m-2 ">
+    return <div className="text-base m-2 ">
       Currently Represented by {isOnline ? (alias ? `${alias}` : "Unknown Address") : "" // todo: resolve alias even if offline
       }:
       {
@@ -196,7 +196,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
   const [visible, setVisible] = useState(false);
   const [activeTicker, setActiveTicker] = useState(null);
   const [action, setAction] = useState("");
-
+  const hasPrice = prices?.[ticker]?.usd;
   const ButtonAction = ({ action, ticker }) => { 
     return <Button 
     shape="default"
@@ -219,15 +219,14 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
         <Grid.Item span={6}>
           <div className="flex items-center">
             <img
-              width={42}
+              width={40}
               src={network.logo}
               alt={`${network.logo} logo`} />
             <div className="flex flex-col ml-3 justify-center">
               <div>{network.name}
-
               {
                 hidePrice &&
-                <span className="text-xs text-gray-400 ml-1">
+                <span className="text-xs ml-1" style={{ color: "var(--adm-color-text-secondary)" }}>
                 {ticker}
               </span>
               }
@@ -240,6 +239,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                     <ConvertToBaseCurrency amount={1} ticker={ticker} maximumSignificantDigits={4} />
                   </div>
                   {
+                    !hasPrice ? null :
                     prices?.[ticker]?.change > 0 ? <div className="text-xs text-green-600">
                       +{(prices?.[ticker]?.change * 100)?.toFixed(2)}%
                     </div> : <div className="text-xs text-red-600">
@@ -265,11 +265,13 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                   {isLoading ? (
                     <DotLoading />
                   ) : (
-                    data
+                    formatAmountMega(data, ticker)
                   )}
                   {!isLoadingPrices && (
-                    <div className="text-sm text-gray-400">
-                      ~ <ConvertToBaseCurrency amount={data} ticker={ticker} />
+                    <div className="text-sm" style={{ color: "var(--adm-color-text-secondary)" }}>
+                      {
+                        hasPrice ? <>~<ConvertToBaseCurrency amount={data} ticker={ticker} /></> : null
+                      }
                     </div>
                   )}
                 </div>
@@ -339,7 +341,7 @@ export const ItemNetworkTitle = ({ticker}) => {
     alt={`${network?.logo} logo`} />
   <div className="flex flex-col ml-3 justify-center">
     <div>{ticker}</div>
-    <div className="text-sm text-gray-400">
+    <div className="text-sm" style={{ color: "var(--adm-color-text-secondary)" }}>
       {network?.name}
     </div>
   </div>
@@ -375,28 +377,7 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
   
-  const {data: newNetworks, isLoading: isLoadingNewNetworks} = useSWR("/networks", fetcherChat);
-  if (newNetworks) {
-    let newNetworksToAdd = {}
-    let numberOfNewNetworks = 0
-    for (let ticker in newNetworks) {
-      if (!networks[ticker]) {
-        let newNetworksLs = JSON.parse(localStorage.getItem("newNetworks"))
-        if (!newNetworksLs?.[ticker]) {
-          newNetworksToAdd[ticker] = newNetworks[ticker]
-          numberOfNewNetworks++
-        }
-      }
-    }
-   
-    if (numberOfNewNetworks > 0) {
-      localStorage.setItem("newNetworks", JSON.stringify(newNetworks))
-      Toast.show({
-        content: `Restart NanWallet to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
-        duration: 7000
-      })
-    }
-  }
+  
 
   return (<>
     <List >

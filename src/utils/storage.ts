@@ -1,7 +1,7 @@
 import { isTauri } from "@tauri-apps/api/core";
 import KeyringService from "../services/tauri-keyring-frontend";
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
-
+import { mutate } from "swr";
 interface StorageArea {
   [key: string]: any;
 }
@@ -190,7 +190,6 @@ export async function setChatToken(account: string, token: string): Promise<void
   }
   existingTokens[account] = token;
   await saveInSecureStorage(keyTokenChat, JSON.stringify(existingTokens));
-  console.log("Saved token: ", r);
 }
 
 
@@ -207,6 +206,7 @@ export async function getSeed(): Promise<string> {
 }
 
 export async function removeSeed(): Promise<void> {
+  // reset wallet
   try {
     localStorage.clear();
     if (isTauri()) {
@@ -217,6 +217,7 @@ export async function removeSeed(): Promise<void> {
     else{
       await SecureStoragePlugin.clear();
     }
+    mutate(key => true, undefined, {revalidate: false}); // clear all swr caches
   }
   catch (error) {
     console.error("Error removing seed: ", error);

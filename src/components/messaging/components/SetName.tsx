@@ -39,7 +39,7 @@ const SetName: React.FC = () => {
                 </div>
                 <div className='text-base flex items-center mb-6'>
                     <LockOutline className='mr-2' />
-                    End-to-end encrypted chat and tipping using nano
+                    End-to-end encrypted chat using nano
                 </div>
             </div>
             }

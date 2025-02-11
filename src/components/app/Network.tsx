@@ -40,7 +40,7 @@ import { SiExpertsexchange } from "react-icons/si";
 import { RiTokenSwapLine } from "react-icons/ri";
 import SetAmountModal from "./SetAmountModal";
 import { CloseCircleFill } from "antd-mobile-icons";
-import { convertAddress, getURI, ShareModal } from "../../utils/format";
+import { convertAddress, formatAmountMega, getURI, ShareModal } from "../../utils/format";
 import { CopyButton } from "./Icons";
 import { LedgerContext, WalletContext } from "../Popup";
 import { Wallet } from "../../nano/wallet";
@@ -392,7 +392,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
                 <span className="ml-2">{ticker}</span>
               </div>
             ) : (
-              balance + " " + ticker
+              formatAmountMega(balance, ticker) + " " + ticker
             )} <RefreshButton onRefresh={onRefresh} />
           </div>
           <div className="text-sm text-gray-400">
@@ -522,9 +522,9 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
       <div className="mt-4">
       <PullToRefresh
       disabled={isTouchDevice() ? false : true}
-      pullingText={<MdOutlineRefresh />}
+      // pullingText={<MdOutlineRefresh />}
       completeText={<>Updated <MdOutlineCheck /></>}
-      canReleaseText={<DotLoading />}
+      // canReleaseText={<DotLoading />}
       refreshingText={<DotLoading />}
       onRefresh={onRefresh}>
         <History ticker={ticker} onSendClick={() => {

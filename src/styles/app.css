@@ -403,7 +403,10 @@ html {
   /* color: var(--adm-color-primary); */
   
 }
-
+body.light-theme .message.justify-end {
+  color: var(--adm-color-background); 
+  /* text white for from message on light theme */
+}
 @media (hover: hover){
 .adm-list-item:hover:not(.form-list) {
   background-color: var(--active-background-color	);
@@ -411,6 +414,10 @@ html {
 .adm-button:hover:not(.adm-button-danger):not(.adm-button-primary):not(.adm-button-success):not(.form-list) {
   background-color: var(--adm-color-primary);
   /* color: var(--adm-color-background); */
+}
+body.light-theme .adm-button:hover:not(.adm-button-danger):not(.adm-button-primary):not(.adm-button-success):not(.form-list) {
+  /* make the text color white on light theme for better contrast on hover */
+  color: var(--adm-color-background);
 }
 .adm-button-primary:hover {
   box-shadow: 0 0 10px 0 var(--adm-color-primary);

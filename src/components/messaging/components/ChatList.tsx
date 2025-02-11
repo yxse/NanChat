@@ -26,6 +26,7 @@ import { Scanner } from "../../app/Scanner";
 import isValid from 'nano-address-validator';
 import useMessageDecryption from "../hooks/use-message-decryption";
 import MessageRaw from "./MessageRaw";
+import { CopyButton } from "../../app/Icons";
 
 export const LedgerNotCompatible = () => {
     return (
@@ -98,6 +99,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const inviteFriends = () => {   
         ShareModal({
             title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
+            url: `https://nanwallet.com/chat/${activeAccount}`
         })
     }
     const ButtonNewChat = () => {
@@ -231,11 +233,11 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         excavate: false,
                       }}
                       includeMargin
-                      value={`https://app.nanwallet.com/chat/${activeAccount}`}
+                      value={`https://nanwallet.com/chat/${activeAccount}`}
                       size={200}
                       style={{borderRadius: 8}}
                     />
-                    <div className="text-sm mt-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
+                    <div className="text-sm mt-2 text-center mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
                       Scan to start an encrypted chat with me
                     </div>
                   </div>

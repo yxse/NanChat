@@ -229,8 +229,8 @@ export class Wallet {
       this.mapAccounts.set(account.address, account);
     });
     let addresses = accounts.map((account) => account.address);
-    console.log({nbAccounts})
-    console.log("Created accounts: " + addresses);
+    // console.log({nbAccounts})
+    // console.log("Created accounts: " + addresses);
     if (
       this.websocket !== undefined &&
       this.websocket.readyState === WebSocket.OPEN

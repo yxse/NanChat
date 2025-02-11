@@ -167,7 +167,7 @@ export default class RPC {
       });
     } catch (error) {
       console.error("RPC error", error);
-      Toast.show({content: `Cannot connect to node. Please try again later. (${error})`, icon: 'fail'});
+      Toast.show({content: `Cannot connect to ${url}. Please try again later. (${error})`, icon: 'fail'});
       throw new Error(`RPC error: ${error}`);
     }
 
@@ -187,7 +187,7 @@ export default class RPC {
         throw new Error(`RPC error: ${data.statusText}`);
       }
       else{
-        Toast.show({content: "Cannot connect to node. Please try again later. Status: " + data.status, icon: 'fail'});
+        Toast.show({content: "Cannot connect " + url + ". Please try again later. Status: " + data.status, icon: 'fail'});
         throw new Error(`RPC error: ${data.status}`);
       }
     }

@@ -26,6 +26,7 @@ import NewMessageWarning from "./NewMessageWarning";
 import { sendNotificationTauri } from "../../../nano/notifications";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import ProfileName from "./profile/ProfileName";
 
 
 
@@ -226,7 +227,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
                 <div className="flex-1 text-center">
                     <h2 className="font-medium flex items-center justify-center gap-2">
-                        {nameOrAccount} {participant?.verified && <RiVerifiedBadgeFill />}
+                    <ProfileName address={address} fallback={formatAddress(address)} /> {participant?.verified && <RiVerifiedBadgeFill />}
                     </h2>
                     {
                         onlineAccount.includes(address) ? (
@@ -540,6 +541,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             onClick={() => {
                                 ShareModal({
                                     title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
+                                    url: `https://nanwallet.com/chat/${activeAccount}`
                                 })
                             }}
                             className="mt-4"
