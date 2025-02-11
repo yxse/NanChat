@@ -20,6 +20,7 @@ import {
     Result,
     SearchBar,
     Skeleton,
+    Space,
     TextArea,
     Toast,
 } from "antd-mobile";
@@ -41,10 +42,14 @@ import { CheckCircleOutline } from 'antd-mobile-icons'
 import { GrInProgress } from "react-icons/gr";
 import { fetcher, getOrder } from "../../nanswap/swap/service";
 import useSWRInfinite from "swr/infinite";
+import { useWallet } from "../Popup";
 
 export function ArtImages({onImageClick}) {
+    const {activeAccount} = useWallet()
     const getKey = (pageIndex) => {
+        // return `https://nanft.nanwallet.com/public/collected?address=${activeAccount}&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
         return `https://nanft.nanwallet.com/public/collected?address=nano_3f8qys7cubej8pxrqmeotwsjsesg1pz7n8x6zwdjfymmnpwxtgtgkfuegdu6&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
+
     }
     const [page, setPage] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
@@ -60,10 +65,11 @@ export function ArtImages({onImageClick}) {
         }
         setPage(page + 1)
         setData(val => {
-            val[page + 1] = append
+            val[page] = append
             return val
         })
         setHasMore(append.length > 0)
+        
     }
 
     useEffect(() => {
@@ -96,18 +102,21 @@ export function ArtImages({onImageClick}) {
                     marginTop: 32,
                 }}
                 status="empty"
-                title="NaNFT will appear here"
+                title="Your NanFTs will appear here"
                 description=""
             />
-            <a href="https://nanswap.com/art" target="_blank">
-                <Button color="primary" className="mt-6">
-                    Explore NaNFTs
+            {/* <a href="https://nanswap.com/art" target="_blank">
+                <Button shape="rounded" color="primary" className="mt-6">
+                    <Space>
+
+                    Explore NanFTs
+                    </Space>
                 </Button>
-            </a>
+            </a> */}
         </div>
     }
     return (
-        <div className="overflow-y-auto mt-4 p-4" style={{ height: "100vh" }}>
+        <div className="p-4" style={{ height: "100dvh" }}>
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                 {
                     allData.map((nanft) => {
@@ -143,7 +152,11 @@ export function ArtImages({onImageClick}) {
 export default function Art() {
     const navigate = useNavigate();
     return <>
-        <NavBar onBack={() => navigate("/")}>NaNFT</NavBar>
+    <NavBar
+            className="app-navbar "
+            onBack={() => navigate("/")}>
+              NaNFT
+            </NavBar>
         <ArtImages />
     </>
 }
