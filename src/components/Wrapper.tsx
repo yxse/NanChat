@@ -7,9 +7,25 @@ import { App } from "@capacitor/app";
 
 function saveCache(map) {
   // return
-  let appCache = JSON.stringify(Array.from(map.entries())
-  .filter(([key, _]) => !key.startsWith('$inf$/messages')))// filter out inf messages to not load them all directly
-  localStorage.setItem('app-cache', appCache)
+  // filter out inf messages to not load them all directly
+  let array = []
+  for (let key of map.keys()) {
+    if (key.startsWith('/messages') && !key.includes('&page=0')) {
+      continue // skip all messages except the first page
+    }
+    else if (!key.startsWith('$inf$/messages')) {
+      array.push([key, map.get(key)])
+    }
+    else {
+      let elmt = map.get(key)
+      elmt.data = [elmt.data[0]] // only keep the first message page
+      elmt['_l'] = 1 // set the length to 1 to prevent swr fetching all pages https://github.com/vercel/swr/blob/f521fb7e3ea9cc7b6c02ec32b7329784b4d8e854/src/infinite/types.ts#L154
+      array.push([key, elmt])
+    }
+  }
+  // let appCache = JSON.stringify(Array.from(map.entries()))
+  // .filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
+  localStorage.setItem('app-cache', JSON.stringify(array))
 }
 
 function localStorageProvider() {
@@ -30,6 +46,10 @@ function localStorageProvider() {
   //   let appCache = JSON.stringify(Array.from(map.entries()).filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
   //   localStorage.setItem('app-cache', appCache)
   // })
+  // setInterval(() => {
+  //   saveCache(map)
+  // }
+  //   , 5000);
  
   // We still use the map for write & read for performance.
   return map
