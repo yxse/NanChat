@@ -75,6 +75,8 @@ import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import NotificationSettings from "./NotificationSettings";
 import { authenticate } from "../../utils/biometrics";
 import { getIsPasswordEncrypted } from "../../utils/storage";
+import useSWR from "swr";
+import { fetcherChat } from "../messaging/fetcher";
 
 if (Capacitor.getPlatform() === "ios"){
 Keyboard.setResizeMode({mode: KeyboardResize.None});
@@ -344,7 +346,32 @@ export default function App() {
     return (<></>);
     }
   
-
+    const {data: newNetworks, isLoading: isLoadingNewNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+    if (newNetworks) {
+      let newNetworksToAdd = {}
+      let numberOfNewNetworks = 0
+      for (let ticker in newNetworks) {
+        if (!networks[ticker]) {
+          let newNetworksLs = JSON.parse(localStorage.getItem("newNetworks"))
+          if (!newNetworksLs?.[ticker]) {
+            newNetworksToAdd[ticker] = newNetworks[ticker]
+            numberOfNewNetworks++
+          }
+        }
+      }
+     
+      if (numberOfNewNetworks > 0) {
+        // localStorage.setItem("newNetworks", JSON.stringify(newNetworksToAdd))
+        // setCustomNetworks({...customNetworks, ...newNetworksToAdd})
+        for (let ticker in newNetworksToAdd) {
+         networks[ticker] = newNetworksToAdd[ticker]
+        }
+        // Toast.show({
+        //   content: `Restart NanWallet to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
+        //   duration: 7000
+        // })
+      }
+    }
     console.log("index render")
   return (
     <>
@@ -366,7 +393,7 @@ export default function App() {
         >
         {
           !isMobile && 
-          <div style={{flex: "none"}}>
+          <div style={{flex: "none", position: "sticky", top: 0}}>
             <SideBarMenu />
           </div>
         }

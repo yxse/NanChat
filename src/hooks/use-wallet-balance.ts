@@ -1,7 +1,7 @@
 import useSWR, { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { fetchFiatRates, fetchPrices } from "../nanswap/swap/service";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { WalletContext } from "../components/Popup";
 import { networks } from "../utils/networks";
 import { convertAddress } from "../utils/format";
@@ -17,35 +17,54 @@ export const useWalletBalance = () => {
   // Fetch prices
   const { data: prices, isLoading: isLoadingPrices } = useSWR("prices", fetchPrices);
 
-  // Get current account address
-  const currentAccount = wallet.accounts.find(
-    (account) => account.accountIndex === wallet.activeIndex
+  // Get current account address - moved to useMemo
+  const currentAccount = useMemo(() => 
+    wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex),
+    [wallet.accounts, wallet.activeIndex]
   );
 
-  // Fetch balances for each network
-  const balances = {};
-  for (const ticker of Object.keys(networks)) {
-    const address = convertAddress(currentAccount?.address, ticker);
-    balances[ticker] = useSWR(
-      `balance-${ticker}-${address}`,
-      () => fetchBalance(ticker, address)
-    );
-  }
+  // Create an array of network tickers
+  const networkTickers = useMemo(() => Object.keys(networks), []);
 
-  // Check if any balance is still loading
-  const isLoadingBalances = Object.keys(balances).some(
-    (ticker) => balances[ticker]?.isLoading
+  // Create a single SWR hook call for all balances
+  const { data: allBalances, isLoading: isLoadingBalances } = useSWR(
+    currentAccount ? `all-balances-${currentAccount.address}-${networkTickers.join(",")}` : null,
+    async () => {
+      const results = {};
+      for (const ticker of networkTickers) {
+        const address = convertAddress(currentAccount?.address, ticker);
+        results[ticker] = await fetchBalance(ticker, address);
+      }
+      return results;
+    }
   );
 
-  // Calculate total balance
-  const totalBalance = Object.keys(balances)?.reduce((acc, ticker) => acc + (
-    +balances[ticker]?.data * +prices?.[ticker]?.usd * +fiatRates?.[selected] 
-    || 0
-  ), 0);
+  // Calculate total balance using useMemo
+  const totalBalance = useMemo(() => {
+    if (!allBalances || !prices || !fiatRates || !selected) return 0;
+    
+    return networkTickers.reduce((acc, ticker) => {
+      const balance = allBalances[ticker] || 0;
+      const price = prices[ticker]?.usd || 0;
+      const fiatRate = fiatRates[selected] || 0;
+      return acc + (+balance * +price * +fiatRate);
+    }, 0);
+  }, [allBalances, prices, fiatRates, selected, networkTickers]);
+
+  // Format balances object to match original API
+  const balances = useMemo(() => {
+    return networkTickers.reduce((acc, ticker) => {
+      acc[ticker] = {
+        data: allBalances?.[ticker] || 0,
+        isLoading: isLoadingBalances
+      };
+      return acc;
+    }, {});
+  }, [networkTickers, allBalances, isLoadingBalances]);
 
   // Refresh function
   const refreshBalances = async () => {
-    await mutate((key) => key.startsWith("balance-") || key === "prices");
+    await mutate((key) => key === 'all-balances' || key === "prices");
   };
 
   return {

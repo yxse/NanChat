@@ -5,13 +5,13 @@ import { CopyIcon } from './Icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import { WalletContext } from '../Popup';
 import { convertAddress } from '../../utils/format';
-import { activeNetworks } from '../../utils/networks';
+import { activeNetworks, networks } from '../../utils/networks';
 import CopyAddressPopupCustom from './CopyAddressPopupCustom';
 
 function CopyAddressPopup({}) {
     const [popupVisible, setPopupVisible] = useState(false);
     const { wallet } = useContext(WalletContext);
-    let addresses = activeNetworks.map((ticker) =>({
+    let addresses = Object.keys(networks).filter((ticker) => !JSON.parse(localStorage.getItem("hiddenNetworks"))?.includes(ticker)).map((ticker) =>({
             ticker: ticker,
             address: convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker)
         }))
