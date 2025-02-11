@@ -52,14 +52,15 @@ export default function ChangeRep() {
   }
 
   return (
-    <div className="divide-y divide-solid divide-gray-700 space-y-6">
-      <div className="container  relative mx-auto">
-        <div className="text-center text-2xl flex-col">
+    <div className="">
+      <div className="">
+        <div className="">
           <NavBar 
           className="app-navbar "
           onBack={() => navigate(`/settings`)}>
             Change {networks[ticker].name} Representative
           </NavBar>
+          <Card style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
           <div className="flex justify-center m-2">
             <img
               src={networks[ticker].logo}
@@ -86,9 +87,13 @@ export default function ChangeRep() {
           <Representative ticker={ticker} condensed={false} newLocalRep={newRep} />
 
 
-          <div className="flex justify-between flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 m-2 mt-8">
+          <div 
+          style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto'}}
+          className="flex justify-between flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-2 m-2 mt-8">
             <Button
               block
+              size="large"
+              shape="rounded"
               color="primary"
               onClick={() => {
                 setOpen(true);
@@ -97,6 +102,8 @@ export default function ChangeRep() {
               Pick from a List
             </Button>
             <Button
+            size="large"
+            shape="rounded"
               loading={isLoading}
               block
               color="default"
@@ -199,6 +206,7 @@ export default function ChangeRep() {
             >What is a Representative?</span>
 
           </div>
+      </Card>
         </div>
       </div>
     </div>

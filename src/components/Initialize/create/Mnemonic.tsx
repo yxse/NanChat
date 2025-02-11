@@ -149,6 +149,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
   const [copied, setCopied] = useState<boolean>(false);
   const [warningShown, setWarningShown] = useState<boolean>(defaultIsRevealed); // don't show warning when init wallet
   const warningModal = () => {
+    return
     Modal.confirm({
       title: "Do not share your Secret Recovery Phrase",
       content: "Support will never ask for your Secret Recovery Phrase. Do not share it with anyone and store it securely.",
@@ -172,11 +173,11 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
         className={`border p-2 text-xs bg-black/60 p-1 rounded-sm`}
       >
         <span
-          className={` text-slate-400 select-none`}
+          className={` text-slate-400 select-none`} 
         >
           {index + 1}.{" "}
         </span>
-        <span className={``}>
+        <span className={``} style={{wordBreak: "break-word"}}>
           {
             isRevealed ? word : "********"
           }
@@ -198,13 +199,19 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       }
     <div className="mt-4">
     <CopyButton 
-    textToCopy={mnemonic} copiedText={"Copied"} copyText={"Copy"} color={colorCopy}
+    textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy}
     onCopy={() => {
       setCopied(true)
       if (!warningShown){
         warningModal()
         setWarningShown(true)
       }
+      setTimeout(() => {
+        copyToClipboard("empty", "Failed to clear secret phrase from clipboard") // clear clipboard
+        setCopied(false)
+      }
+      , 60000)
+
     }}
     onAnimationEnd={() => setCopied(false)}
     />

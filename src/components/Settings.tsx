@@ -4,7 +4,7 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { FaAddressBook, FaCheck, FaCopy } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
-import { Button, NavBar, Popup, Toast, CheckList, SearchBar, Space, DotLoading, Image, Modal, List, Input, Form, NoticeBar, Badge, Divider } from "antd-mobile";
+import { Button, NavBar, Popup, Toast, CheckList, SearchBar, Space, DotLoading, Image, Modal, List, Input, Form, NoticeBar, Badge, Divider, CenterPopup } from "antd-mobile";
 import { LedgerService } from "../ledger.service";
 import { ConnectLedger, connectLedger, LedgerSelect } from "./Initialize/Start";
 import NetworkList from "./app/NetworksList";
@@ -30,6 +30,19 @@ import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-s
 import ProfileHome from "./messaging/components/profile/ProfileHome";
 import { getSeed, removeSeed } from "../utils/storage";
 import { copyToClipboard } from "../utils/format";
+import { useWindowDimensions } from "../hooks/use-windows-dimensions";
+
+export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
+  const { isMobile } = useWindowDimensions();
+  if (isMobile) {
+    return <Popup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick}  {...props}>
+      {children}
+    </Popup>
+  }
+  return <CenterPopup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick}  {...props}>
+    {children}
+  </CenterPopup>
+}
 
 export const ManageNetworks = ({}) => {
   const [networksSwitchVisible, setNetworksSwitchVisible] = useState(false)
@@ -45,20 +58,20 @@ export const ManageNetworks = ({}) => {
   <div className="text-center mt-8 text-sm text-gray-400 cursor-pointer" onClick={() => setNetworksSwitchVisible(true)}>
           Manage networks
   </div>
-  <Popup
+  <ResponsivePopup
   visible={networksSwitchVisible}
   onClose={() => setNetworksSwitchVisible(false)}
   closeOnMaskClick={true}
   >
   <NetworksSwitch />
-</Popup>
+</ResponsivePopup>
 </>
 }
 
 export function CopyToClipboard({ text, hideCopyIcon = false, textToDisplay }: { text: string, hideCopyIcon?: boolean, textToDisplay?: string }) {
   return (
     <div
-    style={{alignItems: 'baseline'}}
+    style={{alignItems: 'baseline', color: 'var(--adm-color-text-secondary)'}}
       className="flex items-center group py-1 rounded cursor-pointer justify-center"
       role="button"
       onClick={() => {
@@ -71,16 +84,16 @@ export function CopyToClipboard({ text, hideCopyIcon = false, textToDisplay }: {
         );
       }}
     >
-      <p className="text-blue-300 text-bold group-hover:opacity-80 transition-all break-all text-sm text-center mt-4">
+      <p className=" text-bold group-hover:opacity-80 transition-all break-all text-sm text-center mb-4">
         {textToDisplay ? textToDisplay : text}
       </p>
       {
         !hideCopyIcon && <div>
           <div className="ml-2 hover:opacity-80 transition-all focus:outline-none  group-hover:block group-active:!hidden text-center">
-            <FaCopy className="text-blue-300" />
+            <FaCopy className="" />
           </div>
           <div>
-            <FaCheck className="ml-2 text-blue-300 hidden group-active:block transition-all" />
+            <FaCheck className="ml-2  hidden group-active:block transition-all" />
           </div>
         </div>
       }
@@ -242,7 +255,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
           </div>
         </div>
       </div>
-      <Popup
+      <ResponsivePopup
         visible={visible}
         onMaskClick={() => {
           setVisible(false)
@@ -293,7 +306,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
             </CheckList>
           }
         </div>
-      </Popup></List.Item>
+      </ResponsivePopup></List.Item>
     )
   }
 
@@ -301,7 +314,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
     const [visible, setVisible] = useState(false);
     const navigate = useNavigate();
     return <>
-      <Popup
+      <ResponsivePopup
         visible={visible}
         onClose={() => {
           setVisible(false);
@@ -318,10 +331,15 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
           // setNavOpen(false);
           navigate('/' + ticker + "/" + "representative");
         }} />
-      </Popup>
-      <div className="w-full" onClick={() => setVisible(true)}>
+      </ResponsivePopup>
+      <List.Item
+       onClick={() => setVisible(true)}
+              prefix={<MdHowToVote size={24} />}
+              clickable>
+      <div className="w-full">
         Change Representative
       </div>
+            </List.Item>
     </>
   }
   return (
@@ -438,11 +456,9 @@ className="mb-24"
               !ledger &&
             <BackupSecretPhrase />
             }
-<List.Item
-              prefix={<MdHowToVote size={24} />}
-              clickable>
+
               <ChangeRep />
-            </List.Item>
+            
            </List>
           <div className="my-4" />
           <List mode="card">

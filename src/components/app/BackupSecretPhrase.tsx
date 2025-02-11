@@ -9,6 +9,7 @@ import useLocalStorageState from 'use-local-storage-state';
 import { WalletContext } from '../Popup';
 import { authenticate } from '../../utils/biometrics';
 import { PinAuthPopup } from '../Lock/PinLock';
+import { ResponsivePopup } from '../Settings';
 function BackupSecretPhrase() {
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [visible, setVisible] = useState(false);
@@ -48,7 +49,8 @@ function BackupSecretPhrase() {
             }}>
                 Backup Secret Phrase
             </List.Item>
-            <Popup
+            <ResponsivePopup
+            bodyStyle={{maxHeight: '100dvh', overflowY: 'auto'}}
             destroyOnClose
                 showCloseButton
                 visible={visible}
@@ -59,14 +61,18 @@ function BackupSecretPhrase() {
                 <div className="text-2xl  text-center p-2">
                     Backup Secret Phrase
                 </div>
-                <div className="text-center p-2 mb-2" style={{ color: 'var(--adm-color-danger)' }}>
-                    Never share your secret phrase. Anyone with access to your secret phrase can steal your funds.
+                <div className="p-2 mb-2" style={{ color: 'var(--adm-color-warning)', textAlign: 'center' }}>
+                Write it down and store it securely. Never share your secret phrase. Support will never ask for it. 
                 </div>
                 <div className="text-center p-2 mb-4">
-                    <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={false} showHideButton colorCopy={seedVerified ? "primary" : "default"} />
+                    <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={false} showHideButton 
+                    // colorCopy={seedVerified ? "primary" : "default"} 
+                    colorCopy={"primary"} 
+                    />
                     <div>
                         {
-                            !seedVerified &&
+                            false && !seedVerified &&
+                            // todo better verification ui/ux
                             <Button
                                 shape='rounded'
                                 color='primary'
@@ -120,11 +126,8 @@ function BackupSecretPhrase() {
                                 className="w-full mt-4"
                             >
 
-                                <Badge content={Badge.dot}
-                                    // style={{ '--right': '110%', '--top': '50%' }}
-                                >
+                                
                                     Verify Secret Phrase
-                                </Badge>
                             </Button>
                         }
                         {/* <Button
@@ -147,7 +150,7 @@ function BackupSecretPhrase() {
 
                     </div>
                 </div>
-            </Popup>
+            </ResponsivePopup>
 
         </>
     )
