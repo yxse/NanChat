@@ -47,8 +47,8 @@ import { useWallet } from "../Popup";
 export function ArtImages({onImageClick}) {
     const {activeAccount} = useWallet()
     const getKey = (pageIndex) => {
-        // return `https://nanft.nanwallet.com/public/collected?address=${activeAccount}&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
-        return `https://nanft.nanwallet.com/public/collected?address=nano_3f8qys7cubej8pxrqmeotwsjsesg1pz7n8x6zwdjfymmnpwxtgtgkfuegdu6&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
+        return `https://nanft.nanwallet.com/public/collected?address=${activeAccount}&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
+        // return `https://nanft.nanwallet.com/public/collected?address=nano_3f8qys7cubej8pxrqmeotwsjsesg1pz7n8x6zwdjfymmnpwxtgtgkfuegdu6&sort=mostRare&page=${pageIndex}&limit=10`                    // SWR key
 
     }
     const [page, setPage] = useState(0)
