@@ -10,6 +10,7 @@ import { WalletContext } from '../Popup';
 import { authenticate } from '../../utils/biometrics';
 import { PinAuthPopup } from '../Lock/PinLock';
 import { ResponsivePopup } from '../Settings';
+import { ExclamationCircleOutline } from 'antd-mobile-icons';
 function BackupSecretPhrase() {
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [visible, setVisible] = useState(false);
@@ -61,8 +62,9 @@ function BackupSecretPhrase() {
                 <div className="text-2xl  text-center p-2">
                     Backup Secret Phrase
                 </div>
-                <div className="p-2 mb-2" style={{ color: 'var(--adm-color-warning)', textAlign: 'center' }}>
-                Write it down and store it securely. Never share your secret phrase. Support will never ask for it. 
+                <div className="p-2 mb-2" style={{ color: 'var(--adm-color-danger)', textAlign: 'center' }}>
+                <ExclamationCircleOutline style={{display: 'inline-block', marginRight: 4}} />
+                Never share your secret phrase. Anyone with access to your secret phrase can steal your funds. Write it down and store it securely.
                 </div>
                 <div className="text-center p-2 mb-4">
                     <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={false} showHideButton 
