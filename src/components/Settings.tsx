@@ -501,7 +501,7 @@ className="mb-24"
                 // clean all history cache
                 let count = 0
                 for (var key in localStorage) {
-                  if (key.startsWith("history-") || key.startsWith("work-")) {
+                  if (key.startsWith("history-") || key.startsWith("work-") || key.startsWith("message-")) {
                     localStorage.removeItem(key)
                     count++
                   }

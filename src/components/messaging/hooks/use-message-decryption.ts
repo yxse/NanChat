@@ -61,7 +61,7 @@ if (localStorage.getItem(`message-${message._id}`)) {
 }
 if (localStorage.getItem(message.content)) {
   console.log('Message form local storage');
-  return localStorage.getItem(message.content);
+  return localStorage.getItem("message-" + message.content);
 }
  try {
     console.log('Decrypting message:', message);  
