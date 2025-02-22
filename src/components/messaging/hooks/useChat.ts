@@ -2,9 +2,8 @@ import useSWR, { } from 'swr';
 import { useCallback } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages } from '../fetcher';
+import { useWallet } from '../../Popup';
 
-// API functions
-const fetcher = fetcherMessages;
 
 const sendMessage = async (chatId, content) => {
   const response = await fetch('/api/messages', {
@@ -15,11 +14,22 @@ const sendMessage = async (chatId, content) => {
   return response.json();
 };
 
+export function useUnreadCount() {
+  const {data: chats} = useSWR<Chat[]>(`/chats`, fetcherMessages);
+  const {activeAccount} = useWallet()
+  return chats?.reduce((acc, chat) => {
+    if (chat.lastMessageFrom !== activeAccount) {
+      return acc + chat.unreadCount;
+    }
+    return acc;
+  }, 0) || null; // null to hide the badge
+}
+
 // Custom hook for chat functionality
 export function useChat(chatId) {
   // Get messages using infinite loading
   const getKey = (pageIndex, previousPageData) => {
-    console.log({pageIndex, previousPageData});
+    // console.log({pageIndex, previousPageData});
     if (previousPageData && previousPageData.length == 0) return null;
     return `/messages?chatId=${chatId}&page=${pageIndex}&limit=50`;
   };
@@ -32,11 +42,11 @@ export function useChat(chatId) {
     mutate,
     isLoading,
     isValidating 
-  } = useSWRInfinite(getKey, fetcher, {
-    revalidateFirstPage: true ,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    revalidateOnMount: true
+  } = useSWRInfinite(getKey, fetcherMessages, {
+    revalidateFirstPage: true,
+    // revalidateOnFocus: false,
+    revalidateOnReconnect: false, // don't revalidate on reconnect as socket should already update
+    revalidateOnMount: true,
   });
 
   // Flatten all pages into a single array
