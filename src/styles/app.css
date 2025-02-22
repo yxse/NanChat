@@ -241,6 +241,7 @@ html {
   --height: 100px;
   --border-radius: 8px;
 }
+
 .adm-auto-center-content {
   word-break: break-word;
   white-space-collapse: break-spaces;
@@ -731,4 +732,8 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .eye-icon:hover {
   color: var(--adm-color-primary);
+}
+.antd-mobile-icon.cursor-pointer:hover, .scanner:hover, .hoverable:hover {
+  color: var(--adm-color-primary);
+  cursor: pointer;
 }

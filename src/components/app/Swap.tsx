@@ -14,6 +14,8 @@ import {
   Modal,
   NavBar,
   Popup,
+  reduceMotion,
+  restoreMotion,
   Result,
   SearchBar,
   Space,
@@ -44,7 +46,64 @@ import { Scanner } from "./Scanner";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Buy from "./Buy";
 
-export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultTo = "BAN", onSuccess}) {
+const SelectTicker = ({ side, visible, setVisible, allCurrencies,  isLoading, selected, setSelected}) => {
+
+  return <div>
+  <div className="flex items-center justify-center space-x-4 m-2 p-2 cursor-pointer" onClick={() => setVisible(true)}>
+
+    <img
+      style={{
+        height: 32,
+      }}
+      src={
+        networks[selected]?.logo ||
+        allCurrencies?.[selected]?.image}
+      alt={`${selected} logo`} width={32} height={32} />
+    <div className="flex items-center gap-2">
+      {selected} <DownOutline />
+    </div>
+
+    {/* <Popup
+      visible={visible}
+      onClose={() => {
+        setVisible(false);
+      }}
+      onClick={() => setVisible(false)}
+      closeOnMaskClick={true}
+    >
+      <div>
+        <div className="text-2xl  text-center p-2">{side === "from" ? "Select From" : "Select To"}</div>
+      </div>
+      <NetworkList onClick={(ticker) => {
+        console.log(ticker, side);
+        if (side === "from") {
+          setSelectedFrom(ticker);
+          setVisible(false);
+          return;
+        }
+        else if (side === "to") {
+          setSelectedTo(ticker);
+          setVisible(false);
+          return;
+        }
+      }} />
+    </Popup> */}
+    
+     
+  </div>
+ <SelectTickerAll
+          allCurrencies={allCurrencies}
+          isLoadingCurrencies={isLoading}
+          onClick={(ticker) => {
+            console.log(ticker, side);
+            setSelected(ticker);
+            setVisible(false);
+          }}
+          visible={visible} setVisible={setVisible} side={side} />
+  </div>
+}
+
+export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultTo = "BAN", onSuccess, fiatDefaultTo, defaultAction = "swap"}) {
  
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
     getAllCurrencies, fetcher, {
@@ -77,68 +136,6 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const SelectTicker = ({ side, visible, setVisible }) => {
-    const selected = side === "from" ? selectedFrom : selectedTo;
-    return <div className="flex items-center justify-center space-x-4 m-2 p-2 cursor-pointer  
-    " onClick={() => setVisible(true)}>
-
-      <img
-        style={{
-          height: 32,
-        }}
-        src={allCurrencies?.[selected]?.image}
-        alt={`${selected} logo`} width={32} height={32} />
-      <div className="flex items-center gap-2">
-        {selected} <DownOutline />
-      </div>
-
-      {/* <Popup
-        visible={visible}
-        onClose={() => {
-          setVisible(false);
-        }}
-        onClick={() => setVisible(false)}
-        closeOnMaskClick={true}
-      >
-        <div>
-          <div className="text-2xl  text-center p-2">{side === "from" ? "Select From" : "Select To"}</div>
-        </div>
-        <NetworkList onClick={(ticker) => {
-          console.log(ticker, side);
-          if (side === "from") {
-            setSelectedFrom(ticker);
-            setVisible(false);
-            return;
-          }
-          else if (side === "to") {
-            setSelectedTo(ticker);
-            setVisible(false);
-            return;
-          }
-        }} />
-      </Popup> */}
-      {
-        isLoadingCurrencies ? <DotLoading /> :
-          <SelectTickerAll
-            allCurrencies={allCurrencies}
-            isLoadingCurrencies={isLoadingCurrencies}
-            onClick={(ticker) => {
-              console.log(ticker, side);
-              if (side === "from") {
-                setSelectedFrom(ticker);
-                setVisible(false);
-                return;
-              }
-              else if (side === "to") {
-                setSelectedTo(ticker);
-                setVisible(false);
-                return;
-              }
-            }}
-            visible={visible} setVisible={setVisible} side={side} />
-      }
-    </div>
-  }
   const onSwap = async (values) => {
     try {
       setIsLoading(true);
@@ -252,13 +249,15 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
   }, [])
 
   const {
-    totalBalance,
+    lowBalanceUsd,
     isLoading: isLoadingBalancesA,
     refreshBalances,
   } = useWalletBalance();
+  
+  const [action, setAction] = useState(defaultAction);
 
-  if (!isLoading && totalBalance < 1){
-    return <Buy hideHistory={true}  /> 
+  if ((!isLoading && lowBalanceUsd) || action === "buy") {
+    return <Buy hideHistory={true} defaultTo={fiatDefaultTo} setAction={setAction} /> // override swap default crypto to not be BAN if on XNO
   }
   return (
     <div className="">
@@ -268,7 +267,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
           backArrow={hideHistory ? false : true}
             right={
               <Button
-              onClick={() => navigate(`/buy`)}
+              onClick={() => setAction("buy")}
                size="small">
                 <div 
                 className="flex text-xs items-center -mr-0"><GoCreditCard size={18} className="mr-2" /> Buy</div></Button>}
@@ -360,7 +359,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
                     placeholder="0.0"
                   />
 
-                  <SelectTicker side={"from"} visible={visibleSelectFrom} setVisible={setVisibleSelectFrom} />
+                  <SelectTicker side={"from"} visible={visibleSelectFrom} setVisible={setVisibleSelectFrom} allCurrencies={allCurrencies} selected={selectedFrom} isLoading={isLoadingCurrencies} setSelected={setSelectedFrom} />
                 </div>
                 <div
                   onClick={() => {
@@ -406,7 +405,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
                         placeholder="0.0"
                       />
                   }
-                  <SelectTicker side="to" visible={visibleSelectTo} setVisible={setVisibleSelectTo} />
+                  <SelectTicker side="to" visible={visibleSelectTo} setVisible={setVisibleSelectTo} allCurrencies={allCurrencies}  selected={selectedTo} isLoading={isLoadingCurrencies} setSelected={setSelectedTo} />
                 </div>
               </Form.Item>
             </div>

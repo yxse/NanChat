@@ -11,6 +11,7 @@ import { DemoBlock } from 'demos'
 import styles from './demo2.less'
 import NetworkList, { NetworkItem, TickerTitle } from "../app/NetworksList";
 import { List as VirtualizedList, AutoSizer } from 'react-virtualized'
+import { ResponsivePopup } from "../Settings";
 
 
 export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, onClick, visible, setVisible, side }) {
@@ -49,7 +50,7 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
           <NetworkItem
           network={{
             ...currency,
-            logo: currency.image,
+            logo: networks[currency.ticker].logo
           }}
             onClick={() => {
               onClick(currency.ticker)
@@ -68,14 +69,16 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
           }}
           clickable={false} key={currencyKey || currency.ticker} value={currency.ticker} style={style}>
           {/* {tickerTitle(currency.ticker.toUpperCase(), currency.image, currency.name, onClick)} */}
-          <TickerTitle logo={currency.image} name={currency.name} ticker={currency.ticker} />
+          <TickerTitle logo={networks[currency.ticker]?.logo || currency.image} name={currency.name} ticker={currency.ticker} />
         </List.Item>
     )
   }
 
 
   return (<>
-    <Popup
+    <ResponsivePopup
+    showCloseButton
+    onClose={() => setVisible(false)}
       bodyStyle={{ height: 500 }}
       visible={visible}
       onMaskClick={() => {
@@ -135,7 +138,7 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
                 rowCount={filteredItems.length}
                 rowRenderer={rowRenderer}
                 width={width}
-                height={400}
+                height={399}
                 rowHeight={60}
               />
             )}
@@ -150,7 +153,7 @@ export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, on
           } */}
         </List>
       </div>
-    </Popup></>
+    </ResponsivePopup></>
   )
 }
 

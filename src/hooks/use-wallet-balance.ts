@@ -4,8 +4,9 @@ import { fetchFiatRates, fetchPrices } from "../nanswap/swap/service";
 import { useContext, useMemo } from "react";
 import { WalletContext } from "../components/Popup";
 import { networks } from "../utils/networks";
-import { convertAddress } from "../utils/format";
+import { convertAddress, MIN_USD_SWAP } from "../utils/format";
 import { fetchBalance } from "../components/app/Network";
+import { Capacitor } from "@capacitor/core";
 
 export const useWalletBalance = () => {
   // Basic state and context setup
@@ -51,6 +52,15 @@ export const useWalletBalance = () => {
     }, 0);
   }, [allBalances, prices, fiatRates, selected, networkTickers]);
 
+  const totalBalanceUSD = useMemo(() => {
+    if (!allBalances || !prices) return 0;
+    return networkTickers.reduce((acc, ticker) => {
+      const balance = allBalances[ticker] || 0;
+      const price = prices[ticker]?.usd || 0;
+      return acc + (+balance * +price);
+    }, 0);
+  }, [allBalances, prices, networkTickers]);
+
   // Format balances object to match original API
   const balances = useMemo(() => {
     return networkTickers.reduce((acc, ticker) => {
@@ -67,8 +77,11 @@ export const useWalletBalance = () => {
     await mutate((key) => key === 'all-balances' || key === "prices");
   };
 
+  const lowBalanceUsd = (totalBalanceUSD < MIN_USD_SWAP && Capacitor.getPlatform() === "ios");
+
   return {
     totalBalance,
+    lowBalanceUsd,
     balances,
     isLoading: isLoadingPrices || isLoadingBalances || isLoadingFiat,
     refreshBalances,

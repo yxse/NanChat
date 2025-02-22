@@ -181,7 +181,7 @@ export const RepresentativeList = ({ ticker, onClick }) => {
   </>
 }
 
-export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showRepresentative, hideBalance = false, hideActions = false }) => {
+export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showRepresentative, hideBalance = false, hideActions = true }) => {
   const { data: prices, isLoading: isLoadingPrices } = useSWR(
     "prices",
     fetchPrices,
@@ -199,7 +199,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
   const hasPrice = prices?.[ticker]?.usd;
   const ButtonAction = ({ action, ticker }) => { 
     return <Button 
-    shape="default"
+    shape="rounded"
     onClick={(e) => {
       e.stopPropagation()
       setAction(action)
@@ -371,7 +371,7 @@ export const ItemCopyAddress = ({ address, ticker, onClick }) => {
     </div>
     </List.Item>
 }
-export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = false, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker}) {
+export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = true, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker}) {
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));

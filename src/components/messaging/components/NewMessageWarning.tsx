@@ -4,6 +4,7 @@ import useLocalStorageState from 'use-local-storage-state';
 import { fetcherMessages, fetcherMessagesPost } from '../fetcher';
 import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
+import { formatAddress } from '../../../utils/format';
 
 function NewMessageWarning({fromAddress, account, chatId}) {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
@@ -16,13 +17,10 @@ function NewMessageWarning({fromAddress, account, chatId}) {
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === fromAddress));
   return (
         <div className="p-4 " style={{ backgroundColor: 'var(--adm-color-background)' }}>
-            <div className="text-center text-lg mb-4">
-                New message from 
-                <div
-                className="break-all"
-                >{fromAddress}</div>
+            <div className="text-center mb-2" style={{color: 'var(--adm-color-text-secondary)'}}>
+                New chat from {formatAddress(fromAddress)}
             </div>
-            <div className='text-center mb-4'>
+            <div className='text-center mb-4 text-lg'>
                 {
                     inContacts ? (
                         <b>
@@ -30,7 +28,7 @@ function NewMessageWarning({fromAddress, account, chatId}) {
                         </b>
                     ) : (
                         <b>
-                            Not in your contacts
+                            Account is not in your contacts
                         </b>
                     )
                 }

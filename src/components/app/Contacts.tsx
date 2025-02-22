@@ -127,6 +127,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 onClick={handleAddContact}
                 size='large'
                 color='primary'
+                shape='rounded'
             >
                 Add Contact
             </Button>
@@ -134,6 +135,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 className='w-full my-4'
                 onClick={() => setAddContactVisible(false)}
                 size='large'
+                shape='rounded'
+
             >
                 Close
             </Button>

@@ -40,7 +40,7 @@ import { SiExpertsexchange } from "react-icons/si";
 import { RiTokenSwapLine } from "react-icons/ri";
 import SetAmountModal from "./SetAmountModal";
 import { CloseCircleFill } from "antd-mobile-icons";
-import { convertAddress, formatAmountMega, getURI, ShareModal } from "../../utils/format";
+import { convertAddress, formatAmountMega, getURI, MIN_USD_SWAP, ShareModal } from "../../utils/format";
 import { CopyButton } from "./Icons";
 import { LedgerContext, WalletContext } from "../Popup";
 import { Wallet } from "../../nano/wallet";
@@ -53,6 +53,8 @@ import Buy from "./Buy";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import NetworkStatus from "./NetworkStatus";
 import { HapticsImpact } from "../../utils/haptic";
+import { useWalletBalance } from "../../hooks/use-wallet-balance";
+import { Capacitor } from "@capacitor/core";
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
@@ -102,7 +104,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   // }, [ticker]);
   const { wallet } = useContext(WalletContext);
   const {ledger} = useContext(LedgerContext);
-  console.log("wallets", wallet);
+  // console.log("wallets", wallet);
   const address = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
   const {isMobile} = useWindowDimensions()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
@@ -269,7 +271,8 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         </div>
         </div></>
   }
-  { action === 'swap' && <Swap 
+  { (action === 'swap' || action === 'buy') && <Swap 
+  defaultAction={action}
   onSuccess={() => {
     Toast.show({icon: 'success'})
     setModalVisible(false);
@@ -278,7 +281,10 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
     console.log({modalVisible})
     window.scrollTo(0, 0);
   }}
-  hideHistory={true} defaultFrom={ticker} defaultTo={ticker === "XNO" ? "BAN" : "XNO"} />}
+  hideHistory={true} 
+  fiatDefaultTo={ticker}
+  defaultTo={ticker === "XNO" ? "BAN" : ticker}
+  defaultFrom={"XNO"} />}
   </div>
 </ResponsivePopup>    
   );
@@ -349,19 +355,23 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     await mutate((key) => key.startsWith("history-" + ticker) || key.startsWith("balance-" + ticker));
     await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
   }
+  const {lowBalanceUsd} = useWalletBalance();
   return (
     <div className="transition-opacity">
       <NavBar
-      right={
+      // right={
           
-          <Button size="mini"
-          onClick={() => {
-            setModalVisible(true);
-            setAction('swap');
-          }}
-          >
-          <div className="flex text-xs items-center -mr-0"><AiOutlineSwap size={18} className="mr-1" /> Swap</div></Button>
-      }
+      //     <Button 
+      //     size="mini"
+      //     onClick={() => {
+      //       setModalVisible(true);
+      //       setAction('swap');
+      //     }}
+      //     >
+      //     <div className="flex text-xs items-center -mr-0"><AiOutlineSwap 
+          
+      //      size={18} className="mr-1" /> Buy</div></Button>
+      // }
           className="app-navbar "
           onBack={() => {
           navigate("/");
@@ -399,25 +409,37 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
             ~ <ConvertToBaseCurrency amount={balance} ticker={ticker} /> 
           </div>
         </Card>
-        <div className="flex justify-center mt-4 space-x-4 hidden">
+        <div className="flex justify-center mt-4 space-x-4 ">
+        {
+          (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
           <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-            navigate("/swap?from=" + ticker);
+            // navigate("/swap?from=" + ticker);
           }}
           >
-            <button className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white">
-              <AiOutlineSwap size={32} />
-            </button>
+            <Button 
+            onClick={() => {
+              HapticsImpact({
+                style: ImpactStyle.Medium
+              });
+              setAction('swap');
+              setModalVisible(true);
+            }}
+            className="py-2 px-2 rounded-full ">
+              <AiOutlineSwap size={22} />
+            </Button>
             <span className="text-xs mt-1">Swap</span>
           </div>
+            }
           {
-            ticker === "XNO" && <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-              navigate("/fiat?from=" + ticker);
+            <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+              setAction('buy');
+              setModalVisible(true);
             }}
             >
-              <button className="py-2 px-2 rounded-full bg-gray-800 hover:bg-gray-900 text-white">
-                <GoCreditCard size={32} className="" />
-              </button>
-              <span className="text-xs mt-1">Buy/Sell</span>
+              <Button className="py-2 px-2 rounded-full ">
+                <GoCreditCard size={22} className="" />
+              </Button>
+              <span className="text-xs mt-1">Buy</span>
             </div>
           }
         </div>
@@ -457,6 +479,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         "msUserSelect": "none",
         
       }}
+      disabled={balance === 0}
        color="primary" shape="rounded" size="large" className="w-full select-none" onClick={() => {
         HapticsImpact({
           style: ImpactStyle.Medium

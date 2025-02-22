@@ -27,7 +27,7 @@ export async function getToken() {
         options.serviceWorkerRegistration =
           await navigator.serviceWorker.register("/firebase-messaging-sw.js");
       }
-    console.log({options});
+    // console.log({options});
     const { token } = await FirebaseMessaging.getToken(options);
     // Toast.show({
     //     content: token
@@ -55,7 +55,7 @@ async function askPermission() {
         }
     }
     const permission = await FirebaseMessaging.requestPermissions();
-    console.log({permission});
+    // console.log({permission});
     permissionGranted = permission.receive === "granted";
     // Toast.show({
     //     content: permission.receive
@@ -76,7 +76,7 @@ async function askPermission() {
         })
         allAccounts.push(...accountsWithTicker);
     }
-    console.log({allAccounts});
+    // console.log({allAccounts});
     // const permission = await Notification.requestPermission();
     if (permission.receive === "granted") {
         const token = await getToken();

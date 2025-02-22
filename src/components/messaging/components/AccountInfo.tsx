@@ -19,6 +19,7 @@ import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-s
 import useLocalStorageState from "use-local-storage-state";
 import ProfilePicture from "./profile/ProfilePicture";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { HeaderStatus } from "./HeaderStatus";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {
@@ -63,18 +64,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         <h2 className="font-medium flex items-center justify-center gap-2">
                             {nameOrAccount} {names?.[0]?.verified && <RiVerifiedBadgeFill />}
                         </h2>
-                        {
-                            onlineAccount.includes(account) ? (
-                                <div className="text-blue-500">
-                                    online
-                                </div>
-                            )
-                                : (
-                                    <div className="text-gray-500">
-                                        offline
-                                    </div>
-                                )
-                        }
+                        <HeaderStatus lastOnline={names?.[0]?.lastOnline} />
                     </div>
                     <div className="mr-2">
                         <ProfilePicture address={account} />

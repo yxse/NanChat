@@ -77,6 +77,7 @@ import { authenticate } from "../../utils/biometrics";
 import { getIsPasswordEncrypted } from "../../utils/storage";
 import useSWR from "swr";
 import { fetcherChat } from "../messaging/fetcher";
+import { useUnreadCount } from "../messaging/hooks/useChat";
 
 if (Capacitor.getPlatform() === "ios"){
 Keyboard.setResizeMode({mode: KeyboardResize.None});
@@ -156,7 +157,7 @@ export const MenuBar = () => {
     /></div>
   let btnSize = 22
   let fontSize = 22
-
+  const unreadCount = useUnreadCount();
   const tabs = [
     {
       key: "",
@@ -166,7 +167,7 @@ export const MenuBar = () => {
     {
       key: "chat",
       title: "Chats",
-      icon: <MessageOutline size={btnSize} />,
+      icon: <Badge content={unreadCount}><MessageOutline size={btnSize} /></Badge>,
     },
     {
       key: "swap",

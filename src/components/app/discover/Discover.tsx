@@ -57,12 +57,6 @@ export const Discover: React.FC = () => {
                     ))}
                 </List>
             </div>
-            <a href="ana:ana_1y1pfogf7hfgunyr46ii9axo1biaeu9nmc6kmdux7ocas9nzw3dqmty4nxu1?amount=74531104000000000000000000000">
-                send ana
-            </a>
-            <a href="nano:nano_1y1pfogf7hfgunyr46ii9axo1biaeu9nmc6kmdux7ocas9nzw3dqmty4nxu1?amount=74531104000000000000000000000">
-                send nanoazeaze
-            </a>
         </div>
     );
 

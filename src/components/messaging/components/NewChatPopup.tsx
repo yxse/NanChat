@@ -73,19 +73,20 @@ function NewChatPopup({visible, setVisible}) {
     });
 
     const getKey = (pageIndex, previousPageData) => {
-        console.log({pageIndex})
-        console.log({previousPageData})
+        // console.log({pageIndex})
+        // console.log({previousPageData})
         if (previousPageData && !previousPageData.length) return null // reached the end
         return `/accounts?page=${pageIndex}${searchText ? `&search=${searchText}` : ''}`
     }
-    const { data: pages, size, setSize} = useSWRInfinite<string[]>(
+    const { data: pages, size, setSize, isLoading} = useSWRInfinite<string[]>(
         getKey, fetcherMessages, {keepPreviousData: true});
     if (!pages) {
         return <DotLoading />
     }
     const all = pages ? pages.flat() : []
-    console.log({all})
-    console.log({size})
+    // console.log({pages})
+    // console.log({all})
+    // console.log({size})
     return (
         <>
             <ResponsivePopup
@@ -134,8 +135,8 @@ function NewChatPopup({visible, setVisible}) {
                             endMessage={
                                 null
                               }
-                            hasMore={pages[pages.length - 1]?.length > 0}
-                            loader={<DotLoading />}
+                            hasMore={true}
+                            loader={isLoading && <DotLoading />}
                         >
                             {/* <div className="text-base  pl-4 m-2">
                         Your Nano contacts

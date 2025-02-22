@@ -14,6 +14,7 @@ import { CreatePin } from "../Lock/CreatePin";
 import { PinAuthPopup } from "../Lock/PinLock";
 import { PasswordForm } from "../Initialize/create/Password";
 import { WalletContext } from "../Popup";
+import PrivacySettings from "./PrivacySettings";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [seed, setSeedLocal] = useState(undefined);
@@ -436,6 +437,8 @@ function SecuritySettings() {
           At least one option must be enabled.
         </div> 
         }
+        <Divider />
+        <PrivacySettings />
         <Divider />
         <List mode="card">
             <List.Item

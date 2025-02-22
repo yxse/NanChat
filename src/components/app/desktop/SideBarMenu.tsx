@@ -1,10 +1,12 @@
-import { SideBar } from "antd-mobile";
-import { CompassOutline, MessageOutline, SetOutline, UserOutline } from "antd-mobile-icons";
+import { Badge, SideBar } from "antd-mobile";
+import { CompassOutline, MessageFill, MessageOutline, SetOutline, UserOutline } from "antd-mobile-icons";
 import { useState } from "react";
-import { AiOutlineHome } from "react-icons/ai";
+import { AiFillHome, AiOutlineHome } from "react-icons/ai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
+import { useUnreadCount } from "../../messaging/hooks/useChat";
+
 
 export const SideBarMenu = () => {
     const navigate = useNavigate();
@@ -20,17 +22,17 @@ export const SideBarMenu = () => {
     const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
     const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
     let btnSize = 22
-
+    const unreadCount = useUnreadCount();
     const tabs = [
       {
         key: "",
         title: "Home",
-        icon: <AiOutlineHome size={btnSize} />,
+        icon: <AiFillHome size={btnSize} />,
       },
       {
         key: "chat",
         title: "Chats",
-        icon: <MessageOutline size={btnSize} />,
+        icon: <Badge content={unreadCount}><MessageFill size={btnSize} /></Badge>,
       },
       {
         key: "discover",

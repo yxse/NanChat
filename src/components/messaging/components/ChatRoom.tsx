@@ -27,7 +27,8 @@ import { sendNotificationTauri } from "../../../nano/notifications";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import ProfileName from "./profile/ProfileName";
-
+import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
+import { HeaderStatus } from "./HeaderStatus";
 
 
 const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
@@ -96,6 +97,13 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     if (chatIndex !== -1) {
                         const newChat = { ...newChats[chatIndex] };
                         newChat.lastMessage = message.content;
+                        newChat.unreadCount = message.fromAccount === activeAccount ?
+                         0 : // don't increment unread count if message is from ourself
+                        (
+                            message.chatId === account ? 0 : // don't increment unread count if chat is the current open chat
+                            newChat.unreadCount + 1
+                        );
+                        newChat.lastMessageFrom = message.fromAccount;
                         newChat.lastMessageTimestamp = new Date().toISOString();
                         newChat.lastMessageId = message._id;
                         newChat.isLocal = false;
@@ -157,8 +165,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             messageInputRef.current?.focus(); // probably hacky but fix scroll bottom android when keyboard open, cause maybe by istyping?
         }
 
-        console.log("scrollTop", infiniteScrollRef.current?.scrollTop);
-        console.log("scrollTop", infiniteScrollRef.current?.scrollHeight);
+        // console.log("scrollTop", infiniteScrollRef.current?.scrollTop);
+        // console.log("scrollTop", infiniteScrollRef.current?.scrollHeight);
         // if (infiniteScrollRef.current?.scrollTop > -400) {
         if (autoScroll) {
             // scrollToBottom();
@@ -194,9 +202,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     }, [account, width]);
 
     useEffect(() => {
-        console.log("height", infiniteScrollRef.current?.scrollTop);
-        console.log("height", infiniteScrollRef.current?.scrollHeight);
-        console.log("height", infiniteScrollRef.current?.clientHeight);
+        // console.log("height", infiniteScrollRef.current?.scrollTop);
+        // console.log("height", infiniteScrollRef.current?.scrollHeight);
+        // console.log("height", infiniteScrollRef.current?.clientHeight);
     }, [chat, messages])
 
     useEffect(() => {
@@ -205,7 +213,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         }
     }, [messages])
 
-    console.log("account", account);
+    // console.log("account", account);
+
+    
 
     const HeaderPrivate = () => {
         return (
@@ -229,18 +239,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     <h2 className="font-medium flex items-center justify-center gap-2">
                     <ProfileName address={address} fallback={formatAddress(address)} /> {participant?.verified && <RiVerifiedBadgeFill />}
                     </h2>
-                    {
-                        onlineAccount.includes(address) ? (
-                            <div className="text-blue-500">
-                                online
-                            </div>
-                        )
-                            : (
-                                <div className="text-gray-500">
-                                    offline
-                                </div>
-                            )
-                    }
+                    <HeaderStatus lastOnline={participant?.lastOnline} />
                 </div>
                 <div className="mr-2">
                     <ProfilePicture address={address} />
@@ -268,12 +267,12 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
                 <div className="flex-1 text-center">
                     <h2 className="font-medium flex items-center justify-center">
-                        <TeamOutline className="mr-2" />
-                        {chat?.name}
+                        {/* <TeamOutline className="mr-2" /> */}
+                        {chat?.name} ({chat?.participants.length})
                     </h2>
                 </div>
                 <div className="">
-                    <GroupAvatar />
+                    {/* <GroupAvatar participants={chat?.participants} /> */}
                 </div>
             </div>
         )
@@ -388,15 +387,15 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     // scrollThreshold={"300px"} // this cause scroll flickering issue
                                     onScroll={(e) => {
                                         //disable auto scroll when user scrolls up
-                                        console.log(e.target.scrollTop);
+                                        // console.log(e.target.scrollTop);
                                         if (e.target.scrollTop > 0) {
                                             setAutoScroll(true);
-                                            console.log("enable autoscroll");
+                                            // console.log("enable autoscroll");
                                             infiniteScrollRef.current.className = "scrollableDiv";
                                         }
                                         else {
                                             setAutoScroll(false);
-                                            console.log("disable autoscroll");
+                                            // console.log("disable autoscroll");
                                             infiniteScrollRef.current.className = "scrollableDivAuto";
                                         }
                                         // if (e.target.scrollTop < 0) {
@@ -502,6 +501,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     newChat.lastMessageTimestamp = new Date().toISOString();
                                     newChat.lastMessageId = id;
                                     newChat.isLocal = true;
+                                    newChat.lastMessageFrom = activeAccount;
                                     newChats.splice(chatIndex, 1);
                                     newChats.unshift(newChat);
                                 }

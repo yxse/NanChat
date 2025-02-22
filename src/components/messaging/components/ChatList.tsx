@@ -27,6 +27,7 @@ import isValid from 'nano-address-validator';
 import useMessageDecryption from "../hooks/use-message-decryption";
 import MessageRaw from "./MessageRaw";
 import { CopyButton } from "../../app/Icons";
+import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 
 export const LedgerNotCompatible = () => {
     return (
@@ -176,6 +177,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
           mode='dark'
           actions={[
             { key: 'new_chat', icon: <MessageFill />, text: 'New Chat' },
+            { key: 'new_chat_group', icon: <TeamOutline />, text: <ButtonNewChat /> },
             { key: 'invite', icon: <MailOutline />, text: 'Invite Friends' },
             { key: 'my_qr', icon: <SystemQRcodeOutline />, text: 'My QR Code' },
             { key: 'scan_qr', icon: <ScanCodeOutline />, text: <Scanner
@@ -284,7 +286,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
           trigger='click'
         >
           <Space style={{ '--gap': '16px' }}>
-              <AddCircleOutline  style={{cursor: "pointer"}} />
+              <AddCircleOutline  style={{cursor: "pointer"}} className="hoverable" />
             {/* <AiOutlinePlusCircle  onClick={() => setIsNewChatVisible(true)} style={{cursor: "pointer"}} /> */}
           </Space>
         </Popover.Menu>
@@ -324,25 +326,49 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             if (!accountFrom) return null;
                             return (
                                 <List.Item
+                                arrowIcon={false}
                                     className={chat.id === account ? 'active' : ''}
-                                    onClick={() => onChatSelect(chat.id)}
+                                    onClick={() => {
+                                        onChatSelect(chat.id)
+                                        // local mutate to update unread count
+                                        mutate(chats.map(chatToMutate => {
+                                            if (chatToMutate.id === chat.id) {
+                                                chatToMutate.unreadCount = 0;
+                                            }
+                                            return chatToMutate;
+                                        }), false);
+                                    }}
                                     key={chat.id}
                                     extra={
                                         <div className="flex flex-col items-end">
-                                            <div>{new Date(chat.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                            {chat.unreadCount > 0 && (
+                                            <div>{formatTelegramDate(chat.lastMessageTimestamp)}</div>
+                                                {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
                                                 <div>
-                                                    <span className="text-xs text-white bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+                                                    <span 
+                                                    style={{backgroundColor: 'var(--adm-color-primary)', color: 'var(--adm-color-text' }}
+                                                    className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
                                                         {chat.unreadCount}
                                                     </span>
                                                 </div>
-                                            )}
+                                            )
+                                            : // empty div to keep the same height
+                                            <div>
+                                                <span className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
+                                                    {''}
+                                                </span>
+                                            </div>
+                                            }
                                         </div>
                                     }
                                     prefix={
-                                        chat.type === 'group' ?
+                                        
+                                        
+                                        <div style={{paddingTop: 8, paddingBottom: 8}}>
+                                        {
+                                            chat.type === 'group' ?
                                             // round icon with group name initial
                                             <GroupAvatar
+                                                participants={chat.participants}
                                                 groupName={chat.name}
                                                 colors="blue"
                                             />
@@ -353,6 +379,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                                 // badgeColor={onlineAccount?.find(account => account._id === accountFrom) ? 'green' : 'gray'}
                                                 badgeColor={'gray'}
                                             />
+                                        }
+                                            </div>
                                     }
                                     // Ellipsis component is laggy when there are many messages
                                     // description={<Ellipsis content={decrypted || '...'} />}
@@ -367,21 +395,20 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                     }} />}
                                 >
                                     <div className="flex items-center gap-2">
-                                        {/* {
+                                        {
                                             chat.type === 'group' ?
                                                 <>
-                                                    <TeamOutline className="text-gray-500 mr-2" />
                                                     {chat.name}
                                                 </>
                                                 :
-                                                <LockOutline className="text-gray-500 mr-2" />
-                                        } */}
-
-                                        {
-                                            hasName ? hasName : formatAddress(accountFrom)
-                                        }
-                                        {
-                                            from?.verified && <RiVerifiedBadgeFill />
+                                                <>
+                                                    {
+                                                        hasName ? hasName : formatAddress(accountFrom)
+                                                    }
+                                                    {
+                                                        from?.verified && <RiVerifiedBadgeFill />
+                                                    }
+                                                </>
                                         }
                                     </div>
                                     <div className="flex justify-between">
@@ -440,7 +467,7 @@ export const AccountAvatar = ({ url, account, badgeColor }) => {
         url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
     }
 
-    const icon = <img style={{borderRadius: "100%", padding: 6}} src={url} alt="account-pfp" width={64} />
+    const icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={64} />
     if (badgeColor == "gray"){ // show only active icon
         return icon
     }

@@ -97,7 +97,7 @@ function SelectAccount({ }) {
       <span>Total Balance:</span>
       <FormatBaseCurrency amountInBaseCurrency={totalBalance} isLoading={isLoading}/>
       </div>
-      <div style={{maxHeight: "40vh", overflowY: "auto", minWidth: 400}}>
+      <div style={{maxHeight: "40vh", overflowY: "auto", minWidth: 300}}>
     <CheckList 
     
     value={[wallet.activeIndex]}>

@@ -39,7 +39,10 @@ export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick 
       {children}
     </Popup>
   }
-  return <CenterPopup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick}  {...props}>
+  return <CenterPopup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick} 
+  {...props}
+  bodyStyle={{...props.bodyStyle, width: 500}}
+   >
     {children}
   </CenterPopup>
 }

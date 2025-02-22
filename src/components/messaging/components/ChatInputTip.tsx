@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
-import { CopyToClipboard } from "../../Settings";
+import { CopyToClipboard, ResponsivePopup } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, DotLoading, Input, List, Modal, Popup, TextArea } from "antd-mobile";
@@ -31,7 +31,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
     const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
     const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
 
-    console.log("tip rendered")
+    // console.log("tip rendered")
     return (
         <>
        
@@ -58,13 +58,13 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
                 setVisible(true);
             }
         }}>
-            <div  style={{color: "gray", padding: 0, margin: 0}}>
+            <div  style={{padding: 0, margin: 0, color: "var(--adm-color-text-secondary)"}}>
             {/* <AiOutlineDollarCircle size={40}/> */}
             $
             </div>
             
         </Button>
-        <Popup
+        <ResponsivePopup
         destroyOnClose={true}
         visible={activeTicker}
         onClose={() => {
@@ -80,13 +80,15 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
                 setVisible(false)
                 setActiveTicker(null)
             }}
-            ticker={activeTicker} defaultAddress={toAddress} onSent={(ticker, hash) => {
+            ticker={activeTicker} defaultAddress={
+              convertAddress(toAddress, activeTicker)
+            } onSent={(ticker, hash) => {
                 onTipSent(ticker, hash)
                 setVisible(false)
             }} />
         }
-        </Popup>
-        <Popup
+        </ResponsivePopup>
+        <ResponsivePopup
         position={"bottom"}
         closeOnSwipe
           visible={visible}
@@ -109,7 +111,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
             setActiveTicker(ticker);
           }} /></div>
           </div>
-        </Popup>
+        </ResponsivePopup>
         </>
     );
   };

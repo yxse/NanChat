@@ -247,6 +247,11 @@ export default function Home({ }) {
           <div>{event.notification.body}</div>
         </div>
       })
+      
+      // mutate chats to update the unread count, this do not scale well
+      // to optimize, we could use a /unread endpoint or mutate locally using notification data (requires chat id and encrypted message in the notif) or paginate the /chats
+      mutate("/chats")
+      
       // navigate(event.notification.data.url);
     });
     if (Capacitor.getPlatform() === "web") {
@@ -353,6 +358,7 @@ export default function Home({ }) {
       <div className="pb-10" style={{ height: "calc(100vh - 211px + 46px - env(safe-area-inset-bottom) - env(safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
         <NetworkList
+        hideActions={false}
         selectedTicker={selectedTicker}
           // onClick={(ticker) => navigate(`/${ticker}`)}
           onClick={(ticker) => {

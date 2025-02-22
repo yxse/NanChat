@@ -38,18 +38,24 @@ import { createOrder, createOrderFiat, fetcher, getAllCurrencies, getEstimate, g
 import { GoCreditCard } from "react-icons/go";
 import { fetchBalance } from "./Network";
 import { WalletContext } from "../Popup";
-import { convertAddress } from "../../utils/format";
+import { convertAddress, MIN_USD_SWAP } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import { useWalletBalance } from "../../hooks/use-wallet-balance";
 
-export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo = "XNO", onSuccess}) {
+export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo = "XNO", onSuccess, setAction}) {
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
+    getAllCurrencies, fetcher, {
+    errorRetryCount: 0
+  });
+  const feeless = allCurrencies && Object.values(allCurrencies).filter((currency) => currency?.feeless == true)
+  const { data: fiatCurrencies, isLoading: isLoadingFiatCurrencies } = useSWR(
     getFiatCurrencies, fetcher, {
     errorRetryCount: 0
   });
   // filter with deposit_enabled
-  const fiatCurrenciesEnabled = allCurrencies && Object.fromEntries(Object.entries(allCurrencies).filter(([key, value]) => value.deposit_enabled));
+  const fiatCurrenciesEnabled = fiatCurrencies && Object.fromEntries(Object.entries(fiatCurrencies).filter(([key, value]) => value.deposit_enabled));
   // const [result, setResult] = useState<string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [visibleSelectFrom, setVisibleSelectFrom] = useState<boolean>(false);
@@ -79,6 +85,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
 
   const SelectTicker = ({ side, visible, setVisible }) => {
     const selected = side === "from" ? selectedFrom : selectedTo;
+    const logo = side === "from" ? fiatCurrencies?.[selected]?.image : networks?.[selected]?.logo;
     return <div className="flex items-center justify-center space-x-4 m-2 p-2 cursor-pointer  
     " onClick={() => setVisible(true)}>
 
@@ -86,9 +93,9 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
         style={{
           height: 32,
         }}
-        src={fiatCurrenciesEnabled?.[selected]?.image}
+        src={logo}
         alt={`${selected} logo`} width={32} height={32} />
-       <div className="text-gray-400 flex items-center gap-2">
+       <div className="flex items-center gap-2">
         {selected} <DownOutline />
       </div>
 
@@ -114,13 +121,13 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
             setSelectedTo(ticker);
             setVisible(false);
             return;
-          }
+          }get-currencies
         }} />
       </Popup> */}
       {
-        isLoadingCurrencies ? <DotLoading /> :
+        (isLoadingCurrencies || isLoadingFiatCurrencies) ? <DotLoading /> :
           <SelectTickerAll
-            allCurrencies={fiatCurrenciesEnabled}
+            allCurrencies={side === "from" ? fiatCurrenciesEnabled : feeless}
             isLoadingCurrencies={isLoadingCurrencies}
             onClick={(ticker) => {
               console.log(ticker, side);
@@ -261,14 +268,24 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
       }
     }
   }, [])
-
+  const {
+      lowBalanceUsd,
+    } = useWalletBalance();
   return (
     <div className="">
       <div className="container  relative mx-auto">
         <div className="">
           <NavBar
-          backArrow={hideHistory ? false : true}
-            onBack={() => navigate(`/`)}>
+          right={
+            !lowBalanceUsd && 
+              <Button
+              onClick={() => setAction("swap")}
+              size="small">
+              <div className="flex text-xs items-center -mr-0"><AiOutlineSwap size={18} className="mr-2" /> Swap </div>
+              </Button>
+            }
+              backArrow={hideHistory ? false : true}
+              onBack={() => navigate(`/`)}>
               <span className="">
               Buy
               </span>
@@ -327,7 +344,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
                   size="large"
                   shape="rounded"
                 >
-                  Buy NANO
+                  Buy {networks.hasOwnProperty(selectedTo) ? networks[selectedTo].name : selectedTo}
                 </Button>
               </>
             }
@@ -403,14 +420,14 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
                         placeholder="0.0"
                       />
                   }
-                  {/* <SelectTicker side="to" visible={visibleSelectTo} setVisible={setVisibleSelectTo} /> */}
+                  <SelectTicker side="to" visible={visibleSelectTo} setVisible={setVisibleSelectTo} />
                   
-                  <div className="flex items-center mr-8">
+                  {/* <div className="flex items-center mr-8">
       <img style={{height: 32}} src={networks['XNO'].logo} alt={`XNO logo`} width={32} height={32} />
       <div className="text-gray-400 ml-3">
         XNO
       </div>
-      </div>
+      </div> */}
                 </div>
               </Form.Item>
             </div>

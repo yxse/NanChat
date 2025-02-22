@@ -6,13 +6,13 @@ import { copyToClipboard } from "../../utils/format";
 
 export const CopyIcon = ({fontSize, className, onClick}) => {
     return (
-        <AiOutlineCopy fontSize={fontSize} className={className} onClick={onClick} />
+        <AiOutlineCopy fontSize={fontSize} className={className + " hoverable"} onClick={onClick} />
     )
 }
 
 export const PasteIcon = ({fontSize, className, onClick}) => {
     return (
-        <AiOutlineSnippets fontSize={fontSize} className={className} onClick={onClick} />
+        <AiOutlineSnippets fontSize={fontSize} className={className + " hoverable"} onClick={onClick} />
     )
 }
 

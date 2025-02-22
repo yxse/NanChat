@@ -1,7 +1,7 @@
 import { networks } from "../../utils/networks";
 
 export const fetcher = (url) => fetch(url).then((res) => res.json());
-const BASE_URL = 'https://api.nanswap.com/';
+const BASE_URL = import.meta.env.VITE_PUBLIC_BACKEND + '/partners/';
 
 export const getAllCurrencies = BASE_URL + 'all-currencies';
 export const getOrder = BASE_URL + 'get-order?id=';
