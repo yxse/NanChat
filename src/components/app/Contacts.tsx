@@ -14,6 +14,7 @@ import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
 import { useWallet } from '../Popup';
 import ProfileName from '../messaging/components/profile/ProfileName';
+import { ResponsivePopup } from '../Settings';
 
 
 const defaultContacts = [
@@ -518,7 +519,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
         <UserContactOutline className="cursor-pointer" fontSize={22} onClick={() => {
             setVisible(true);
         }} />
-        <Popup
+        <ResponsivePopup
         showCloseButton
             bodyStyle={{ maxHeight: '50vh', overflow: 'auto' }}
             destroyOnClose
@@ -555,7 +556,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
                     >{contact.name}</List.Item>
                 ))}
             </List>
-        </Popup>
+        </ResponsivePopup>
     </>
 }
 export default Contacts;

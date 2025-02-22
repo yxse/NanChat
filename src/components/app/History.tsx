@@ -199,6 +199,8 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
   let history = data?.concat(dataPages)
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })
   const navigate = useNavigate();
+  const { isMobile } = useWindowDimensions()
+
   const actions = [
     {
       text: "Copy address",
@@ -241,6 +243,19 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
   ];
   if (contacts.find((c) => c?.addresses?.find((a) => a?.address == activeTx?.account))) {
     delete actions[2]
+  }
+  if (!isMobile){
+    actions.push({
+      text: "Send Again",
+      key: "send-again",
+      onClick: () => {
+        navigate(
+          `?to=${activeTx.account}&amount=${+rawToMega(ticker, activeTx.amount)}`,
+          { replace: true }
+        );
+        onSendClick()
+      }
+    })
   }
 
   const checkIfCached = (fromHeight, toHeight) => {
@@ -338,7 +353,6 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
     // getAccount(ticker).then((r) => setAccount(r))
     // fetchHistory(ticker, 0).then((r) => setData([r]))
   }, [])
-  const { isMobile } = useWindowDimensions()
 
    
   return (
@@ -375,7 +389,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
               marginTop: 8,
             }}
             status="empty"
-            title="Transaction will appear here"
+            title={`${networks[ticker].name} transactions will appear here`}
             description=""
           />
         )}
@@ -522,10 +536,11 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
               visible={visible}
               onClose={() => setVisible(false)}
               >
-              <Space wrap align="center" justify="center">
+              <Space wrap align="center" justify="start">
                 {
                   actions.map((action) => (
                     <Button
+                    shape="rounded"
                       key={action.key}
                       onClick={() => {
                         action.onClick();
@@ -543,16 +558,20 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
       </div>
         )}
       <div className="text-center mt-4 flex flex-col m-4">
-        <Button color="primary" className="mt-4" onClick={() => navigate("/swap?to=" + ticker)}>
+        {/* <Button color="primary" className="mt-4" onClick={() => navigate("/swap?to=" + ticker)}>
           Buy {ticker}
-        </Button>
-        <a
+        </Button> */}
+        {/* <a
           target="_blank"
           href={`https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`}>
-          <Button color="default" className="mt-4 w-full">
-            Get some {ticker} for free
+          <Button
+          shape="rounded"
+          size="middle"
+           color="default" className="mt-4 w-full">
+            Get some {
+              networks[ticker]?.name} for free
           </Button>
-        </a>
+        </a> */}
       </div>
     </div >
     </>
