@@ -13,6 +13,9 @@ import ProfilePicture from "./profile/ProfilePicture";
 import { DateHeader } from "../../app/History";
 import { LockFill } from "antd-mobile-icons";
 import useMessageDecryption from "../hooks/use-message-decryption";
+import ProfileName from "./profile/ProfileName";
+import { Link } from "react-router-dom";
+import MessageFile from "./MessageFile";
 
 const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore }) => {
     const { wallet, dispatch
@@ -82,6 +85,9 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
     if (message?.tip) {
         return <MessageTip message={message} side={message.fromAccount === activeAccount ? 'from' : 'to'} hash={message.tip.hash} ticker={message.tip.ticker} />
     }
+    if (message?.file){
+        return <MessageFile message={message} side={message.fromAccount === activeAccount ? 'from' : 'to'} file={message.file} />
+    }
     else if (message?.stickerId) {
         return <MessageSticker message={message} side={message.fromAccount === activeAccount ? 'from' : 'to'} />
     }
@@ -116,7 +122,9 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                     :
                     type === 'group' && message.fromAccount !== activeAccount && (
                         <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column' }}>
-                            <ProfilePicture address={message.fromAccount} />
+                            <Link to={`/chat/${message.fromAccount}`}>
+                                <ProfilePicture address={message.fromAccount} />
+                            </Link>
                         </div>
                     )
             }
@@ -147,7 +155,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                 {
                     type === 'group' && !isNextMessageFromSameAccount && message.fromAccount !== activeAccount && (
                         <span style={{fontWeight: 'bold'}}>
-                            {account?.name || formatAddress(message.fromAccount)}
+                            <ProfileName address={message.fromAccount} fallback={"..."} />
                         </span>
                     )
                 }

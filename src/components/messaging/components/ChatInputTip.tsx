@@ -18,7 +18,7 @@ import { SlArrowUpCircle } from "react-icons/sl";
 import { FaArrowUp } from "react-icons/fa6";
 import { useChat } from "../hooks/useChat";
 import Send from "../../app/Send";
-import { AiOutlineDollar, AiOutlineDollarCircle } from "react-icons/ai";
+import { AiOutlineDollar, AiOutlineDollarCircle, AiOutlineSwap } from "react-icons/ai";
 import NetworkList from "../../app/NetworksList";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
@@ -31,23 +31,25 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
     const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
     const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
 
-    // console.log("tip rendered")
+    console.log("tip rendered")
     return (
         <>
        
-
+       <div
+                                  style={{textAlign: 'center'}}>
         <Button
-        shape="rounded"
-        style={{
-          flexShrink: 0,
-          padding: '0px',
-          border: "none",
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            }}
+        style={{borderRadius: 12}}
+        size='large'
+        // style={{
+        //   flexShrink: 0,
+        //   padding: '0px',
+        //   border: "none",
+        //     width: '40px',
+        //     height: '40px',
+        //     display: 'flex',
+        //     justifyContent: 'center',
+        //     alignItems: 'center',
+        //     }}
         // className="p-1 rounded-full bg-blue-500 text-white mr-1"
         onClick={() => {
             if (activeMainNetworks.length + activeCustomNetworks.length === 1) {  // directly show the action if only one active network
@@ -58,12 +60,12 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
                 setVisible(true);
             }
         }}>
-            <div  style={{padding: 0, margin: 0, color: "var(--adm-color-text-secondary)"}}>
-            {/* <AiOutlineDollarCircle size={40}/> */}
-            $
-            </div>
-            
+            <AiOutlineSwap fontSize={34} />
         </Button>
+        <div className='mt-2'>
+            Transfer
+          </div>
+            </div>
         <ResponsivePopup
         destroyOnClose={true}
         visible={activeTicker}
@@ -101,7 +103,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
           <div>
           <div>
             <div className="text-2xl  text-center p-2">{
-              "Tip"
+              "Transfer"
             }</div>
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>

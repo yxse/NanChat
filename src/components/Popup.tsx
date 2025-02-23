@@ -88,7 +88,8 @@ function walletsReducer(state, action) {
 export const useWallet = () => {
   const { wallet } = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
-  return { wallet, activeAccount }
+  const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
+  return { wallet, activeAccount, activeAccountPk }
 }
 let appListener: PluginListenerHandle;
 
