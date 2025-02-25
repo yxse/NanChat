@@ -8,7 +8,7 @@ import { convertAddress } from '../../../utils/format';
 import SetName from './SetName';
 import AccountInfo from './AccountInfo';
 import { askPermission } from '../../../nano/notifications';
-import { fetcherMessages } from '../fetcher';
+import { fetcherAccount, fetcherMessages } from '../fetcher';
 import useSWR from 'swr';
 import { getChatToken } from '../../../utils/storage';
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
@@ -22,6 +22,8 @@ const Chat: React.FC = () => {
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
     const {isMobile} = useWindowDimensions();
+    const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
+
     useEffect(() => {
         getChatToken().then((token) => {
             socket.auth = { token };
@@ -69,7 +71,14 @@ const Chat: React.FC = () => {
     useEffect(() => {
         // todo add modal
         askPermission();
+        
     }, [])
+    useEffect(() => {
+        if (me && me.error === "Account not found") {
+            navigate('/profile/name'); 
+        }
+    }
+    , [ me]);
     return (
         <>
             <Routes>

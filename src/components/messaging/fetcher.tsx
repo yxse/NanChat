@@ -15,9 +15,9 @@ export const getNewChatToken = async (account, privateKey) => {
         },
         method: 'POST',
         body: JSON.stringify({ account, message, signature })
-    }).then((res) => res.json()).then((data) => {
+    }).then((res) => res.json()).then(async (data) => {
         if (data.token){
-            setChatToken(account, data.token);
+            await setChatToken(account, data.token);
             return data.token;
         }
         else if (data.error){

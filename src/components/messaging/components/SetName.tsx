@@ -3,23 +3,23 @@ import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-route
 import ChatRoom from './ChatRoom';
 import ChatList, { LedgerNotCompatible } from './ChatList';
 import { socket } from '../socket';
-import { LedgerContext, WalletContext } from '../../Popup';
+import { LedgerContext, useWallet, WalletContext } from '../../Popup';
 import { convertAddress } from '../../../utils/format';
 import { AccountIcon } from '../../app/Home';
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
-import { fetcherAccount } from '../fetcher';
+import { fetcherAccount, fetcherMessages, getNewChatToken } from '../fetcher';
 import useSWR from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
 
 const SetName: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
-    const {wallet} = useContext(WalletContext)
-    const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)
-    const activeAccountNano = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
-    const {data: me, isLoading, mutate} = useSWR(activeAccountNano, fetcherAccount);
+    const {activeAccount, activeAccountPk} = useWallet();
+    const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
+    const {  mutate: mutateChats } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+
     const {ledger} = useContext(LedgerContext);
     const isRegistered = me?.name;
     if (ledger) {
@@ -50,18 +50,20 @@ const SetName: React.FC = () => {
                 console.log(values);
                 console.log(activeAccount);
                 const message = "My name is " + values.name;
-                const signature = tools.sign(activeAccount.privateKey, message);
-                const account = activeAccount.address;
+                const signature = tools.sign(activeAccountPk, message);
+                // const account = activeAccount.address;
                 console.log(signature);
                 fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/set-name', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({name: values.name, signature, account})
-                }).then((res) => {
+                    body: JSON.stringify({name: values.name, signature, account: activeAccount})
+                }).then(async (res) => {
                     console.log(res);
                     Toast.show({icon: 'success'});
+                    await getNewChatToken(activeAccount, activeAccountPk) // todo refact this with a /register
+                    await mutateChats();
                     if (isRegistered) {
                         navigate(-1);
                     }

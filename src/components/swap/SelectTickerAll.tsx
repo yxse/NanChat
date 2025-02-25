@@ -17,8 +17,7 @@ import { ResponsivePopup } from "../Settings";
 export default function SelectTickerAll({ allCurrencies, isLoadingCurrencies, onClick, visible, setVisible, side }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
 
-
-  const items = Object.values(allCurrencies)
+  const items = Object.values(allCurrencies || {})
 
   const [selected, setSelected] = useState('A')
   const [searchText, setSearchText] = useState('')

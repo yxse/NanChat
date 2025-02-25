@@ -84,7 +84,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     // }, [pages, messagesEndRef]);
 
     useEffect(() => {
-        if (!isLoading && chat == null){
+        if (!isLoading && chat == null && !account?.startsWith('nano_')) {
             navigate('/chat');
             if (searchParams.has('join')) {
                 Modal.confirm({
