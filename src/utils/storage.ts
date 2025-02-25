@@ -148,22 +148,37 @@ export async function getChatToken(): Promise<string> {
 }
 
 const keyTokenChat = "chatTokens";
+// Simple cache variable to store the tokens, prevent hitting secure storage multiple times which can be slow
+let tokensCache: string | null = null;
+
 export async function getChatTokens(): Promise<string> {
   try {
+    // Return cached value if available
+    if (tokensCache !== null) {
+      return tokensCache;
+    }
+debugger
+    // No cache, fetch the actual value
     if (isTauri()) {
       const token = await KeyringService.getSecret('nanwallet', keyTokenChat);
-      return JSON.parse(token);
+      tokensCache = JSON.parse(token);
+    } else {
+      let token = await SecureStoragePlugin.get({key: keyTokenChat});
+      tokensCache = JSON.parse(token.value);
     }
-    else{
-      let token = await SecureStoragePlugin.get({key: keyTokenChat})
-      return JSON.parse(token.value);
-    }
-    
+
+    return tokensCache;
+
   } catch (error) {
     console.error("Error getting token: ", error);
     return {};
   }
   // return localStorage.getItem("seed");
+}
+
+// Add a function to invalidate the cache if needed
+export function invalidateChatTokensCache(): void {
+  tokensCache = null;
 }
 
 export async function saveInSecureStorage(key: string, value: string): Promise<void> {
