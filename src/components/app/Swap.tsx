@@ -256,6 +256,9 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
   
   const [action, setAction] = useState(defaultAction);
 
+  if (isLoadingCurrencies) {
+    return <DotLoading />
+  }
   if ((!isLoading && lowBalanceUsd) || action === "buy") {
     return <Buy hideHistory={true} defaultTo={fiatDefaultTo} setAction={setAction} /> // override swap default crypto to not be BAN if on XNO
   }

@@ -257,6 +257,7 @@ export const MenuBar = () => {
       }}
        action={action} ticker={activeTicker} modalVisible={activeTicker} setModalVisible={setVisible} setAction={setAction} />
       <Popup
+      destroyOnClose
       position={"bottom"}
       closeOnSwipe
         visible={visible}
