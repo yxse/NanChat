@@ -1,8 +1,13 @@
 import { Avatar, Space } from 'antd-mobile';
 import React from 'react';
 import ProfilePicture from './profile/ProfilePicture';
+import { fetcherMessages } from '../fetcher';
+import useSWR from 'swr';
 
-const GroupAvatar = ({ groupName = '', size = 'md', colors = 'blue' , participants}) => {
+const GroupAvatar = ({ chatId }) => {
+  const { data: chats,error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+  const chat = chats?.find((chat) => chat.id === chatId);
+  const participants = chat?.participants.slice(0, 9);
   // Extract initials from group name with null/undefined safety
   const getInitials = (name) => {
     // If name is not a string or is empty, return placeholder

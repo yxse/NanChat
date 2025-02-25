@@ -27,6 +27,7 @@ import {
     let valueJson = JSON.stringify(value);
     try {
       await sqlStore.set({ key: key, value: valueJson });
+      inMemoryMap.set(key, value);
       return true;
     } catch (err) {
       console.log(`Error setting ${key}: ${valueJson}`);
@@ -37,10 +38,15 @@ import {
   
   export let restoreData = async (key: string): Promise<any> => {
     try {
+        if (inMemoryMap.has(key)) {
+            console.log("hit data from memory", key)
+            return inMemoryMap.get(key)
+        }
       let exists = await sqlStore.iskey({ key: key });
       if (!exists.result) return null;
       let valueJson = await sqlStore.get({ key: key});
       let value = JSON.parse(valueJson.value);
+        inMemoryMap.set(key, value)
       return value;
     } catch (err) {
       console.log(`Error restoring key ${key}`);

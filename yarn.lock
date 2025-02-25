@@ -994,6 +994,13 @@
   resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-6.0.3.tgz#100d84ed39bde5d5fcd8927aa2dddb1ad57598a8"
   integrity sha512-tpVljeNGSwVCIc8lMQkyiCQFokk2PwgYPdDtPnGjFthqmXW/WhIxW8QYl4MUqyLwwgwTEbp4u3Kcv2zqQu2L6Q==
 
+"@capgo/capacitor-data-storage-sqlite@^6.0.59":
+  version "6.0.59"
+  resolved "https://registry.yarnpkg.com/@capgo/capacitor-data-storage-sqlite/-/capacitor-data-storage-sqlite-6.0.59.tgz#f1fb37746aa612907f95144f5b13878cfeba84a1"
+  integrity sha512-1h2afpsTjlFOQicNtLHfCN45V5s5fP2Gvh/3HvKtGm30A35g/VIDsFhh250vBjyK7rh4rn3LfL139Fl0mXs3Hw==
+  dependencies:
+    localforage "^1.10.0"
+
 "@emotion/babel-plugin@^11.11.0":
   version "11.11.0"
   resolved "https://registry.npmjs.org/@emotion/babel-plugin/-/babel-plugin-11.11.0.tgz"

@@ -1,82 +1,79 @@
 import { box } from 'multi-nano-web';
 import { useContext, useEffect, useState } from 'react';
 import { WalletContext } from '../../Popup';
+import { fetcherChat } from '../fetcher';
+import { decryptGroupMessage } from '../../../services/sharedkey';
 
-const useMessageDecryption = ({
-  message,
-}) => {
+const useMessageDecryption = ({ message }) => {
   const { wallet, dispatch } = useContext(WalletContext);
-  const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
-  const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
+  const [decryptedContent, setDecryptedContent] = useState(() => {
+    // Immediate synchronous checks for cached content
+    if (message.isLocal) {
+      return message.content;
+    }
+
+    if (wallet.messages[message._id]) {
+      return wallet.messages[message._id];
+    }
+
+    const localStorageKey = `message-${message._id}`;
+    const cachedContent = localStorage.getItem(localStorageKey);
+    if (cachedContent) {
+      return cachedContent;
+    }
+
+    if (localStorage.getItem(message.content)) {
+      return localStorage.getItem(message.content);
+    }
+
+    return null;
+  });
+  
+  const activeAccount = wallet.accounts.find(
+    (account) => account.accountIndex === wallet.activeIndex
+  )?.address;
+  const activeAccountPk = wallet.accounts.find(
+    (account) => account.accountIndex === wallet.activeIndex
+  )?.privateKey;
   const toAccount = message.toAccount;
   const messageId = message.isLocal ? Math.random().toString() : message._id;
-  // const [decrypted, setDecrypted] = useState(null);
- // Decrypt message
+  
+  const isGroupMessage = message?.type === 'group';
+  const targetAccount = message.fromAccount === activeAccount ? toAccount : message.fromAccount;
 
-//  useEffect(() => {
+  useEffect(() => {
+    // Only proceed with decryption if we don't have cached content
+    if (decryptedContent !== null) {
+      return;
+    }
 
-//   let decrypted = null;
-//   if (message.isLocal) {
-//     decrypted = message.content;
-//   } else if (wallet.messages[message._id]) {
-//     return
-//   } else if (localStorage.getItem(`message-${message._id}`)) {
-//     decrypted = localStorage.getItem(`message-${message._id}`);
-//   } else if (localStorage.getItem(message.content)) {
-//     decrypted = localStorage.getItem(message.content);
-//   } else {
-//     try {
-//       decrypted = box.decrypt(
-//         message.content,
-//         message.fromAccount === activeAccount ? toAccount : message.fromAccount,
-//         activeAccountPk
-//       );
-//     } catch (error) {
-//       console.error('Message decryption failed:', error);
-//       decrypted = message.content;
-//     }
-//   }
+    const decryptMessage = async () => {
+      try {
+        let decrypted;
+        
+        if (isGroupMessage) {
+          decrypted = await decryptGroupMessage(message.content, message.chatId, message.toAccount, message.fromAccount, activeAccountPk);
+        } else {
+          decrypted = box.decrypt(message.content, targetAccount, activeAccountPk);
+        }
 
-//   dispatch({
-//     type: 'ADD_MESSAGE',
-//     payload: { _id: messageId, content: decrypted }
-//   });
-// }
-// , []);
+        // Store decrypted content
+        localStorage.setItem(`message-${message._id}`, decrypted);
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: { _id: messageId, content: decrypted }
+        });
+        setDecryptedContent(decrypted);
+      } catch (error) {
+        console.error('Message decryption failed:', error);
+        setDecryptedContent("Encrypted message");
+      }
+    };
 
- if (message.isLocal) {
-  return message.content;
-}
- const targetAccount = message.fromAccount === activeAccount 
- ? toAccount 
- : message.fromAccount;
+    decryptMessage();
+  }, [message, activeAccount, activeAccountPk, targetAccount, messageId, decryptedContent]);
 
- if (wallet.messages[message._id]) {
-  console.log('Message form cache memory');
-  return wallet.messages[message._id];
-}
-if (localStorage.getItem(`message-${message._id}`)) {
-  console.log('Message form local storage');
-  return localStorage.getItem(`message-${message._id}`);
-}
-if (localStorage.getItem(message.content)) {
-  console.log('Message form local storage');
-  return localStorage.getItem("message-" + message.content);
-}
- try {
-    console.log('Decrypting message:', message);  
-   const decrypted = box.decrypt(
-     message.content,
-     targetAccount,
-     activeAccountPk
-    );
-    localStorage.setItem(`message-${message._id}`, decrypted);
-    return decrypted;
-  } catch (error) {
-    console.error('Message decryption failed:', error);
-    return message.content;
-  } 
-
+  return decryptedContent;
 };
 
 export default useMessageDecryption;

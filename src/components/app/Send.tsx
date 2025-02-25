@@ -231,7 +231,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
   let dataPrepareSend = null;
   return (
     <div
-    style={{width: isMobile ? "100%" : 400}}
+    style={{width: "100%"}}
      className="divide-y divide-solid divide-gray-700 space-y-6">
       <div className="container  relative mx-auto">
         <div className="text-center text-xl p-2">

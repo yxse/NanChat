@@ -1,4 +1,4 @@
-import { MessageOutline, PhoneFill, SendOutline } from "antd-mobile-icons";
+import { AddCircleOutline, MessageOutline, PhoneFill, SendOutline, SmileFill, SmileOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -21,12 +21,16 @@ import ChatInputTip from "./ChatInputTip";
 import EmitTyping from "./EmitTyping";
 import ChatInputStickers from "./ChatInputStickers";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import ChatInputFile from "./ChatInputFile";
+import ChatInputAdd from "./ChatInputAdd";
+import { updateSharedKeys } from "../../../services/sharedkey";
 
 const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     const {
         account
     } = useParams();
     const [stickerVisible, setStickerVisible] = useState(false);
+    const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useWindowDimensions()
     const [lastEmitTime, setLastEmitTime] = useState(0);
     const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);
@@ -132,10 +136,18 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
-      localStorage.setItem(messageEncrypted['content'], newMessage); // save decrypted message cache, encrypted content is the key
+      localStorage.setItem("message-" + messageEncrypted['content'], newMessage); // save decrypted message cache, encrypted content is the key
       }
-      else {
-        messageEncrypted['content'] = newMessage;
+      else if (chat.type === "group") {
+        let sharedAccount = chat.sharedAccount;
+        if (sharedAccount == null){
+          sharedAccount = await updateSharedKeys(chatId, chat.participants.map(participant => participant._id), activeAccountPk);
+        }
+        messageEncrypted['content'] = box.encrypt(newMessage, sharedAccount, activeAccountPk);
+      }
+      else{
+        console.error("Chat type not supported", chat.type);
+        return;
       }
 
      socket.emit('message', messageEncrypted);
@@ -188,12 +200,35 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
       }
      socket.emit('message', messageEncrypted);
     }
+    const sendFileMessage = async (file) => {
+      let chatId = account;
+      // let messageTip = 'Tip ' + ticker + ' ' + hash;
+      const message: Message = {
+        content: "File",
+        fromAccount: activeAccount,
+        // toAccount: account,
+        timestamp: new Date(),
+        chatId: chatId,
+        file: {
+          url: file.url,
+          meta: {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+          }
+        }
+      };
+      onSent(message);
+      socket.emit('message', message);
+    }
 
-    const iconRisibank =  <img style={{filter: 'grayscale(0)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
-    const iconRisibankGray =  <img style={{filter: 'grayscale(1)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
+    // const iconRisibank =  <img style={{filter: 'grayscale(0)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
+    // const iconRisibankGray =  <img style={{filter: 'grayscale(1)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
+    const iconRisibankGray =  <SmileOutline style={{width: 32, height: 32}} />
+    const iconRisibank =  <SmileFill style={{width: 32, height: 32}} />
 
 
-    console.log("message input render")
+    // console.log("message input render")
     return (
         <div 
         style={{
@@ -220,9 +255,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
             }}
             >
             
-            <ChatInputTip toAddress={address} onTipSent={(ticker, hash) => {
+            {/* <ChatInputTip toAddress={address} onTipSent={(ticker, hash) => {
               sendTipMessage(ticker, hash);
-            }} />
+            }} /> */}
           <div 
           style={{borderRadius: 32, width: '100%', borderColor: 'var(--adm-color-border)', filter: 'brightness(0.9)'}}
           className="flex items-center gap-2 border border-solid input-message">
@@ -256,9 +291,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
               <FaArrowUp className="w-5 h-5" />
             </Button>
           </div>
-          <Button
-          style={{display: "none"}}
+          <div
+          style={{}}
           onClick={() => {
+            if (!stickerVisible && inputAdditionVisible) {
+              setInputAdditionVisible(false);
+            }
             if (stickerVisible){
               setStickerVisible(false);
               messageInputRef.current?.focus();
@@ -268,23 +306,51 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
               messageInputRef.current?.blur();
             }
           }}
-        className=""
-        shape="rounded"
-        size="large"
-        >
+          className="hoverable"
+          >
           {
             stickerVisible ? 
               (isMobile ? <FaKeyboard className="w-5 h-5" /> : iconRisibank)
             :
             iconRisibankGray
         }
-        </Button>
+        </div>
+        <div 
+        onClick={() => {
+          if (!inputAdditionVisible && stickerVisible) {
+            setStickerVisible(false);
+          }
+          setInputAdditionVisible(!inputAdditionVisible)
+        }}
+        >
+          <AddCircleOutline 
+          style={{width: 32, height: 32, cursor: 'pointer'}} className="hoverable" />
+        </div>
           </div>
           {
             stickerVisible && <ChatInputStickers onStickerSelect={(stickerId) => {
               sendStickerMessage(stickerId);
             }} />
           }
+          {
+            inputAdditionVisible &&
+        <ChatInputAdd 
+        toAddress={
+          chat?.type === "private" ?
+          address :
+          chat?.type === "group" ?
+          chat?.sharedAccount :
+          undefined 
+        }
+        onUploadSuccess={(file) => {
+          sendFileMessage(file);
+        }}
+        onTipSent={(ticker, hash) => {
+          sendTipMessage(ticker, hash);
+        }} />
+      }
+
+          
 
         </div>
     );

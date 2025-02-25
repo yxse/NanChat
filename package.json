@@ -34,6 +34,7 @@
     "@capacitor/keyboard": "^6.0.3",
     "@capacitor/share": "6",
     "@capacitor/splash-screen": "^6.0.3",
+    "@capgo/capacitor-data-storage-sqlite": "^6.0.59",
     "@emotion/react": "^11.11.4",
     "@khmyznikov/pwa-install": "^0.4.0",
     "@ledgerhq/hw-transport": "^6.30.6",

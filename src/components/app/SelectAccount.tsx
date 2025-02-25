@@ -30,7 +30,7 @@ import { HapticsImpact } from "../../utils/haptic";
 import { useWalletMultiBalance } from "../../hooks/use-wallet-multi-balance";
 import { isTouchDevice } from "../../utils/isTouchDevice";
 
-const MAX_ACCOUNTS = 15;
+const MAX_ACCOUNTS = 5;
 function SelectAccount({ }) {
   const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
   const {wallet, dispatch} = useContext(WalletContext);

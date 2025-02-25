@@ -16,6 +16,8 @@ import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfileName from "./profile/ProfileName";
 import { Link } from "react-router-dom";
 import MessageFile from "./MessageFile";
+import MessageSystem from "./MessageSystem";
+import MessageJoinRequest from "./MessageJoinRequest";
 
 const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore }) => {
     const { wallet, dispatch
@@ -82,6 +84,12 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
         }
     // console.log(message.content);
 
+    if (message?.type === "join-request") {
+        return (<MessageJoinRequest message={message} />)
+    }
+    if (message?.type === "system" || message?.type === "join-request") {
+        return (<MessageSystem message={message} />)
+    }
     if (message?.tip) {
         return <MessageTip message={message} side={message.fromAccount === activeAccount ? 'from' : 'to'} hash={message.tip.hash} ticker={message.tip.ticker} />
     }
@@ -107,7 +115,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                                                 </div>
                                             </div>
         }
-        <div className="text-center text-sm text-gray-400">
+        <div className="text-center text-sm" style={{ color: 'var(--adm-color-text-secondary)' }}>
                     <DateHeader timestamp={message.timestamp} timestampPrev={prevMessage?.timestamp} timestampNext={nextMessage?.timestamp} reverse />
 
         </div>
@@ -140,7 +148,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                     backgroundColor: message.fromAccount === activeAccount ? 'var(--adm-color-primary)' : 'var(--adm-color-background)',
                 }}
                 className={
-                    `max-w-[70%] p-2 rounded-lg 
+                    `max-w-[70%] p-2 rounded-md 
                 ${message.fromAccount === activeAccount ?
 
                         isPreviousMessageFromSameAccount ?

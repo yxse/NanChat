@@ -262,9 +262,15 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type }) => {
                   >
                       {loading ? 'Uploading...' : 
                         type === 'file' ?
-                        <FolderOutline fontSize={32}/>
+                        <div style={{fontSize: 34}}>
+                        📁
+            </div>
+                        // <FolderOutline fontSize={32}/>
                         :
-                        <PictureOutline fontSize={32}/>
+                        <div style={{fontSize: 34}}>
+                        📷  
+                      </div>
+                        // <PictureOutline fontSize={32}/>
                       }
                   </Button>
                               <div className='mt-2'

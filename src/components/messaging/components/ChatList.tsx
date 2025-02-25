@@ -103,68 +103,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             url: `https://nanwallet.com/chat/${activeAccount}`
         })
     }
-    const ButtonNewChat = () => {
-        const actions: Action[] = [
-            // { key: 'private_chat', icon: <UserOutline />, text: 'New Private Chat' },
-            // { key: 'private_group', icon: <TeamOutline />, text: 'Private Group' },
-            { key: 'public_group', icon: <TeamOutline />, text: 'New Public Group' },
-
-        ]
-        return (
-            <div className="flex justify-center items-center mt-4">
-                <Popover.Menu
-                    mode='dark'
-                    actions={actions}
-                    placement='left-start'
-                    onAction={node => {
-                        if (node.key === 'public_group') {
-                            let modal = Modal.show({
-                                title: 'Create a new public group',
-                                content: (
-                                    <div>
-                                        <Input
-                                            id="group-name"
-                                            type="text"
-                                            placeholder="Group Name"
-                                            className="w-full mt-2 p-2 rounded-lg"
-                                        />
-                                    </div>
-                                ),
-                                actions: [
-                                    {
-                                        key: 'cancel',
-                                        text: 'Cancel',
-                                        onClick: () => modal.close()
-                                    },
-                                    {
-                                        key: 'create',
-                                        text: 'Create',
-                                        primary: true,
-                                        onClick: async () => {
-                                            await fetcherMessagesPost('/chat', {
-                                                "type": "group",
-                                                "name": (document.getElementById('group-name') as HTMLInputElement).value,
-                                                "participants": [activeAccount]
-                                            })
-
-                                            Toast.show({
-                                                content: 'Group created'
-                                            });
-                                            modal.close();
-                                        }
-                                    }
-                                ]
-                            });
-                        }
-
-                    }}
-                    trigger='click'
-                >
-                    <Button><FillinOutline fontSize={24} /></Button>
-                </Popover.Menu>
-            </div>
-        );
-    };
+  
     if (ledger) {
         return <LedgerNotCompatible />
     }
@@ -177,7 +116,6 @@ const ChatList: React.FC = ({ onChatSelect }) => {
           mode='dark'
           actions={[
             { key: 'new_chat', icon: <MessageFill />, text: 'New Chat' },
-            { key: 'new_chat_group', icon: <TeamOutline />, text: <ButtonNewChat /> },
             { key: 'invite', icon: <MailOutline />, text: 'Invite Friends' },
             { key: 'my_qr', icon: <SystemQRcodeOutline />, text: 'My QR Code' },
             { key: 'scan_qr', icon: <ScanCodeOutline />, text: <Scanner
@@ -323,7 +261,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             //         toAccount: activeAccount,
                             //         _id: chat.lastMessageId,
                             //     }})
-                            if (!accountFrom) return null;
+                            // if (!accountFrom) return null;
                             return (
                                 <List.Item
                                 arrowIcon={false}
@@ -368,9 +306,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                             chat.type === 'group' ?
                                             // round icon with group name initial
                                             <GroupAvatar
-                                                participants={chat.participants}
-                                                groupName={chat.name}
-                                                colors="blue"
+                                                chatId={chat.id}
                                             />
                                             :
                                             <AccountAvatar
@@ -398,7 +334,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                         {
                                             chat.type === 'group' ?
                                                 <>
-                                                    {chat.name}
+                                                    {chat.name || "Group Chat"}
                                                 </>
                                                 :
                                                 <>
@@ -417,7 +353,29 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             )
                         })}
                     </List>
-        <NewChatPopup  visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
+        <NewChatPopup
+        onAccountSelect={async (accounts) => {
+            if (accounts.length === 1) {
+                navigate(`/chat/${accounts[0]}`, { viewTransition: false, replace: true })
+            }
+            else {
+                let r = await fetcherMessagesPost('/chat', {
+                    "type": "group",
+                    "participants": accounts.concat(activeAccount)
+                })
+                if (r.error) {
+                    Toast.show({icon: 'fail', content: r.error})
+                    return
+                }
+                else {
+                    mutate()
+                    navigate(`/chat/${r.id}`, { viewTransition: false, replace: true })
+                    Toast.show({icon: 'success'})
+                }
+
+            }
+        }}
+          visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
                     
                     
                     

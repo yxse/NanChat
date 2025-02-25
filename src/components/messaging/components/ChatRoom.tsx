@@ -3,16 +3,16 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { socket } from "../socket";
 import { WalletContext } from "../../Popup";
 import { convertAddress, formatAddress, ShareModal } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Skeleton, Space, Toast } from "antd-mobile";
+import { Button, DotLoading, Input, List, Modal, Skeleton, Space, Toast } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherAccount, fetcherMessages } from "../fetcher";
+import { fetcherAccount, fetcherMessages, joinRequest } from "../fetcher";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
@@ -40,6 +40,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const infiniteScrollRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { wallet } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
@@ -59,7 +60,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         hasMore,
     } = useChat(account);
 
-    const { data: chats, mutate: mutateChats } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const { data: chats, mutate: mutateChats, isLoading } = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
@@ -82,6 +83,27 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     //     }
     // }, [pages, messagesEndRef]);
 
+    useEffect(() => {
+        if (!isLoading && chat == null){
+            navigate('/chat');
+            if (searchParams.has('join')) {
+                Modal.confirm({
+                    title: 'Join the group?',
+                    onConfirm: () => {
+                        joinRequest(account).then((res) => {
+                            if (res.error) {
+                                Toast.show({ content: res.error , icon: "fail" });
+                                return;
+                            }
+                            Toast.show({ content: 'Request sent', icon: "success"});
+                        })
+                    },
+                    confirmText: 'Ask to join',
+                    cancelText: 'Cancel',
+                });   
+            }
+        }
+    }, [])
     useEffect(() => {
         socket.on('message', (message: Message) => {
             // setMessages(prev => [...prev, message]);
@@ -135,6 +157,20 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 // window.scrollTo(0, document.body.scrollHeight);
             }, 1000);
         });
+        socket.on('update-join-request-message', (newMessage) => {
+            console.log("join request update", newMessage);
+            mutate(currentPages => {
+                // find by id and update
+                const newPages = [...(currentPages || [])];
+                const messageIndex = newPages[0].findIndex(message => message._id === newMessage._id);
+                if (messageIndex !== -1) {
+                    newPages[0][messageIndex] = newMessage;
+                }
+                return newPages;
+
+            }, false);
+        });
+
         return () => {
             socket.off('message');
         };
@@ -251,7 +287,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         return (
             <div
                 onClick={() => {
-                    // navigate(`/chat/${address}/info`);
+                    navigate(`/chat/${
+                        account
+                    }/group`);
                 }}
                 style={{
                     height: '5vh',
@@ -268,7 +306,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 <div className="flex-1 text-center">
                     <h2 className="font-medium flex items-center justify-center">
                         {/* <TeamOutline className="mr-2" /> */}
-                        {chat?.name} ({chat?.participants.length})
+                        {chat?.name || 'Group Chat'} ({chat?.participants.length})
                     </h2>
                 </div>
                 <div className="">

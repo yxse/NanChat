@@ -46,6 +46,11 @@ export const fetcherMessages = (url) => getChatToken().then(async (token) => {
         }
     })
 })
+export const addParticipants = (chatId, participants) => fetcherMessagesPost('/add-participants', {chatId, participants})
+export const removeParticipants = (chatId, participants) => fetcherMessagesPost('/remove-participants', {chatId, participants})
+export const joinRequest = (chatId) => fetcherMessagesPost('/join-request', {chatId})
+export const acceptJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/join-request-accept', {chatId, fromAccount})
+export const rejectJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/join-request-reject', {chatId, fromAccount})
 
 export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/account?account=' + account)
 .then((res) => res.json()).then((data) => {

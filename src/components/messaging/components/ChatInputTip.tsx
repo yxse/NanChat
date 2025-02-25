@@ -60,7 +60,10 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
                 setVisible(true);
             }
         }}>
-            <AiOutlineSwap fontSize={34} />
+            {/* <AiOutlineSwap fontSize={34} /> */}
+            <div style={{fontSize: 34}}>
+               💸
+            </div>
         </Button>
         <div className='mt-2'>
             Transfer
@@ -103,7 +106,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
           <div>
           <div>
             <div className="text-2xl  text-center p-2">{
-              "Transfer"
+              "Send"
             }</div>
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>

@@ -1,4 +1,4 @@
-import { CenterPopup, DotLoading, Ellipsis, List, Popup, SearchBar } from 'antd-mobile'
+import { Button, CenterPopup, CheckList, DotLoading, Ellipsis, List, Popup, SearchBar } from 'antd-mobile'
 import React, { useState } from 'react'
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
@@ -12,36 +12,35 @@ import Contacts from '../../app/Contacts';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 import { RiVerifiedBadgeFill } from 'react-icons/ri';
-import { MailOutline } from 'antd-mobile-icons';
+import { CheckCircleFill, CheckCircleOutline, MailOutline } from 'antd-mobile-icons';
 import { useWallet } from '../../Popup';
+import { MdOutlineCircle } from 'react-icons/md';
 
-const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true }) => {
-    const navigate = useNavigate();
+const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true, selectedAccounts, setSelectedAccounts, alreadySelected }) => {
+    // remove duplicate accounts
+    const uniqueAccounts = accounts.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
     return (
-        <List>
+        <CheckList
+        value={selectedAccounts}
+        onChange={(v) => {
+            setSelectedAccounts(v)
+        }}
+         multiple extra={active => 
+            active ? <CheckCircleFill /> : <MdOutlineCircle color='var(--adm-color-text-secondary)' />
+        } >
+            <List.Item>
+                Select one or more accounts
+            </List.Item>
             {
-                accounts?.map(account => (
-                    <List.Item
-                        onClick={() => {
-                            onClick && onClick(account)
-                            // if (viewTransition) {
-                            //     document.startViewTransition(() => {
-                            //         navigate(`/chat/${account._id}`, { viewTransition: true })
-                            //     })
-                            // }
-                            // else {
-                                navigate(`/chat/${account._id}`, { viewTransition: false, replace: true })
-                            // }
-                            // navigate(`/chat/${account._id}`, { unstable_viewTransition: false })
-                        }}
-                        key={account._id + badgeColor}
-                        extra={
-                            <div className="flex flex-col items-end">
-                                <div>
-                                    {formatAddress(account._id)}
-                                </div>
-                            </div>
-                        }
+                uniqueAccounts?.map(account => (
+                    <CheckList.Item
+                    disabled={alreadySelected?.includes(account._id)}
+                    value={account._id}
+                        // onClick={() => {
+                        //     onClick && onClick(account)
+                        // }}
+                        key={account._id}
+                        
                         prefix={
                             <AccountAvatar
                             verified={account?.verified}
@@ -55,14 +54,14 @@ const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true
                             <Ellipsis content={account.name} />
                         {account?.verified && <RiVerifiedBadgeFill />}
                         </div>
-                    </List.Item>
+                    </CheckList.Item>
                 ))
             }
-        </List>
+        </CheckList>
     );
 }
 
-function NewChatPopup({visible, setVisible}) {
+function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSelect, accounts = [], alreadySelected}) {
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
@@ -71,6 +70,8 @@ function NewChatPopup({visible, setVisible}) {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
+    const [selectedAccounts, setSelectedAccounts] = useState(alreadySelected || [])
+    const navigate = useNavigate();
 
     const getKey = (pageIndex, previousPageData) => {
         // console.log({pageIndex})
@@ -91,7 +92,7 @@ function NewChatPopup({visible, setVisible}) {
         <>
             <ResponsivePopup
             key={"newChatPopup"}
-                showCloseButton
+                // showCloseButton
                 visible={visible}
                 onClose={() => setVisible(false)}
                 closeOnMaskClick={true}
@@ -110,13 +111,42 @@ function NewChatPopup({visible, setVisible}) {
                                 <MailOutline style={{display: 'inline-block', marginRight: 4}} />
                                 invite
                             </span> */}
+                            <div>
+
                     <div 
                 style={isMobile ? {} : { minWidth: 500 }}
-                    className="text-xl  text-center p-2">Create new chat</div>
+                className="text-xl  text-center p-2">
+                     <div 
+                 style={{float: 'left', marginTop: 4, marginLeft: 4, cursor: 'pointer'}}
+                 onClick={() => {
+                    setVisible(false)
+                 }}
+                 className='text-base' color='default'>
+                    Cancel
+                </div>
+                    {title}
+                    
+                 <Button 
+                 disabled={selectedAccounts.length === 0}
+                    onClick={() => {
+                        onAccountSelect && onAccountSelect(selectedAccounts)
+                        setSelectedAccounts([])
+                        setVisible(false)
+                    }}
+                 style={{float: 'right'}}
+                 size='small' 
+                 color={selectedAccounts.length === 0 ? 'default' : 'primary'}
+                 >
+                    Done {selectedAccounts.length > 0 && `(${selectedAccounts.length})`}
+                </Button>
+                </div>
+               
+                    
+                </div>
                 </div>
                 <div className={"searchBarContainer"}>
                     <SearchBar
-                        placeholder='Search Name or Address'
+                        placeholder='Search'
                         value={searchText}
                         onChange={v => {
                             setSearchText(v)
@@ -138,7 +168,8 @@ function NewChatPopup({visible, setVisible}) {
                             hasMore={true}
                             loader={isLoading && <DotLoading />}
                         >
-                            {/* <div className="text-base  pl-4 m-2">
+                           
+                    {/* <div className="text-base  pl-4 m-2">
                         Your Nano contacts
                     </div> */}
                     {/* <Contacts onlyImport={true} /> */}
@@ -159,12 +190,27 @@ function NewChatPopup({visible, setVisible}) {
                     {/* <div className="text-base  pl-4 m-2">
                         All users
                     </div> */}
+                     {
+                                accounts?.length > 0 ? <AccountListItems
+                                selectedAccounts={selectedAccounts}
+                                setSelectedAccounts={setSelectedAccounts}
+                                    // onClick={(account) => {
+                                    //     onAccountSelect && onAccountSelect(account)
+                                    //     setVisible(false);
+                                    // }}
+                                    accounts={accounts} badgeColor="gray" /> : 
+                            
                             <AccountListItems
+                            alreadySelected={alreadySelected}
+                                selectedAccounts={selectedAccounts}
+                                setSelectedAccounts={setSelectedAccounts}
                             viewTransition={false} // view transition bugged cause of the popup close
-                                onClick={(account) => {
-                                    setVisible(false);
-                                }}
+                                // onClick={(account) => {
+                                //     onAccountSelect && onAccountSelect(account)
+                                //     setVisible(false);
+                                // }}
                                 accounts={all} badgeColor="gray" />
+                            }
                         </InfiniteScroll>
                 </div>
             </ResponsivePopup>

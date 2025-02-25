@@ -85,10 +85,18 @@ export const parseURI = (uri) => {
   export const ShareModal = async ({title, url}) => {
     try {
       if (!Capacitor.isNativePlatform() && navigator.share) {
-        navigator.share({
-          title: title,
-          url: url
-        })
+        if (url == null) {
+          navigator.share({
+            text: title
+          })
+        }
+        else{
+
+          navigator.share({
+            title: title,
+            url: url
+          })
+        }
       }
       else {
         throw new Error("Share API not supported");

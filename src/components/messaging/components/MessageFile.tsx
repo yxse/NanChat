@@ -12,6 +12,7 @@ import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 import { DownlandOutline } from "antd-mobile-icons";
 import { DatabaseService, initSqlStore, inMemoryMap, restoreData, retrieveFileFromCache, saveFileInCache, setData, sqlStore } from "../../../services/database.service";
+import { decryptGroupMessage } from "../../../services/sharedkey";
 
 
 
@@ -23,6 +24,8 @@ const MessageFile = ({ message, side, file }) => {
         const targetAccount = message.fromAccount === activeAccount 
                 ? message.toAccount
                 : message.fromAccount;
+        const isGroupMessage = message.toAccount !== activeAccount && message.fromAccount !== activeAccount;
+
         // decrypt file
         // 1. get the file data
         // 2. decrypt the file data
@@ -51,7 +54,13 @@ const MessageFile = ({ message, side, file }) => {
                 })
                 base64File = base64File.split(',')[1] // remove the data:, part
                 console.log("Base64 file", base64File)
-                const decrypted = box.decrypt(base64File, targetAccount, activeAccountPk)
+                let decrypted 
+                if (isGroupMessage) {
+                    decrypted = await decryptGroupMessage(base64File, message.chatId, message.toAccount, targetAccount, activeAccountPk)
+                }
+                else {
+                    decrypted = box.decrypt(base64File, targetAccount, activeAccountPk)
+                }
                 console.log("Decrypted file")
                 setDecrypted(decrypted)
                 // save file in cache

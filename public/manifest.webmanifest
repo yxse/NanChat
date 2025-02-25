@@ -3,7 +3,7 @@
   "short_name": "NanWallet",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#101018",
+  "theme_color": "#000",
   "background_color": "#000034",
   "icons": [
     {

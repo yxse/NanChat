@@ -13,6 +13,7 @@ import useSWR from 'swr';
 import { getChatToken } from '../../../utils/storage';
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
 import { Toast } from 'antd-mobile';
+import GroupInfo from './GroupInfo';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
@@ -115,6 +116,7 @@ const Chat: React.FC = () => {
                         </div>
                     </div>
                 } />
+                <Route path="/:account/group" element={<GroupInfo onlineAccount={onlineAccount} />} />
                 <Route path="/:account/info" element={<AccountInfo onlineAccount={onlineAccount} />} />
                 <Route path="/" element={<div key={"chat"} className="flex flex-row has-nav" style={{ overflow: "auto", height: "100%" }}>
                         <div
