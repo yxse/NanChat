@@ -30,6 +30,8 @@ PODS:
   - CapacitorSecureStoragePlugin (0.10.0):
     - Capacitor
     - SwiftKeychainWrapper
+  - CapacitorShare (6.0.3):
+    - Capacitor
   - CapacitorSplashScreen (6.0.3):
     - Capacitor
   - FirebaseCore (10.29.0):
@@ -143,6 +145,7 @@ DEPENDENCIES:
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/.pnpm/@capacitor-mlkit+barcode-scanning@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor-mlkit/barcode-scanning`)"
   - "CapacitorNativeSettings (from `../../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings`)"
   - "CapacitorSecureStoragePlugin (from `../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin`)"
+  - "CapacitorShare (from `../../node_modules/.pnpm/@capacitor+share@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/share`)"
   - "CapacitorSplashScreen (from `../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen`)"
 
 SPEC REPOS:
@@ -195,6 +198,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings"
   CapacitorSecureStoragePlugin:
     :path: "../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin"
+  CapacitorShare:
+    :path: "../../node_modules/.pnpm/@capacitor+share@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/share"
   CapacitorSplashScreen:
     :path: "../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen"
 
@@ -213,6 +218,7 @@ SPEC CHECKSUMS:
   CapacitorMlkitBarcodeScanning: 7652be9c7922f39203a361de735d340ae37e134e
   CapacitorNativeSettings: 082f8d0cf79260b62adf4f6cad34e0a248c0d1e6
   CapacitorSecureStoragePlugin: 545b51d782d35e61a39231ecf99a966b060a2cbb
+  CapacitorShare: d2a742baec21c8f3b92b361a2fbd2401cdd8288e
   CapacitorSplashScreen: fd8bf1bf9081d9aa8817b7cd37d740d1bdaf2fb2
   FirebaseCore: 30e9c1cbe3d38f5f5e75f48bfcea87d7c358ec16
   FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
@@ -233,6 +239,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: a21e9b87b27aa69a3d12fd5775112f80c8777970
+PODFILE CHECKSUM: c7e09f5a8f7280be2931e5cb557f109b83c0c7d5
 
 COCOAPODS: 1.16.2

@@ -6,6 +6,9 @@ export async function HapticsImpact({ style }) {
     if (style === undefined) {
         style = ImpactStyle.Medium;
     }
+    if (style === ImpactStyle.Medium) {
+        style = ImpactStyle.Light;
+    }
     Haptics.impact({
         style: style
     });

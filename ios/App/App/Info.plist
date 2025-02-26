@@ -8,6 +8,8 @@
 	<string>NanWallet</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -93,6 +95,8 @@
 	<string>Scan qrcode</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Authenticate</string>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
