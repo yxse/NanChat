@@ -247,9 +247,15 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 <div className="">
                     <List>
                         {filteredChats?.map(chat => {
+                            let accountTo = activeAccount;
                             let from = chat.participants.find(participant => participant._id !== activeAccount);
                             if (chat.participants[0]?._id === chat.participants[1]?._id) { // chat with self
                                 from = chat.participants[0]; 
+                            }
+                            if (chat.type === 'group') {
+                                from = {_id: chat.lastMessageFrom}
+                                accountTo = chat.sharedAccount;
+
                             }
                             const accountFrom = from?._id;
                             const hasName = from?.name;
@@ -325,9 +331,11 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                         message={{
                                         content: chat.lastMessage,
                                         fromAccount: accountFrom,
-                                        toAccount: activeAccount,
+                                        toAccount: accountTo,
                                         _id: chat.lastMessageId,
                                         isLocal: chat.isLocal,
+                                        type: chat.type,
+                                        chatId: chat.id,
                                     }} />}
                                 >
                                     <div className="flex items-center gap-2">
