@@ -47,6 +47,7 @@ function formatTelegramDate(date) {
 }
 
 function formatOnlineStatus(date) {
+    return null
     if (!date) {
         return undefined;
     }

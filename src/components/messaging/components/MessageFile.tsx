@@ -60,7 +60,7 @@ const MessageFile = ({ message, side, file }) => {
                 // check if the file is in cache
                 const cachedFile = await retrieveFileFromCache(file.url)
                 if (cachedFile) {
-                    console.log("hit file from cache", file.url, cachedFile.meta)
+                    // console.log("hit file from cache", file.url, cachedFile.meta)
                     setDecrypted(cachedFile.data)
                     setFileMeta(cachedFile.meta)
                     return
@@ -105,17 +105,19 @@ const MessageFile = ({ message, side, file }) => {
             <div
             // style={{marginLeft: '10px', marginRight: '10px'}}
             key={message._id}
-            className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-4`}
+            className={``}
+            // style={{height: '300px'}}
         > 
         {
             !decrypted &&
-        <Skeleton animated style={{"--height": "300px", "--border-radius": "8px", "--width": "70%"}}/>
+            // <DotLoading />
+        <Skeleton animated style={{"--height": "300px", "--border-radius": "8px", "--width": "300px"}}/>
         }
         
             <div
             style={{
             }}
-                className={`max-w-[70%] p-2`}
+                className={``}
             >
                {
                 decrypted &&

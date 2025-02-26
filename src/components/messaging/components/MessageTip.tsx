@@ -17,21 +17,9 @@ const MessageTip = ({ message, side, hash, ticker }) => {
         <div
         // style={{marginLeft: '10px', marginRight: '10px'}}
         key={message._id}
-        className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
+        // className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
     >
-        <Card
-        style={{
-        }}
-            className={`max-w-[70%] p-2 rounded-lg ${side === "from"
-                    ? ' '
-                    : ' '
-                }`}
-        >
-            <p
-            > 
-            <div>
-            {/* Crypto sent */}
-            </div>
+        <Card>
             <div className="flex items-center gap-2 mx-2">
                 <div>
                     <img src={networks[ticker]?.logo} style={{width: '32px', height: '32px'}} />
@@ -54,7 +42,6 @@ const MessageTip = ({ message, side, hash, ticker }) => {
                 </div>
             </div>
             {/* {amountMega} */}
-            </p>
             {/* <div className="flex items-center justify-end gap-1 mt-1">
                 <span className="text-xs opacity-70">
                     {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

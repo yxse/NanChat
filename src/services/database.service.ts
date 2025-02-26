@@ -74,6 +74,7 @@ import {
       if (!data || data.value == null || data.value == "") return null
       inMemoryMap.set(url, data.value)
       inMemoryMap.set("file-meta-" + url, metaData)
+      console.log("hit file from sqlstore", url)
       return {data: data.value, meta: metaData}
   }
   export function retrieveFromMemory(url) {

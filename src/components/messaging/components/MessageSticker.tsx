@@ -18,20 +18,26 @@ const MessageSticker = ({ message, side, hash, ticker }) => {
     return (
         <div
         // style={{marginLeft: '10px', marginRight: '10px'}}
-        key={message._id}
-        className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-4`}
+        key={message._id + "-sticker"}
+        // className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} `}
     >
         <div
         style={{
         }}
-            className={`max-w-[70%] p-2 rounded-lg ${side === "from"
+            className={`rounded-lg ${side === "from"
                     ? ' rounded-br-none'
                     : ' rounded-bl-none'
                 }`}
         >
             <p
             > 
-            <img src={url} style={{width: '75px'}} />
+            <img src={url} style={{
+                // width: '85px',
+                height: '75px',
+                marginBottom: 0,
+                objectFit: 'contain',
+                
+                }} />
             </p>
          
         </div>

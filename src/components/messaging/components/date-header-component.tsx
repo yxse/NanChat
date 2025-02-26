@@ -45,7 +45,7 @@ export const DateHeader = ({ timestamp, timestampPrev, timestampNext }) => {
       {
       shouldShowDate(timestamp, timestampNext) 
       && (
-        <div className="">
+        <div className="mb-4 mt-4">
              <FormatDate timestamp={timestamp} />
         </div>
       )}

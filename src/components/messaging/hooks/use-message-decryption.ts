@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { WalletContext } from '../../Popup';
 import { fetcherChat } from '../fetcher';
 import { decryptGroupMessage } from '../../../services/sharedkey';
+import { isSpecialMessage } from '../utils';
 
 const useMessageDecryption = ({ message }) => {
   const { wallet, dispatch } = useContext(WalletContext);
@@ -16,6 +17,9 @@ const useMessageDecryption = ({ message }) => {
       return wallet.messages[message._id];
     }
 
+    if (isSpecialMessage(message)) { 
+      return message.content;
+    }
     const localStorageKey = `message-${message._id}`;
     const cachedContent = localStorage.getItem(localStorageKey);
     if (cachedContent) {
@@ -66,7 +70,7 @@ const useMessageDecryption = ({ message }) => {
         setDecryptedContent(decrypted);
       } catch (error) {
         console.error('Message decryption failed:', error);
-        setDecryptedContent("Encrypted message");
+        setDecryptedContent(message.content);
       }
     };
 

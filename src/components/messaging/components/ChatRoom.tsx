@@ -1,4 +1,4 @@
-import { LockFill, LockOutline, MailOutline, MessageOutline, PhoneFill, SendOutline, TeamOutline } from "antd-mobile-icons";
+import { LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -173,6 +173,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
         return () => {
             socket.off('message');
+            socket.off('update-join-request-message');
         };
     }, [address, chat]);
 
@@ -277,9 +278,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     </h2>
                     <HeaderStatus lastOnline={participant?.lastOnline} />
                 </div>
-                <div className="mr-2">
-                    <ProfilePicture address={address} />
-                </div>
+                <MoreOutline fontSize={24} className="mr-2" />
             </div>
         )
     }
@@ -292,7 +291,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     }/group`);
                 }}
                 style={{
-                    height: '5vh',
+                    // height: '5vh',
                     touchAction: 'none',
                 }}
                 className="flex items-center cursor-pointer">
@@ -312,6 +311,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 <div className="">
                     {/* <GroupAvatar participants={chat?.participants} /> */}
                 </div>
+                <MoreOutline fontSize={24} className="mr-2" />
             </div>
         )
     }
