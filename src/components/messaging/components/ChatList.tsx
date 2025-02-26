@@ -247,9 +247,15 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 <div className="">
                     <List>
                         {filteredChats?.map(chat => {
+                            let accountTo = activeAccount;
                             let from = chat.participants.find(participant => participant._id !== activeAccount);
                             if (chat.participants[0]?._id === chat.participants[1]?._id) { // chat with self
                                 from = chat.participants[0]; 
+                            }
+                            if (chat.type === 'group') {
+                                from = {_id: chat.lastMessageFrom}
+                                accountTo = chat.sharedAccount;
+
                             }
                             const accountFrom = from?._id;
                             const hasName = from?.name;
@@ -325,9 +331,11 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                         message={{
                                         content: chat.lastMessage,
                                         fromAccount: accountFrom,
-                                        toAccount: activeAccount,
+                                        toAccount: accountTo,
                                         _id: chat.lastMessageId,
                                         isLocal: chat.isLocal,
+                                        type: chat.type,
+                                        chatId: chat.id,
                                     }} />}
                                 >
                                     <div className="flex items-center gap-2">
@@ -397,7 +405,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                     </div> */}
                 </div>
                 <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                        <LockFill className="mr-2 inline" />Your messages are end-to-end encrypted using nano.
+                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted using nano.
                 </div>
                 <div className="text-center mb-6 pb-6">
                         <Button 

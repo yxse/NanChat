@@ -13,8 +13,33 @@ import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 import { DownlandOutline } from "antd-mobile-icons";
 import { DatabaseService, initSqlStore, inMemoryMap, restoreData, retrieveFileFromCache, saveFileInCache, setData, sqlStore } from "../../../services/database.service";
 import { decryptGroupMessage } from "../../../services/sharedkey";
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
+const downloadFile = async (content: string, fileName: string) => {
+    if (Capacitor.isNativePlatform()) {
+      // Native platform approach (Android, iOS)
+      try {
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: content,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
+        });
+  
+        console.log('File written successfully:', result.uri);
 
+      } catch (error) {
+        console.error('Error saving file:', error);
+      }
+    } else {
+      // Web approach - uses your existing code
+      const a = document.createElement('a');
+      a.href = content;
+      a.download = fileName;
+      a.click();
+    }
+  };
 
 const MessageFile = ({ message, side, file }) => {
     const {activeAccount, activeAccountPk} = useWallet()
@@ -35,7 +60,7 @@ const MessageFile = ({ message, side, file }) => {
                 // check if the file is in cache
                 const cachedFile = await retrieveFileFromCache(file.url)
                 if (cachedFile) {
-                    console.log("hit file from cache", file.url, cachedFile.meta)
+                    // console.log("hit file from cache", file.url, cachedFile.meta)
                     setDecrypted(cachedFile.data)
                     setFileMeta(cachedFile.meta)
                     return
@@ -80,17 +105,19 @@ const MessageFile = ({ message, side, file }) => {
             <div
             // style={{marginLeft: '10px', marginRight: '10px'}}
             key={message._id}
-            className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-4`}
+            className={``}
+            // style={{height: '300px'}}
         > 
         {
             !decrypted &&
-        <Skeleton animated style={{"--height": "300px", "--border-radius": "8px", "--width": "70%"}}/>
+            // <DotLoading />
+        <Skeleton animated style={{"--height": "300px", "--border-radius": "8px", "--width": "300px"}}/>
         }
         
             <div
             style={{
             }}
-                className={`max-w-[70%] p-2`}
+                className={``}
             >
                {
                 decrypted &&
@@ -104,7 +131,10 @@ const MessageFile = ({ message, side, file }) => {
                     onClick={() => {
                         ImageViewer.show({image: decrypted})
                     }}
-                    src={decrypted} style={{borderRadius: 8}} />
+                    src={decrypted} style={{
+                        borderRadius: 8,
+                        maxHeight: '300px',
+                    }} />
                 }
                 {
                     fileType?.startsWith('video') && 
@@ -116,12 +146,9 @@ const MessageFile = ({ message, side, file }) => {
                     !fileType?.startsWith('image') && !fileType?.startsWith('video') && decrypted &&
                     <Card>
                         <div 
-                         onClick={() => {
-                            const a = document.createElement('a')
-                            a.href = decrypted
-                            a.download = fileName
-                            a.click()
-                        }}
+                         onClick={async () => {
+                            await downloadFile(decrypted, fileName)
+                         }}
                         style={{display: 'flex', flexDirection: 'row', cursor: 'pointer', alignItems: 'center', justifyContent: 'space-between', gap: 8}}>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
                             <b>{fileName}</b>

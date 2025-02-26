@@ -57,9 +57,9 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
             );
           })}
           
-        <span className="text-xs block mt-1">
+        {/* <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}
-        </span>  
+        </span>   */}
       </div>
     );
   };

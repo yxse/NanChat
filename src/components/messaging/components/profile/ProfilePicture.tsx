@@ -3,7 +3,7 @@ import { fetcherAccount } from "../../fetcher";
 import { DotLoading } from "antd-mobile";
 import { accountIconUrl } from "../../../app/Home";
 
-const ProfilePicture = ({ address, width=48, borderRadius=8 }) => {
+const ProfilePicture = ({ address, width=42, borderRadius=8 }) => {
     const { data, isLoading } = useSWR(address, fetcherAccount, {
         dedupingInterval: 60000,
         fallbackData: { profilePicture: { url: accountIconUrl(address) } }
