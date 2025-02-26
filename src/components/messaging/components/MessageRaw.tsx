@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import { WalletContext } from "../../Popup";
+import ProfileName from "./profile/ProfileName";
 
 const MessageRaw = ({ message }) => {
     const decrypted = useMessageDecryption({message})
@@ -22,6 +23,7 @@ const MessageRaw = ({ message }) => {
             overflow: 'hidden',
             containerType: 'inline-size',
         }}>
+        {message?.type === "group" && <><ProfileName address={message.fromAccount} />{": "}</>}
         {decrypted}
         </div>
         
