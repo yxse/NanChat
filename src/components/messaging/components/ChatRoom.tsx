@@ -10,7 +10,7 @@ import { convertAddress, formatAddress, ShareModal } from "../../../utils/format
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Modal, Skeleton, Space, Toast } from "antd-mobile";
+import { Button, DotLoading, Input, List, Modal, SafeArea, Skeleton, Space, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { fetcherAccount, fetcherMessages, joinRequest } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -29,6 +29,7 @@ import { RiVerifiedBadgeFill } from "react-icons/ri";
 import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
+import { StatusBar } from "@capacitor/status-bar";
 
 
 const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
@@ -597,7 +598,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     )
                 }
             </div>
-           
+           <SafeArea style={{
+                     backgroundColor: "var(--adm-color-background)"
+                   }} position="bottom" />
         </div>
     );
 };

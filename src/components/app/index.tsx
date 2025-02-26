@@ -191,7 +191,7 @@ export const MenuBar = () => {
   return (
     <>
       <TabBar
-      safeArea={false}
+      safeArea={true}
       // style={style}
       style={{
         userSelect: "none",
@@ -289,7 +289,23 @@ hideHistory={true} defaultFrom={ticker} defaultTo={"BAN"} />}
     </>
   );
 };
-
+function SafeAreaWrapper({ children }) {
+  const location = useLocation();
+  
+  return (
+    <>
+      <SafeArea position="top" 
+      style={{
+        backgroundColor: 
+          location.pathname.startsWith("/chat/") ?
+          "var(--adm-color-background)" :
+          "var(--main-background-color)" 
+      }}
+      />
+      {children}
+    </>
+  );
+}
 export default function App() {
   const [widget, setWidget] = useState<
     "home" | "art" | "swap" | "history" | "network"
@@ -382,10 +398,8 @@ export default function App() {
       <div className="app">
       
       <ReloadPrompt />
-      <SafeArea position="top" style={{
-        // backgroundColor: "rgb(16, 16, 24)"
-        }} />
       <Router>
+      <SafeAreaWrapper>
       <ChatSocket />
         <div className="w-full body " 
         // style={{overflow: 'auto'}}
@@ -444,7 +458,13 @@ export default function App() {
           isMobile && <MenuBar />
         }
         {/* <MenuBar /> */}
-        <SafeArea position="bottom" />
+        {/* <SafeArea style={{
+          backgroundColor: 
+            location.pathname.startsWith("/chat") ?
+            "var(--main-background-color)"
+             : "var(--adm-color-background)"
+        }} position="bottom" /> */}
+      </SafeAreaWrapper>
       </Router>
       </div>
     </>

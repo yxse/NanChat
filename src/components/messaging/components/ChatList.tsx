@@ -111,7 +111,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         return <DotLoading />
     }
     const right = (
-        <div style={{ fontSize: 24 }}>
+        <div style={{ fontSize: 24, marginTop: 6 }}>
             <Popover.Menu
           mode='dark'
           actions={[
@@ -418,8 +418,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             shape="rounded"
                             >
                                 <Space align="center">
-                                <MailOutline />
-                                Invite Friends
+                                {/* <MailOutline /> */}
+                                Invite Friends to Chat
                                 </Space>
                             </Button>
                     </div>
