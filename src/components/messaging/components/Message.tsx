@@ -10,7 +10,6 @@ import { AccountIcon } from "../../app/Home";
 import { fetcherAccount, fetcherMessages } from "../fetcher";
 import useSWR from "swr";
 import ProfilePicture from "./profile/ProfilePicture";
-import { DateHeader } from "../../app/History";
 import { LockFill } from "antd-mobile-icons";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfileName from "./profile/ProfileName";
@@ -18,6 +17,7 @@ import { Link } from "react-router-dom";
 import MessageFile from "./MessageFile";
 import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
+import { DateHeader } from "./date-header-component";
 
 const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore }) => {
     const { wallet, dispatch
@@ -111,7 +111,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                 backgroundColor: 'var(--adm-color-background)', padding: '16px', margin: 32, borderRadius: 8 }}>
                                                 <div>
                                                     <LockFill className="mr-2 inline" />
-                                                    Messages are end-to-end encrypted using nano. No one outside of this chat can read them.
+                                                    Messages and files are end-to-end encrypted using nano. No one outside of this chat can read them.
                                                 </div>
                                             </div>
         }
@@ -122,7 +122,7 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
         <div
             // style={{marginLeft: '10px', marginRight: '10px'}}
             key={message._id}
-            className={`message flex ${message.fromAccount === activeAccount ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
+            className={`message flex ${message.fromAccount === activeAccount ? 'justify-end' : 'justify-start'} mb-2 mx-2`}
         >
             {
                 type === 'group' && isPreviousMessageFromSameAccount ?
@@ -176,11 +176,11 @@ const Message = ({ message, type = "private", prevMessage, nextMessage, hasMore 
                     : ''}
                     {decrypted ? decrypted : ""}
                 </p>
-                    <span 
+                    {/* <span 
                     style={{float: 'right'}}
                     className="text-xs opacity-70">
                         {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                    </span> */}
 
                 <div className="flex items-center justify-end gap-1 mt-1">
                     

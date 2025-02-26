@@ -240,8 +240,11 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
           //  touchAction: 'none',
           //  display: 'flex',
           //  gap: '1rem',
+          paddingBottom: 8,
+          paddingTop: 4,
+          backgroundColor: 'var(--adm-color-background)',
         }}
-        onSubmit={sendMessage} className="mb-4 px-4">
+        onSubmit={sendMessage} className=" px-4">
        
             <EmitTyping 
             messageInputRef={messageInputRef}
@@ -258,10 +261,27 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
             {/* <ChatInputTip toAddress={address} onTipSent={(ticker, hash) => {
               sendTipMessage(ticker, hash);
             }} /> */}
+               <div 
+        onClick={() => {
+          if (!inputAdditionVisible && stickerVisible) {
+            setStickerVisible(false);
+          }
+          setInputAdditionVisible(!inputAdditionVisible)
+        }}
+        >
+          <AddCircleOutline 
+          style={{width: 32, height: 32, cursor: 'pointer'}} className="hoverable" />
+        </div>
           <div 
-          style={{borderRadius: 32, width: '100%', borderColor: 'var(--adm-color-border)', filter: 'brightness(0.9)'}}
+          style={{
+            borderRadius: 6, width: '100%',
+             borderColor: 'transparent',
+             backgroundColor: 'var(--adm-color-border)',
+            //  filter: 'brightness(0.9)'
+          }}
           className="flex items-center gap-2 border border-solid input-message">
             <TextArea 
+            enterKeyHint="send"
             onFocus={() => {
               if (isMobile){
                 // setStickerVisible(false) // close sticker when keyboard open on mobile
@@ -277,19 +297,19 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
               autoSize={{ minRows: 1, maxRows:5 }}
               rows={1}
               // style={{focus}}
-              className="m-2 rounded-lg "
+              className="m-2  "
               placeholder="Message"
               value={newMessage}
               onChange={(e) => setNewMessage(e)}
             />
-            <Button
+            {/* <Button
               onClick={sendMessage}
               className="p-1 rounded-full bg-blue-500 text-white mr-1"
               disabled={!newMessage.trim()}
               style={ !newMessage.trim() ? {display: 'none'} : {}}
             >
               <FaArrowUp className="w-5 h-5" />
-            </Button>
+            </Button> */}
           </div>
           <div
           style={{}}
@@ -315,26 +335,16 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
             iconRisibankGray
         }
         </div>
-        <div 
-        onClick={() => {
-          if (!inputAdditionVisible && stickerVisible) {
-            setStickerVisible(false);
-          }
-          setInputAdditionVisible(!inputAdditionVisible)
-        }}
-        >
-          <AddCircleOutline 
-          style={{width: 32, height: 32, cursor: 'pointer'}} className="hoverable" />
-        </div>
+     
           </div>
           {
             stickerVisible && <ChatInputStickers onStickerSelect={(stickerId) => {
               sendStickerMessage(stickerId);
             }} />
           }
-          {
-            inputAdditionVisible &&
+          
         <ChatInputAdd 
+        visible={inputAdditionVisible}
         toAddress={
           chat?.type === "private" ?
           address :
@@ -348,7 +358,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         onTipSent={(ticker, hash) => {
           sendTipMessage(ticker, hash);
         }} />
-      }
 
           
 

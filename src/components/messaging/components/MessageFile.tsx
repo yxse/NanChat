@@ -13,8 +13,33 @@ import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 import { DownlandOutline } from "antd-mobile-icons";
 import { DatabaseService, initSqlStore, inMemoryMap, restoreData, retrieveFileFromCache, saveFileInCache, setData, sqlStore } from "../../../services/database.service";
 import { decryptGroupMessage } from "../../../services/sharedkey";
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
+const downloadFile = async (content: string, fileName: string) => {
+    if (Capacitor.isNativePlatform()) {
+      // Native platform approach (Android, iOS)
+      try {
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: content,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
+        });
+  
+        console.log('File written successfully:', result.uri);
 
+      } catch (error) {
+        console.error('Error saving file:', error);
+      }
+    } else {
+      // Web approach - uses your existing code
+      const a = document.createElement('a');
+      a.href = content;
+      a.download = fileName;
+      a.click();
+    }
+  };
 
 const MessageFile = ({ message, side, file }) => {
     const {activeAccount, activeAccountPk} = useWallet()
@@ -104,7 +129,10 @@ const MessageFile = ({ message, side, file }) => {
                     onClick={() => {
                         ImageViewer.show({image: decrypted})
                     }}
-                    src={decrypted} style={{borderRadius: 8}} />
+                    src={decrypted} style={{
+                        borderRadius: 8,
+                        maxHeight: '300px',
+                    }} />
                 }
                 {
                     fileType?.startsWith('video') && 
@@ -116,12 +144,9 @@ const MessageFile = ({ message, side, file }) => {
                     !fileType?.startsWith('image') && !fileType?.startsWith('video') && decrypted &&
                     <Card>
                         <div 
-                         onClick={() => {
-                            const a = document.createElement('a')
-                            a.href = decrypted
-                            a.download = fileName
-                            a.click()
-                        }}
+                         onClick={async () => {
+                            await downloadFile(decrypted, fileName)
+                         }}
                         style={{display: 'flex', flexDirection: 'row', cursor: 'pointer', alignItems: 'center', justifyContent: 'space-between', gap: 8}}>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
                             <b>{fileName}</b>

@@ -11,11 +11,13 @@ import { AiOutlineSwap } from 'react-icons/ai';
 import ChatInputFile from './ChatInputFile';
 import ChatInputTip from './ChatInputTip';
 
-const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess }) => {
+const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible }) => {
     return (
-                <div style={{display: 'flex', justifyContent: "center", flexWrap: "wrap", gap: 32, marginTop: 32}}>
+                <div style={{
+                    display: visible ? "flex" : "none",
+                    justifyContent: "center", flexWrap: "wrap", gap: 32, marginTop: 32}}>
                     <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="media"/>
-                    <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="file"/>
+                    <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="file" allowPaste/>
                     <ChatInputTip toAddress={toAddress} onTipSent={onTipSent}/>
                 </div>
     );

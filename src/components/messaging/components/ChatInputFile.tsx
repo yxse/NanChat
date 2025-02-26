@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { ImageUploader, Toast, Button, Avatar, Divider, Modal } from 'antd-mobile';
+import { ImageUploader, Toast, Button, Avatar, Divider, Modal, ImageViewer } from 'antd-mobile';
 import { FileOutline, FolderOutline, LockOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
 import useSWR from 'swr';
 import { fetcherAccount } from '../fetcher';
@@ -9,7 +9,7 @@ import { formatSize } from '../../../utils/format';
 import { saveFileInCache } from '../../../services/database.service';
 import { AiOutlineSwap } from 'react-icons/ai';
 
-const ChatInputFile = ({ username, onUploadSuccess, accountTo, type }) => {
+const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
     const pasteAreaRef = useRef(null);
     
@@ -18,6 +18,9 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type }) => {
     
     // Handle paste events
     useEffect(() => {
+      if (!allowPaste) { // just to prevent double event listener if the component is reused with different type
+          return;
+      }
         const handlePaste = (e) => {
             if (e.clipboardData && e.clipboardData.items) {
                 const items = e.clipboardData.items;
@@ -50,7 +53,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type }) => {
         return () => {
             document.removeEventListener('paste', handlePaste);
         };
-    }, [activeAccount, activeAccountPk, accountTo]);
+    }, [activeAccount, accountTo]);
     
     const beforeUpload = (file) => {
         // Check file size (100MB max)
@@ -154,6 +157,15 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type }) => {
         confirmText: 'Send',
         cancelText: 'Cancel',
         content: <div>
+          {
+            // only for images
+            droppedFiles[0].type.startsWith('image') &&
+            <img 
+            onClick={() => {
+              ImageViewer.show({image: URL.createObjectURL(droppedFiles[0])})
+            }}
+            src={URL.createObjectURL(droppedFiles[0])} style={{maxWidth: 200, maxHeight: 200}}/>
+          }
           <p>{droppedFiles[0].name}</p>
           <p
           style={{color: 'var(--adm-color-text-secondary)'}}
