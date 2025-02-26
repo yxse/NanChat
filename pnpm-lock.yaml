@@ -14,6 +14,9 @@ importers:
       '@capacitor-community/bluetooth-le':
         specifier: ^6.1.0
         version: 6.1.0(@capacitor/core@6.2.0)
+      '@capacitor-community/file-opener':
+        specifier: '6'
+        version: 6.0.1(@capacitor/core@6.2.0)
       '@capacitor-community/in-app-review':
         specifier: ^6.0.0
         version: 6.0.0(@capacitor/core@6.2.0)
@@ -35,6 +38,9 @@ importers:
       '@capacitor/core':
         specifier: ^6.2.0
         version: 6.2.0
+      '@capacitor/filesystem':
+        specifier: ^6.0.3
+        version: 6.0.3(@capacitor/core@6.2.0)
       '@capacitor/haptics':
         specifier: ^6.0.2
         version: 6.0.2(@capacitor/core@6.2.0)
@@ -53,6 +59,9 @@ importers:
       '@capacitor/splash-screen':
         specifier: ^6.0.3
         version: 6.0.3(@capacitor/core@6.2.0)
+      '@capgo/capacitor-data-storage-sqlite':
+        specifier: ^6.0.59
+        version: 6.0.59(@capacitor/core@6.2.0)(localforage@1.10.0)
       '@emotion/react':
         specifier: ^11.11.4
         version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
@@ -797,6 +806,12 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
+  '@capacitor-community/file-opener@6.0.1':
+    resolution: {integrity: sha512-6DMcCVZPWnx1ewlCcciDGQ9n+hZt7ixLuSMv5U2epyZJ44vdLXEKjZvwU+Wpdpmsq5p0pT9jExDODFdc+DNCsw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
   '@capacitor-community/in-app-review@6.0.0':
     resolution: {integrity: sha512-k4GxGepsNV7YFf/GdAG0+M05U4Ew3SbzvrWVNUut+0tdTqxvLPCMzVBA41dolDSgRW7iDt923AKcRkKTJcv5FA==}
     peerDependencies:
@@ -839,6 +854,11 @@ packages:
   '@capacitor/core@6.2.0':
     resolution: {integrity: sha512-B9IlJtDpUqhhYb+T8+cp2Db/3RETX36STgjeU2kQZBs/SLAcFiMama227o+msRjLeo3DO+7HJjWVA1+XlyyPEg==}
 
+  '@capacitor/filesystem@6.0.3':
+    resolution: {integrity: sha512-PdIP/yOGAbG1lq1wbFbSPhXQ9/5lpTpeiok2NneawJOk6UXvy9W7QZXRo7wXAP7J6FdzU7bKfOORRXpOJpgXyw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
   '@capacitor/haptics@6.0.2':
     resolution: {integrity: sha512-xcFdIH4iIIeW2+1lzmlYMVicqB9ytaiuZ9NE3a9laKFPvMGC7hdj6i6tHFezwPJ/96xkHOwXT2b0F8Mh9xtTWg==}
     peerDependencies:
@@ -868,6 +888,12 @@ packages:
     resolution: {integrity: sha512-tpVljeNGSwVCIc8lMQkyiCQFokk2PwgYPdDtPnGjFthqmXW/WhIxW8QYl4MUqyLwwgwTEbp4u3Kcv2zqQu2L6Q==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
+
+  '@capgo/capacitor-data-storage-sqlite@6.0.59':
+    resolution: {integrity: sha512-1h2afpsTjlFOQicNtLHfCN45V5s5fP2Gvh/3HvKtGm30A35g/VIDsFhh250vBjyK7rh4rn3LfL139Fl0mXs3Hw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+      localforage: ^1.10.0
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -5262,6 +5288,10 @@ snapshots:
       '@capacitor/core': 6.2.0
       '@types/web-bluetooth': 0.0.20
 
+  '@capacitor-community/file-opener@6.0.1(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   '@capacitor-community/in-app-review@6.0.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
@@ -5314,6 +5344,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@capacitor/filesystem@6.0.3(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   '@capacitor/haptics@6.0.2(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
@@ -5337,6 +5371,11 @@ snapshots:
   '@capacitor/splash-screen@6.0.3(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
+
+  '@capgo/capacitor-data-storage-sqlite@6.0.59(@capacitor/core@6.2.0)(localforage@1.10.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+      localforage: 1.10.0
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:

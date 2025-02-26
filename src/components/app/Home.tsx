@@ -365,7 +365,7 @@ export default function Home({ }) {
             if (isMobile) {
               // navigate(`/${ticker}`)
               // document.startViewTransition(() => {
-                navigate(`/${ticker}`, {unstable_viewTransition: true})
+                navigate(`/${ticker}`, {viewTransition: true})
             // })
             }
             else {

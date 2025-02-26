@@ -21,6 +21,7 @@
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^8.0.2",
     "@capacitor-community/bluetooth-le": "^6.1.0",
+    "@capacitor-community/file-opener": "6",
     "@capacitor-community/in-app-review": "^6.0.0",
     "@capacitor-firebase/messaging": "6.1.0",
     "@capacitor-mlkit/barcode-scanning": "^6.2.0",
@@ -28,6 +29,7 @@
     "@capacitor/app": "^6.0.2",
     "@capacitor/clipboard": "^6.0.2",
     "@capacitor/core": "^6.2.0",
+    "@capacitor/filesystem": "^6.0.3",
     "@capacitor/haptics": "^6.0.2",
     "@capacitor/inappbrowser": "^1.0.2",
     "@capacitor/ios": "^6.2.0",

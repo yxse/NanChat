@@ -85,7 +85,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
     useEffect(() => {
         if (!isLoading && chat == null && !account?.startsWith('nano_')) {
-            navigate('/chat');
+            setTimeout(() => { // this somehow fix huge performance issue on iphone when selecting chat and coming back multiple times
+                navigate('/chat');
+              }, 0);
             if (searchParams.has('join')) {
                 Modal.confirm({
                     title: 'Join the group?',

@@ -8,6 +8,9 @@ project(':aparajita-capacitor-biometric-auth').projectDir = new File('../node_mo
 include ':capacitor-community-bluetooth-le'
 project(':capacitor-community-bluetooth-le').projectDir = new File('../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le/android')
 
+include ':capacitor-community-file-opener'
+project(':capacitor-community-file-opener').projectDir = new File('../node_modules/.pnpm/@capacitor-community+file-opener@6.0.1_@capacitor+core@6.2.0/node_modules/@capacitor-community/file-opener/android')
+
 include ':capacitor-community-in-app-review'
 project(':capacitor-community-in-app-review').projectDir = new File('../node_modules/.pnpm/@capacitor-community+in-app-review@6.0.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/in-app-review/android')
 
@@ -22,6 +25,9 @@ project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacito
 
 include ':capacitor-clipboard'
 project(':capacitor-clipboard').projectDir = new File('../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard/android')
+
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../node_modules/.pnpm/@capacitor+filesystem@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/filesystem/android')
 
 include ':capacitor-haptics'
 project(':capacitor-haptics').projectDir = new File('../node_modules/.pnpm/@capacitor+haptics@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/haptics/android')
@@ -39,7 +45,7 @@ include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen/android')
 
 include ':capgo-capacitor-data-storage-sqlite'
-project(':capgo-capacitor-data-storage-sqlite').projectDir = new File('../node_modules/@capgo/capacitor-data-storage-sqlite/android')
+project(':capgo-capacitor-data-storage-sqlite').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-data-storage-sqlite@6.0.59_@capacitor+core@6.2.0_localforage@1.10.0/node_modules/@capgo/capacitor-data-storage-sqlite/android')
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings/android')

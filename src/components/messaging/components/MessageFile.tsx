@@ -2,7 +2,7 @@ import { box } from "multi-nano-web";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { useWallet, WalletContext } from "../../Popup";
-import { Card, DotLoading, ImageViewer, Skeleton } from "antd-mobile";
+import { Card, DotLoading, ImageViewer, Skeleton, Toast } from "antd-mobile";
 import { convertAddress, formatAmountRaw, formatSize } from "../../../utils/format";
 import { networks } from "../../../utils/networks";
 import useSWR from "swr";
@@ -15,22 +15,39 @@ import { DatabaseService, initSqlStore, inMemoryMap, restoreData, retrieveFileFr
 import { decryptGroupMessage } from "../../../services/sharedkey";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 
-const downloadFile = async (content: string, fileName: string) => {
+const downloadFile = async (content: string, fileName: string, fileType: string) => {
     if (Capacitor.isNativePlatform()) {
       // Native platform approach (Android, iOS)
       try {
+        Toast.show({icon: 'loading'})
+        console.log('content', content)
+        let base = content.split(',')[1];
+        console.log('base', base)
+        let toString = atob(base);
+        const base64Content = content.replace(/^data:[^;]+;base64,/, '');
+        console.log('base64Content', base64Content)
+
+        // let inString = new TextDecoder().decode(arrayBuffer);
         const result = await Filesystem.writeFile({
           path: fileName,
-          data: content,
-          directory: Directory.Documents,
-          encoding: Encoding.UTF8
+          data:base64Content,
+          directory: Directory.Documents
         });
   
         console.log('File written successfully:', result.uri);
-
+        const fileOpenerOptions: FileOpenerOptions = {
+            filePath: result.uri,
+            contentType: fileType,
+            openWithDefault: true
+          };
+        Toast.clear()
+        await FileOpener.open(fileOpenerOptions);
+        
       } catch (error) {
         console.error('Error saving file:', error);
+        Toast.show({content: 'Unsopported file', icon: 'fail'})
       }
     } else {
       // Web approach - uses your existing code
@@ -147,7 +164,7 @@ const MessageFile = ({ message, side, file }) => {
                     <Card>
                         <div 
                          onClick={async () => {
-                            await downloadFile(decrypted, fileName)
+                            await downloadFile(decrypted, fileName, fileType)
                          }}
                         style={{display: 'flex', flexDirection: 'row', cursor: 'pointer', alignItems: 'center', justifyContent: 'space-between', gap: 8}}>
                         <div style={{display: 'flex', flexDirection: 'column'}}>

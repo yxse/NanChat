@@ -61,7 +61,7 @@ function NotificationSettings() {
           arrow={null}
           extra={
             <Switch
-              checked={isGranted && notificationSettings[keyNotification]}
+              checked={isGranted && notificationSettings?.[keyNotification]}
               onChange={(checked) => {
                 HapticsImpact({
                   style: ImpactStyle.Medium
@@ -115,17 +115,17 @@ function NotificationSettings() {
                     You need to enable notifications for NanWallet in your device settings.
                     <div>
                       <Button onClick={() => {
-                        setInterval(() => {
-                          askPermission().then((isGranted) => {
-                            console.log({isGranted});
-                            setIsGranted(isGranted);
-                          }
-                          );
-                          }, 5000); // refresh every 5 seconds to check if the user has enabled notifications in the settings
-                        NativeSettings.open({
-                          optionAndroid: AndroidSettings.AppNotification,
-                          optionIOS: IOSSettings.AppNotification
-                        })
+                        // setInterval(() => {
+                        //   askPermission().then((isGranted) => {
+                        //     console.log({isGranted});
+                        //     setIsGranted(isGranted);
+                        //   }
+                        //   );
+                        //   }, 5000); // refresh every 5 seconds to check if the user has enabled notifications in the settings
+                        // NativeSettings.open({
+                        //   optionAndroid: AndroidSettings.AppNotification,
+                        //   optionIOS: IOSSettings.AppNotification
+                        // })
                       }}>Enable Notifications</Button>
                     </div>
                   </p>
