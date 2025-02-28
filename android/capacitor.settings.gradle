@@ -23,6 +23,9 @@ project(':capacitor-mlkit-barcode-scanning').projectDir = new File('../node_modu
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacitor+app@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/app/android')
 
+include ':capacitor-browser'
+project(':capacitor-browser').projectDir = new File('../node_modules/.pnpm/@capacitor+browser@6.0.5_@capacitor+core@6.2.0/node_modules/@capacitor/browser/android')
+
 include ':capacitor-clipboard'
 project(':capacitor-clipboard').projectDir = new File('../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard/android')
 
@@ -44,8 +47,17 @@ project(':capacitor-share').projectDir = new File('../node_modules/.pnpm/@capaci
 include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen/android')
 
+include ':capacitor-status-bar'
+project(':capacitor-status-bar').projectDir = new File('../node_modules/.pnpm/@capacitor+status-bar@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/status-bar/android')
+
 include ':capgo-capacitor-data-storage-sqlite'
 project(':capgo-capacitor-data-storage-sqlite').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-data-storage-sqlite@6.0.59_@capacitor+core@6.2.0_localforage@1.10.0/node_modules/@capgo/capacitor-data-storage-sqlite/android')
+
+include ':capgo-inappbrowser'
+project(':capgo-inappbrowser').projectDir = new File('../node_modules/.pnpm/@capgo+inappbrowser@6.10.1_@capacitor+core@6.2.0/node_modules/@capgo/inappbrowser/android')
+
+include ':teamhive-capacitor-webview-overlay'
+project(':teamhive-capacitor-webview-overlay').projectDir = new File('../node_modules/.pnpm/@teamhive+capacitor-webview-overlay@https+++codeload.github.com+Benskalz+capacitor-webview-ov_u2agyf4nlewy6itido5tgtnwwm/node_modules/@teamhive/capacitor-webview-overlay/android')
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings/android')

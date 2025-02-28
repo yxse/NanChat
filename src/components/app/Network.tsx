@@ -54,7 +54,10 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import NetworkStatus from "./NetworkStatus";
 import { HapticsImpact } from "../../utils/haptic";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
+import { IWebviewOverlayPlugin, WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
+// const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
+
 export const fetchBalance = async (ticker: string, account: string) => {
   let hidden = localStorage.getItem("hiddenNetworks") || [];
   if (hidden.includes(ticker)) { // don't need to fetch balance if network is hidden
@@ -123,14 +126,20 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
       setAction('')
       setModalVisible(false)
       if (action === 'send' && pathname !== `/` && !pathname.startsWith(`/chat`)) {
-        navigate(`/${ticker}`, {replace: true}) // to reset url params
+        // navigate(`/${ticker}`, {replace: true}) // to reset url params
+        navigate(location.pathname, {replace: true}); // reset send url params on close
       }
       onClose()
     }}
     className="action-popup"
     
 ><div style={{minWidth: "350px"}}>
-  { action === 'send' && <Send ticker={ticker} onClose={() => {
+  { action === 'send' && <Send ticker={ticker}
+  onSent={() => {
+    // WebviewOverlayPlugin.show();
+    WebviewOverlay.toggleSnapshot(false);
+  }}
+   onClose={() => {
     setModalVisible(false);
     onClose();
     // scroll to top

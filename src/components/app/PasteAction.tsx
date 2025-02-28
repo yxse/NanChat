@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { PasteIcon } from './Icons';
 import { ScanCodeOutline } from 'antd-mobile-icons';
 import { Scanner } from './Scanner';
+import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 // import { Scanner } from '@yudiel/react-qr-scanner';
 
 function PasteAction({mode = "paste", uri = "", setUri}) {
@@ -34,9 +35,9 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         
       let parsed = parseURI(uri);
       if (parsed)
-        Toast.show({
-          content: JSON.stringify(parsed),
-        });
+        // Toast.show({
+        //   content: JSON.stringify(parsed),
+        // });
       setActiveTicker(parsed.ticker);
       setVisible(true);
       if (setUri){
@@ -114,7 +115,8 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         onClose={() => {
           setVisible(false);
           setActiveTicker(null);
-          navigate("");
+          navigate(location.pathname);
+          WebviewOverlay.toggleSnapshot(false);
         }}
         action={"send"}
         ticker={activeTicker}

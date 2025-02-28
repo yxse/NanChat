@@ -32,6 +32,9 @@ importers:
       '@capacitor/app':
         specifier: ^6.0.2
         version: 6.0.2(@capacitor/core@6.2.0)
+      '@capacitor/browser':
+        specifier: '6'
+        version: 6.0.5(@capacitor/core@6.2.0)
       '@capacitor/clipboard':
         specifier: ^6.0.2
         version: 6.0.2(@capacitor/core@6.2.0)
@@ -59,9 +62,15 @@ importers:
       '@capacitor/splash-screen':
         specifier: ^6.0.3
         version: 6.0.3(@capacitor/core@6.2.0)
+      '@capacitor/status-bar':
+        specifier: '6'
+        version: 6.0.2(@capacitor/core@6.2.0)
       '@capgo/capacitor-data-storage-sqlite':
         specifier: ^6.0.59
         version: 6.0.59(@capacitor/core@6.2.0)(localforage@1.10.0)
+      '@capgo/inappbrowser':
+        specifier: '6'
+        version: 6.10.1(@capacitor/core@6.2.0)
       '@emotion/react':
         specifier: ^11.11.4
         version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
@@ -101,6 +110,9 @@ importers:
       '@tauri-apps/plugin-notification':
         specifier: ~2
         version: 2.2.0
+      '@teamhive/capacitor-webview-overlay':
+        specifier: git://github.com/Benskalz/capacitor-webview-overlay.git#8eedf27def2a92042b9156ed9a0479d79a7452eb
+        version: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb(@capacitor/core@6.2.0)
       '@yudiel/react-qr-scanner':
         specifier: ^2.0.1
         version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -841,6 +853,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
+  '@capacitor/browser@6.0.5':
+    resolution: {integrity: sha512-TjA1YCiYT7wb7CLmI6zLLoS09vm7d+h4oAKXAVWDwjOyKdbAPKh75ZtzlN+lum8+sOtO9YJ+1Zdi6rdw6dxYYw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
   '@capacitor/cli@6.2.0':
     resolution: {integrity: sha512-EWcXG39mZh35zrHhOqzN1ILeSyMRyEqWVtQDXqMGjCXYRH6b6p5TvyvLDN8ZNy26tbhI3i79gfrgirt+mNwuuw==}
     engines: {node: '>=18.0.0'}
@@ -889,11 +906,21 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
+  '@capacitor/status-bar@6.0.2':
+    resolution: {integrity: sha512-AmRIX6QvFemItlY7/69ARkIAqitRQqJ2qwgZmD1KqgFb78pH+XFXm1guvS/a8CuOOm/IqZ4ddDbl20yxtBqzGA==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
   '@capgo/capacitor-data-storage-sqlite@6.0.59':
     resolution: {integrity: sha512-1h2afpsTjlFOQicNtLHfCN45V5s5fP2Gvh/3HvKtGm30A35g/VIDsFhh250vBjyK7rh4rn3LfL139Fl0mXs3Hw==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
       localforage: ^1.10.0
+
+  '@capgo/inappbrowser@6.10.1':
+    resolution: {integrity: sha512-7oKb5SkDhIYQ80Ko0cgBvz0sa7IwVaWMQnj60JPKhqTOckIU0l45Ns5UWUEtmnaMekQ3SEJmOuKTo3gPgo3VsQ==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -1828,6 +1855,12 @@ packages:
 
   '@tauri-apps/plugin-notification@2.2.0':
     resolution: {integrity: sha512-uhE3a2gFlqwiWhY/JbhXOF13K4iILEYxUk0D2Y+q69HP6tnfPqKCuNTHxDM0H+oFAakXESNmJVnYw0Vi4IrMMQ==}
+
+  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb':
+    resolution: {tarball: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb}
+    version: 3.1.1
+    peerDependencies:
+      '@capacitor/core': ^4.6.3
 
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
@@ -5314,6 +5347,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
+  '@capacitor/browser@6.0.5(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   '@capacitor/cli@6.2.0':
     dependencies:
       '@ionic/cli-framework-output': 2.2.8
@@ -5372,10 +5409,18 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
+  '@capacitor/status-bar@6.0.2(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   '@capgo/capacitor-data-storage-sqlite@6.0.59(@capacitor/core@6.2.0)(localforage@1.10.0)':
     dependencies:
       '@capacitor/core': 6.2.0
       localforage: 1.10.0
+
+  '@capgo/inappbrowser@6.10.1(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:
@@ -6379,6 +6424,11 @@ snapshots:
   '@tauri-apps/plugin-notification@2.2.0':
     dependencies:
       '@tauri-apps/api': 2.2.0
+
+  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+      resize-observer-polyfill: 1.5.1
 
   '@trysound/sax@0.2.0': {}
 

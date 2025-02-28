@@ -488,7 +488,8 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     setSentTo(toAddress);
                     form.setFieldsValue({ address: "", amount: "" });
                     if (location.pathname !== '/' && !location.pathname.startsWith(`/chat`)) {
-                      navigate(`/${ticker}`, { replace: true }); //reset params send
+                      // navigate(`/${ticker}`, { replace: true }); //reset params send
+                      navigate(location.pathname, { replace: true }); //reset params send
                     }
                     setConfirmPopupOpen(false);
                     setSuccessPopupOpen(true);
