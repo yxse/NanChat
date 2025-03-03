@@ -21,17 +21,22 @@ export async function updateSharedKeys(chatId: string, participants: string[], f
 
 export async function decryptGroupMessage(content, chatId, sharedAccount, senderAccount, activeAccountPk) {
     if (content === "Sticker") return content;
+    const sharedKey = await getSharedKey(chatId, sharedAccount, activeAccountPk);
+    return box.decrypt(content, senderAccount, sharedKey);
+  }
+
+export async function getSharedKey(chatId: string, sharedAccount: string, activeAccountPk: string) {
     const url = `/sharedKey/?chatId=${chatId}&sharedAccount=${sharedAccount}`;
-    let sharedKeyEnc
+    let sharedKey
     await initSqlStore();
     let cache = await restoreData(url);
     if (cache) {
-        sharedKeyEnc = cache;
+        sharedKey = cache;
     }
     else {
-        sharedKeyEnc = await fetcherMessages(url);
-        await setData(url, sharedKeyEnc);
+        let sharedKeyEnc = await fetcherMessages(url);
+        sharedKey = box.decrypt(sharedKeyEnc?.encryptedKey, sharedKeyEnc?.fromAccount, activeAccountPk);
+        await setData(url, sharedKey);
     }
-    const sharedKey = box.decrypt(sharedKeyEnc.encryptedKey, sharedKeyEnc.fromAccount, activeAccountPk);
-    return box.decrypt(content, senderAccount, sharedKey);
-  }
+    return sharedKey;
+}
