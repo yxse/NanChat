@@ -6,7 +6,8 @@ import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { Capacitor } from '@capacitor/core';
 import { isTauri } from '@tauri-apps/api/core';
-import { InAppBrowser } from '@capacitor/inappbrowser';
+import { InAppBrowser } from '@capgo/inappbrowser';
+import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 
 const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
@@ -24,15 +25,16 @@ const AppUrlListener: React.FC<any> = () => {
       }
       if (Capacitor.isNativePlatform()){
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+          WebviewOverlay.toggleSnapshot(true);
           if (event.url.startsWith("https://nanwallet.com/") && !event.url.includes("?uri=")){
             // no valid action detected, we just open the app and redirect to the correct page
             navigate(event.url.replace("https://nanwallet.com/", "/"));
             return; 
           }
-          InAppBrowser.close();
+          InAppBrowser.hideWebView();
           setUri(event.url);
           try {
-            InAppBrowser.close()
+            // InAppBrowser.close()
           } catch (error) {
             console.log(error)
           }

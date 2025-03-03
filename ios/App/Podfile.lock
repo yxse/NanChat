@@ -5,6 +5,8 @@ PODS:
     - CapacitorCordova
   - CapacitorApp (6.0.2):
     - Capacitor
+  - CapacitorBrowser (6.0.5):
+    - Capacitor
   - CapacitorClipboard (6.0.2):
     - Capacitor
   - CapacitorCommunityBluetoothLe (6.1.0):
@@ -38,9 +40,13 @@ PODS:
     - Capacitor
   - CapacitorSplashScreen (6.0.3):
     - Capacitor
+  - CapacitorStatusBar (6.0.2):
+    - Capacitor
   - CapgoCapacitorDataStorageSqlite (6.0.59):
     - Capacitor
     - SQLite.swift/SQLCipher
+  - CapgoInappbrowser (6.10.1):
+    - Capacitor
   - FirebaseCore (10.29.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
@@ -61,6 +67,9 @@ PODS:
     - GoogleUtilities/Reachability (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - nanopb (< 2.30911.0, >= 2.30908.0)
+  - GCDWebServer (3.5.4):
+    - GCDWebServer/Core (= 3.5.4)
+  - GCDWebServer/Core (3.5.4)
   - GoogleDataTransport (9.4.1):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30911.0, >= 2.30908.0)
@@ -143,11 +152,15 @@ PODS:
   - SQLite.swift/SQLCipher (0.15.3):
     - SQLCipher (>= 4.0.0)
   - SwiftKeychainWrapper (4.0.1)
+  - TeamhiveCapacitorWebviewOverlay (3.1.1):
+    - Capacitor
+    - GCDWebServer
 
 DEPENDENCIES:
   - "AparajitaCapacitorBiometricAuth (from `../../node_modules/.pnpm/@aparajita+capacitor-biometric-auth@8.0.2/node_modules/@aparajita/capacitor-biometric-auth`)"
   - "Capacitor (from `../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/.pnpm/@capacitor+app@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/app`)"
+  - "CapacitorBrowser (from `../../node_modules/.pnpm/@capacitor+browser@6.0.5_@capacitor+core@6.2.0/node_modules/@capacitor/browser`)"
   - "CapacitorClipboard (from `../../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard`)"
   - "CapacitorCommunityBluetoothLe (from `../../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le`)"
   - "CapacitorCommunityFileOpener (from `../../node_modules/.pnpm/@capacitor-community+file-opener@6.0.1_@capacitor+core@6.2.0/node_modules/@capacitor-community/file-opener`)"
@@ -163,7 +176,10 @@ DEPENDENCIES:
   - "CapacitorSecureStoragePlugin (from `../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin`)"
   - "CapacitorShare (from `../../node_modules/.pnpm/@capacitor+share@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/share`)"
   - "CapacitorSplashScreen (from `../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen`)"
+  - "CapacitorStatusBar (from `../../node_modules/.pnpm/@capacitor+status-bar@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorDataStorageSqlite (from `../../node_modules/.pnpm/@capgo+capacitor-data-storage-sqlite@6.0.59_@capacitor+core@6.2.0_localforage@1.10.0/node_modules/@capgo/capacitor-data-storage-sqlite`)"
+  - "CapgoInappbrowser (from `../../node_modules/.pnpm/@capgo+inappbrowser@6.10.1_@capacitor+core@6.2.0/node_modules/@capgo/inappbrowser`)"
+  - "TeamhiveCapacitorWebviewOverlay (from `../../node_modules/.pnpm/@teamhive+capacitor-webview-overlay@https+++codeload.github.com+Benskalz+capacitor-webview-ov_u2agyf4nlewy6itido5tgtnwwm/node_modules/@teamhive/capacitor-webview-overlay`)"
 
 SPEC REPOS:
   trunk:
@@ -171,6 +187,7 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseInstallations
     - FirebaseMessaging
+    - GCDWebServer
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -195,6 +212,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/.pnpm/@capacitor+app@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/app"
+  CapacitorBrowser:
+    :path: "../../node_modules/.pnpm/@capacitor+browser@6.0.5_@capacitor+core@6.2.0/node_modules/@capacitor/browser"
   CapacitorClipboard:
     :path: "../../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard"
   CapacitorCommunityBluetoothLe:
@@ -225,13 +244,20 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor+share@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/share"
   CapacitorSplashScreen:
     :path: "../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen"
+  CapacitorStatusBar:
+    :path: "../../node_modules/.pnpm/@capacitor+status-bar@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/status-bar"
   CapgoCapacitorDataStorageSqlite:
     :path: "../../node_modules/.pnpm/@capgo+capacitor-data-storage-sqlite@6.0.59_@capacitor+core@6.2.0_localforage@1.10.0/node_modules/@capgo/capacitor-data-storage-sqlite"
+  CapgoInappbrowser:
+    :path: "../../node_modules/.pnpm/@capgo+inappbrowser@6.10.1_@capacitor+core@6.2.0/node_modules/@capgo/inappbrowser"
+  TeamhiveCapacitorWebviewOverlay:
+    :path: "../../node_modules/.pnpm/@teamhive+capacitor-webview-overlay@https+++codeload.github.com+Benskalz+capacitor-webview-ov_u2agyf4nlewy6itido5tgtnwwm/node_modules/@teamhive/capacitor-webview-overlay"
 
 SPEC CHECKSUMS:
   AparajitaCapacitorBiometricAuth: c058563fe00160e12b022341e11b3181357ea93a
   Capacitor: 05d35014f4425b0740fc8776481f6a369ad071bf
   CapacitorApp: e1e6b7d05e444d593ca16fd6d76f2b7c48b5aea7
+  CapacitorBrowser: b468ac2db928e594b4d319727f3874743f9bcf96
   CapacitorClipboard: 4443c3cdb7c77b1533dfe3ff0f9f7756aa8579df
   CapacitorCommunityBluetoothLe: 0d4d197e0d0eadb84d4c3a6683768088253419d9
   CapacitorCommunityFileOpener: 6373ac7cf5b48ef7086927608aaba524f1e676e4
@@ -247,11 +273,14 @@ SPEC CHECKSUMS:
   CapacitorSecureStoragePlugin: 545b51d782d35e61a39231ecf99a966b060a2cbb
   CapacitorShare: d2a742baec21c8f3b92b361a2fbd2401cdd8288e
   CapacitorSplashScreen: fd8bf1bf9081d9aa8817b7cd37d740d1bdaf2fb2
+  CapacitorStatusBar: b16799a26320ffa52f6c8b01737d5a95bbb8f3eb
   CapgoCapacitorDataStorageSqlite: 252c3760b30d606519559a72f44375208995420f
+  CapgoInappbrowser: a07fe5da0ad95b34a86cc364e5e76c469fe34fd1
   FirebaseCore: 30e9c1cbe3d38f5f5e75f48bfcea87d7c358ec16
   FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
   FirebaseInstallations: 913cf60d0400ebd5d6b63a28b290372ab44590dd
   FirebaseMessaging: 7b5d8033e183ab59eb5b852a53201559e976d366
+  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleMLKit: 90ba06e028795a50261f29500d238d6061538711
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
@@ -268,7 +297,8 @@ SPEC CHECKSUMS:
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   SQLite.swift: 8d054987f02728cc912b0eb5a9659650573a65a2
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
+  TeamhiveCapacitorWebviewOverlay: 95d258bd547084392cdbcb4d8c309cb5609e7ca7
 
-PODFILE CHECKSUM: 65c697e25476af970a7c30e62c40df19aeb268fa
+PODFILE CHECKSUM: 1bf713e4e9d36aecacd9730a5407960b0bc3af87
 
 COCOAPODS: 1.16.2

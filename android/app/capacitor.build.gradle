@@ -16,6 +16,7 @@ dependencies {
     implementation project(':capacitor-firebase-messaging')
     implementation project(':capacitor-mlkit-barcode-scanning')
     implementation project(':capacitor-app')
+    implementation project(':capacitor-browser')
     implementation project(':capacitor-clipboard')
     implementation project(':capacitor-filesystem')
     implementation project(':capacitor-haptics')
@@ -23,7 +24,10 @@ dependencies {
     implementation project(':capacitor-keyboard')
     implementation project(':capacitor-share')
     implementation project(':capacitor-splash-screen')
+    implementation project(':capacitor-status-bar')
     implementation project(':capgo-capacitor-data-storage-sqlite')
+    implementation project(':capgo-inappbrowser')
+    implementation project(':teamhive-capacitor-webview-overlay')
     implementation project(':capacitor-native-settings')
     implementation project(':capacitor-secure-storage-plugin')
 
