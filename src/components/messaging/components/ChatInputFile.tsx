@@ -85,57 +85,83 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
             Toast.show({
                 icon: 'loading',
                 content: 'Encrypting file...',
+                duration: 0,
             });
-            await new Promise((resolve) => setTimeout(resolve, 200)); 
+            // await new Promise((resolve) => setTimeout(resolve, 200)); 
             // add delay to allow the toast to show, eventually encrypting should be done in a web worker/separate thread to avoid blocking the UI
             // without the delay the box encrypt might takes too much cpu preventing the toast to show
-            console.time('encrypt');
+            const worker = new Worker(new URL("../../../../src/worker/fileWorker.js", import.meta.url), { type: "module" });
             let fileUint8Array = new Uint8Array(await file.arrayBuffer());
-            // console.timeLog('encrypt');
-            const encrypted = box.encryptFile(fileUint8Array, accountTo, activeAccountPk);
-            console.timeEnd('encrypt');
-            // debugger
-            // return
-            Toast.show({
-                icon: 'loading',
-                content: 'Uploading file...',
+            worker.onmessage = async (e) => {
+                if (e.data.status === 'success') {
+                    console.time('encrypt');
+                    // console.timeLog('encrypt');
+                    // const encrypted = box.encryptFile(fileUint8Array, accountTo, activeAccountPk);
+                    let encrypted = e.data.encrypted;
+                    console.timeEnd('encrypt');
+                    // debugger
+                    // return
+                    Toast.show({
+                        icon: 'loading',
+                        content: 'Uploading file...',
+                    });
+                    formData.append('file', new Blob([encrypted], { type: file.type }));
+                    formData.append('fileName', file.name);
+                    formData.append('fileType', file.type);
+                    formData.append('fileSize', file.size);
+                    formData.append('account', activeAccount);
+                    
+                    const response = await fetch(import.meta.env.VITE_PUBLIC_BACKEND +
+                        '/upload/upload-encrypted-file', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Upload failed');
+                    }
+        
+                    let fileId = data.url.split('/').pop();
+                    await writeUint8ArrayToFile(fileId, fileUint8Array); // save the file to the filesystem, before to send, so we can retrieve it instantly on the sender side without need to decrypt again
+        
+                    onUploadSuccess?.({
+                        url: data.url,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                    });
+                    
+                    Toast.show({
+                        icon: 'success',
+                        content: 'File sent',
+                    });
+                    
+                    return {
+                        url: data.url,
+                    }
+                } else {
+                // Handle error
+                console.error("Encryption failed:", e.data.error);
+                Toast.show({content: 'Encryption failed', icon: 'error'});
+                }
+                
+                // Terminate the worker when done
+                worker.terminate();
+            };
+            
+            // Start the worker with the necessary data
+            worker.postMessage({
+                file: fileUint8Array,
+                targetAccount: accountTo,
+                decryptionKey: activeAccountPk,
+                message: 'file',
+                type: 'encrypt'
             });
-            formData.append('file', new Blob([encrypted], { type: file.type }));
-            formData.append('fileName', file.name);
-            formData.append('fileType', file.type);
-            formData.append('fileSize', file.size);
-            formData.append('account', activeAccount);
-            
-            const response = await fetch(import.meta.env.VITE_PUBLIC_BACKEND +
-                '/upload/upload-encrypted-file', {
-                method: 'POST',
-                body: formData,
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Upload failed');
-            }
 
-            let fileId = data.url.split('/').pop();
-            await writeUint8ArrayToFile(fileId, fileUint8Array); // save the file to the filesystem, before to send, so we can retrieve it instantly on the sender side without need to decrypt again
 
-            onUploadSuccess?.({
-                url: data.url,
-                name: file.name,
-                type: file.type,
-                size: file.size,
-            });
             
-            Toast.show({
-                icon: 'success',
-                content: 'File sent',
-            });
-            
-            return {
-                url: data.url,
-            }
             
         } catch (error) {
             Toast.show({

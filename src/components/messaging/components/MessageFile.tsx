@@ -156,11 +156,15 @@ const MessageFile = ({ message, side, file }) => {
                 {
                     fileType?.startsWith('video') && 
                     <video 
+                    preload="metadata"
                     controls
-                    src={decrypted} style={{
+                    style={{
                         borderRadius: 8,
                         height: '300px',
-                    }} />
+                    }}>
+                        <source src={decrypted + '#t=0.05'} // #t=0.05 allows to preview the first frame
+                         type={fileType} />
+                    </video>
                 }
                 {
                     !fileType?.startsWith('image') && !fileType?.startsWith('video') && decrypted &&
