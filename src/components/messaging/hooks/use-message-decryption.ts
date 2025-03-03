@@ -2,7 +2,7 @@ import { box } from 'multi-nano-web';
 import { useContext, useEffect, useState } from 'react';
 import { WalletContext } from '../../Popup';
 import { fetcherChat } from '../fetcher';
-import { decryptGroupMessage } from '../../../services/sharedkey';
+import { decryptGroupMessage, getSharedKey } from '../../../services/sharedkey';
 import { isSpecialMessage } from '../utils';
 
 const useMessageDecryption = ({ message }) => {
@@ -26,8 +26,8 @@ const useMessageDecryption = ({ message }) => {
       return cachedContent;
     }
 
-    if (localStorage.getItem(message.content)) {
-      return localStorage.getItem(message.content);
+    if (localStorage.getItem("message-" + message.content)) {
+      return localStorage.getItem("message-" + message.content)?.replace('message-', '');
     }
 
     return null;
@@ -43,7 +43,7 @@ const useMessageDecryption = ({ message }) => {
   const messageId = message.isLocal ? Math.random().toString() : message._id;
   
   const isGroupMessage = message?.type === 'group';
-  const targetAccount = message.fromAccount === activeAccount ? toAccount : message.fromAccount;
+  let targetAccount = message.fromAccount === activeAccount ? toAccount : message.fromAccount;
 
   useEffect(() => {
     // Only proceed with decryption if we don't have cached content
@@ -53,13 +53,13 @@ const useMessageDecryption = ({ message }) => {
 
     const decryptMessage = async () => {
       try {
-        let decrypted;
-        
+        let decryptionKey = activeAccountPk;
         if (isGroupMessage) {
-          decrypted = await decryptGroupMessage(message.content, message.chatId, message.toAccount, message.fromAccount, activeAccountPk);
-        } else {
-          decrypted = box.decrypt(message.content, targetAccount, activeAccountPk);
+          decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
         }
+        let decrypted = box.decrypt(message.content, targetAccount, decryptionKey);
+        // message decryption could be done in a worker but need to make sure typing is only hiden after message is shown
+        // but message decryption should be already fast enough
 
         // Store decrypted content
         localStorage.setItem(`message-${message._id}`, decrypted);
@@ -68,6 +68,7 @@ const useMessageDecryption = ({ message }) => {
           payload: { _id: messageId, content: decrypted }
         });
         setDecryptedContent(decrypted);
+        
       } catch (error) {
         console.error('Message decryption failed:', error);
         setDecryptedContent(message.content);
@@ -75,7 +76,7 @@ const useMessageDecryption = ({ message }) => {
     };
 
     decryptMessage();
-  }, [message, activeAccount, activeAccountPk, targetAccount, messageId, decryptedContent]);
+  }, []);
 
   return decryptedContent;
 };
