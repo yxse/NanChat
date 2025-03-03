@@ -114,7 +114,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             //     debugger
             //     return;
             // }
-            console.log('message', message);
+            // console.log('message', message);
             if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
                 mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
                     const newChats = [...(currentChats || [])];

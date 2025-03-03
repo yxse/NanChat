@@ -63,13 +63,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     }, [messagesHistory, messagesEndRef]);
 
     useEffect(() => {
-        socket.on('typing', (account: string) => {
-            console.log('typing', account);
-            // setTimeout(() => {
-            //   window.scrollTo(0, document.body.scrollHeight);
-            // }
-            // , 10);
-        });
+        // socket.on('typing', (account: string) => {
+        //     console.log('typing', account);
+        //     // setTimeout(() => {
+        //     //   window.scrollTo(0, document.body.scrollHeight);
+        //     // }
+        //     // , 10);
+        // });
         socket.on('message', (message: Message) => {
           setLastTypingTimeReceived(0);
         });
@@ -136,7 +136,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
-      localStorage.setItem("message-" + messageEncrypted['content'], newMessage); // save decrypted message cache, encrypted content is the key
+      localStorage.setItem("message-" + messageEncrypted['content'], newMessage); // save decrypted message cache, encrypted content is the key, because we don't have yet the message id, eventually we could refact with a POST
       }
       else if (chat.type === "group") {
         let sharedAccount = chat.sharedAccount;
@@ -144,6 +144,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
           sharedAccount = await updateSharedKeys(chatId, chat.participants.map(participant => participant._id), activeAccountPk);
         }
         messageEncrypted['content'] = box.encrypt(newMessage, sharedAccount, activeAccountPk);
+        localStorage.setItem("message-" + messageEncrypted['content'], newMessage);
       }
       else{
         console.error("Chat type not supported", chat.type);
