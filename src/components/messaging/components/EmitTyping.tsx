@@ -71,10 +71,10 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
 
     useEffect(() => {
         socket.on('typing', (account: string) => {
-            setTimeout(() => {
-                // window.scrollTo(0, document.body.scrollHeight);
-              }
-              , 10);
+            // setTimeout(() => {
+            //     // window.scrollTo(0, document.body.scrollHeight);
+            //   }
+            //   , 10);
             console.log('typing', account, address);
             if (account !== address && chat?.type === 'private') return
             setParticipantsTyping(
