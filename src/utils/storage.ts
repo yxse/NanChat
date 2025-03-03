@@ -157,7 +157,7 @@ export async function getChatTokens(): Promise<string> {
     if (tokensCache !== null) {
       return tokensCache;
     }
-debugger
+// debugger
     // No cache, fetch the actual value
     if (isTauri()) {
       const token = await KeyringService.getSecret('nanwallet', keyTokenChat);
