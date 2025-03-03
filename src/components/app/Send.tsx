@@ -149,6 +149,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
 
   return (
     <Form.Item
+    className="form-list"
       name={formItemName}
       label={""}
       validateFirst
@@ -170,8 +171,10 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       rules={rules}
     >
       <Input
+      className="form-list"
       type="number"
       step={"any"}
+      autoComplete="off"
       autoFocus={type === "receive"}
         clearable
         // type="number"
@@ -299,7 +302,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               setDataSend(dataPrepareSend)
               console.log(dataPrepareSend)
             }}
-            className="mt-4"
+            className="mt-4 form-list"
             layout="horizontal"
             footer={
               <div className="space-y-4">
@@ -327,6 +330,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
           >
             <div className="flex justify-between">
               <Form.Item
+              className="form-list"
                 label=""
                 name={"address"}
                 style={{ width: "100%" }}
@@ -349,7 +353,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               >
                 <TextArea
                   autoSize={{ minRows: 3, maxRows: 4 }}
-                  placeholder="Enter Address or Alias"
+                  placeholder="Enter Address"
                   rows={2}
                 />
               </Form.Item>
