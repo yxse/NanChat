@@ -11,34 +11,19 @@ import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 import { DownlandOutline } from "antd-mobile-icons";
-import { DatabaseService, initSqlStore, inMemoryMap, restoreData, retrieveFileFromCache, saveFileInCache, setData, sqlStore } from "../../../services/database.service";
-import { decryptGroupMessage } from "../../../services/sharedkey";
+import { decryptGroupMessage, getSharedKey } from "../../../services/sharedkey";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
+import { readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
 
-const downloadFile = async (content: string, fileName: string, fileType: string) => {
+const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
     if (Capacitor.isNativePlatform()) {
-      // Native platform approach (Android, iOS)
       try {
         Toast.show({icon: 'loading'})
-        console.log('content', content)
-        let base = content.split(',')[1];
-        console.log('base', base)
-        let toString = atob(base);
-        const base64Content = content.replace(/^data:[^;]+;base64,/, '');
-        console.log('base64Content', base64Content)
-
-        // let inString = new TextDecoder().decode(arrayBuffer);
-        const result = await Filesystem.writeFile({
-          path: fileName,
-          data:base64Content,
-          directory: Directory.Documents
-        });
-  
-        console.log('File written successfully:', result.uri);
+        let filePath = await Filesystem.getUri({directory: Directory.Data, path: fileId})
         const fileOpenerOptions: FileOpenerOptions = {
-            filePath: result.uri,
+            filePath: filePath.uri,
             contentType: fileType,
             openWithDefault: true
           };
@@ -47,10 +32,10 @@ const downloadFile = async (content: string, fileName: string, fileType: string)
         
       } catch (error) {
         console.error('Error saving file:', error);
-        Toast.show({content: 'Unsopported file', icon: 'fail'})
+        Toast.show({content: error.message, icon: 'error'})
       }
     } else {
-      // Web approach - uses your existing code
+      // Web approach 
       const a = document.createElement('a');
       a.href = content;
       a.download = fileName;
@@ -59,65 +44,80 @@ const downloadFile = async (content: string, fileName: string, fileType: string)
   };
 
 const MessageFile = ({ message, side, file }) => {
+    const [decrypted, setDecrypted] = useState(null)
+    const [fileMeta, setFileMeta] = useState(file.meta)
     const {activeAccount, activeAccountPk} = useWallet()
-
-        const [decrypted, setDecrypted] = useState(null)
-        const [fileMeta, setFileMeta] = useState(file.meta)
-        const targetAccount = message.fromAccount === activeAccount 
+        let targetAccount = message.fromAccount === activeAccount 
                 ? message.toAccount
                 : message.fromAccount;
-        const isGroupMessage = message.toAccount !== activeAccount && message.fromAccount !== activeAccount;
-
-        // decrypt file
-        // 1. get the file data
-        // 2. decrypt the file data
-        // 3. display the file data
+        const isGroupMessage = message?.type === 'group';
+        if (isGroupMessage){
+            targetAccount = message.fromAccount
+        }
         useEffect(() => {
-            const decryptFile = async () => {
-                // check if the file is in cache
-                const cachedFile = await retrieveFileFromCache(file.url)
+            async function decryptFile() {
+
+                let fileID = file.url.split('/').pop()
+                let cachedFile = await readFileToBlobUrl(fileID)
                 if (cachedFile) {
-                    // console.log("hit file from cache", file.url, cachedFile.meta)
-                    setDecrypted(cachedFile.data)
-                    setFileMeta(cachedFile.meta)
-                    return
+                console.log('hit file from file system', fileID)
+                setDecrypted(cachedFile)
+                // inMemoryMap.set(fileID, cachedFile)
+                return
                 }
-
-                // debugger
-                const data = await fetch(file.url)
-                const fileData = await data.blob()
-                console.log("Decrypting file", file.url)
-                // convert to base64
-                let base64File = await new Promise((resolve, reject) => {
-                    const reader = new FileReader()
-                    reader.readAsDataURL(fileData)
-                    reader.onload = () => resolve(reader.result)
-                    reader.onerror = error => reject(error)
-                })
-                base64File = base64File.split(',')[1] // remove the data:, part
-                console.log("Base64 file", base64File)
-                let decrypted 
-                if (isGroupMessage) {
-                    decrypted = await decryptGroupMessage(base64File, message.chatId, message.toAccount, targetAccount, activeAccountPk)
-                }
-                else {
-                    decrypted = box.decrypt(base64File, targetAccount, activeAccountPk)
-                }
-                console.log("Decrypted file")
-                setDecrypted(decrypted)
-                // save file in cache
-                await saveFileInCache(file.url, file.meta, decrypted)
-
-
+              
+                    const worker = new Worker(new URL("../../../../src/worker/fileWorker.js", import.meta.url), { type: "module" });
+                    worker.onmessage = async (e) => {
+                      if (e.data.status === 'success') {
+                        // Handle successful decryption
+                        Toast.show({content: 'saving file', icon: 'loading'});
+                        
+                        await writeUint8ArrayToFile(
+                          e.data.fileID,
+                          e.data.decrypted
+                        );
+                        
+                        Toast.show({content: 'file saved', icon: 'success'});
+                        console.log("file saved");
+                        
+                        setDecrypted(await readFileToBlobUrl(e.data.fileID));
+                      } else {
+                        // Handle error
+                        console.error("Decryption failed:", e.data.error);
+                        Toast.show({content: 'Decryption failed', icon: 'error'});
+                      }
+                      
+                      // Terminate the worker when done
+                      worker.terminate();
+                    };
+                    let decryptionKey = activeAccountPk;
+                    if (isGroupMessage) {
+                        decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
+                    }
+                    
+                    console.log('decrypting file', fileID)
+                    // Start the worker with the necessary data
+                    worker.postMessage({
+                      file,
+                      targetAccount,
+                      decryptionKey,
+                      message
+                    });
+                    
+                    // Clean up function
+                    return () => {
+                      worker.terminate();
+                    };
             }
-
             decryptFile()
-        }, [])
+            }, []);
+        
 
         const fileType = fileMeta?.type
         const fileSize = fileMeta?.size
         const fileName = fileMeta?.name
         // if (!file?.url?.startsWith('https://bucket.nanwallet.com/encrypted-files/')) return null
+        if (!decrypted) return <DotLoading />
         return (
             <div
             // style={{marginLeft: '10px', marginRight: '10px'}}
@@ -157,14 +157,17 @@ const MessageFile = ({ message, side, file }) => {
                     fileType?.startsWith('video') && 
                     <video 
                     controls
-                    src={decrypted} style={{}} />
+                    src={decrypted} style={{
+                        borderRadius: 8,
+                        height: '300px',
+                    }} />
                 }
                 {
                     !fileType?.startsWith('image') && !fileType?.startsWith('video') && decrypted &&
                     <Card>
                         <div 
                          onClick={async () => {
-                            await downloadFile(decrypted, fileName, fileType)
+                            await downloadFile(decrypted, fileName, fileType, file.url.split('/').pop())
                          }}
                         style={{display: 'flex', flexDirection: 'row', cursor: 'pointer', alignItems: 'center', justifyContent: 'space-between', gap: 8}}>
                         <div style={{display: 'flex', flexDirection: 'column'}}>

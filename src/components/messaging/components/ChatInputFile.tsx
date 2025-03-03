@@ -8,6 +8,7 @@ import { box } from 'multi-nano-web';
 import { formatSize } from '../../../utils/format';
 import { saveFileInCache } from '../../../services/database.service';
 import { AiOutlineSwap } from 'react-icons/ai';
+import { writeUint8ArrayToFile } from '../../../services/capacitor-chunked-file-writer';
 
 const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
@@ -69,14 +70,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         return true;
     };
     
-    function getBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-    }
+
     
     const handleUpload = async (file) => {
         if (!beforeUpload(file)) {
@@ -86,7 +80,6 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         setLoading(true);
         try {
             const formData = new FormData();
-            const fileBase64 = await getBase64(file);
             
             // Encrypt the file
             Toast.show({
@@ -96,12 +89,18 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
             await new Promise((resolve) => setTimeout(resolve, 200)); 
             // add delay to allow the toast to show, eventually encrypting should be done in a web worker/separate thread to avoid blocking the UI
             // without the delay the box encrypt might takes too much cpu preventing the toast to show
-            const encrypted = box.encrypt(fileBase64, accountTo, activeAccountPk);
+            console.time('encrypt');
+            let fileUint8Array = new Uint8Array(await file.arrayBuffer());
+            // console.timeLog('encrypt');
+            const encrypted = box.encryptFile(fileUint8Array, accountTo, activeAccountPk);
+            console.timeEnd('encrypt');
+            // debugger
+            // return
             Toast.show({
                 icon: 'loading',
                 content: 'Uploading file...',
             });
-            formData.append('file', encrypted);
+            formData.append('file', new Blob([encrypted], { type: file.type }));
             formData.append('fileName', file.name);
             formData.append('fileType', file.type);
             formData.append('fileSize', file.size);
@@ -118,11 +117,10 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
             if (!response.ok) {
                 throw new Error(data.error || 'Upload failed');
             }
-            await saveFileInCache(data.url, {
-                type: file.type,
-                size: file.size,
-                name: file.name,
-            }, fileBase64);
+
+            let fileId = data.url.split('/').pop();
+            await writeUint8ArrayToFile(fileId, fileUint8Array); // save the file to the filesystem, before to send, so we can retrieve it instantly on the sender side without need to decrypt again
+
             onUploadSuccess?.({
                 url: data.url,
                 name: file.name,
