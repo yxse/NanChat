@@ -107,23 +107,22 @@ export default function Form({
             Wallet Locked 
           </p>
           <div style={{ textAlign: "center", width: "300px" }}>
-              <List mode="card">
-                <List.Item style={{backgroundColor: "var(--active-background-color)"}}>
+              {/* <List mode="card"> */}
+                {/* <List.Item style={{backgroundColor: "var(--active-background-color)"}}> */}
               <Input
+              
                 autoFocus
                 autoComplete="current-password"
-                className={` ${invalidPass && "invalid-password"
-                  } ${theme == "light" &&
-                  "!bg-slate-300 !text-slate-700 !border-slate-400"
-                  }`}
+                className={` ${invalidPass && "invalid-password"} high-contrast`}
                 type="password"
                 id="unlock-pass"
                 placeholder="Enter your password"
                 // ref={inputRef}
                 maxLength={48}
                 onChange={(e) => setPassword(e)}
-              /></List.Item>
-              </List>
+              />
+              {/* </List.Item>
+              </List> */}
             {invalidPass &&  <div className="text-center text-sm mt-2" style={{color: "var(--adm-color-danger)"}}>Invalid password</div> }
             { invalidPass &&  <ForgotYourPin type="password" />   }
            
@@ -133,8 +132,8 @@ export default function Form({
           color="primary"
           size="large"
           type="submit"
-          style={{marginTop: 64, marginBottom: 64}}
-          className=" mt-4 w-full"
+          style={{marginTop: 64, marginBottom: 64, width: "350px"}}
+          className="mt-4"
           >
             Unlock
           </Button>

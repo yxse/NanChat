@@ -102,6 +102,7 @@ function SecuritySettings() {
               prefix={<MdOutlinePassword size={24} />}
               onClick={() => {
                 let modal = Modal.show({
+                  bodyStyle: {maxWidth: 400},
                   closeOnMaskClick: true,
                   title: "Disable Password",
                   content: (
@@ -197,8 +198,8 @@ function SecuritySettings() {
                   title: "Require a password to open Cesium ?",
                   content: (
                     <div>
-                      <div className="mb-2">Password will be used to encrypt your secret phrase.</div>
-                      <Form>
+                      <div className="mb-2 ">Password will be used to encrypt your secret phrase.</div>
+                      <Form className="high-contrast">
                       <Input
                         id="password"
                         type="password"

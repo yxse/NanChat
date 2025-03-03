@@ -11,7 +11,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "../../../styles/restore.css";
-import { Card, TextArea, Toast } from "antd-mobile";
+import { Button, Card, Form, TextArea, Toast } from "antd-mobile";
 import { networks } from "../../../utils/networks";
 import { initWallet } from "../../../nano/accounts";
 import { useSWRConfig } from "swr";
@@ -110,8 +110,11 @@ export default function ImportPhrase({
           </p>
         </div>
 
-
+<Form.Item
+          label="Recovery Phrase">
         <TextArea
+        style={{backgroundColor: "var(--main-background-color)", padding: 8, borderRadius: 6}}
+        autoFocus
           className="mt-4"
           autoSize
           value={mnemonicInputs.join(" ")}
@@ -120,12 +123,18 @@ export default function ImportPhrase({
             validateMnemonic(v.split(" "));
           }}
           placeholder="Enter your 24 word recovery phrase or a 64/128 hex characters seed" />
+          </Form.Item>
         <div className="justify-end items-center m-3 align-center">
-          <button
-            className={`step-r-p-import ${canContinue
-                ? "!cursor-pointer !bg-blue-600 hover:!bg-blue-500"
-                : "opacity-60 !cursor-not-allowed"
-              }`}
+          <Button
+          size="large"
+          color={"primary"}
+          disabled={!canContinue}
+          style={{width: "100%"}}
+          shape="rounded"
+            // className={`step-r-p-import ${canContinue
+            //     ? "!cursor-pointer !bg-blue-600 hover:!bg-blue-500"
+            //     : "opacity-60 !cursor-not-allowed"
+            //   }`}
               
             onClick={async (e) => {
               let seed
@@ -163,7 +172,7 @@ export default function ImportPhrase({
               }}
           >
             Import Wallet
-          </button>
+          </Button>
         </div>
         <PinAuthPopup
               location={"create-wallet"}
@@ -182,7 +191,7 @@ export default function ImportPhrase({
               }
               } />
         <div className="justify-center h-full items-center m-3">
-          <div className="bg-transparent w-full  scroll-auto p-3 overflow-y-auto rounded-md">
+          <div className="bg-transparent w-full  scroll-auto overflow-y-auto rounded-md">
             <div className="w-full h-full grid grid-cols-3 gap-3">
               {mnemonicInputs.map((input, index) => (
                 <div

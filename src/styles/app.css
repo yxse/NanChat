@@ -718,6 +718,12 @@ textarea {
   padding: 12px !important;
 } */
 
+.high-contrast .adm-input-element {
+  padding: 12px !important;
+  border-radius: 8px !important;
+  background-color: var(--main-background-color) !important;
+}
+
 /* hide input number arrow up/down */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
@@ -737,3 +743,4 @@ input[type=number]::-webkit-outer-spin-button {
   color: var(--adm-color-primary);
   cursor: pointer;
 }
+

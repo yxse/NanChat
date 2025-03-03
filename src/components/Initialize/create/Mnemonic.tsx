@@ -91,10 +91,10 @@ export default function Mnemonic({
           </div>
           {
             mnemonic === "" ? <DotLoading /> : 
-          <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={true} colorCopy="default" showWarning={false} />
+          <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={true} colorCopy={false} showWarning={false} />
           }
           <Button
-          shape="rounded"
+          shape="default"
           onClick={async () => {
             HapticsImpact({
               style:ImpactStyle.Medium
@@ -119,7 +119,7 @@ export default function Mnemonic({
             }
           }}
            color="primary" size="large" className="mt-4 w-full">
-            I saved my Secret Recovery Phrase
+            Next
           </Button>
         </form>
       </div>
@@ -169,11 +169,19 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
     {mnemonic.split(" ").map((word, index) => (
       <div
         key={index}
-        style={copied ? {color: "var(--adm-color-success)"} : {}}
-        className={`border p-2 text-xs bg-black/60 p-1 rounded-sm`}
+        style={copied ? {
+          color: "var(--adm-color-success)",
+          backgroundColor: "var(--main-background-color)",
+          borderRadius: 6,
+        } : {
+          backgroundColor: "var(--main-background-color)",
+          borderRadius: 6,
+        }}
+        className={`border p-2 text-sm`}
       >
         <span
-          className={` text-slate-400 select-none`} 
+        style={{color: "var(--adm-color-text-secondary)"}}
+          className={`  select-none`} 
         >
           {index + 1}.{" "}
         </span>
@@ -187,7 +195,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       </div>
       {
         showHideButton && 
-      <div className="text-gray-400 m-4 cursor-pointer" onClick={() => {
+      <div className="m-4 cursor-pointer text-base" onClick={() => {
         if (!isRevealed && !warningShown) {
           warningModal()
           setWarningShown(true)
@@ -198,6 +206,8 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
                 </div>
       }
     <div className="mt-4">
+      {
+        colorCopy && 
     <CopyButton 
     textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy}
     onCopy={() => {
@@ -211,10 +221,11 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
         setCopied(false)
       }
       , 60000)
-
+      
     }}
     onAnimationEnd={() => setCopied(false)}
     />
+  }
     </div>
   </div>;
 }

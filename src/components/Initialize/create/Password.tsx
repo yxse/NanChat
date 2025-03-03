@@ -18,7 +18,7 @@ export const PasswordForm = ({onFinish, seed, buttonText = "Create Wallet"}) => 
             onFinish()
             // setW(3)
           }}
-        className="form-list"
+        className="form-list high-contrast"
         footer={<Button
           type='submit' 
           size="large"
