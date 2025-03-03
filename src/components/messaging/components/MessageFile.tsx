@@ -101,7 +101,8 @@ const MessageFile = ({ message, side, file }) => {
                       file,
                       targetAccount,
                       decryptionKey,
-                      message
+                      message,
+                      type: 'decrypt',
                     });
                     
                     // Clean up function
