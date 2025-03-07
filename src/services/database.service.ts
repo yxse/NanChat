@@ -24,9 +24,11 @@ import {
   };
 
   export let setData = async (key: string, value: any): Promise<boolean> => {
+    await initSqlStore();
     let valueJson = JSON.stringify(value);
     try {
       await sqlStore.set({ key: key, value: valueJson });
+      console.log("set data", valueJson)
       inMemoryMap.set(key, value);
       return true;
     } catch (err) {
@@ -37,6 +39,7 @@ import {
   }
   
   export let restoreData = async (key: string): Promise<any> => {
+    await initSqlStore();
     try {
         if (inMemoryMap.has(key)) {
             console.log("hit data from memory", key)

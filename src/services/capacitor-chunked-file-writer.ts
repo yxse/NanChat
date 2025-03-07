@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { restoreData, setData } from './database.service';
 
 async function writeFileChunked(path, blob, directory = Directory.Data, recursive = true) {
   // Initialize the file with empty data
@@ -60,7 +61,7 @@ export let fileIDsBeingSaved = new Set();
 export async function writeUint8ArrayToFile(
   fileID, 
   data, 
-  directory = Directory.Data,
+  meta,
   chunkSize = 1024 * 1024 * 8 // 8MB
 ) {
   if (fileIDsBeingSaved.has(fileID)) {
@@ -76,16 +77,20 @@ export async function writeUint8ArrayToFile(
     await Filesystem.writeFile({
       path: fileID,
       data: blob,
-      directory,
+      directory: Directory.Data,
       recursive: true
     });
     fileIDsBeingSaved.delete(fileID);
-    return r.uri;
+    // return r.uri;
   }
   else{
     await writeFileChunked(fileID, new Blob([data]), directory);
   }
   fileIDsBeingSaved.delete(fileID);
+  await setData(fileID, {
+    ...meta, 
+    size: data.length
+  })
   return fileID;
 }
 
@@ -143,4 +148,41 @@ function arrayBufferToBase64(buffer) {
   }
   
   return btoa(binary);
+}
+
+/**
+ * Lists all files in a directory and returns their sizes.
+ *
+ * @param {Directory} directory - The directory to list files from.
+ * @returns {Promise<Array<{name: string, size: number}>>} - List of files with their sizes.
+ */
+export async function listFilesWithSize(directory: Directory = Directory.Data): Promise<Array<{name: string, size: number}>> {
+  try {
+    const files = await Filesystem.readdir({ directory, path: '' });
+    const fileSizes = await Promise.all(files.files.map(async (file: { name: string }) => {
+      const stat = await Filesystem.stat({ directory, path: file.name });
+      return { size: stat.size, meta: await restoreData(file.name), name: file.name}
+    }));
+    return fileSizes;
+  } catch (error) {
+    console.error('Error listing files:', error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes a file from the specified directory.
+ *
+ * @param {string} fileName - The name of the file to delete.
+ * @param {Directory} directory - The directory from which to delete the file.
+ * @returns {Promise<void>} - Resolves when the file is deleted.
+ */
+export async function deleteFile(fileName: string, directory: Directory = Directory.Data): Promise<void> {
+  try {
+    await Filesystem.deleteFile({ directory, path: fileName });
+    console.log(`File ${fileName} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    throw error;
+  }
 }

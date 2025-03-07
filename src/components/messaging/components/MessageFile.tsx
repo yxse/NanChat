@@ -16,6 +16,7 @@ import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
+import { setData } from "../../../services/database.service";
 
 const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
     if (Capacitor.isNativePlatform()) {
@@ -43,7 +44,7 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
     }
   };
 
-const MessageFile = ({ message, side, file }) => {
+const MessageFile = ({ message, side, file, deleteMode=false }) => {
     const [decrypted, setDecrypted] = useState(null)
     const [fileMeta, setFileMeta] = useState(file.meta)
     const {activeAccount, activeAccountPk} = useWallet()
@@ -65,6 +66,9 @@ const MessageFile = ({ message, side, file }) => {
                 // inMemoryMap.set(fileID, cachedFile)
                 return
                 }
+                else if (deleteMode){
+                  return
+                }
               
                     const worker = new Worker(new URL("../../../../src/worker/fileWorker.js", import.meta.url), { type: "module" });
                     worker.onmessage = async (e) => {
@@ -74,8 +78,10 @@ const MessageFile = ({ message, side, file }) => {
                         
                         await writeUint8ArrayToFile(
                           e.data.fileID,
-                          e.data.decrypted
+                          e.data.decrypted, 
+                          {name: file.meta.name, type: file.meta.type}
                         );
+                      
                         
                         Toast.show({content: 'file saved', icon: 'success'});
                         console.log("file saved");

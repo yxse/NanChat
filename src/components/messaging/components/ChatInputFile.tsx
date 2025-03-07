@@ -124,7 +124,11 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                     }
         
                     let fileId = data.url.split('/').pop();
-                    await writeUint8ArrayToFile(fileId, fileUint8Array); // save the file to the filesystem, before to send, so we can retrieve it instantly on the sender side without need to decrypt again
+                    await writeUint8ArrayToFile(fileId, fileUint8Array, {
+                        name: file.name,
+                        type: file.type,
+                    })
+                     // save the file to the filesystem, before to send, so we can retrieve it instantly on the sender side without need to decrypt again
         
                     onUploadSuccess?.({
                         url: data.url,

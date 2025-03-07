@@ -21,7 +21,7 @@ import { RiContactsFill } from "react-icons/ri";
 import BackupSecretPhrase from "./app/BackupSecretPhrase";
 import { decrypt, encrypt } from "../worker/crypto";
 import { BsCurrencyExchange } from "react-icons/bs";
-import { AddressBookFill, BellOutline, DeleteOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
+import { AddressBookFill, BellOutline, DeleteOutline, DownlandOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
 import { LedgerContext } from "./Popup";
 import { BiHistory } from "react-icons/bi";
@@ -496,6 +496,14 @@ className="mb-24"
           {/* </List> */}
           <div className="my-4" />
           <List mode="card">
+            <List.Item 
+            prefix={<DownlandOutline fontSize={24} />}
+            onClick={() => navigate('/files')}>
+              Downloaded files
+            </List.Item>
+          </List>
+          <div className="my-4" />
+          <List mode="card">
             <List.Item
               prefix={
                 <DeleteOutline fontSize={24} />
@@ -504,7 +512,7 @@ className="mb-24"
                 // clean all history cache
                 let count = 0
                 for (var key in localStorage) {
-                  if (key.startsWith("history-") || key.startsWith("work-") || key.startsWith("message-")) {
+                  if (key.startsWith("history-") || key.startsWith("work-") || key.startsWith("message-") || key.startsWith("chat_")) {
                     localStorage.removeItem(key)
                     count++
                   }
