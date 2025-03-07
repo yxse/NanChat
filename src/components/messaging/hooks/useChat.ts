@@ -1,7 +1,7 @@
 import useSWR, { } from 'swr';
 import { useCallback } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherMessages } from '../fetcher';
+import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from '../../Popup';
 
 
@@ -24,14 +24,19 @@ export function useUnreadCount() {
     return acc;
   }, 0) || null; // null to hide the badge
 }
-
+const LIMIT = 50;
 // Custom hook for chat functionality
 export function useChat(chatId) {
   // Get messages using infinite loading
   const getKey = (pageIndex, previousPageData) => {
     // console.log({pageIndex, previousPageData});
-    if (previousPageData && previousPageData.length == 0) return null;
-    return `/messages?chatId=${chatId}&page=${pageIndex}&limit=50`;
+    // debugger
+    if (previousPageData && previousPageData[previousPageData.length - 1].height == 0) {
+      // debugger
+      return null;
+    }
+    if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=-1`;
+    return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
   };
 
   const {
@@ -42,8 +47,9 @@ export function useChat(chatId) {
     mutate,
     isLoading,
     isValidating 
-  } = useSWRInfinite(getKey, fetcherMessages, {
-    revalidateFirstPage: true,
+  } = useSWRInfinite(getKey, fetcherMessagesCache, {
+    revalidateFirstPage: false,
+    
     // revalidateOnFocus: false,
     revalidateOnReconnect: false, // don't revalidate on reconnect as socket should already update
     revalidateOnMount: true,
@@ -106,7 +112,7 @@ export function useChat(chatId) {
     setSize(size + 1);
   }, [setSize, size]);
 
-  const hasMore = pages && pages[pages.length - 1]?.length === 50;
+  const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 0;
   return {
     messages,
     error,

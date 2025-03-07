@@ -46,6 +46,62 @@ export const fetcherMessages = (url) => getChatToken().then(async (token) => {
         }
     })
 })
+
+
+export const fetcherMessagesCache = (url) => getChatToken().then(async (token) => {
+    console.time('cache')
+
+    // Parse params from the URL
+    const urlParams = new URLSearchParams(url.split('?')[1]);
+    const requestedHeight = parseInt(urlParams.get('cursor') || '0');
+    const requestedLimit = parseInt(urlParams.get('limit') || '20');
+    const chatId = urlParams.get('chatId');
+    // Generate cache key prefix for this chat
+    const cacheKeyPrefix = `chat_${chatId}_msg_`;
+  //   const maxHeightKey = `chat_${chatId}_maxHeight`;
+  
+      // Get the cached messages
+      let cachedMessages = [];
+      let cachedMaxHeight = 0;
+    //   debugger
+      for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--){
+          let cacheKey = cacheKeyPrefix + i;
+          let cachedData = localStorage.getItem(cacheKey);
+          if (cachedData){
+              cachedMessages = cachedMessages.concat(JSON.parse(cachedData));
+          }
+      }
+      // if all messages are cached, return them
+      debugger
+      if (cachedMessages.length == requestedLimit 
+        || (cachedMessages.length > 0 && cachedMessages.length == requestedHeight+1)  // for the first page
+    ){
+        console.timeEnd('cache')
+          return cachedMessages;
+      }
+      // else fetch the missing messages
+      return await fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
+          headers: {
+              'Content-Type': 'application/json',
+              'token': token
+          }
+      })
+      .then(async (res) => {
+          if (res.ok){
+                // Cache the messages
+                let messages = await res.json();
+                messages.forEach((msg) => {
+                    let cacheKey = cacheKeyPrefix + msg.height;
+                    localStorage.setItem(cacheKey, JSON.stringify(msg));
+                    console.log('cached', cacheKey)
+                });
+              return messages
+          }
+          else {
+              return Promise.reject(res.status)
+          }
+      })
+  })
 export const addParticipants = (chatId, participants) => fetcherMessagesPost('/add-participants', {chatId, participants})
 export const removeParticipants = (chatId, participants) => fetcherMessagesPost('/remove-participants', {chatId, participants})
 export const joinRequest = (chatId) => fetcherMessagesPost('/join-request', {chatId})

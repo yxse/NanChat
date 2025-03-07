@@ -132,6 +132,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         newChat.lastMessageTimestamp = new Date().toISOString();
                         newChat.lastMessageId = message._id;
                         newChat.isLocal = false;
+                        newChat.height = message.height;
                         // move chat to top
                         newChats.splice(chatIndex, 1);
                         newChats.unshift(newChat);
@@ -156,9 +157,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             // if (location.pathname !== `/chat/${message.chatId}`) {
             sendNotificationTauri(message.fromAccountName, "New message");
             // }
-            setTimeout(() => {
-                // window.scrollTo(0, document.body.scrollHeight);
-            }, 1000);
+            // setTimeout(() => {
+            //     // window.scrollTo(0, document.body.scrollHeight);
+            // }, 1000);
         });
         socket.on('update-join-request-message', (newMessage) => {
             console.log("join request update", newMessage);
@@ -214,9 +215,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             //     scrollToBottom();
             // }, 1000);
         }
-        setTimeout(() => {
-            // window.scrollTo(0, 0);
-        }, 10);
+        // setTimeout(() => {
+        //     // window.scrollTo(0, 0);
+        // }, 10);
 
     }
         , [messages, chat]);
@@ -543,6 +544,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     newChat.lastMessageId = id;
                                     newChat.isLocal = true;
                                     newChat.lastMessageFrom = activeAccount;
+                                    newChat.height = newChat.height + 1;
                                     newChats.splice(chatIndex, 1);
                                     newChats.unshift(newChat);
                                 }

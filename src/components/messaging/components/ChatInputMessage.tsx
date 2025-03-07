@@ -131,6 +131,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
+        height: chat?.height + 1, // only used for the local mutate, it might be not always accurate
       };
       onSent(message);
      const messageEncrypted = { ...message };
@@ -171,6 +172,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
+        height: chat?.height + 1,
         tip: {ticker, hash}
       };
       onSent(message);
@@ -189,6 +191,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
+        height: chat?.height + 1,
         stickerId: stickerId
       };
       onSent(message);
@@ -210,6 +213,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
+        height: chat?.height + 1,
         file: {
           url: file.url,
           meta: {
