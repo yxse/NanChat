@@ -78,6 +78,7 @@ import { getIsPasswordEncrypted } from "../../utils/storage";
 import useSWR from "swr";
 import { fetcherChat } from "../messaging/fetcher";
 import { useUnreadCount } from "../messaging/hooks/useChat";
+import FileManagement from '../FileManagement';
 
 if (Capacitor.getPlatform() === "ios"){
 Keyboard.setResizeMode({mode: KeyboardResize.None});
@@ -448,7 +449,7 @@ export default function App() {
             <Route  path="/settings" element={<ProfileHome />} />
             <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
             <Route  path="/profile/name" element={<SetName />} />
-            {/* <Route  path="/profile/username" element={<SetUsername />} /> */}
+            <Route path="/files" element={<FileManagement />} />
             <Route  path="/chat/*" element={<Chat />} />
           </Routes>
           </div>
