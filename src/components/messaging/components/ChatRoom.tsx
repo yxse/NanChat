@@ -174,10 +174,19 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
             }, false);
         });
+        socket.on('delete-message', ({chatId, height}) => {
+            console.log("recalled message", height); // best effort is to remove message from local cache, but not guaranteed to be removed by everyone cache
+            mutate(currentPages => {
+                const newPages = [...(currentPages || [])];
+                newPages[0] = newPages[0].filter(message => message.height !== height && message.chatId === chatId);
+                return newPages;
+            }, false);
+        });
 
         return () => {
             socket.off('message');
             socket.off('update-join-request-message');
+            socket.off('delete-message');
         };
     }, [address, chat]);
 

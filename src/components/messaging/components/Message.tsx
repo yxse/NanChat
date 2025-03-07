@@ -1,6 +1,6 @@
-import { memo, useContext, useEffect } from "react";
+import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { LockFill } from "antd-mobile-icons";
+import { DeleteOutline, LockFill } from "antd-mobile-icons";
 import { WalletContext } from "../../Popup";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfilePicture from "./profile/ProfilePicture";
@@ -12,6 +12,15 @@ import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
 import { DateHeader } from "./date-header-component";
 import { isSpecialMessage } from "../utils";
+import { useLongPress } from "../../../hooks/use-long-press";
+import { HapticsImpact } from "../../../utils/haptic";
+import { ImpactStyle } from "@capacitor/haptics";
+import { Button, Popover, Toast } from "antd-mobile";
+import { Action } from "antd-mobile/es/components/popover";
+import { copyToClipboard } from "../../../utils/format";
+import { CopyIcon } from "../../app/Icons";
+import { deleteMessage } from "../fetcher";
+import { AiOutlineRollback } from "react-icons/ai";
 
 const Message = memo(({ 
   message, 
@@ -25,7 +34,32 @@ const Message = memo(({
     (account) => account.accountIndex === wallet.activeIndex
   )?.address;
   
+  const [visible, setVisible] = useState(false);
+
+  const ref = useRef(null);
+    const onLongPress = useLongPress(() => {
+      setVisible(true);
+      HapticsImpact({
+        style: ImpactStyle.Light
+      });
+      }, 400);
+      // Add right-click handler
+    const handleRightClick = (e) => {
+      e.preventDefault(); // Prevent default context menu
+      setVisible(true);
+    };
   
+      useEffect(() => {
+        const handleClickOutside = (event) => {
+          // Only close if clicking outside ref element
+          if (ref.current && !ref.current.contains(event.target)) {
+            setVisible(false);
+          }
+        };
+        
+        document.addEventListener('mouseup', handleClickOutside);
+        return () => document.removeEventListener('mouseup', handleClickOutside);
+      }, []);
   const decrypted = useMessageDecryption({ message });
 
   // Store decrypted message in wallet state for reuse
@@ -89,12 +123,39 @@ const Message = memo(({
         decrypted={decrypted} 
       />
       <div
+      ref={ref}
+      {...onLongPress}
+      onContextMenu={handleRightClick}
         key={message._id}
         style={{ alignItems: "flex-start" }}
         className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mb-2 mx-2`}
       >
         {!isFromCurrentUser && <ProfilePictureLink address={message.fromAccount} />}
 
+      <Popover.Menu
+        mode="dark"
+        actions={actions}
+        visible={visible}
+        onAction={async (action) => {
+          if (action.key === 'copy') {
+            await copyToClipboard(decrypted);
+          }
+          if (action.key === 'recall') {
+            console.log('delete', message._id);
+            Toast.show({content: 'Recalling', icon: 'loading'});
+            let r = await deleteMessage(message.chatId, message.height) // we use height because we don't have the true _id when optimistic sending
+            
+            if (r.error) {
+              Toast.show({content: r.error, icon: 'fail'});
+            }
+            else {
+              Toast.show({icon: 'success'});
+            }
+          }
+          setVisible(false);
+        }}
+      >
+  
         {isSpecialMessage(message) ? (
           <MessageSpecial message={message} type={type} activeAccount={activeAccount} />
         ) : (
@@ -107,6 +168,8 @@ const Message = memo(({
             activeAccount={activeAccount}
           />
         )}
+        
+      </Popover.Menu>
 
         {isFromCurrentUser && <ProfilePictureLink address={message.fromAccount} />}
       </div>
@@ -119,6 +182,7 @@ const Message = memo(({
 const HeaderMessage = ({ message, prevMessage, nextMessage, hasMore, decrypted }) => (
   <>
     {decrypted && !hasMore && !nextMessage && (
+      <div>
       <div 
         className="flex items-center justify-center text-sm text-center" 
         style={{ 
@@ -134,15 +198,27 @@ const HeaderMessage = ({ message, prevMessage, nextMessage, hasMore, decrypted }
           Messages and files are end-to-end encrypted using nano. No one outside of this chat can read them.
         </div>
       </div>
+      <div className="text-center text-sm mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
+      <DateHeader 
+        timestamp={message.timestamp} 
+        timestampPrev={prevMessage?.timestamp} 
+        timestampNext={nextMessage?.timestamp} 
+        reverse 
+        />
+    </div>
+      </div>
     )}
+    {
+      nextMessage && 
     <div className="text-center text-sm" style={{ color: 'var(--adm-color-text-secondary)' }}>
       <DateHeader 
         timestamp={message.timestamp} 
         timestampPrev={prevMessage?.timestamp} 
         timestampNext={nextMessage?.timestamp} 
         reverse 
-      />
+        />
     </div>
+      }
   </>
 );
 
@@ -158,6 +234,11 @@ const ProfilePictureLink = ({ address }) => (
     </Link>
   </div>
 );
+
+const actions: Action[] = [
+  { key: 'copy', text: 'Copy' , icon: <CopyIcon />},
+  { key: 'recall', text: 'Recall', icon: <AiOutlineRollback /> }
+]
 
 const MessageContent = ({ 
   message, 

@@ -29,9 +29,12 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
   const { activeAccount } = useWallet();
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
-  const action = message.content.split(' ')[1];
-
-  const { data, isLoading } = useSWR(`/names?accounts=${addresses.join(',')}`, fetcherMessages, {
+  let action = message.content.split(' ')[1];
+  if (message.content.includes('recalled')) {
+    action = 'recalled a message';
+  }
+  
+  const { data, isLoading } = useSWR(`/names?accounts=${addresses?.join(',')}`, fetcherMessages, {
     dedupingInterval: 60000,
   });
 
@@ -42,10 +45,10 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
         
           {
-            activeAccount === addresses[0] ? "You " : data?.find((d) => d._id === addresses[0])?.name}
-          <span className="text-xs">({formatAddress(addresses[0])})</span> {action} {" "}
+            activeAccount === addresses?.[0] ? "You " : data?.find((d) => d._id === addresses?.[0])?.name}
+          {action !== "recalled a message" && <span className="text-xs">({formatAddress(addresses?.[0])})</span>} {action} {" "}
 
-          {addresses.map((address, index) => {
+          {addresses?.map((address, index) => {
             if (index === 0) {
               return null;
             }
