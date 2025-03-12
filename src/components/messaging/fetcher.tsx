@@ -90,6 +90,7 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
           if (res.ok){
                 // Cache the messages
                 let messages = await res.json();
+                if (messages.error) return messages
                 messages.forEach((msg) => {
                     let cacheKey = cacheKeyPrefix + msg.height;
                     localStorage.setItem(cacheKey, JSON.stringify(msg));

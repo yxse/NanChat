@@ -122,8 +122,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                 onScan={(result) => {
                     if (result){
                       let address = false
-                        if (result.includes('https://app.nanwallet.com/chat/')) {
-                            address = result.split('https://app.nanwallet.com/chat/')[1];
+                        if (result.includes('https://nanwallet.com/chat/')) {
+                            address = result.split('https://nanwallet.com/chat/')[1];
                         }
                         else if (result.startsWith('nano_') && isValid(result)){
                             address = result;
