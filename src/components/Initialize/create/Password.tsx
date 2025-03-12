@@ -1,6 +1,6 @@
 // You know the rules and so do I
 
-import React, { Dispatch, useState, useEffect, useContext } from "react";
+import React, { Dispatch, useState, useEffect, useContext, useDeferredValue} from "react";
 import { IoArrowBack } from "react-icons/io5";
 
 import storage, { setSeed } from "../../../utils/storage";
@@ -9,15 +9,47 @@ import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../Popup";
 import { LockOutline } from "antd-mobile-icons";
 
-export const PasswordForm = ({onFinish, seed, buttonText = "Create Wallet"}) => {
-  return <Form 
-        onFinish={async (values) => {
-            let encryptedSeed = await encrypt(seed, values.password)
-            setSeed(encryptedSeed, true)
-            // setModalPasswordVisible(false)
-            onFinish()
-            // setW(3)
-          }}
+import { zxcvbnOptions, zxcvbnAsync } from '@zxcvbn-ts/core'
+import * as zxcvbnCommonPackage from '@zxcvbn-ts/language-common'
+import * as zxcvbnEnPackage from '@zxcvbn-ts/language-en'
+
+const options = {
+  // recommended
+  dictionary: {
+    ...zxcvbnCommonPackage.dictionary,
+    ...zxcvbnEnPackage.dictionary,
+  },
+  // recommended
+  graphs: zxcvbnCommonPackage.adjacencyGraphs,
+  // recommended
+  useLevenshteinDistance: true,
+  // optional
+  translations: zxcvbnEnPackage.translations,
+}
+zxcvbnOptions.setOptions(options)
+const usePasswordStrength = (password: string) => {
+  const [result, setResult] = useState("")
+  // NOTE: useDeferredValue is React v18 only, for v17 or lower use debouncing
+  const deferredPassword = useDeferredValue(password)
+
+  useEffect(() => {
+    zxcvbnAsync(deferredPassword).then((response) => setResult(response))
+  }, [deferredPassword])
+
+  return result
+}
+
+export const PasswordForm = ({onFinish,  buttonText = "Create Wallet"}) => {
+  const [form] = Form.useForm();
+  const password = Form.useWatch('password', form);
+  console.log(password)
+  const result = usePasswordStrength(password)
+
+
+  return <div>
+  <Form 
+  form={form}
+        onFinish={onFinish}
         className="form-list high-contrast"
         footer={<Button
           type='submit' 
@@ -29,7 +61,10 @@ export const PasswordForm = ({onFinish, seed, buttonText = "Create Wallet"}) => 
             {buttonText}
           </Button>}
         mode="card" style={{}}>
-          <Form.Item className="form-list" style={{}} rules={[{ required: true, message: "Password cannot be empty" }]} name={"password"} label="">
+          <Form.Item className="form-list" style={{}} rules={[
+            { required: true, message: "Password cannot be empty" },
+            // { min: 8, message: "Password must be at least 8 characters" }
+            ]} name={"password"} label="">
                       <Input
                       autoFocus
                         id="password"
@@ -39,6 +74,7 @@ export const PasswordForm = ({onFinish, seed, buttonText = "Create Wallet"}) => 
                         className="mt-2"
                       />
                       </Form.Item>
+                   
                       <Form.Item 
                       className="form-list"
                       validateFirst
@@ -64,7 +100,24 @@ export const PasswordForm = ({onFinish, seed, buttonText = "Create Wallet"}) => 
                         className="mt-2"
                       />
                       </Form.Item>
+                      {result && (
+                        <div className="text-sm pl-4">
+                          {
+                            (result.score === 0 || result.score === 1) ? (
+                              <p style={{color: "var(--adm-color-danger)"}}>Weak Password</p>
+                            ) : result.score === 2 ? (
+                              <p style={{color: "var(--adm-color-warning)"}}>Medium Password</p>
+                            ) : result.score === 3 ? (
+                             <p style={{color: "var(--adm-color-success)"}}>Strong Password</p>
+                            ) : (
+                              <p style={{color: "var(--adm-color-success)"}}>Very Strong Password</p>
+                            )
+                          }
+                        </div>
+                      )}
                       </Form>
+                    
+                      </div>
 }
 
 export default function Password({
@@ -186,7 +239,9 @@ export default function Password({
         
                         <PasswordForm 
                         seed={wallet.wallets["XNO"]?.seed}
-                        onFinish={() => {
+                        onFinish={async (values) => {
+                          let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, values.password)
+                          await setSeed(encryptedSeed, true)
                           setWalletState("unlocked")
                           onCreated()
                         }}

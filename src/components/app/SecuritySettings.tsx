@@ -172,13 +172,14 @@ function SecuritySettings() {
                   <div>
                     <PasswordForm 
                     buttonText={"Change Password"}
-                    seed={wallet.wallets["XNO"].seed}
-                    onFinish={() => {
-                      modal.close()
-                      Toast.show({
-                        icon: "success",
-                        content: "Password updated"
-                      })
+                    onFinish={async (values) => {
+                        let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, values.password)
+                        await setSeed(encryptedSeed, true)
+                        modal.close()
+                        Toast.show({
+                          icon: "success",
+                          content: "Password updated"
+                        })
                     }} />
                   </div>
                 ),
