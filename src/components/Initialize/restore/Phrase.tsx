@@ -11,7 +11,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "../../../styles/restore.css";
-import { Button, Card, Form, TextArea, Toast } from "antd-mobile";
+import { Button, Card, Form, Input, List, Modal, TextArea, Toast } from "antd-mobile";
 import { networks } from "../../../utils/networks";
 import { initWallet } from "../../../nano/accounts";
 import { useSWRConfig } from "swr";
@@ -24,7 +24,9 @@ import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { PinAuthPopup } from "../../Lock/PinLock";
 import { CreatePin } from "../../Lock/CreatePin";
 import * as webauthn from '@passwordless-id/webauthn'
-
+import { decrypt } from "../../../worker/crypto";
+import { ResponsivePopup } from "../../Settings";
+import { loadWalletsFromGoogleDrive, loadWalletFromGoogleDrive, loadWalletsFromICloud, loadWalletFromICloud } from "../../../services/capacitor-chunked-file-writer";
 export default function ImportPhrase({
   setW,
   setWalletState,
@@ -46,7 +48,12 @@ export default function ImportPhrase({
   const [canContinue, setCanContinue] = useState<boolean>(false);
   const [pinVisible, setPinVisible] = useState<boolean>(false);
   const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
-
+  const [passwordImport, setPasswordImport] = useState<string>("")
+  const [importFileVisible, setImportFileVisible] = useState<boolean>(false)
+  const [encryptedSeed, setEncryptedSeed] = useState<string>("")
+  const [wallets, setWallets] = useState<any[]>([])
+  const [token, setToken] = useState<string>("")
+  const [walletsVisible, setWalletsVisible] = useState<boolean>(false)
   const handleInputChange = (index: number, value: string) => {
     const newInputs = [...mnemonicInputs];
     newInputs[index] = value;
@@ -71,7 +78,7 @@ export default function ImportPhrase({
       setErrorInputs(new Array(24).fill(false));
       return
     }
-    const isValid = inputs.every((word) => words.includes(word.trim()));
+    const isValid = inputs.every((word) => words.includes(word.trim())) && inputs.length === 24;
     setCanContinue(isValid);
     setErrorInputs(inputs.map((word) => !words.includes(word.trim())));
   };
@@ -80,6 +87,27 @@ export default function ImportPhrase({
     console.log(index);
     validateMnemonic(mnemonicInputs);
     setActiveInputs(null);
+  };
+
+  const initializeWalletsAndAuth = async (seed: string) => {
+    for (let ticker of Object.keys(networks)) {
+      dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed, mutate, dispatch) } });
+    }
+
+    if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
+      let biometricAuth = await BiometricAuth.checkBiometry();
+      let webauthnAuth = webauthn.client.isAvailable();
+      const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth;
+      if (hasStrongAuth) {
+        localStorage.setItem('confirmation-method', '"enabled"');
+        setPinVisible(true);
+      } else {
+        localStorage.setItem('confirmation-method', '"pin"');
+        setCreatePinVisible(true);
+      }
+    } else {
+      setW(2);
+    }
   };
 
   return (
@@ -137,41 +165,132 @@ export default function ImportPhrase({
             //   }`}
               
             onClick={async (e) => {
-              let seed
+              let seed;
               if (mnemonicInputs[0].length === 64 || mnemonicInputs[0].length === 128) {
                 seed = mnemonicInputs[0];
                 console.log(seed);
-              }
-              else if (tools.validateMnemonic(mnemonicInputs.join(" "))) {
+              } else if (tools.validateMnemonic(mnemonicInputs.join(" "))) {
                 seed = walletLib.fromLegacyMnemonic(mnemonicInputs.join(" ")).seed;
-              }
-              else {
+              } else {
                 toast.error("Invalid Mnemonic!");
                 return;
               }
-              for (let ticker of Object.keys(networks)) {
-                dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed, mutate, dispatch) } });
-              }
 
-                if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
-                  let biometricAuth = await BiometricAuth.checkBiometry()
-                  let webauthnAuth = webauthn.client.isAvailable()
-                  const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
-                  if (hasStrongAuth){
-                    localStorage.setItem('confirmation-method', '"enabled"')
-                    setPinVisible(true)
-                  }
-                  else{
-                    localStorage.setItem('confirmation-method', '"pin"')
-                    setCreatePinVisible(true)
-                  }
-                }
-                else{
-                  setW(2)
-                }
-              }}
+              await initializeWalletsAndAuth(seed);
+            }}
           >
             Import Wallet
+          </Button>
+          <ResponsivePopup
+          visible={importFileVisible}
+          onClose={() => {
+            setImportFileVisible(false)
+          }}
+          >
+            <div className="p-4">
+              <div className="text-lg font-bold">Enter backup password</div>
+                      <Input
+                        type="password"
+                        placeholder="Enter password"
+                        onChange={(v) => {
+                          setPasswordImport(v)
+                          console.log(v)
+                          console.log(passwordImport)
+                        }}
+                      />
+                    <Button
+                      onClick={async () => {
+                        console.log(passwordImport)
+                        try {
+                          let seed = await decrypt(encryptedSeed, passwordImport)
+                          console.log(seed)
+                          await initializeWalletsAndAuth(seed)
+                          
+                        } catch (error) {
+                          toast.error("Invalid password!")
+                        }
+                      }}
+                    >
+                      Import
+                    </Button>
+                    </div>
+          </ResponsivePopup>
+          <Button
+            onClick={async () => {
+              let file = document.createElement('input')
+              file.type = 'file'
+              file.accept = '.txt'
+              file.onchange = async (e) => {
+                let file = e.target.files[0]
+                let reader = new FileReader()
+                reader.onload = (e) => {
+                  
+                  let encryptedSeed = e.target?.result
+                  console.log(encryptedSeed)
+                  setEncryptedSeed(encryptedSeed)
+                  setImportFileVisible(true)
+                  
+
+                }
+                reader.readAsText(file)
+              }
+              file.click()
+            }}
+            shape="rounded"
+            color="primary"
+            size="large"
+          >
+            Load backup file
+          </Button>
+          <Button
+            onClick={async () => {
+              let wallets = await loadWalletsFromGoogleDrive()
+              console.log(wallets)
+              setWallets(wallets.files)
+              setToken(wallets.token)
+              setWalletsVisible(true)
+            }}
+          >
+            Load from Google Drive
+          </Button>
+          <ResponsivePopup
+          visible={walletsVisible}
+          onClose={() => {
+            setWalletsVisible(false)
+          }}
+          >
+            <div className="p-4">
+              <div className="text-lg font-bold">Select a backup</div>
+              <List>
+                {wallets.map((walletDrive) => (
+                  <List.Item
+                  onClick={async () => {
+                    if (Capacitor.getPlatform() === "ios") {  
+                      let text = await loadWalletFromICloud(walletDrive.name)
+                      console.log(text)
+                      setEncryptedSeed(text)
+                      setImportFileVisible(true)
+                    } else {
+                      let text = await loadWalletFromGoogleDrive(walletDrive.id, token)
+                      console.log(text)
+                      setEncryptedSeed(text)
+                      setImportFileVisible(true)
+                    }
+                  }}
+                   key={walletDrive.name} title={walletDrive.name} />
+                ))}
+              </List>
+            </div>
+          </ResponsivePopup>
+          <Button
+            onClick={async () => {
+              let wallets = await loadWalletsFromICloud()
+              console.log(wallets)
+              setWallets(wallets)
+              setWalletsVisible(true)
+            }}
+          >
+            Load from iCloud
           </Button>
         </div>
         <PinAuthPopup
@@ -201,7 +320,7 @@ export default function ImportPhrase({
                 >
                   <p className="grid-input-r-p">{index + 1}.</p>
                   <input
-
+                    style={{padding: 0}}
                     id={`mnemonic-input-${index}`}
                     pattern="[A-Za-z\s]+"
                     autoCorrect="false"

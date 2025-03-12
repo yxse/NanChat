@@ -1,6 +1,68 @@
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { restoreData, setData } from './database.service';
+import { FileOpener } from '@capacitor-community/file-opener';
+import { Toast } from 'antd-mobile';
+import {GenericOAuth2} from "@capacitor-community/generic-oauth2";
+
+const path = `${Directory.Data}/downloads`;
+
+const optionGoogleAuth = {
+  authorizationBaseUrl: "https://accounts.google.com/o/oauth2/auth",
+  accessTokenEndpoint: "https://www.googleapis.com/oauth2/v4/token",
+  scope: "email profile https://www.googleapis.com/auth/drive.file",
+  resourceUrl: "https://www.googleapis.com/userinfo/v2/me",
+  web: {
+    appId: import.meta.env.VITE_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    responseType: "token", // implicit flow
+    accessTokenEndpoint: "", // clear the tokenEndpoint as we know that implicit flow gets the accessToken from the authorizationRequest
+    redirectUrl: import.meta.env.VITE_PUBLIC_REDIRECT_URL,
+    windowOptions: "height=600,left=0,top=0"
+  },
+  android: {
+    appId: import.meta.env.VITE_PUBLIC_GOOGLE_ANDROID_APP_ID,
+    responseType: "code", // if you configured a android app in google dev console the value must be "code"
+    redirectUrl: "com.nanwallet.app:/", 
+  }
+}
+const DIRECTORY_WALLET_BACKUP = "nanchat-wallet-backups";
+// First, search for the folder to see if it exists
+async function getFolderOrCreate(token) {
+  // Check if folder exists first
+  const searchResponse = await fetch(
+    'https://www.googleapis.com/drive/v3/files?q=name%3D%27NanChatWalletBackups%27%20and%20mimeType%3D%27application/vnd.google-apps.folder%27%20and%20trashed%3Dfalse',
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  );
+  
+  const searchData = await searchResponse.json();
+  
+  // If folder exists, return its ID
+  if (searchData.files && searchData.files.length > 0) {
+    return searchData.files[0].id;
+  }
+  
+  // If folder doesn't exist, create it
+  const folderResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: DIRECTORY_WALLET_BACKUP,
+      mimeType: 'application/vnd.google-apps.folder'
+    })
+  });
+  
+  const folderData = await folderResponse.json();
+  return folderData.id;
+}
+
 
 async function writeFileChunked(path, blob, directory = Directory.Data, recursive = true) {
   // Initialize the file with empty data
@@ -47,6 +109,114 @@ async function writeFileChunked(path, blob, directory = Directory.Data, recursiv
   // Start consuming the blob
   return consume_blob();
 }
+export async function loadWalletsFromICloud() {
+  const file = await Filesystem.readdir({
+    directory: Directory.Documents,
+    path: DIRECTORY_WALLET_BACKUP
+  })
+  return file.files.map(file => {
+    return {
+      name: file.name,
+      id: file.name
+    }
+  })
+}
+
+export async function loadWalletFromICloud(filename) {
+  const file = await Filesystem.readFile({
+    directory: Directory.Documents,
+    path: `${DIRECTORY_WALLET_BACKUP}/${filename}`
+  })
+  return file.data;
+}
+
+export async function loadWalletFromGoogleDrive(fileId, token) {
+  return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  .then(response => {
+    return response.text();
+  })
+}
+export async function loadWalletsFromGoogleDrive() {
+  let token: string;
+  return GenericOAuth2.authenticate(optionGoogleAuth)
+  .then(async resourceUrlResponse => {
+    console.log('Google OAuth success', resourceUrlResponse);
+    token = resourceUrlResponse.access_token;
+  })
+  .then(async () => { 
+    return fetch(`https://www.googleapis.com/drive/v3/files`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+  })
+  .then(response => {
+    return response.json();
+  })
+  .then(data => {
+    console.log('Google Drive folder contents', data);
+    return {
+      files: data.files,
+      token: token
+    }
+  })
+}
+
+export async function backupWalletGoogleDrive(encryptedWalletTxt, filename) {
+  let token: string;
+  return GenericOAuth2.authenticate(optionGoogleAuth).then(async resourceUrlResponse => {
+    console.log('Google OAuth success', resourceUrlResponse);
+    token = resourceUrlResponse.access_token;
+    return getFolderOrCreate(token);
+  }).then(folderId => {
+    const metadata = {
+      name: filename,
+      mimeType: 'text/plain',
+      parents: [folderId]
+    };
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', new Blob([encryptedWalletTxt], { type: 'text/plain' }));
+    return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: form
+    });
+  }).then(response => {
+    if (!response.ok) {
+      return response.json().then(err => { throw err; });
+    }
+    return response.json();
+  }).then(data => {
+    console.log('Google Drive upload success', data);
+    return data;
+  }).catch(error => {
+    console.error('Google Drive upload failed', error);
+    throw error;
+  });
+}
+
+export async function backupWalletICloud(encryptedWalletTxt, filename) {
+  const file = await Filesystem.writeFile({
+    directory: Directory.Documents,
+    data: encryptedWalletTxt,
+    path: `${DIRECTORY_WALLET_BACKUP}/${filename}`,
+    recursive: true
+  });
+  if (file.uri) {
+    return file.uri;
+  }
+  return null;
+}
+
 
 export let fileIDsBeingSaved = new Set();
 /**
@@ -54,7 +224,7 @@ export let fileIDsBeingSaved = new Set();
  * 
  * @param {string} fileName - Name of the file to save
  * @param {Uint8Array} data - Binary data to write
- * @param {Directory} directory - Capacitor directory to save in (default: Directory.Documents)
+ * @param {Directory} directory - Capacitor directory to save in (default: Directory.Data)
  * @param {number} chunkSize - Size of each chunk in bytes (default: 512KB)
  * @returns {Promise<string>} - Path to the saved file
  */
@@ -84,7 +254,7 @@ export async function writeUint8ArrayToFile(
     // return r.uri;
   }
   else{
-    await writeFileChunked(fileID, new Blob([data]), directory);
+    await writeFileChunked(fileID, new Blob([data]), Directory.Data);
   }
   fileIDsBeingSaved.delete(fileID);
   await setData(fileID, {
@@ -98,7 +268,7 @@ export async function writeUint8ArrayToFile(
  * Reads a base64-encoded file and converts it to blob URL using Capacitor
  * 
  * @param {string} fileName - Name of the file to read
- * @param {Directory} directory - Capacitor directory to read from (default: Directory.Documents)
+ * @param {Directory} directory - Capacitor directory to read from (default: Directory.Data)
  * @returns {Promise<String>} - Blob URL of the file
  */
 export async function readFileToBlobUrl(fileId) {
@@ -151,18 +321,28 @@ function arrayBufferToBase64(buffer) {
 }
 
 /**
- * Lists all files in a directory and returns their sizes.
+ * Lists all files in a directory recursively and returns their sizes.
  *
  * @param {Directory} directory - The directory to list files from.
+ * @param {string} path - The path to list files from.
  * @returns {Promise<Array<{name: string, size: number}>>} - List of files with their sizes.
  */
-export async function listFilesWithSize(directory: Directory = Directory.Data): Promise<Array<{name: string, size: number}>> {
+export async function listFilesWithSize(directory: Directory = Directory.Data, path: string = ''): Promise<Array<{name: string, size: number}>> {
   try {
-    const files = await Filesystem.readdir({ directory, path: '' });
-    const fileSizes = await Promise.all(files.files.map(async (file: { name: string }) => {
-      const stat = await Filesystem.stat({ directory, path: file.name });
-      return { size: stat.size, meta: await restoreData(file.name), name: file.name}
-    }));
+    const files = await Filesystem.readdir({ directory, path });
+    let fileSizes = [];
+
+    for (const file of files.files) {
+      const filePath = `${path}/${file.name}`;
+      if (file.type === 'directory') {
+        const nestedFiles = await listFilesWithSize(directory, filePath);
+        fileSizes = fileSizes.concat(nestedFiles);
+      } else {
+        const stat = await Filesystem.stat({ directory, path: filePath });
+        fileSizes.push({ size: stat.size, meta: await restoreData(filePath), name: filePath });
+      }
+    }
+
     return fileSizes;
   } catch (error) {
     console.error('Error listing files:', error);

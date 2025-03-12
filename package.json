@@ -22,6 +22,7 @@
     "@aparajita/capacitor-biometric-auth": "^8.0.2",
     "@capacitor-community/bluetooth-le": "^6.1.0",
     "@capacitor-community/file-opener": "6",
+    "@capacitor-community/generic-oauth2": "^6.1.0",
     "@capacitor-community/in-app-review": "^6.0.0",
     "@capacitor-firebase/messaging": "6.1.0",
     "@capacitor-mlkit/barcode-scanning": "^6.2.0",
