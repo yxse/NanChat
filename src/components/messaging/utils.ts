@@ -53,3 +53,7 @@ export function extractMetadata() {
     
     return JSON.stringify(metadata);
   }
+
+
+// https://filesec.io/
+export const dangerousExtensions = [".7z",".a3x",".appinstaller",".applescript",".application",".appref",".appx",".appxbundle",".arj",".asd",".bat",".bgi",".bz2",".cab",".chm",".cmd",".com",".cpl",".cs",".daa",".desktopthemepackfile",".diagcab",".dll",".dmg",".doc",".docm",".dot",".dotm",".eml",".exe",".gadget",".gz",".hta",".htm",".html",".hwpx",".ics",".img",".iqy",".iso",".jar",".jnlp",".js",".jse",".library",".lnk",".mam",".mht",".mhtml",".mof",".msc",".msi",".msrcincident",".ocx",".odt",".oxps",".pdf",".pif",".pot",".potm",".ppa",".ppam",".ppkg",".pps",".ppsm",".ppt",".pptm",".ps1",".pub",".py",".pyc",".pyo",".pyw",".pyz",".pyzw",".rar",".reg",".rtf",".scf",".scpt",".scr",".sct",".searchConnector",".service",".settingcontent",".sh",".sldm",".slk",".so",".svg",".tar",".theme",".themepack",".timer",".url",".uue",".vb",".vbe",".vbs",".vhd",".vhdx",".wbk",".website",".wim",".wiz",".ws",".wsf",".wsh",".xlam",".xll",".xlm",".xls",".xlsb",".xlsm",".xlt",".xltm",".xps",".xsl",".xz",".z",".zip"]

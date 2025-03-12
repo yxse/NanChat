@@ -2,7 +2,7 @@ import { box } from "multi-nano-web";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { useWallet, WalletContext } from "../../Popup";
-import { Card, DotLoading, ImageViewer, Skeleton, Toast } from "antd-mobile";
+import { Card, DotLoading, ImageViewer, Modal, Skeleton, Toast } from "antd-mobile";
 import { convertAddress, formatAmountRaw, formatSize } from "../../../utils/format";
 import { networks } from "../../../utils/networks";
 import useSWR from "swr";
@@ -10,41 +10,77 @@ import { fetchAccountInfo, fetchBlock } from "../../app/Network";
 import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
-import { DownlandOutline } from "antd-mobile-icons";
+import { DownlandOutline, ExclamationCircleFill } from "antd-mobile-icons";
 import { decryptGroupMessage, getSharedKey } from "../../../services/sharedkey";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
 import { setData } from "../../../services/database.service";
+import { dangerousExtensions } from "../utils";
 
 const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
-    if (Capacitor.isNativePlatform()) {
-      try {
-        Toast.show({icon: 'loading'})
-        let filePath = await Filesystem.getUri({directory: Directory.Data, path: fileId})
-        const fileOpenerOptions: FileOpenerOptions = {
-            filePath: filePath.uri,
-            contentType: fileType,
-            openWithDefault: true
-          };
-        Toast.clear()
-        await FileOpener.open(fileOpenerOptions);
-        
-      } catch (error) {
-        console.error('Error saving file:', error);
-        Toast.show({content: error.message, icon: 'error'})
-      }
-    } else {
-      // Web approach 
-      const a = document.createElement('a');
-      a.href = content;
-      a.download = fileName;
-      a.click();
+    const download = async () => {
+        if (Capacitor.isNativePlatform()) {
+            try {
+              Toast.show({icon: 'loading'})
+              let filePath = await Filesystem.getUri({directory: Directory.Data, path: fileId})
+              const fileOpenerOptions: FileOpenerOptions = {
+                  filePath: filePath.uri,
+                  contentType: fileType,
+                  openWithDefault: true
+                };
+              Toast.clear()
+              await FileOpener.open(fileOpenerOptions);
+              
+            } catch (error) {
+              console.error('Error saving file:', error);
+              Toast.show({content: error.message, icon: 'error'})
+            }
+          } else {
+            // Web approach 
+            const a = document.createElement('a');
+            a.href = content;
+            a.download = fileName;
+            a.click();
+          }
+    }
+    let extension = "." + fileName.split('.').pop()
+    if (dangerousExtensions.includes(extension)) {
+        Modal.confirm({
+            closeOnMaskClick: true,
+            header: (
+                <ExclamationCircleFill
+                  style={{
+                    fontSize: 64,
+                    color: 'var(--adm-color-warning)',
+                  }}
+                />
+              ),
+            title: "File potentially dangerous",
+            content: <div style={{textAlign: 'center', maxWidth: '300px'}}>
+                This file has the extension <b>{extension}</b> <br/> It may steal your funds or harm your computed if executed. Continue only if you trust the contact.
+            </div>,
+            cancelText: 'Download anyway',
+            confirmText: 'Cancel',
+            onConfirm: () => {
+                return
+            },
+            onCancel: () => {
+                download()
+            }
+        })
+        return
+    }
+    else{
+        download()
     }
   };
 
 const MessageFile = ({ message, side, file, deleteMode=false }) => {
+    const { data: chats, mutate: mutateChats, isLoading } = useSWR<Chat[]>(`/chats`, fetcherMessages, {dedupingInterval: 1000 * 60 * 5})
+    const chat = chats?.find(chat => chat.id === message.chatId)
+    const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(null)
     const [fileMeta, setFileMeta] = useState(file.meta)
     const {activeAccount, activeAccountPk} = useWallet()
@@ -57,7 +93,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
         }
         useEffect(() => {
             async function decryptFile() {
-
+                if (!isAccepted) return
                 let fileID = file.url.split('/').pop()
                 let cachedFile = await readFileToBlobUrl(fileID)
                 if (cachedFile) {
@@ -117,13 +153,19 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                     };
             }
             decryptFile()
-            }, []);
+            }, [isAccepted])
         
 
         const fileType = fileMeta?.type
         const fileSize = fileMeta?.size
         const fileName = fileMeta?.name
         // if (!file?.url?.startsWith('https://bucket.nanwallet.com/encrypted-files/')) return null
+        if (!isAccepted) return <div>
+            <div>
+                {fileMeta?.name} - {formatSize(fileMeta?.size)}
+            </div>
+            <div>File blocked because chat not accepted</div>
+        </div>
         if (!decrypted) return <DotLoading />
         return (
             <div

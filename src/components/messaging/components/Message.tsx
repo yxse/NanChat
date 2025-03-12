@@ -81,7 +81,13 @@ const Message = memo(({
   const isNextMessageFromSameAccount = nextMessage && nextMessage.fromAccount === message.fromAccount;
   
   const isFromCurrentUser = message.fromAccount === activeAccount;
-
+  let actions: Action[] = [
+    { key: 'copy', text: 'Copy' , icon: <CopyIcon />}
+  ]
+  const MAX_RECALL_TIME = 1000 * 60 * 4 // 4 minutes
+  if (Date.now() - message.timestamp < MAX_RECALL_TIME && isFromCurrentUser) {
+    actions.push({ key: 'recall', text: 'Recall', icon: <AiOutlineRollback /> });
+  }
   // Handle special message types
   if (message?.type === "join-request") {
     return (
@@ -235,10 +241,6 @@ const ProfilePictureLink = ({ address }) => (
   </div>
 );
 
-const actions: Action[] = [
-  { key: 'copy', text: 'Copy' , icon: <CopyIcon />},
-  { key: 'recall', text: 'Recall', icon: <AiOutlineRollback /> }
-]
 
 const MessageContent = ({ 
   message, 
