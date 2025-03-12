@@ -25,6 +25,8 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import * as webauthn from '@passwordless-id/webauthn'
 import { HapticsImpact } from "../../../utils/haptic";
 import { copyToClipboard } from "../../../utils/format";
+import { EyeFill, EyeOutline } from "antd-mobile-icons";
+import { EyeInvisibleFill } from "antd-mobile-icons";
 
 export default function Mnemonic({
   setW,
@@ -85,7 +87,7 @@ export default function Mnemonic({
               </p>
               <p className="step-m-hs mb-4">
                 This phrase is the ONLY way to recover your wallet. Do NOT share
-                it with anyone!
+                it with anyone! You will be able to backup it later.
               </p>
             </div>
           </div>
@@ -162,9 +164,17 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       }
     })
   }
+  const triggerReveal = () => {
+    if (!isRevealed && !warningShown) {
+      warningModal()
+      setWarningShown(true)
+    }
+    setIsRevealed(!isRevealed)
+  }
   return <div>
   <div 
-  style={{userSelect: isRevealed ? 'all' : 'none'}}
+  onClick={triggerReveal}
+  style={{userSelect: 'none'}}
   className="grid grid-cols-3 gap-3 overflow-y-scroll overflow-x-hidden  word-wrapper">
     {mnemonic.split(" ").map((word, index) => (
       <div
@@ -195,14 +205,19 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       </div>
       {
         showHideButton && 
-      <div className="m-4 cursor-pointer text-base" onClick={() => {
-        if (!isRevealed && !warningShown) {
-          warningModal()
-          setWarningShown(true)
-        }
-        setIsRevealed(!isRevealed)
-      }}>
-                    {isRevealed ? "Click to hide" : "Click to reveal"}
+      <div className="mt-4 mb-4 cursor-pointer text-base text-center w-full" onClick={() => triggerReveal()}>
+                    {isRevealed ? 
+                    <div className="flex items-center gap-2 justify-center">
+                      <EyeInvisibleFill /> 
+                      Click to hide
+                    </div>
+                    :
+                    <div className="flex items-center gap-2 justify-center">
+                      <EyeFill /> 
+                      Click to reveal
+                    </div>
+                    }
+                     
                 </div>
       }
     <div className="mt-4">

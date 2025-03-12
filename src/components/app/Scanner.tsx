@@ -5,7 +5,7 @@ import {
   } from '@capacitor-mlkit/barcode-scanning';
 import { Capacitor } from '@capacitor/core';
 import { Button, Modal, Popup, Toast } from 'antd-mobile';
-import { ScanCodeOutline } from 'antd-mobile-icons';
+import { CloseCircleOutline, ScanCodeOutline } from 'antd-mobile-icons';
 import { cloneElement, useEffect, useState } from 'react';
 import { Scanner as ScannerWeb } from '@yudiel/react-qr-scanner';
 
@@ -65,7 +65,8 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
           style={{
                     visibility: "visible",
                     display: "flex",
-                    height: "100vh",
+                    // height: "100dvh",
+                    height: "500px",
                     width: "100%",
             }}
           onClose={() => {
@@ -76,11 +77,13 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
           maskClassName='bg-transparent'
           bodyClassName='bg-transparent scanner-active'
           visible={visible}
+          closeOnSwipe
           onMaskClick={() => {
             stopScan();
             setVisible(false)
           }}
-          bodyStyle={{ height: '100dvh' }}
+          closeIcon={<CloseCircleOutline fontSize={24} />}
+          bodyStyle={{ height: 'calc(100vh - env(safe-area-inset-top))' }}
         >
 <div className=''>
                 <div className="square">
