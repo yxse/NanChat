@@ -215,10 +215,10 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
                 return;
               }
               if (ticker === "XNO"){
-                Toast.show({icon: 'loading', content: "Confirm address on Ledger...", duration: 0})
+                Toast.show({icon: 'loading', content: "Confirm address on Ledger...", duration: 3000})
               }
               else {
-                Toast.show({icon: 'loading', content: "Confirm address on Ledger. It should show the Nano prefix (nano_) ...", duration: 0})
+                Toast.show({icon: 'loading', content: "Confirm address on Ledger. It should show the Nano prefix (nano_) ...", duration: 5000})
               }
               try {
                 await ledger.getLedgerAccount(wallet.activeIndex, true);
