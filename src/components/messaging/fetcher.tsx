@@ -31,19 +31,18 @@ export const getNewChatToken = async (account, privateKey) => {
 export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessages = (url) => getChatToken().then(async (token) => {
+    if (token == null){
+        throw new Error('Chat token not available')
+    }
     return fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
         headers: {
             'Content-Type': 'application/json',
             'token': token
         }
     })
-    .then((res) => {
-        if (res.ok){
-            return res.json()
-        }
-        else {
-            return Promise.reject(res.status)
-        }
+    .then((res) => res.json()).then((data) => {
+        if (data.error) throw new Error(data.error)
+        return data
     })
 })
 
@@ -72,7 +71,7 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
           }
       }
       // if all messages are cached, return them
-      debugger
+    //   debugger
       if (cachedMessages.length == requestedLimit 
         || (cachedMessages.length > 0 && cachedMessages.length == requestedHeight+1)  // for the first page
     ){

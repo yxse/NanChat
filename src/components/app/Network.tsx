@@ -383,7 +383,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
       // }
           className="app-navbar "
           onBack={() => {
-          navigate("/");
+          navigate("/wallet");
         }}
         backArrow={true}>
           <span className="">{networks[ticker].name}</span>

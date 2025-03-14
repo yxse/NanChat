@@ -24,6 +24,7 @@ import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import ChatInputFile from "./ChatInputFile";
 import ChatInputAdd from "./ChatInputAdd";
 import { updateSharedKeys } from "../../../services/sharedkey";
+import { useEvent } from "./EventContext";
 
 const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     const {
@@ -55,6 +56,14 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
         address = chat?.participants[0]?._id;
     }
     const nameOrAccount = participant?.name || formatAddress(address);
+    const welcomeButtonClick = useEvent("open-input-plus");
+
+    useEffect(() => {
+      console.log("welcomeButtonClick", welcomeButtonClick)
+      if (welcomeButtonClick) {
+        setInputAdditionVisible(true);
+      }
+    }, [welcomeButtonClick]);
     
     useEffect(() => {
         if (messagesHistory) {

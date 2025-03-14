@@ -28,6 +28,8 @@ import useMessageDecryption from "../hooks/use-message-decryption";
 import MessageRaw from "./MessageRaw";
 import { CopyButton } from "../../app/Icons";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
+import ProfileName from "./profile/ProfileName";
+import { showAccountQRCode } from "../utils";
 
 export const LedgerNotCompatible = () => {
     return (
@@ -40,16 +42,17 @@ export const LedgerNotCompatible = () => {
     );
 }
 
+
 const ChatList: React.FC = ({ onChatSelect }) => {
     const { wallet } = useContext(WalletContext)
     const { account } = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const { data: chats, mutate, error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages, {onError: (error) => {
-        console.log({error})
+    const { data: chats, mutate, error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages, {onError: async (error) => {
+        console.log("aze error get chats", error)
         if (error === 401 || error === 403) {
-            getNewChatToken(activeAccount, activeAccountPk).then(token => {
-            });
+            // debugger
+            await getNewChatToken(activeAccount, activeAccountPk)
         }
     }});
     const [searchQuery, setSearchQuery] = useState('');
@@ -99,7 +102,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
     const inviteFriends = () => {   
         ShareModal({
-            title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
+            title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and add me via NanChat ID: ${me?.username} or via my nano account: ${activeAccount}`,
             url: `https://nanwallet.com/chat/${activeAccount}`
         })
     }
@@ -153,36 +156,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
               inviteFriends();
             }
             if (node.key === 'my_qr') {
-              Modal.show({
-                showCloseButton: true,
-                closeOnMaskClick: true,
-                content: (
-                  <div className="flex justify-center items-center flex-col">
-                    <div className="text-xl mb-1 flex  gap-2">
-                    <AccountIcon account={activeAccount} width={32}/>
-                      {me?.name}
-                    </div>
-                    <div className="text-sm mb-2">
-                      {formatAddress(activeAccount)}
-                    </div>
-                    <QRCodeSVG
-                      imageSettings={{
-                        src: icon,
-                        height: 24,
-                        width: 24,
-                        excavate: false,
-                      }}
-                      includeMargin
-                      value={`https://nanwallet.com/chat/${activeAccount}`}
-                      size={200}
-                      style={{borderRadius: 8}}
-                    />
-                    <div className="text-sm mt-2 text-center mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                      Scan to start an encrypted chat with me
-                    </div>
-                  </div>
-                )
-              })
+              showAccountQRCode(me);
             }
             if (node.key === 'scan_qr') {
                 return
@@ -433,7 +407,7 @@ export const AccountAvatar = ({ url, account, badgeColor }) => {
         url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
     }
 
-    const icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={64} />
+    const icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={48} />
     if (badgeColor == "gray"){ // show only active icon
         return icon
     }

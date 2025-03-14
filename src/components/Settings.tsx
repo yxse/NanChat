@@ -351,14 +351,14 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
 className="mb-24"
       // id="slider"
       >
-        {/* <NavBar
-          className="text-slate-400 text-xxl app-navbar "
+        <NavBar
+          className=" app-navbar "
           onBack={() => {
-            navigate("/");
+            navigate("/me");
           }}
           backArrow={true}>
           <span className="">Settings</span>
-        </NavBar> */}
+        </NavBar>
         <div
           className={``}
         >

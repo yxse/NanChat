@@ -103,7 +103,7 @@ export const Discover: React.FC = () => {
 
             }}>
                  <Button
-           
+        style={{marginRight: 8}}
            size="small"
            onClick={async() => {
             const script = `
@@ -132,8 +132,8 @@ export const Discover: React.FC = () => {
             </Button>
             </div>
             </div>  
-            <MetadataCard title={shareContent?.title} description={shareContent?.description} image={shareContent?.image} url={shareContent?.url} />
-            {JSON.stringify(shareContent)}
+            {/* <MetadataCard title={shareContent?.title} description={shareContent?.description} image={shareContent?.image} url={shareContent?.url} />
+            {JSON.stringify(shareContent)} */}
         </div>
 
     );

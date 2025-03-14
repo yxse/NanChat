@@ -29,7 +29,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const navigate = useNavigate();
     const {mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
     const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
-    const nameOrAccount = names?.[0]?.name || formatAddress(account);
+    const name = names?.[0];
+    const nameOrAccount = name?.name || formatAddress(account);
     const [visible, setVisible] = useState(false);
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
@@ -93,6 +94,9 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
             </Popup>
          
                 <List>
+                <List.Item title="NanChat ID:">
+                    {name?.username}
+                </List.Item>
                     <List.Item
                     description={
                         <div className="">
@@ -105,7 +109,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                         </p>
                                     </div>
                     }
-                            title="Account"
+                            title="Account:"
                             children={
                                 <div>
                                 <p className="break-all mb-2">

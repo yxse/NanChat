@@ -24,6 +24,7 @@ import {
   AiOutlineGlobal,
   AiOutlineHome,
   AiOutlineSwap,
+  AiOutlineWallet,
 } from "react-icons/ai";
 import { BiHistory, BiReceipt, BiSolidDashboard, BiWallet } from "react-icons/bi";
 import Settings from "../Settings";
@@ -41,7 +42,7 @@ import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import ReceiveSelect from "./ReceiveSelect";
 import NetworkList from "./NetworksList";
 import SwapTransaction from "./SwapTransaction";
-import InitialPopup from "../Popup";
+import InitialPopup, { useWallet } from "../Popup";
 import ChangeRep from "./ChangeRep";
 import AddNetwork from "./AddNetwork";
 import { networks } from "../../utils/networks";
@@ -66,7 +67,7 @@ import SetName from "../messaging/components/SetName";
 import ProfilePictureUpload from "../messaging/components/profile/upload-pfp";
 import ProfileHome from "../messaging/components/profile/ProfileHome";
 import { SideBarMenu } from "./desktop/SideBarMenu";
-// import SetUsername from "../messaging/components/profile/SetUsername";
+import SetUsername from "../messaging/components/profile/SetUsername";
 import AppUrlListener from "./AppUrlListener";
 import Buy from "./Buy";
 import ChatSocket from "../messaging/socket";
@@ -76,46 +77,11 @@ import NotificationSettings from "./NotificationSettings";
 import { authenticate } from "../../utils/biometrics";
 import { getIsPasswordEncrypted } from "../../utils/storage";
 import useSWR from "swr";
-import { fetcherChat } from "../messaging/fetcher";
+import { fetcherChat, getNewChatToken } from "../messaging/fetcher";
 import { useUnreadCount } from "../messaging/hooks/useChat";
 import FileManagement from '../FileManagement';
 
-if (Capacitor.getPlatform() === "ios"){
-Keyboard.setResizeMode({mode: KeyboardResize.None});
-Keyboard.addListener('keyboardWillShow', info => {
-  console.log('keyboard will show with height:', info.keyboardHeight);
-  const app: HTMLElement = document.querySelector('.app');
-  app.style.paddingBottom = info.keyboardHeight - 30 + 'px';
 
-  const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
-  console.log("popup", popup);
-  popup.forEach((element) => {
-      element.style.marginBottom = `${info.keyboardHeight}px`;
-  });
-
-});
-
-Keyboard.addListener('keyboardDidShow', info => {
-  console.log('keyboard did show with height:', info.keyboardHeight);
-});
-
-Keyboard.addListener('keyboardWillHide', () => {
-  console.log('keyboard will hide');
-  const app: HTMLElement = document.querySelector('.app');
-  app.style.paddingBottom = '0px';
-
-  const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
-  console.log("popup", popup);
-  popup.forEach((element) => {
-      element.style.marginBottom = `0px`;
-  });
-
-});
-
-Keyboard.addListener('keyboardDidHide', () => {
-  console.log('keyboard did hide');
-});
-}
 export const MenuBar = () => {
   const navigate = useNavigate();
   const {ticker}= useParams();
@@ -161,14 +127,14 @@ export const MenuBar = () => {
   const unreadCount = useUnreadCount();
   const tabs = [
     {
-      key: "",
-      title: "Home",
-      icon: <AiOutlineHome size={btnSize} />,
-    },
-    {
       key: "chat",
       title: "Chats",
       icon: <Badge content={unreadCount}><MessageOutline size={btnSize} /></Badge>,
+    },
+    {
+      key: "wallet",
+      title: "Wallets",
+      icon: <AiOutlineWallet size={btnSize} />,
     },
     {
       key: "swap",
@@ -181,10 +147,15 @@ export const MenuBar = () => {
       icon: <CompassOutline size={btnSize} />,
     },
     {
-      key: "settings",
-      title: "Settings",
-      icon: <SetOutline size={btnSize} />
+      key: "me",
+      title: "Me",
+      icon: <UserOutline size={btnSize} />
     },
+    // {
+    //   key: "settings",
+    //   title: "Settings",
+    //   icon: <SetOutline size={btnSize} />
+    // },
   ];
   let style = {position: "fixed", bottom: 0, width: "100%", paddingBottom: 16};
 
@@ -226,8 +197,8 @@ export const MenuBar = () => {
             navigate("/discover");
             return
           }
-          else if (key === "settings") {
-            navigate("/settings");
+          else if (key === "me") {
+            navigate("/me");
             return
           }
           else if (key === "swap") {
@@ -239,8 +210,8 @@ export const MenuBar = () => {
             navigate("/chat");
             return
           }
-          else if (key === "") {
-            navigate("/");
+          else if (key === "wallet") {
+            navigate("/wallet");
             return
           }
           // navigate(key);
@@ -313,7 +284,7 @@ export default function App() {
   >("home");
   const [isNavOpen, setNavOpen] = useState<boolean>(false);
   const { isMobile } = useWindowDimensions();
-
+  const {activeAccount, activeAccountPk} = useWallet();
   
 
   
@@ -358,10 +329,7 @@ export default function App() {
       }
     }, [timeSinceLastActivity]);
     
-    useEffect(() => {
-
-    }
-    , []);
+    
     return (<></>);
     }
   
@@ -392,6 +360,12 @@ export default function App() {
       }
     }
     console.log("index render")
+    useEffect(() => {
+      getNewChatToken(activeAccount, activeAccountPk).then((r) => {
+        console.log("got new chat token", r);
+      })
+    }
+    , []);
   return (
     <>
     <LockAfterInactivity />
@@ -418,7 +392,7 @@ export default function App() {
           {/** main content */}
             <AppUrlListener />
           <Routes>
-            <Route path="/" element={<Home
+            <Route path="/wallet" element={<Home
             // setAction={setAction}
             
              />} />
@@ -446,11 +420,15 @@ export default function App() {
             <Route path="/messages/:account" element={<ChatRoom />} />
             <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
             <Route path="/discover" element={<Discover />} />
-            <Route  path="/settings" element={<ProfileHome />} />
+            <Route  path="/me" element={<ProfileHome />} />
+            <Route  path="/me/settings" element={<Settings />} />
+            {/* <Route  path="/settings" element={<Settings />} /> */}
             <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
             <Route  path="/profile/name" element={<SetName />} />
+            <Route  path="/profile/username" element={<SetUsername />} />
             <Route path="/files" element={<FileManagement />} />
             <Route  path="/chat/*" element={<Chat />} />
+            <Route  path="/*" element={<Chat />} />
           </Routes>
           </div>
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}

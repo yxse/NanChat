@@ -1,7 +1,7 @@
 import { Badge, SideBar } from "antd-mobile";
 import { CompassOutline, MessageFill, MessageOutline, SetOutline, UserOutline } from "antd-mobile-icons";
 import { useState } from "react";
-import { AiFillHome, AiOutlineHome } from "react-icons/ai";
+import { AiFillHome, AiOutlineHome, AiOutlineWallet } from "react-icons/ai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
@@ -25,24 +25,29 @@ export const SideBarMenu = () => {
     const unreadCount = useUnreadCount();
     const tabs = [
       {
-        key: "",
-        title: "Home",
-        icon: <AiFillHome size={btnSize} />,
-      },
-      {
         key: "chat",
         title: "Chats",
         icon: <Badge content={unreadCount}><MessageFill size={btnSize} /></Badge>,
+      },
+      {
+        key: "wallet",
+        title: "Wallets",
+        icon: <AiOutlineWallet size={btnSize} />,
       },
       {
         key: "discover",
         title: "Discover",
         icon: <CompassOutline size={btnSize} />,
       },
+      // {
+      //   key: "settings",
+      //   title: "Settings",
+      //   icon: <SetOutline size={btnSize} />
+      // }
       {
-        key: "settings",
-        title: "Settings",
-        icon: <SetOutline size={btnSize} />
+        key: "me",
+        title: "Me",
+        icon: <UserOutline size={btnSize} />
       }
     ];
     return (
@@ -51,7 +56,7 @@ export const SideBarMenu = () => {
         // style={style}
         style={{width: 200, fontSize: "1.3em"}}
           className={""}
-          activeKey={location.pathname.split("/")[1]}
+          activeKey={location.pathname.split("/")[1] || "chat"}
           onChange={(key) => {
             console.log(location.pathname);
             // setWidget(key);
@@ -84,12 +89,12 @@ export const SideBarMenu = () => {
               navigate("/chat");
               return
             }
-            else if (key === "settings") {
-              navigate("/settings");
+            else if (key === "me") {
+              navigate("/me");
               return
             }
-            else if (key === "") {
-              navigate("/");
+            else if (key === "wallet") {
+              navigate("/wallet");
               return
             }
             // navigate(key);

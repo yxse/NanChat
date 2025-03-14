@@ -18,7 +18,7 @@ import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
 import { useChat } from "../hooks/useChat";
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Message from "./Message";
+import Message, { InfoMessageEncrypted, WelcomeMessage } from "./Message";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import GroupAvatar from "./group-avatar";
 import ProfilePicture from "./profile/ProfilePicture";
@@ -30,6 +30,7 @@ import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
+import { TEAM_ACCOUNT } from "../utils";
 
 
 const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
@@ -266,7 +267,30 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     // console.log("account", account);
 
     
-
+    const StartConversation = ({address}) => {
+        if (!accountExists) return null;
+        return (  <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            <div
+                style={{
+                    borderRadius: 32,
+                    padding: 8,
+                    paddingRight: 16,
+                    paddingLeft: 16,
+                    backgroundColor: 'var(--adm-color-background)',
+                }}
+            >
+                Start a conversation with <ProfileName address={address} fallback={formatAddress(address)} />
+            </div>
+            </div>
+            )
+    }
     const HeaderPrivate = () => {
         return (
             <div
@@ -374,7 +398,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             }}
                         >
 
-                            Select a chat to start messaging
+                            Select a chat to start E2EE messaging
                         </span>
                     </div>
                 )
@@ -419,7 +443,20 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             // touchAction: 'none', // don't or ios scroll glitch
                         }}
                     >
+{
+    ((messages.length === 0 && !isLoadingInitial) && account != null) && (
+        <div>
+        <InfoMessageEncrypted />
+        {
+             account === TEAM_ACCOUNT ? <WelcomeMessage /> : 
+             
+                 <StartConversation address={address} />
+        }
+      
 
+        </div>
+    )
+}
                         {
                             isLoadingInitial ? <Skeleton animated /> :
                                 <InfiniteScroll
@@ -493,6 +530,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                                     activeAccountPk={activeAccountPk}
                                                     type={chat?.type}
                                                     hasMore={hasMore}
+                                                    isFromTeam={chat?.creator === TEAM_ACCOUNT}
                                                 // toAccount={names?.find(participant => participant._id !== message.fromAccount)?._id}
                                                 />
                                             </div>
@@ -566,6 +604,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         }}
                     />
                 </div>
+               
                 {
                     !accountExists && account != null && (
                         <div

@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { DeleteOutline, LockFill } from "antd-mobile-icons";
+import { Link, useNavigate } from "react-router-dom";
+import { AddCircleOutline, DeleteOutline, LockFill } from "antd-mobile-icons";
 import { WalletContext } from "../../Popup";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfilePicture from "./profile/ProfilePicture";
@@ -11,23 +11,25 @@ import MessageFile from "./MessageFile";
 import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
 import { DateHeader } from "./date-header-component";
-import { isSpecialMessage } from "../utils";
+import { isSpecialMessage, TEAM_ACCOUNT } from "../utils";
 import { useLongPress } from "../../../hooks/use-long-press";
 import { HapticsImpact } from "../../../utils/haptic";
 import { ImpactStyle } from "@capacitor/haptics";
-import { Button, Popover, Toast } from "antd-mobile";
+import { Button, List, Popover, Toast } from "antd-mobile";
 import { Action } from "antd-mobile/es/components/popover";
 import { copyToClipboard } from "../../../utils/format";
 import { CopyIcon } from "../../app/Icons";
 import { deleteMessage } from "../fetcher";
 import { AiOutlineRollback } from "react-icons/ai";
+import { useEmit } from "./EventContext";
 
 const Message = memo(({ 
   message, 
   type = "private", 
   prevMessage, 
   nextMessage, 
-  hasMore 
+  hasMore,
+  isFromTeam
 }) => {
   const { wallet, dispatch } = useContext(WalletContext);
   const activeAccount = wallet.accounts.find(
@@ -127,6 +129,7 @@ const Message = memo(({
         nextMessage={nextMessage} 
         hasMore={hasMore} 
         decrypted={decrypted} 
+        isFromTeam={isFromTeam}
       />
       <div
       ref={ref}
@@ -183,27 +186,118 @@ const Message = memo(({
   );
 });
 
-// Extracted components
+export const InfoMessageEncrypted = ({}) => {
+  return (
+    <div 
+      className="flex items-center justify-center text-sm text-center" 
+      style={{ 
+        color: 'var(--adm-color-warning)',
+        backgroundColor: 'var(--adm-color-background)', 
+        padding: '16px', 
+        margin: 32, 
+        borderRadius: 8 
+      }}
+    >
+      <div>
+        <LockFill className="mr-2 inline" />
+        Messages and files are end-to-end encrypted using nano. No one outside of this chat can read them.
+      </div>
+    </div>
+  );
+}
 
-const HeaderMessage = ({ message, prevMessage, nextMessage, hasMore, decrypted }) => (
+export const WelcomeMessage = ({}) => {
+  const navigate = useNavigate();
+  const emit = useEmit();
+
+  return (<div>
+    <div
+        style={{ alignItems: "flex-start" }}
+        className={`message flex justify-start mb-2 mx-2`}
+      >
+    <ProfilePictureLink
+      address={TEAM_ACCOUNT}
+    />
+      <MessageContent
+      //  You now have the most powerful Nano app in your hands.
+//       - End to end encrypted chat and file sharing.
+//   - Send and receive nano instantly and securely.
+//   - Create group up to 500 members.
+//   - Discover Nano apps.
+
+// Feel free to let us know if you have any problems or suggestions.
+        type="private"
+        decrypted={`Welcome to NanChat! Here are some features that you can explore :
+`}
+        isFromCurrentUser={false}
+        isPreviousMessageFromSameAccount={false}
+        
+      />
+      </div>
+      <List mode="card"
+        style={{ }}
+      >
+        <List.Item
+        // arrowIcon={<AddCircleOutline style={{width: 32, height: 32, cursor: 'pointer'}}  />}
+         onClick={() => {
+          emit('open-input-plus', {open: true})
+        }}>
+
+          Transfer currencies, photo and files
+        </List.Item>
+        <List.Item
+          onClick={() => {
+            navigate("/")
+          }}
+        >
+
+          Multi Currencies Nano Wallet
+        </List.Item>
+                <List.Item onClick={() => {
+                  navigate("/discover")
+                }}>
+
+          Discover Nano Apps
+                </List.Item>
+        
+        
+      </List>
+      <div
+        style={{ alignItems: "flex-start" }}
+        className={`message flex justify-start mb-2 mx-2`}
+      >
+    <ProfilePictureLink
+      address={"nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij"}
+    />
+      <MessageContent
+      //  You now have the most powerful Nano app in your hands.
+//       - End to end encrypted chat and file sharing.
+//   - Send and receive nano instantly and securely.
+//   - Create group up to 500 members.
+//   - Discover Nano apps.
+
+// Feel free to let us know if you have any problems or suggestions.
+        type="private"
+        decrypted={`Feel free to let us know if you have any questions or suggestions.`}
+        isFromCurrentUser={false}
+        isPreviousMessageFromSameAccount={false}
+        
+      />
+      </div>
+    </div>
+  );
+}
+const HeaderMessage = ({ message, prevMessage, nextMessage, hasMore, decrypted, isFromTeam }) => {
+
+  // debugger
+  return (
   <>
     {decrypted && !hasMore && !nextMessage && (
       <div>
-      <div 
-        className="flex items-center justify-center text-sm text-center" 
-        style={{ 
-          color: 'var(--adm-color-warning)',
-          backgroundColor: 'var(--adm-color-background)', 
-          padding: '16px', 
-          margin: 32, 
-          borderRadius: 8 
-        }}
-      >
-        <div>
-          <LockFill className="mr-2 inline" />
-          Messages and files are end-to-end encrypted using nano. No one outside of this chat can read them.
-        </div>
-      </div>
+      <InfoMessageEncrypted />
+    {isFromTeam && <WelcomeMessage />}
+      
+    
       <div className="text-center text-sm mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
       <DateHeader 
         timestamp={message.timestamp} 
@@ -226,7 +320,8 @@ const HeaderMessage = ({ message, prevMessage, nextMessage, hasMore, decrypted }
     </div>
       }
   </>
-);
+  );
+};
 
 const ProfilePictureLink = ({ address }) => (
   <div style={{ 
