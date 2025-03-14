@@ -55,7 +55,7 @@ export default function AddNetwork({ }) {
               icon: 'success',
               content: `Network ${values.ticker} added.`
             });
-            navigate("/");
+            navigate("/wallet");
           }}>
           <Form.Item label="Name" name={"name"} required={false} rules={[{ required: true, message: "Please enter a name" }]}>
             <Input placeholder="MyNano" />

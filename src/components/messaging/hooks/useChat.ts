@@ -17,6 +17,7 @@ const sendMessage = async (chatId, content) => {
 export function useUnreadCount() {
   const {data: chats} = useSWR<Chat[]>(`/chats`, fetcherMessages);
   const {activeAccount} = useWallet()
+  if (chats === undefined || chats?.error) return null;
   return chats?.reduce((acc, chat) => {
     if (chat.lastMessageFrom !== activeAccount) {
       return acc + chat.unreadCount;
@@ -112,7 +113,8 @@ export function useChat(chatId) {
     setSize(size + 1);
   }, [setSize, size]);
 
-  const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 0;
+  // debugger
+  const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;
   return {
     messages,
     error,
