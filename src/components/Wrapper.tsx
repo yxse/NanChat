@@ -4,8 +4,12 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
+import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 
 function saveCache(map) {
+  // clear cache 
+  // localStorage.removeItem('app-cache')
+  
   // return
   // filter out inf messages to not load them all directly
   let array = []
@@ -67,7 +71,66 @@ const firebaseConfig = {
 };
 
 
+if (Capacitor.getPlatform() === "ios"){
+  Keyboard.setResizeMode({mode: KeyboardResize.None});
+  Keyboard.addListener('keyboardWillShow', info => {
+    console.log('keyboard will show with height:', info.keyboardHeight);
+    // const app: HTMLElement = document.querySelector('.app');
+    // app.style.paddingBottom = info.keyboardHeight - 30 + 'px';
+    try {
+      const wrapper: HTMLElement = document.querySelector('.app');
+      wrapper.style.paddingBottom = info.keyboardHeight - 30 + 'px';
+    } 
+    catch (e) {
+      console.log(e);
+    }
+    try {
 
+      const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
+      console.log("popup", popup);
+      popup.forEach((element) => {
+        element.style.marginBottom = `${info.keyboardHeight}px`;
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+  
+  });
+  
+  Keyboard.addListener('keyboardDidShow', info => {
+    console.log('keyboard did show with height:', info.keyboardHeight);
+  });
+  
+  Keyboard.addListener('keyboardWillHide', () => {
+    console.log('keyboard will hide');
+    // const app: HTMLElement = document.querySelector('.app');
+    // app.style.paddingBottom = '0px';
+    try {
+      const wrapper: HTMLElement = document.querySelector('.app');
+      wrapper.style.paddingBottom = '0px';
+    } 
+    catch (e) {
+      console.log(e);
+    }
+    try {
+
+      const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
+      console.log("popup", popup);
+      popup.forEach((element) => {
+        element.style.marginBottom = `0px`;
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+  
+  });
+  
+  Keyboard.addListener('keyboardDidHide', () => {
+    console.log('keyboard did hide');
+  });
+  }
 export default function PopupWrapper({
   children,
   theme,
@@ -81,7 +144,7 @@ export default function PopupWrapper({
   }
   return (
     <SWRConfig value={{ provider: localStorageProvider }}>
-    <div
+    <div className={`wrapper`}
       >{children}</div></SWRConfig>
   );
 }

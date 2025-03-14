@@ -8,8 +8,8 @@ import { convertAddress, formatAddress } from '../../utils/format';
 import { saveAs } from 'file-saver';
 import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
-import { useSearchParams } from 'react-router-dom';
-import { UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AddOutline, MessageOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
 import { useWallet } from '../Popup';
@@ -33,7 +33,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const [form] = Form.useForm();
     const name = Form.useWatch('newName', form)
     const network = Form.useWatch('network', form)
-
+    const navigate = useNavigate();
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const [contactToEdit, setContactToEdit] = useState(null);
     const [editContactVisible, setEditContactVisible] = useState(false);
@@ -224,16 +224,16 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     }
 
      const ImportContacts = () => {
-        return  <div className='text-white'>
+        return  <div className='text-white mb-4'>
         <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
-            <List mode='card'>
+            <List mode='default'>
             <List.Item
             className='w-full'
             clickable
                 prefix={<UserContactOutline />}
                 description="Nault, Natrium and Kalium export file supported"
             >
-                Import contacts
+                Import from file
             </List.Item>
             </List>
         </label>
@@ -309,20 +309,28 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             <NavBar
                 className="app-navbar "
                 onBack={() => window.history.back()}
-                right={<Popover.Menu
-                    trigger='click'
-                    mode='dark'
-                    actions={[
-                        {
-                            text: <ImportContacts />, key: 'import'
-                        },
-                        { text: 'Export', icon: <AiOutlineExport size={20} />, onClick: handleExport, key: 'export' },
-                    ]}
-                >
-                    <Button size='mini' shape='rounded'>
-                        Import/Export
-                    </Button>
-                </Popover.Menu>}
+                // right={<Popover.Menu
+                //     trigger='click'
+                //     mode='dark'
+                //     actions={[
+                //         {
+                //             text: <ImportContacts />, key: 'import'
+                //         },
+                //         { text: 'Export', icon: <AiOutlineExport size={20} />, onClick: handleExport, key: 'export' },
+                //     ]}
+                // >
+                //     <Button size='mini' shape='rounded'>
+                //         Import/Export
+                //     </Button>
+                // </Popover.Menu>}
+                right={
+                    <div style={{ fontSize: 24, marginTop: 6 }}>
+                    <UserAddOutline
+                    style={{float: 'right'}}
+                    onClick={() => setAddContactVisible(true)}
+                    /> 
+                </div>
+                }
             >
                 Contacts
             </NavBar>
@@ -332,7 +340,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 <div className='text-center text-xl p-4'>
                     No contacts
                     </div>
-                                <ImportContacts />
+                               
                         </>
                 //     <div className='text-center text-lg text-gray-500 mt-4'>
                 //     Add or import contacts (Nault/Natrium/Kalium export files supported)
@@ -343,8 +351,9 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 //     </div>
                 // </div>
             }
+             <ImportContacts />
             <List>
-                {contacts.map((contact, index) => (
+                {contacts.sort((a, b) => a.name.localeCompare(b.name)).map((contact, index) => (
                     <SwipeAction
                         key={index}
                         rightActions={[
@@ -382,7 +391,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                     </SwipeAction>
                 ))}
             </List>
-            <Button
+            {/* <Button
                 shape='rounded'
                 size='large'
                 color='primary'
@@ -392,7 +401,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 <Space className='flex items-center'>
                     <UserAddOutline/> Add Contact
                 </Space>
-            </Button>
+            </Button> */}
             <ResponsivePopup
                 destroyOnClose
                 visible={addContactVisible}
@@ -473,9 +482,25 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                             setAddContactVisible(true)
                         }}
                         size='large'
-                        color='primary'
+                        color='default'
                     >
-                        Add Address
+                         <Space align='center' justify='center'>
+                            <AddOutline fontSize={20} />
+                            Add Address
+                        </Space>
+                    </Button>
+                    <Button
+                        color='default'
+                        className='w-full'
+                        onClick={() => {
+                            navigate('/chat/' + contactToEdit.addresses.find((address) => address.network === 'XNO')?.address);
+                        }}
+                        size='large'
+                    >
+                        <Space align='center' justify='center'>
+                            <MessageOutline fontSize={20} />
+                            Messages
+                        </Space>
                     </Button>
                 </Card>
             </ResponsivePopup>
