@@ -92,7 +92,7 @@ function NotificationSettings() {
         <NavBar
         className="app-navbar "
         onBack={() => {
-          navigate("/settings");
+          navigate("/me/settings");
         }}
         backArrow={true}>
           <span className="">Notification Settings</span>

@@ -50,7 +50,7 @@ function BackupSecretPhrase() {
         }
     })
     const [visible, setVisible] = useState(false);
-    const [pinVisible, setPinVisible] = useState(true);
+    const [pinVisible, setPinVisible] = useState(false);
     const [isRevealed, setIsRevealed] = useState(false);
     const [backupType, setBackupType] = useState<'manual' | 'cloud' | 'encrypted-file' | null>(null)
     const [backupVisible, setBackupVisible] = useState(false);
@@ -107,7 +107,15 @@ function BackupSecretPhrase() {
 
     return (
         <>
-
+ <PinAuthPopup
+                    location={"backup-secret-phrase"}
+                    description={"Backup secret phrase"}
+                    visible={pinVisible}
+                    setVisible={setPinVisible}
+                    onAuthenticated={() => {
+                        setVisible(true)
+                    }}
+                />
             <ResponsivePopup
                 bodyStyle={{ maxHeight: '100dvh', overflowY: 'auto' }}
                 destroyOnClose
@@ -119,15 +127,7 @@ function BackupSecretPhrase() {
                     setBackupTypeVisible(false)
                 }}
             >
-                <PinAuthPopup
-                    location={"backup-secret-phrase"}
-                    description={"Backup secret phrase"}
-                    visible={pinVisible}
-                    setVisible={setPinVisible}
-                    onAuthenticated={() => {
-                        setBackupVisible(true)
-                    }}
-                />
+               
                 <div className="p-2 mt-2" style={{ color: 'var(--adm-color-text-secondary)' }}>
                     {
                         !seedVerified ? <>
@@ -171,7 +171,7 @@ function BackupSecretPhrase() {
 
             </ResponsivePopup>
             <List.Item prefix={icon} onClick={() => {
-                setVisible(true)
+                setPinVisible(true)
             }}>
                 Backup Wallet
             </List.Item>

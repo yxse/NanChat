@@ -29,7 +29,7 @@ function NanoAlias() {
         <NavBar
         className="app-navbar "
         onBack={() => {
-          navigate("/settings");
+            navigate("/me/settings");
         }}
         backArrow={true}>
           <span className="">Nano Alias</span>
