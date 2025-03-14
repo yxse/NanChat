@@ -32,9 +32,14 @@ const GroupAvatar = ({ chatId }) => {
     gray: 'bg-gray-500 text-white'
   };
 
-  let width = 28; // 32px - 4px gap (32px = 64px / 2)
+  const widthTotal = 48;
+  let gap = 2;
+  let width = (widthTotal / 2) - gap; // 4px gap
+  // let width = 28; // 32px - 4px gap (32px = 64px / 2)
   if (participants?.length > 4) {
-    width = 18.2; // 21px - 4px gap (21px around 64px / 3)
+    // width = 18.2; // 21px - 4px gap (21px around 64px / 3)
+    gap = 0;
+    width = (widthTotal / 3) - gap; //
   }
 
   return (
@@ -42,7 +47,7 @@ const GroupAvatar = ({ chatId }) => {
      style={{
       borderRadius: 8,
       backgroundColor: 'var(--text-color-primary)',
-      width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 4, alignContent: 'center'}}>
+      width: widthTotal, height: widthTotal, display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: gap, alignContent: 'center'}}>
       {participants?.map((participant, index) => (
         <ProfilePicture address={participant?._id} key={index} width={width} borderRadius={8}/>
       ))}
