@@ -50,9 +50,14 @@ const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true
                             />
                         }
                     >
+                        <div style={{}}>
                         <div className="flex items-center gap-2">
                             <Ellipsis content={account.name} />
                         {account?.verified && <RiVerifiedBadgeFill />}
+                        </div>
+                        <div className="text-xs" style={{color: "var(--adm-color-text-secondary)"}}>
+                            {account.username}
+                        </div>
                         </div>
                     </CheckList.Item>
                 ))
@@ -146,7 +151,7 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                 </div>
                 <div className={"searchBarContainer"}>
                     <SearchBar
-                        placeholder='Search'
+                        placeholder='Search NanChat ID / Name / Address'
                         value={searchText}
                         onChange={v => {
                             setSearchText(v)
