@@ -8,7 +8,7 @@ import "../../../styles/mnemonic.css";
 import { BsEyeSlashFill } from "react-icons/bs";
 
 import storage, { setSeed } from "../../../utils/storage";
-import { Button, Card, DotLoading, Modal, Toast } from "antd-mobile";
+import { Button, Card, DotLoading, Modal, NavBar, Toast } from "antd-mobile";
 import { CopyButton } from "../../app/Icons";
 import { saveAs } from 'file-saver';
 import { WalletContext } from "../../Popup";
@@ -82,21 +82,25 @@ export default function Mnemonic({
         >
           <div className="step-m-c select-none">
             <div className="step-m-h">
-              <p className={`step-m-hp mb-4 ${theme == "light" && "!text-black"}`}>
+              <p className={`text-3xl`}>
                 Secret Recovery Phrase
               </p>
-              <p className="step-m-hs mb-4">
+              <p className="mb-2 mt-4" style={{color: "var(--adm-color-warning)"}}>
                 This phrase is the ONLY way to recover your wallet. Do NOT share
-                it with anyone! You will be able to backup it later.
+                it with anyone!
               </p>
+              <p style={{color: "var(--adm-color-text-secondary)"}} className="mb-4 w-full">
+            You will be able to backup it later in: Settings {">"} Backup Wallet
+          </p>
             </div>
           </div>
           {
             mnemonic === "" ? <DotLoading /> : 
-          <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={true} colorCopy={false} showWarning={false} />
+          <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={false} colorCopy={false} showWarning={false} showHideButton/>
           }
+
           <Button
-          shape="default"
+          shape="rounded"
           onClick={async () => {
             HapticsImpact({
               style:ImpactStyle.Medium
@@ -191,11 +195,11 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       >
         <span
         style={{color: "var(--adm-color-text-secondary)"}}
-          className={`  select-none`} 
+          className={`select-none`} 
         >
           {index + 1}.{" "}
         </span>
-        <span className={``} style={{wordBreak: "break-word"}}>
+        <span className={`select-none`} style={{wordBreak: "break-word"}}>
           {
             isRevealed ? word : "********"
           }
@@ -205,7 +209,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       </div>
       {
         showHideButton && 
-      <div className="mt-4 mb-4 cursor-pointer text-base text-center w-full" onClick={() => triggerReveal()}>
+      <div className="mt-4 mb-0 cursor-pointer text-base text-center w-full" onClick={() => triggerReveal()}>
                     {isRevealed ? 
                     <div className="flex items-center gap-2 justify-center">
                       <EyeInvisibleFill /> 
@@ -222,7 +226,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       }
     <div className="mt-4">
       {
-        colorCopy && 
+        !colorCopy && 
     <CopyButton 
     textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy}
     onCopy={() => {

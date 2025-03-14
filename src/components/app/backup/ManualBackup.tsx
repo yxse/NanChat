@@ -8,9 +8,19 @@ import { WalletContext } from '../../Popup';
 import { PinAuthPopup } from '../../Lock/PinLock';
 import { ResponsivePopup } from '../../Settings';
 import { ExclamationCircleOutline } from 'antd-mobile-icons';
+import { MnemonicInput } from '../../Initialize/restore/MnemonicInput';
 
-function ManualBackup({visible, onClose}: {visible: boolean, onClose: () => void}) {
+function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose: () => void, setVisible: (visible: boolean) => void}) {
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
+    const [backupActive, setBackupActive] = useLocalStorageState('backupActive', {
+        defaultValue: {
+            manual: false,
+            icloud: false,
+            googleDrive: false,
+            encryptedFile: false
+        }
+    })
+    const [seedVerifyVisible, setSeedVerifyVisible] = useState(false)
     const walletContext = useContext(WalletContext);
     const wallet = walletContext ? walletContext.wallet : null;
     
@@ -35,7 +45,7 @@ function ManualBackup({visible, onClose}: {visible: boolean, onClose: () => void
         <>
             
             <ResponsivePopup
-                bodyStyle={{maxHeight: '100dvh', overflowY: 'auto'}}
+                bodyStyle={{maxHeight: '100dvh', overflowY: 'auto', zIndex: 1000}}
                 destroyOnClose
                 showCloseButton
                 visible={visible}
@@ -65,50 +75,7 @@ function ManualBackup({visible, onClose}: {visible: boolean, onClose: () => void
                                 color='primary'
                                 size="large"
                                 onClick={() => {
-                                    let modal = Modal.confirm({
-                                        confirmText: 'Confirm',
-                                        cancelText: 'Cancel',
-                                        closeOnMaskClick: false,
-                                        title: "Secret Phrase Verification",
-                                        content: (
-                                            <div>
-                                                <div>
-                                                    Verify that you correctly saved your recovery phrase by entering the #1, #8, #12 and #24 words below.
-                                                </div>
-                                                <Input autoComplete='off' id="word-1" placeholder="Word #1" className="mt-4" />
-                                                <Input autoComplete='off' id="word-8" placeholder="Word #8" className="mt-4" />
-                                                <Input autoComplete='off' id="word-12" placeholder="Word #12" className="mt-4" />
-                                                <Input autoComplete='off' id="word-24" placeholder="Word #24" className="mt-4" />
-                                            </div>
-                                        ),
-                                        onConfirm: () => {
-                                            let word1 = (document.getElementById('word-1') as HTMLInputElement).value
-                                            let word8 = (document.getElementById('word-8') as HTMLInputElement).value
-                                            let word12 = (document.getElementById('word-12') as HTMLInputElement).value
-                                            let word24 = (document.getElementById('word-24') as HTMLInputElement).value
-                                            if (mnemonic.length === 128 && word1 === mnemonic) {
-                                                Toast.show({
-                                                    icon: "success",
-                                                    content: "Secret Phrase Verified",
-                                                });
-                                                setSeedVerified(true)
-                                            }
-                                            else if (word1 === mnemonic.split(' ')[0] && word8 === mnemonic.split(' ')[7] && word12 === mnemonic.split(' ')[11] && word24 === mnemonic.split(' ')[23]) {
-                                                Toast.show({
-                                                    icon: "success",
-                                                    content: "Secret Phrase Verified",
-                                                });
-                                                setSeedVerified(true)
-                                            }
-                                            else {
-                                                Toast.show({
-                                                    icon: "fail",
-                                                    content: "Incorrect words entered. Make sure you saved your secret phrase correctly.",
-                                                });
-                                                throw new Error()
-                                            }
-                                        }
-                                    });
+                                    setSeedVerifyVisible(true)
                                 }}
                                 className="w-full mt-4"
                             >
@@ -116,6 +83,39 @@ function ManualBackup({visible, onClose}: {visible: boolean, onClose: () => void
                             </Button>
                         }
                     </div>
+                </div>
+            </ResponsivePopup>
+            <ResponsivePopup
+                visible={seedVerifyVisible}
+                onClose={() => setSeedVerifyVisible(false)}
+                closeOnMaskClick
+                closeOnSwipe
+                showCloseButton
+                bodyStyle={{maxHeight: '90dvh', overflowY: 'auto'}}
+            >
+                <div className='p-4'>
+                    <div className='mb-4'>
+                        Verify that you correctly saved your secret phrase by entering it below.
+                    </div>
+                <MnemonicInput mode="verify" onImport={(mnemonicInputs) => {
+                    // verify mnemonic is same as seed
+                    if (mnemonicInputs.join(' ') === mnemonic) {
+                        Toast.show({
+                            icon: "success",
+                            content: "Secret Phrase Verified",
+                        })
+                        setSeedVerified(true)
+                        setSeedVerifyVisible(false)
+                        setBackupActive({...backupActive, manual: true})
+                        setVisible(false)
+                    }
+                    else {
+                        Toast.show({
+                            icon: "fail",
+                            content: "Incorrect words entered. Make sure you saved your secret phrase correctly.",
+                        })
+                    }
+                }}  />
                 </div>
             </ResponsivePopup>
         </>

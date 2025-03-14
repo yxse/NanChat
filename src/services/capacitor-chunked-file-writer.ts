@@ -130,6 +130,21 @@ export async function loadWalletFromICloud(filename) {
   return file.data;
 }
 
+export async function deleteWalletFromICloud(filename) {
+  await Filesystem.deleteFile({
+    directory: Directory.Documents,
+    path: `${DIRECTORY_WALLET_BACKUP}/${filename}`
+  })
+}
+
+export async function deleteWalletFromGoogleDrive(fileId, token) {
+  return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
 export async function loadWalletFromGoogleDrive(fileId, token) {
   return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
     method: 'GET',
@@ -141,6 +156,7 @@ export async function loadWalletFromGoogleDrive(fileId, token) {
     return response.text();
   })
 }
+
 export async function loadWalletsFromGoogleDrive() {
   let token: string;
   return GenericOAuth2.authenticate(optionGoogleAuth)

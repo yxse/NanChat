@@ -12,10 +12,12 @@ import { MdOutlineBluetooth, MdOutlineUsb } from "react-icons/md";
 import { initWallet } from "../../nano/accounts";
 // ./icons/icon.png
 import icon from "../../../public/icons/icon.png"
+import nanchat from "../../../public/icons/nanchat.svg"
 import { Capacitor } from "@capacitor/core";
 import { getMobileOperatingSystem } from "../../hooks/use-windows-dimensions";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
+import { IoArrowBack } from "react-icons/io5";
 // export async function resetLedger() {
 // }
 
@@ -270,7 +272,20 @@ export default function Start({
 
   return (
     <div className="min-h-[554px]">
-      <Navbar theme={theme} />
+      <div
+              className={`step-p-nav ${
+                theme == "light" && "!bg-white !text-black !border-slate-400"
+              }`}
+            >
+              <div
+                className="cursor-pointer text-slate-400 hover:text-slate-200"
+                role="button"
+                onClick={() => setW(0)}
+              >
+                <IoArrowBack size={20} />
+              </div>
+             
+            </div>
       <Card
       style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
         className={`${theme == "light" && "!bg-white !text-black"
@@ -283,7 +298,7 @@ export default function Start({
               <div className="flex flex-col space-y-3 items-center justify-center w-full">
                 <img
                 style={{borderRadius: 24}}
-                  src={icon}
+                  src={nanchat}
                   width={128}
                   alt="NanWallet Logo"
                   draggable={false}
@@ -291,11 +306,10 @@ export default function Start({
                
               </div>
               <p
-                className={"text-xl text-center mt-4 select-none"}
-                style={{ color: "var(--adm-color-text-secondary)", marginBottom: 64, marginTop: 64 }}
+                className={"text-3xl text-center mt-4 select-none"}
+                style={{  marginBottom: 64, marginTop: 64 }}
               >
-                To get started, create a new wallet or import one from a seed
-                phrase.
+                Welcome to NanChat
               </p>
             </div>
           </div>
@@ -322,10 +336,10 @@ export default function Start({
               });
               setW(4)
             }}
-            className="w-full mt-2 mb-2"
+            className="w-full mt-4 mb-2"
             size="large"
             color="default">
-            Import Wallet
+            I already have a wallet
           </Button>
           {/* <div
               className={`${theme == "light" &&

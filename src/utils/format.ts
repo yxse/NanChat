@@ -17,9 +17,9 @@ export const convertAddress = (address, ticker) => {
     return networks[ticker]?.prefix + "_" + address.split("_")[1];
   }
 
-export const formatAddress = (address) => {
+export const formatAddress = (address, start = 10, end = 6) => {
     if (!address) return "";
-    return address.slice(0, 10) + "..." + address.slice(-6);
+    return address.slice(0, start) + "..." + address.slice(-end);
   }
 export const formatAmountRaw = (amountRaw, ticker) => {
     if (amountRaw == null) {

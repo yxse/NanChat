@@ -225,12 +225,12 @@ export default function Password({
           action=""
         > */}
         <div className="step-m-h">
-          <p className={`step-m-hp`}>
-            Set a password to open NanWallet
-          <p className="text-sm mt-2 flex items-center gap-2" style={{color: "var(--adm-color-text-secondary)"}}>
-            <LockOutline />
-           Password will be used to encrypt your secret phrase
-          </p>
+          <p className={`text-3xl text-center`}>
+          <LockOutline style={{display: "inline", marginRight: 4}} /> Set a password
+            </p>
+          <p className="mb-2 mt-4" style={{color: "var(--adm-color-text-secondary)"}}>
+           
+           Password will be used to encrypt your secret phrase and will be required to unlock your wallet.
           </p>
         </div>
         <div>
