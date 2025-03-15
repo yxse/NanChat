@@ -125,7 +125,7 @@ function BackupSecretPhrase() {
                     visible={pinVisible}
                     setVisible={setPinVisible}
                     onAuthenticated={() => {
-                        setBackupVisible(true)
+                        setVisible(true)
                     }}
                 />
                 <div className="p-2 mt-2" style={{ color: 'var(--adm-color-text-secondary)' }}>
