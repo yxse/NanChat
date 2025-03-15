@@ -14,7 +14,6 @@ import { getChatToken } from '../../../utils/storage';
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
 import { Toast } from 'antd-mobile';
 import GroupInfo from './GroupInfo';
-import { EventProvider } from './EventContext';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
@@ -82,7 +81,6 @@ const Chat: React.FC = () => {
     , [ me]);
     return (
         <>
-        <EventProvider>
             <Routes>
                 <Route path="/profile" element={<SetName />} />
                 <Route path="/:account" element={
@@ -171,7 +169,6 @@ const Chat: React.FC = () => {
                         </div>
                     </div>} />
             </Routes>
-            </EventProvider>
         </>
     );
 };

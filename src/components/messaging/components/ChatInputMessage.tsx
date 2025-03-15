@@ -26,16 +26,19 @@ import ChatInputAdd from "./ChatInputAdd";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { useEvent } from "./EventContext";
 
-const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
-    const {
+const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined }) => {
+    let {
         account
     } = useParams();
+    if (account === undefined && defaultChatId !== undefined) {
+      account = defaultChatId;
+    }
     const [stickerVisible, setStickerVisible] = useState(false);
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useWindowDimensions()
     const [lastEmitTime, setLastEmitTime] = useState(0);
     const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);
-    const [newMessage, setNewMessage] = useState('');
+    const [newMessage, setNewMessage] = useState(defaultNewMessage || '');
     const [dateNow, setDateNow] = useState(Date.now());
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
@@ -121,7 +124,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
     };
   
     // useEffect(scrollToBottom, [messages]);
-  
     const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
       let chatId = account;
@@ -171,6 +173,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef }) => {
      }
 
     };
+    messageInputRef.send = sendMessage;
 
     const sendTipMessage = async (ticker: string, hash: string) => {
       let chatId = account;

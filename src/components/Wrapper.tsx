@@ -5,6 +5,7 @@ import { getAnalytics } from "firebase/analytics";
 import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
+import { EventProvider } from "./messaging/components/EventContext";
 
 function saveCache(map) {
   // clear cache 
@@ -143,8 +144,10 @@ export default function PopupWrapper({
     // const analytics = getAnalytics(app);
   }
   return (
+    <EventProvider>
     <SWRConfig value={{ provider: localStorageProvider }}>
     <div className={`wrapper`}
       >{children}</div></SWRConfig>
+      </EventProvider>
   );
 }
