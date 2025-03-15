@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
-import { LedgerContext, WalletContext } from "../../Popup";
+import { LedgerContext, useWallet, WalletContext } from "../../Popup";
 import { convertAddress, formatAddress, ShareModal } from "../../../utils/format";
 import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
 import useSWR from "swr";
@@ -30,6 +30,31 @@ import { CopyButton } from "../../app/Icons";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
 import { showAccountQRCode } from "../utils";
+
+
+export const ChatAvatar = ({ chat }) => {
+    const {activeAccount} = useWallet();
+    let accountTo = activeAccount;
+    let from = chat.participants.find(participant => participant._id !== activeAccount);
+    if (chat.participants[0]?._id === chat.participants[1]?._id) { // chat with self
+    from = chat.participants[0]; 
+    }
+    if (chat.type === 'group') {
+    from = {_id: chat.lastMessageFrom}
+    accountTo = chat.sharedAccount;
+    }
+    const accountFrom = from?._id;
+    if (chat.type === 'group') {
+        return <GroupAvatar
+            chatId={chat.id}
+        />
+    }
+    return <AccountAvatar
+        url={from?.profilePicture?.url}
+        account={accountFrom}
+        badgeColor={'gray'}
+    />
+}
 
 export const LedgerNotCompatible = () => {
     return (
@@ -282,20 +307,8 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                         
                                         
                                         <div style={{paddingTop: 8, paddingBottom: 8}}>
-                                        {
-                                            chat.type === 'group' ?
-                                            // round icon with group name initial
-                                            <GroupAvatar
-                                                chatId={chat.id}
-                                            />
-                                            :
-                                            <AccountAvatar
-                                                url={pfp}
-                                                account={accountFrom}
-                                                // badgeColor={onlineAccount?.find(account => account._id === accountFrom) ? 'green' : 'gray'}
-                                                badgeColor={'gray'}
-                                            />
-                                        }
+                                            <ChatAvatar chat={chat} />
+                                       
                                             </div>
                                     }
                                     // Ellipsis component is laggy when there are many messages

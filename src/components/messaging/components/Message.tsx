@@ -11,17 +11,18 @@ import MessageFile from "./MessageFile";
 import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
 import { DateHeader } from "./date-header-component";
-import { isSpecialMessage, TEAM_ACCOUNT } from "../utils";
+import { hasLink, isSpecialMessage, TEAM_ACCOUNT } from "../utils";
 import { useLongPress } from "../../../hooks/use-long-press";
 import { HapticsImpact } from "../../../utils/haptic";
 import { ImpactStyle } from "@capacitor/haptics";
-import { Button, List, Popover, Toast } from "antd-mobile";
+import { Button, Card, List, Popover, Toast } from "antd-mobile";
 import { Action } from "antd-mobile/es/components/popover";
 import { copyToClipboard } from "../../../utils/format";
 import { CopyIcon } from "../../app/Icons";
 import { deleteMessage } from "../fetcher";
 import { AiOutlineRollback } from "react-icons/ai";
 import { useEmit } from "./EventContext";
+import { MetadataCard } from "./antd-mobile-metadata-card";
 
 const Message = memo(({ 
   message, 
@@ -177,11 +178,14 @@ const Message = memo(({
             activeAccount={activeAccount}
           />
         )}
-        
+
       </Popover.Menu>
 
         {isFromCurrentUser && <ProfilePictureLink address={message.fromAccount} />}
       </div>
+      <div className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mx-2`} style={{marginLeft: 56, marginRight: 56}}>
+        <MetadataCard message={decrypted} />
+        </div>
     </>
   );
 });
@@ -371,12 +375,15 @@ const MessageContent = ({
         )}
         {decrypted}
       </p>
+      
+
     </div>
   );
 };
 
+
 const MessageSpecial = ({ message, type, activeAccount }) => {
-  const { fromAccount, stickerId, tip, file } = message;
+  const { fromAccount, stickerId, tip, file, link } = message;
   const side = fromAccount === activeAccount ? 'from' : 'to';
 
   return (

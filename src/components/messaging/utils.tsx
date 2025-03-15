@@ -2,7 +2,13 @@ import { Modal } from "antd-mobile";
 import { QRCodeSVG } from "qrcode.react";
 import icon from "../../../public/icons/icon.png";
 
+
+export const hasLink = (message: string) => {
+    return message.match(/(https?:\/\/[^\s]+)/g)
+}
+
 export const isSpecialMessage = (message: Message) => {
+    
     return message?.stickerId || message?.tip || message?.file ||
     message?.type === "system" || message?.type === "join-request" || message?.content === "File"
 }

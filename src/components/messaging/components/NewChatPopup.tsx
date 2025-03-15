@@ -16,7 +16,7 @@ import { CheckCircleFill, CheckCircleOutline, MailOutline } from 'antd-mobile-ic
 import { useWallet } from '../../Popup';
 import { MdOutlineCircle } from 'react-icons/md';
 
-const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true, selectedAccounts, setSelectedAccounts, alreadySelected }) => {
+export const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true, selectedAccounts, setSelectedAccounts, alreadySelected }) => {
     // remove duplicate accounts
     const uniqueAccounts = accounts.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
     return (

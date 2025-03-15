@@ -90,7 +90,7 @@ function SecuritySettings() {
         <NavBar
         className="app-navbar "
         onBack={() => {
-          navigate("/settings");
+          navigate("/me/settings");
         }}
         backArrow={true}>
           <span className="">Security Settings</span>
