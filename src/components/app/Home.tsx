@@ -17,7 +17,7 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { DownOutline, ScanCodeOutline } from "antd-mobile-icons";
 import { MdOutlineCheck, MdOutlineRefresh, MdOutlineUsb } from "react-icons/md";
 import { DisconnectLedger, resetLedger } from "../Initialize/Start";
-import { LedgerContext, WalletContext } from "../Popup";
+import { LedgerContext, useWallet, WalletContext } from "../Popup";
 import useLocalStorageState from "use-local-storage-state";
 import { FaExchangeAlt } from "react-icons/fa";
 import {SetOutline} from "antd-mobile-icons";
@@ -46,6 +46,7 @@ import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined, isLoading = false}) => {
   const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
@@ -207,7 +208,22 @@ console.log("balance 2", totalBalance);
   </div>
 </div>
 }
-
+FirebaseMessaging.addListener("notificationReceived", (event) => {
+  console.log("notificationReceived: ", { event });
+  // focus window
+  // window.focus();
+    LocalNotifications.schedule({
+          notifications: [
+            {
+              title: 'On the go',
+              body: "activeAccount 2",
+              id: Math.floor(Math.random() * 100),
+              schedule: { at: new Date(Date.now() + 1000) }, // 5 seconds
+              
+            }
+          ]
+        })
+})
 export default function Home({ }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
