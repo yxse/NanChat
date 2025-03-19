@@ -15,18 +15,18 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    VitePWA({
-      mode: 'development',
-      strategies: 'injectManifest',
-      srcDir: 'public',
-      filename: 'firebase-messaging-sw.js',
-      devOptions: {
-        enabled: false,
-        type: 'module',
-      },
-       registerType: 'prompt'
-       },
-      ),
+    // VitePWA({
+    //   mode: 'development',
+    //   strategies: 'injectManifest',
+    //   srcDir: 'public',
+    //   filename: 'firebase-messaging-sw.js',
+    //   devOptions: {
+    //     enabled: false,
+    //     type: 'module',
+    //   },
+    //    registerType: 'prompt'
+    //    },
+    //   ),
     nodePolyfills({
       include: ['crypto', 'stream', 'vm', 'process'],
       globals: {
