@@ -3,6 +3,7 @@ import { getChatToken, setChatToken } from "../../utils/storage";
 import { accountIconUrl } from "../app/Home";
 import { signMessage } from "../../api-invoke/Sign";
 import { Toast } from "antd-mobile";
+import { inMemoryMap } from "../../services/database.service";
 
 
 export const getNewChatToken = async (account, privateKey) => {
@@ -46,6 +47,17 @@ export const fetcherMessages = (url) => getChatToken().then(async (token) => {
     })
 })
 
+const cacheAllMessagesChat = async (chatId, height) => {
+    
+    for (let i = 0; i < height; i++){
+        let cacheKey = `chat_${chatId}_msg_${i}`;
+        let cachedData = localStorage.getItem(cacheKey);
+        if (cachedData){
+            inMemoryMap.set(cacheKey, JSON.parse(cachedData));
+        }
+    }
+
+}
 
 export const fetcherMessagesCache = (url) => getChatToken().then(async (token) => {
     console.time('cache')
@@ -63,12 +75,21 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
       let cachedMessages = [];
       let cachedMaxHeight = 0;
     //   debugger
+    
       for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--){
           let cacheKey = cacheKeyPrefix + i;
-          let cachedData = localStorage.getItem(cacheKey);
-          if (cachedData){
-              cachedMessages = cachedMessages.concat(JSON.parse(cachedData));
-          }
+          let cachedData
+          if (inMemoryMap.has(cacheKey)){
+                cachedData = inMemoryMap.get(cacheKey);
+            }
+            else{
+                cachedData = localStorage.getItem(cacheKey);
+                if (cachedData){
+                  let parsed = JSON.parse(cachedData);
+                    cachedMessages = cachedMessages.concat(parsed);
+                    inMemoryMap.set(cacheKey, parsed);
+                }
+            }
       }
       // if all messages are cached, return them
     //   debugger

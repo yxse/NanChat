@@ -9,7 +9,6 @@ import { InAppBrowser } from "@capacitor/inappbrowser";
 
 import { WebviewOverlay, IWebviewOverlayPlugin,   } from '@teamhive/capacitor-webview-overlay';
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
-import MetadataCard from "../../messaging/components/antd-mobile-metadata-card";
 import { extractMetadata } from "../../messaging/utils";
 import ChatInputMessage from "../../messaging/components/ChatInputMessage";
 import { AccountListItems } from "../../messaging/components/NewChatPopup";
@@ -19,7 +18,8 @@ import { ChatAvatar } from "../../messaging/components/ChatList";
 import { useSearchParams } from "react-router-dom";
 import { AiOutlineShareAlt } from "react-icons/ai";
 import { FaRegCircleDot } from "react-icons/fa6";
-// const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
+import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-card";
+const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const ChatName = ({ chat }) => {
     const { activeAccount } = useWallet();
@@ -68,7 +68,7 @@ export const ChatListItems = ({ chats, onClick, viewTransition = true, selectedA
 }
 
 
-export const Discover: React.FC = ({defaultURL}) => {
+export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const { wallet } = useContext(WalletContext);
     const {data: chats} = useSWR("/chats", fetcherMessages);
     const accounts = chats?.map((chat) => chat.participants).flat()
@@ -76,7 +76,7 @@ export const Discover: React.FC = ({defaultURL}) => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [visible, setVisible] = useState(false);
     const [visibleMessage, setVisibleMessage] = useState(false);
-    const [openService, setOpenService] = useState(false);
+    const [openService, setOpenService] = useState(null);
     // get defaultURL from query params with react-router-dom
     const [
         params,
@@ -95,16 +95,40 @@ export const Discover: React.FC = ({defaultURL}) => {
     
     const { data: services, isLoading } = useSWR('/services', fetcherMessagesNoAuth);
     
+
+        
+    useEffect(() => {
+        if (defaultURL && services) { // open url from message
+            let domain = new URL(defaultURL).hostname;
+            let service = services.find(service => new URL(service.link).hostname === domain);
+            if (service) {
+                handleServiceClick({...service, link: defaultURL});
+                // setOpenService(service);
+            }
+        }
+    }, [services, openUrl, defaultURL]);
+
     if (isLoading) {
         return <div><DotLoading /></div>
     }
     
  
-    WebviewOverlay.handleNavigation(async (data) => {
-        console.log('navigationHandler', JSON.stringify(data));
-        setOpenService({...openService, link: data.url});
+    WebviewOverlay.handleNavigation((event) => {
+        console.log('navigationHandler', JSON.stringify(event));
+        setOpenService({...openService, link: event.url});
+        if (Capacitor.getPlatform() === "ios") {
+            // or else webview not opening when navigationhandler is used
+            if (event.newWindow){
+                event.complete(false);
+                window.open(event.url);
+            }
+            else{
+                event.complete(true);
+            }
+        }
     })
     const handleServiceClick = async (service) => {
+        console.log(service);
         let url = service.link;
         if (service?.includeAddress) {
             url = url + "?address=" + activeAccount;
@@ -128,16 +152,7 @@ export const Discover: React.FC = ({defaultURL}) => {
             window.open(url, '_blank');
         }
     };
-    
-    useEffect(() => {
-        if (defaultURL && services) {
-            let domain = new URL(defaultURL).hostname;
-            let service = services.find(service => new URL(service.link).hostname === domain);
-            if (service) {
-                handleServiceClick({...service, link: defaultURL});
-            }
-        }
-    }, [services]);
+
     return (
         <div className="">
             {!defaultURL && <>
@@ -163,20 +178,7 @@ export const Discover: React.FC = ({defaultURL}) => {
                 </List>
                 </>
             }   
-                <div 
-            id="webview-overlay" 
-            onClick={() => {
-                // handleServiceClick({link: currentUrl});
-            }}
-            style={{
-                width: '100%',
-                height: 'calc(100vh - 40px)',
-                position: 'fixed',
-                zIndex: -1,
-                bottom: 0,
-                left: 0,
-            }}
-        >
+              
            
         {
             openService && 
@@ -186,25 +188,24 @@ export const Discover: React.FC = ({defaultURL}) => {
                 top: 'env(safe-area-inset-top)',
                 left: 0,
                 right: 0,
-                zIndex: 1000,
+                zIndex: 100000,
                 // height: 40,
                 padding: 8,
                 backgroundColor: 'rgba(245, 245, 245)',
                 width: "100%",
                 textAlign: "center",
-                color: 'var(--adm-color-background)'
+                color: '#000',
             }}>
-                {openService?.name}
+               {openService?.name || " "}
         <div  style={{
                 position: 'fixed',
                 top: 'env(safe-area-inset-top)',
                 right: 8,
-                zIndex: 1000,
                 padding: 8,
                 height: 40,
                 // backgroundColor: 'gray',
             }}>
-                <div style={{display: 'flex',  backgroundColor: '#fff', padding: 6, borderRadius: 24, color: 'var(--adm-color-background)'}}>
+                <div style={{display: 'flex',  backgroundColor: '#fff', padding: 6, borderRadius: 24, color: '#000'}}>
                  <div
         style={{}}
            size="middle"
@@ -224,17 +225,20 @@ export const Discover: React.FC = ({defaultURL}) => {
            >
                <AiOutlineShareAlt />
            </div> 
-           <Divider direction="vertical" style={{color: "var(--adm-color-text-secondary)", borderColor: "var(--adm-color-text-secondary)", opacity: 0.3}} />
+           <Divider direction="vertical" style={{color: "#000", borderColor: "#000", opacity: 0.3}} />
         <div
            
             size="middle"
-            onClick={async() => {
+            onClick={ async () => {
                 setOpenService(null);
                 // await WebviewOverlay.toggleSnapshot(false);
-                await WebviewOverlay.close();
                 const element = document.getElementById('webview-overlay') as HTMLElement;
                 element.style.zIndex = "-1";
                 element.style.backgroundImage = "none";
+                WebviewOverlay.close();
+                if (onClose) {
+                    onClose();
+                }
             }}
             >
                 <FaRegCircleDot />
@@ -242,7 +246,21 @@ export const Discover: React.FC = ({defaultURL}) => {
             </div>
             </div>
             }
-            </div>  
+              <div 
+            id="webview-overlay" 
+            onClick={() => {
+                // handleServiceClick({link: currentUrl});
+            }}
+            style={{
+                width: '100%',
+                height: 'calc(100vh - 40px - env(safe-area-inset-top))',
+                // height: '400px',
+                position: 'fixed',
+                zIndex: -1,
+                bottom: 0,
+                left: 0,
+            }}
+        ></div>  
 <Popup
 destroyOnClose
             bodyStyle={{ }}
@@ -272,7 +290,7 @@ className="text-xl  text-center p-2">
                 /></div>
             </Popup>
             <Popup
-            bodyStyle={{ height: '300px' , overflow: 'scroll'}}
+            bodyStyle={{ height: '600px' , overflow: 'scroll'}}
                 visible={visibleMessage}
                 onClose={() => setVisibleMessage(false)}
                 closeOnMaskClick
@@ -285,6 +303,10 @@ className="text-xl  text-center p-2">
                     </div>
                     <List style={{marginBottom: 8}}>
                     <ItemChat chat={selectedChat} onClick={() => {}} /></List>
+                    <div 
+                    style={{border: '1px solid var(--adm-color-border)', maxWidth: 300, padding: 8, marginLeft: "auto", marginRight: "auto", borderRadius: 8}}>
+                        <MetadataCard message={openService?.link} />
+                    </div>
                     <ChatInputMessage 
                     onSent={async () => {
                         Toast.show({
@@ -292,6 +314,7 @@ className="text-xl  text-center p-2">
                             content: "Sent",
                             duration: 1000
                         })
+                        await new Promise((resolve) => setTimeout(resolve, 500)); // wait for the toast to show
                         await WebviewOverlay.toggleSnapshot(false);
                         setVisibleMessage(false)
                         setVisible(false)
@@ -315,6 +338,7 @@ className="text-xl  text-center p-2">
                     </Space>
                 </div>
             </Popup>
+       
         </div>
 
     );

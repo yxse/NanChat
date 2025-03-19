@@ -6,12 +6,13 @@ import { socket } from '../socket';
 import { LedgerContext, useWallet, WalletContext } from '../../Popup';
 import { convertAddress } from '../../../utils/format';
 import { AccountIcon } from '../../app/Home';
-import { Button, Form, Input, Toast } from 'antd-mobile';
+import { Button, Form, Input, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
 import { fetcherAccount, fetcherMessages, getNewChatToken } from '../fetcher';
 import useSWR from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
+import { useHideNavbarOnMobile } from '../../../hooks/use-hide-navbar';
 
 const SetName: React.FC = () => {
     const navigate = useNavigate();
@@ -20,17 +21,25 @@ const SetName: React.FC = () => {
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const {  mutate: mutateChats } = useSWR<Chat[]>(`/chats`, fetcherMessages);
 
+    useHideNavbarOnMobile(true);
     const {ledger} = useContext(LedgerContext);
     const isRegistered = me?.name;
     if (ledger) {
         return <LedgerNotCompatible />
     }
     return (
+        <div>
+            <NavBar
+                            onBack={() => navigate(-1)}
+                    className="app-navbar "
+                    backArrow={true}>
+                      Name
+                    </NavBar>
         <div className="flex flex-col items-center justify-center h-full">
             {
                 isRegistered ? 
                 <div className='text-2xl mb-4'>
-                    Update your name
+                    {/* Update your name */}
                 </div>
                 :
             <div className="text-center">
@@ -44,6 +53,7 @@ const SetName: React.FC = () => {
             </div>
             }
             <Form 
+            style={{width: '100%', maxWidth: 500}}
             initialValues={{name: me?.name}}
             mode='card'
             onFinish={(values) => {
@@ -79,7 +89,7 @@ const SetName: React.FC = () => {
                 <Button 
                 className='w-full'
                 type='submit' color='primary' size='large'>
-                    Set Name
+                    Done
                 </Button>
                     </>
             }>
@@ -99,6 +109,7 @@ const SetName: React.FC = () => {
                     />
                 </Form.Item>
             </Form>
+            </div>
             </div>
     );
 };

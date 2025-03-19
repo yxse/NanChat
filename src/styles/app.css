@@ -296,7 +296,8 @@ html {
 
 :root:root {
   /* --adm-button-border-radius: 12px; */
-  --adm-color-background: #111;
+  --adm-color-background: #0e0e0e;
+  --adm-color-border: #1e1e1e;
 }
 
 .checkListContainer {
@@ -382,6 +383,7 @@ html {
   --main-background-color: #efefef;
   /* --adm-color-text: #dbdbdb; */
   /* --text-color-primary: white; */
+  --adm-color-border: #e0e0e0;
 }
 
 /*  animation keyboard ios native */

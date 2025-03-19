@@ -18,6 +18,7 @@ export function useWindowDimensions() {
       setWindowDimensions(getWindowDimensions());
     }
 
+    // bad performance, especially when virtual keyboard opens
     // window.addEventListener('resize', handleResize);
     // return () => window.removeEventListener('resize', handleResize);
   }, []);

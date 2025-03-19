@@ -6,11 +6,13 @@ import { socket } from '../../socket';
 import { WalletContext } from '../../../Popup';
 import { convertAddress } from '../../../../utils/format';
 import { AccountIcon } from '../../../app/Home';
-import { Button, Form, Input, Modal, Toast } from 'antd-mobile';
+import { Button, Form, Input, Modal, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './upload-pfp';
 import { fetcherAccount, fetcherMessagesPost } from '../../fetcher';
 import useSWR from 'swr';
+import { useHideNavbarOnMobile } from '../../../../hooks/use-hide-navbar';
+import { ResponsivePopup } from '../../../Settings';
 
 const SetUsername: React.FC = () => {
     const navigate = useNavigate();
@@ -18,10 +20,19 @@ const SetUsername: React.FC = () => {
     const {wallet} = useContext(WalletContext)
     const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)
     const activeAccountNano = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
+    const [visible, setVisible] = React.useState(false);
     const {data: me, isLoading, mutate} = useSWR(activeAccountNano, fetcherAccount);
-
+    useHideNavbarOnMobile(true);
     return (
-        <div className="flex flex-col items-center justify-center h-full">
+        <div>
+              <NavBar
+                                        onBack={() => navigate(-1)}
+                                className="app-navbar "
+                                backArrow={true}>
+                                  {" "}
+                                </NavBar>
+
+        <div className="flex flex-col items-center justify-center" style={{height: '50dvh', margin: 32}}>
             {/* <span className='text-lg mx-2'>
                 To get started, set your display name:
             </span> */}
@@ -35,15 +46,18 @@ const SetUsername: React.FC = () => {
                   NanChat ID is your short unique identifier. Your friends can use it to add you on NanChat. It can only be changed once per year.
             </div>
             
-
-            <Button 
-            onClick={() => {
-                let modal1 = Modal.show({
-                    closeOnMaskClick: true,
-                    title: 'Enter New NanChat ID',
-                    content: <div>
-                        NanChat ID must be 6-20 characters.
+<ResponsivePopup 
+bodyStyle={{height: 400}}
+visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
+<div className='m-4 text-center'>
+    <div className='text-xl mb-4'>
+    Enter New NanChat ID
+    </div>
+    <div className=''>
+                        Must be 6-20 characters.
+    </div>
                         <Form 
+                        style={{width: '100%'}}
                     mode='card'
                     className="form-list high-contrast"
                     onFinish={(values) => {
@@ -91,8 +105,16 @@ const SetUsername: React.FC = () => {
                             Set a Name to get started
                         </Form.Header> */}
                         <Form.Item
+                        required={false}
                         validateTrigger='onBlur'
-                        rules={[{min: 6, max: 20, message: 'NanChat ID must be between 6 and 20 characters'}]}
+                        validateFirst
+                        rules={[
+                            {
+                            required: true, message: 'NanChat ID is required'
+                            },
+                            {
+                            min: 6, max: 20, message: 'NanChat ID must be between 6 and 20 characters'
+                        }]}
                         label={'NanChat ID'}
                          name={'username'}>
                             <Input
@@ -103,11 +125,16 @@ const SetUsername: React.FC = () => {
                         </Form.Item>
                     </Form>
                     </div>
-                });
+</ResponsivePopup>
+
+            <Button 
+            onClick={() => {
+                setVisible(true);
             }}
-                type='submit' color='default' size='middle' style={{marginTop: 64}}>
+                type='submit' color='default' size='middle' style={{marginTop: 128}}>
                     Change NanChat ID
                 </Button>
+            </div>
             </div>
     );
 };

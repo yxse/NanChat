@@ -267,10 +267,10 @@ export class Wallet {
       fetch(`https://api.nanexplorer.com/block_info?hash=${account_info.frontier.trim()}&network=all`).then((res) => res.json()),
       this.verifyFrontier(source, account_info)
     ]);
-    
     if (!verifFrontier) {
       throw new Error("Frontier verification failed");
     }
+    // todo: verify existing frontier of all custom networks too, in case the network is not in the explorer
     const data = {
       walletBalanceRaw: account_info.balance,
       fromAddress: source,
@@ -279,7 +279,7 @@ export class Wallet {
       frontier: account_info.frontier, // Previous block
       amountRaw: amount, // The amount to send in RAW
       work: work,
-      existingFrontier: existingFrontier, // this is to show, as a security measure, if the same frontier is used in another network
+      existingFrontier: existingFrontier, // security measure, if the same frontier is used in another network, send should be rejected, likely a malicious node trying to send on the wrong network
     };
     return data;
   }

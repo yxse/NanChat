@@ -66,9 +66,9 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
             caret={false}
              value={pin} onChange={setPin}  ref={ref} seperated
             showCloseButton={true} /> 
-            <div className="text-center mt-6">
-                <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
-                </div>
+            <div className="text-center">
+                    <PasscodeKeyboard passcode={pin} setPasscode={setPin} />
+            </div>
             </div>
             </div>
         </Popup>

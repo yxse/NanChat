@@ -22,6 +22,7 @@ import { ImportFromFile } from '../Initialize/restore/ImportFromFile';
 import { PasswordImport } from '../Initialize/restore/PasswordImport';
 import { ImportFromGoogleDrive } from '../Initialize/restore/ImportFromGoogleDrive';
 import { ImportFromICloud } from '../Initialize/restore/ImportFromICloud';
+import { SeedVerifiedBadge } from '../messaging/utils';
 
 function getTimestampFilename() {
     const now = new Date();
@@ -40,7 +41,6 @@ function getTimestampFilename() {
 }
 
 function BackupSecretPhrase() {
-    const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [backupActive, setBackupActive] = useLocalStorageState('backupActive', {
         defaultValue: {
             manual: false,
@@ -74,8 +74,6 @@ function BackupSecretPhrase() {
     else {
         mnemonic = walletLib.fromLegacySeed(seed).mnemonic
     }
-
-    const icon = seedVerified ? <MdOutlineSettingsBackupRestore size={24} /> : <Badge content={Badge.dot}><MdOutlineSettingsBackupRestore size={24} /></Badge>
 
 
     let iconDownloadBackup = <DownlandOutline />
@@ -137,15 +135,7 @@ function BackupSecretPhrase() {
                     }}
                 />
                 <div className="p-2 mt-2" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                    {
-                        !seedVerified ? <>
-                            <Badge content={Badge.dot} style={{ marginRight: 8 }}>
-                            </Badge>
-                            Backup your wallet
-                        </>
-
-                            : "Backup your wallet"
-                    }
+                    Backup Secret Phrase
                 </div>
 
                 <List style={{ marginTop: 16, marginBottom: 16 }}>
@@ -178,10 +168,12 @@ function BackupSecretPhrase() {
 
 
             </ResponsivePopup>
-            <List.Item prefix={icon} onClick={() => {
+            <List.Item
+            extra={<SeedVerifiedBadge />}
+             prefix={ <MdOutlineSettingsBackupRestore size={24} />} onClick={() => {
                 setPinVisible(true)
             }}>
-                Backup Wallet
+                Backup Secret Phrase
             </List.Item>
             <ResponsivePopup
                 visible={backupVisible && backupType === 'encrypted-file'}

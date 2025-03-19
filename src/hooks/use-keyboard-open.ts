@@ -4,6 +4,7 @@ const useDetectKeyboardOpen = (minKeyboardHeight = 300, defaultValue) => {
     const [isKeyboardOpen, setIsKeyboardOpen] = useState(defaultValue);
 
     useEffect(() => {
+        return
         const listener = () => {
             const newState = window.screen.height - minKeyboardHeight > window.visualViewport.height
             if (isKeyboardOpen != newState) {

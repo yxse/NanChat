@@ -284,7 +284,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                     key={chat.id}
                                     extra={
                                         <div className="flex flex-col items-end">
-                                            <div>{formatTelegramDate(chat.lastMessageTimestamp)}</div>
+                                            <div
+                                            className="text-xs"
+                                            >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
                                                 {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
                                                 <div>
                                                     <span 

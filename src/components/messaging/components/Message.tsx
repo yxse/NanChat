@@ -11,11 +11,11 @@ import MessageFile from "./MessageFile";
 import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
 import { DateHeader } from "./date-header-component";
-import { hasLink, isSpecialMessage, TEAM_ACCOUNT } from "../utils";
+import { isNanoAppMessage, isSpecialMessage, TEAM_ACCOUNT } from "../utils";
 import { useLongPress } from "../../../hooks/use-long-press";
 import { HapticsImpact } from "../../../utils/haptic";
 import { ImpactStyle } from "@capacitor/haptics";
-import { Button, Card, List, Popover, Toast } from "antd-mobile";
+import { Button, List, Popover, Toast } from "antd-mobile";
 import { Action } from "antd-mobile/es/components/popover";
 import { copyToClipboard } from "../../../utils/format";
 import { CopyIcon } from "../../app/Icons";
@@ -166,9 +166,13 @@ const Message = memo(({
         }}
       >
   
-        {isSpecialMessage(message) ? (
-          <MessageSpecial message={message} type={type} activeAccount={activeAccount} />
-        ) : (
+        {
+        isSpecialMessage(message) ? 
+          (<MessageSpecial message={message} type={type} activeAccount={activeAccount} />) : 
+        isNanoAppMessage(message) ? 
+          (<div className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} `} style={{}}>
+            <MetadataCard message={decrypted} /></div>
+          ) : (
           <MessageContent 
             message={message} 
             type={type} 
@@ -178,14 +182,12 @@ const Message = memo(({
             activeAccount={activeAccount}
           />
         )}
-
+        
       </Popover.Menu>
 
         {isFromCurrentUser && <ProfilePictureLink address={message.fromAccount} />}
       </div>
-      <div className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mx-2`} style={{marginLeft: 56, marginRight: 56}}>
-        <MetadataCard message={decrypted} />
-        </div>
+    
     </>
   );
 });
@@ -375,17 +377,13 @@ const MessageContent = ({
         )}
         {decrypted}
       </p>
-      
-
     </div>
   );
 };
 
-
 const MessageSpecial = ({ message, type, activeAccount }) => {
-  const { fromAccount, stickerId, tip, file, link } = message;
+  const { fromAccount, stickerId, tip, file } = message;
   const side = fromAccount === activeAccount ? 'from' : 'to';
-
   return (
     <div className="" >
       {type === 'group' && fromAccount !== activeAccount && (
