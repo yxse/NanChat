@@ -6,8 +6,8 @@ import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 const bc = new BroadcastChannel("notification_channel");
 
 //https://vite-pwa-org.netlify.app/guide/inject-manifest.html
-precacheAndRoute(self.__WB_MANIFEST)
-cleanupOutdatedCaches()
+// precacheAndRoute(self.__WB_MANIFEST)
+// cleanupOutdatedCaches()
 
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING')
@@ -21,6 +21,7 @@ self.addEventListener('fetch', function (event) {
     console.log('Fetch event for ', event.request.url);
 });
 self.addEventListener("push", async (event) => {
+    return
     const data = event.data ? event.data.json() : {};
 
     let body = data.body;

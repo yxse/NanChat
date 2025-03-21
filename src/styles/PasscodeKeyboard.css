@@ -1,10 +1,30 @@
 .passcode-keyboard {
-  max-width: 350px;
-  margin: 0 auto;
-  margin-top: 264px;
+  max-width: 400px;
+  /* width: 100%; */
+  /* margin: 0 auto; */
+  /* margin-top: 264px; */
+  height: 350px;
+  overflow: auto;
+  border: none !important;
+  width: 100% !important;
+  position: fixed;
+  bottom: 0;
+  /* margin-left: -200px; */
+  /* left: 50%; */
+  /* top: 50%; */
+  left: 50%;
+  transform: translateX(-50%);
+
+}
+
+@media (min-height: 933px) {
+  .passcode-keyboard {
+    top: 200px;
+  }
 }
 
 .keyboard-grid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
@@ -15,6 +35,10 @@
   font-size: 28px;
   cursor: pointer;
   user-select: none;
+}
+
+.keyboard-button:active {
+  background-color: var(--adm-color-border)
 }
 
 

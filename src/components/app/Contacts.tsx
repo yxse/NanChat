@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { List, NavBar, Icon, Button, Popover, FloatingBubble, Space, Modal, Input, Popup, Card, Form, Toast, SwipeAction, CenterPopup } from 'antd-mobile';
+import { List, NavBar, Icon, Button, Popover, FloatingBubble, Space, Modal, Input, Popup, Card, Form, Toast, SwipeAction, CenterPopup, Divider } from 'antd-mobile';
 import { AiOutlineDelete, AiOutlineExport, AiOutlineImport, AiOutlineMenu, AiOutlineMore, AiOutlinePlus } from 'react-icons/ai';
 import useLocalStorageState from 'use-local-storage-state';
 import NetworkList from './NetworksList';
 import { networks } from '../../utils/networks';
-import { convertAddress, formatAddress } from '../../utils/format';
+import { convertAddress, formatAddress, pasteFromClipboard } from '../../utils/format';
 import { saveAs } from 'file-saver';
 import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AddOutline, MessageOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
+import { AddOutline, DownlandOutline, LockFill, MessageOutline, UploadOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
 import { useWallet } from '../Popup';
 import ProfileName from '../messaging/components/profile/ProfileName';
 import { ResponsivePopup } from '../Settings';
+import { Scanner } from './Scanner';
+import useSWR from 'swr';
+import { fetcherAccount } from '../messaging/fetcher';
+import { useInviteFriends } from '../messaging/hooks/use-invite-friends';
+import ImportContactsFromShare, { useContacts } from '../messaging/components/contacts/ImportContactsFromShare';
+import BackupContacts, { useBackupContacts } from '../messaging/components/contacts/BackupContacts';
 
 
-const defaultContacts = [
+export const defaultContacts = [
         {
             name: 'NanWallet Team',
             addresses: [
@@ -25,6 +31,8 @@ const defaultContacts = [
             ]
         },
 ]
+
+
 const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
     const [addContactVisible, setAddContactVisible] = useState( searchParams.get("add") === "true" );
@@ -39,14 +47,15 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const [editContactVisible, setEditContactVisible] = useState(false);
   const {isMobile} = useWindowDimensions()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
-
+    const {addContacts} = useContacts();
+    const {backupContacts} = useBackupContacts()
     const handleExport = () => {
         // Handle export logic here
         const blob = new Blob([JSON.stringify(contacts)], { type: 'application/json' });
         saveAs(blob, 'nanwallet-contacts.json');
     };
 
-    const handleAddContact = () => {
+    const handleAddContact = async () => {
         // Handle add contact logic here
         const values = form.getFieldsValue();
         console.log(values);
@@ -61,6 +70,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             Toast.show({
                 icon: 'success',
             });
+            await backupContacts(newContacts)
             return;
         }
         // check if name already exists
@@ -73,11 +83,13 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             return;
         }
         let newContact = { name: values.name, addresses: [{ network: values.network, address: values.address }] };
-        setContacts([...contacts, newContact]);
+        let newContacts = [...contacts, newContact];
+        setContacts(newContacts);
         setAddContactVisible(false);
         Toast.show({
             icon: 'success',
         });
+        await backupContacts(newContacts)
     };
 
     console.log(contacts)
@@ -150,11 +162,11 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                     Edit Address
                 </span>
                 <Button
-                    onClick={() => {
+                    onClick={async () => {
                         Modal.confirm({
                             title: 'Delete Address',
                             content: 'Are you sure you want to delete this address?',
-                            onConfirm: () => {
+                            onConfirm: async () => {
                                 let newAddresses = contactToEdit.addresses.filter((address) => address.address !== form.getFieldValue('address'));
                                 let newContact = { name: contactToEdit.name, addresses: newAddresses };
                                 let newContacts = contacts.filter((contact) => contact.name !== contactToEdit.name);
@@ -166,6 +178,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                 Toast.show({
                                     icon: 'success',
                                 });
+                                await backupContacts(newContacts)
                             },
                             confirmText: 'Delete',
                             cancelText: 'Cancel',
@@ -224,16 +237,182 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     }
 
      const ImportContacts = () => {
+        const [popupVisible, setPopupVisible] = useState(false);
+        const [importMethod, setImportMethod] = useState('');
+        function decodeBase64Utf16LE(base64String) {
+            // Step 1: Convert Base64 to binary data
+            const binaryString = atob(base64String);
+            
+            // Step 2: Create a Uint8Array from the binary string
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            // Step 3: Decode the bytes as UTF-16LE
+            const decoder = new TextDecoder('utf-16le');
+            const decodedString = decoder.decode(bytes);
+            
+            return decodedString;
+          }
+
+        const PopupContentNault = () => {
+            const [step, setStep] = useState(0);
+            const parseNault = (urlNaultExport) => {
+                try {
+                    if (!urlNaultExport.startsWith('https://nault.cc/import-address-book#')) {
+                        Toast.show({
+                            icon: 'fail',
+                            content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
+                            duration: 5000,
+                        });
+                        return;
+                    }
+                    const parsed = urlNaultExport?.split('https://nault.cc/import-address-book#')[1];
+                    const text = decodeBase64Utf16LE(parsed);
+
+                    addContacts(text)
+                } catch (error) {
+                    console.error(error);
+                    Toast.show({
+                        icon: 'fail',
+                        content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
+                        duration: 5000,
+                    });                            
+                }
+            }
+            return <div>
+                <div className='text-xl text-center mb-4'>
+                    Import Contacts from Nault
+                </div>
+                <List>
+                    <List.Item>
+                        1) Open Nault and go to Address Book
+                    </List.Item>
+                    <List.Item>
+                        2) Click on "IMPORT / EXPORT" at the top, select "Export Address Book" and click "COPY TO CLIPBOARD"
+                    </List.Item>
+                    <List.Item>
+                        3) Click on "Paste from Clipboard" below
+                    </List.Item>
+                </List>
+                <div className='w-full text-center' style={{paddingRight: 16, paddingLeft: 16}}>
+                <Button
+                className='mt-4 w-full'
+                color={step === 0 ? 'primary' : 'default'}
+                size='large'
+                shape='rounded'
+                onClick={() => {
+                    window.open('https://nault.cc/address-book', '_blank');
+                    setStep(1);
+                }}
+                >
+                    Open Nault
+                </Button>
+                <Button
+                className='mt-4 w-full'
+                color={step === 1 ? 'primary' : 'default'}
+                size='large'
+                shape='rounded'
+                onClick={() => {
+                    pasteFromClipboard().then((urlNaultExport) => {
+                       parseNault(urlNaultExport)
+                    });
+                }}
+                >
+                    Paste from Clipboard
+                </Button>
+                <Scanner
+                onScan={(result) => {
+                    parseNault(result);
+                }}>
+                <Button
+                className='mt-4 mb-4 w-full'
+                color={'default'}
+                size='large'
+                shape='rounded'
+                onClick={() => {
+                    
+                }}
+                >
+                    Or Scan QR Code
+                </Button>
+                </Scanner>
+                
+                </div>
+            </div>;
+        }
+        const PopupContentNatriumKalium = () => {
+            return <div>
+                <div className='text-xl text-center mb-4'>
+                    Import Contacts from {importMethod}
+                </div>
+                <List>
+                    <List.Item>
+                        1) Open {importMethod} and go to Contacts
+                    </List.Item>
+                    <List.Item>
+                        2) Click on <UploadOutline style={{display: 'inline'}}/> button at the top right
+                    </List.Item>
+                    <List.Item>
+                        3) Select open in NanChat
+                    </List.Item>
+                </List>
+                <div className='w-full text-center'>
+                <Button
+                className='mt-4 mb-4'
+                color='primary'
+                size='large'
+                shape='rounded'
+                onClick={() => {
+                    window.location.href = importMethod === 'Natrium' ? 'manta://contacts' : 'banano://contacts';
+                }}
+                >
+                    Open {importMethod}
+                </Button>
+                </div>
+            </div>;
+        }
         return  <div className='text-white mb-4'>
+            <Divider>
+                Import Contacts
+            </Divider>
+            <List>
+            <List.Item
+            clickable
+            onClick={() => {
+                setPopupVisible(true);
+                setImportMethod('Natrium');
+            }}
+            >
+                Import from Natrium
+            </List.Item>
+            <List.Item
+            clickable
+            onClick={() => {
+                setPopupVisible(true);
+                setImportMethod('Kalium');
+            }}
+            >
+                Import from Kalium
+            </List.Item>
+            <List.Item
+            clickable
+            onClick={() => {
+                setPopupVisible(true);
+                setImportMethod('Nault');
+            }}
+            >
+                Import from Nault
+            </List.Item>
+            </List>
         <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
             <List mode='default'>
             <List.Item
-            className='w-full'
             clickable
-                prefix={<UserContactOutline />}
-                description="Nault, Natrium and Kalium export file supported"
+            description="Nault, Natrium and Kalium export file supported"
             >
-                Import from file
+                Import from a file
             </List.Item>
             </List>
         </label>
@@ -242,50 +421,10 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 const file = e.target.files[0];
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const data = JSON.parse(e.target.result);
+                    const text = e.target.result;
+                    
+                    addContacts(text)
 
-                    let newContacts = [...contacts];
-                    let count = 0;
-                    data.forEach((contact) => {
-                        const exists = newContacts.find((c) => c.name === contact.name);
-                        if (!exists) {
-                            let addressesFormatted = [];
-                            let addresses = []
-                            if (contact.addresses !== undefined) { // nanwallet export file
-                                addresses = contact.addresses
-                            }
-                            else if (contact.account) { // Nault export file
-                                addresses = [{ address: contact.account }]
-                            }
-                            else if (contact.address) { // Natrium export file
-                                addresses = [{ address: contact.address }]
-                            }
-                            addresses.forEach((address) => {
-                                if (address.network in networks) {
-                                    addressesFormatted.push({ network: address.network, address: address.address })
-                                }
-                                else if (address.network == null && address.address?.includes('_')) {
-                                     // retrieve network from address prefix
-                                    let prefix = address.address.split('_')[0]
-                                    let network = Object.keys(networks).find((ticker) => networks[ticker].prefix === prefix)
-                                    if (network) {
-                                        addressesFormatted.push({ network: network, address: address.address })
-                                    }
-                                }
-                            });
-
-                            newContacts.push({
-                                name: contact.name,
-                                addresses: addressesFormatted
-                            });
-                            count++;
-                        }
-                    });
-                    setContacts(newContacts);
-                    Toast.show({
-                        content: `${count} new contacts imported`,
-                        icon: 'success',
-                    });
 
                 };
                 reader.readAsText(file);
@@ -293,10 +432,68 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             accept='.json,.txt'
             className='hidden'
             id="file_input" type="file" />
+            <ResponsivePopup
+                visible={popupVisible}
+                onClose={() => setPopupVisible(false)}
+                closeOnMaskClick={true}
+                >
+                {importMethod === 'Nault' ? <PopupContentNault /> : <PopupContentNatriumKalium />}
+            </ResponsivePopup>
 
     </div>
     }
 
+    const findNanoAddress = (addresses) => {
+        if (addresses == null) return null;
+        if (addresses.find((address) => address.network === 'XNO')) {
+            return addresses.find((address) => address.network === 'XNO').address;
+        }
+        return convertAddress(addresses[0].address, 'XNO');
+    }
+    const InviteContactButton = ({ addresses }) => {
+        const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
+        const {inviteFriends} = useInviteFriends()
+        if (isLoading) {
+            return null
+        }
+        if (name?.username) {
+            return       <Button
+            color='default'
+            className='w-full mt-4'
+            onClick={() => {
+                navigate(
+                    `/chat/${findNanoAddress(contactToEdit.addresses)}`
+                ); // always navigate to chat with nano equivalent address, in case of eg: only banano contact
+                
+            }}
+            size='large'
+        >
+            <Space align='center' justify='center'>
+            💬
+                Messages
+            </Space>
+        </Button>
+        }
+        return <>
+         <div style={{color: "var(--adm-color-text-secondary)"}} className='text-center text-lg mt-4'>
+                        This account is not yet on NanChat
+                    </div>
+                    <Button
+                        shape='rounded'
+                        color='primary'
+                        className='w-full mt-4'
+                        onClick={() => {
+                            inviteFriends()
+                        }}
+                        size='large'
+                    >
+                        <Space align='center' justify='center'>
+                        📲
+                            Invite 
+                        </Space>
+                    </Button>
+                    </>
+    }
     if (onlyImport && contacts.length > 0) {
         return null
     }
@@ -351,7 +548,6 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 //     </div>
                 // </div>
             }
-             <ImportContacts />
             <List>
                 {contacts.sort((a, b) => a.name.localeCompare(b.name)).map((contact, index) => (
                     <SwipeAction
@@ -365,12 +561,13 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                     Modal.confirm({
                                         title: `Delete ${contact.name}?`,
                                         content: `Are you sure you want to delete this contact?`,
-                                        onConfirm: () => {
+                                        onConfirm: async () => {
                                             let newContacts = contacts.filter((c) => c.name !== contact.name);
                                             setContacts(newContacts);
                                             Toast.show({
                                                 icon: 'success',
                                             });
+                                            await backupContacts(newContacts)
                                         },
                                         confirmText: 'Delete',
                                         cancelText: 'Cancel',
@@ -380,7 +577,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         ]}>
 
                         <List.Item
-                        prefix={<ProfilePicture address={contact.addresses[0]?.address} />}
+                        prefix={<ProfilePicture address={contact.addresses[0]?.address} width={48}  />}
                          key={index}
                             onClick={() => {
                                 setContactToEdit(contact);
@@ -391,6 +588,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                     </SwipeAction>
                 ))}
             </List>
+            <ImportContacts />
+
             {/* <Button
                 shape='rounded'
                 size='large'
@@ -431,7 +630,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                             Edit Contact
                         </span>
                         <Button
-                            onClick={() => {
+                            onClick={async () => {
                                 let newContactName = form.getFieldValue('newName');
                                 let newContacts = contacts.filter((contact) => contact.name !== contactToEdit.name);
                                 let newContact = { name: newContactName, addresses: contactToEdit.addresses };
@@ -439,6 +638,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                 setContacts(newContacts);
                                 setEditContactVisible(false);
                                 setContactToEdit(null);
+                                await backupContacts(newContacts)
                             }}
                             color={name === contactToEdit?.name ? 'default' : 'primary'}
                             className='text-sm'>
@@ -473,7 +673,21 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                             </List.Item>
                         ))}
                     </List>
-
+                    <InviteContactButton addresses={contactToEdit?.addresses} />
+              
+                    <Button
+                        color='default'
+                        className='w-full mt-4'
+                        onClick={() => {
+                            navigate('/chat/' + contactToEdit.addresses.find((address) => address.network === 'XNO')?.address);
+                        }}
+                        size='large'
+                    >
+                        <Space align='center' justify='center'>
+                        💸
+                            Transfer
+                        </Space>
+                    </Button>
                     <Button
                         className='w-full mt-4 mb-4'
                         onClick={() => {
@@ -485,23 +699,11 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         color='default'
                     >
                          <Space align='center' justify='center'>
-                            <AddOutline fontSize={20} />
+                         ➕
                             Add Address
                         </Space>
                     </Button>
-                    <Button
-                        color='default'
-                        className='w-full'
-                        onClick={() => {
-                            navigate('/chat/' + contactToEdit.addresses.find((address) => address.network === 'XNO')?.address);
-                        }}
-                        size='large'
-                    >
-                        <Space align='center' justify='center'>
-                            <MessageOutline fontSize={20} />
-                            Messages
-                        </Space>
-                    </Button>
+                    
                 </Card>
             </ResponsivePopup>
             <ResponsivePopup
@@ -524,6 +726,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         }} />
                 </Card>
             </ResponsivePopup>
+            <ImportContactsFromShare />
+            <BackupContacts />
         </div>
     );
 };
@@ -562,7 +766,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
             {
                     wallet?.accounts?.map((account, index) => (
                         <List.Item
-                        prefix={<ProfilePicture address={account.address} />}
+                        prefix={<ProfilePicture address={account.address} width={48} />}
                          key={index}
                             onClick={() => {
                                 onSelect({ name: `Account ${account.accountIndex + 1}`, addresses: [{ network: ticker, address: convertAddress(account.address, ticker) }] });

@@ -127,7 +127,7 @@ export const accountIconUrl = (account) => {
   if (!account?.startsWith("nano_")){
     account = "nano_" + account?.split("_")[1];
   }
-  return "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account;
+  return "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account + "%26outline%3Dtrue";
 }
 export const AccountIcon = ({ account, width=32 }) => {
   return <ProfilePicture address={account} width={width} fallback={accountIconUrl(account)} />
@@ -208,22 +208,6 @@ console.log("balance 2", totalBalance);
   </div>
 </div>
 }
-FirebaseMessaging.addListener("notificationReceived", (event) => {
-  console.log("notificationReceived: ", { event });
-  // focus window
-  // window.focus();
-    LocalNotifications.schedule({
-          notifications: [
-            {
-              title: 'On the go',
-              body: "activeAccount 2",
-              id: Math.floor(Math.random() * 100),
-              schedule: { at: new Date(Date.now() + 1000) }, // 5 seconds
-              
-            }
-          ]
-        })
-})
 export default function Home({ }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);

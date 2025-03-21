@@ -1004,6 +1004,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-6.0.3.tgz#0ea0e2f832722c02e32c5bb8a1e776d8bddc9b9e"
   integrity sha512-V/mURxBI68HvClYjrGBlOriWkwYN7r+cWid/igJz/3scNc/V81DgQ9fpoLr4W0I5NY7YxOesjIJLuLO+LT18mQ==
 
+"@capacitor/local-notifications@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/local-notifications/-/local-notifications-7.0.0.tgz#15616348ea71154efc71efede404de0401d4e124"
+  integrity sha512-+k93w1W0hZTVxM8rjttEyUKkkHxOW776POFM4snDcwv+sAxWX+YK+oqIwNtln6N5Plp3Z9TkQS0RufwZbl7GUw==
+
 "@capacitor/share@6":
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/@capacitor/share/-/share-6.0.3.tgz#03f613d916226e4891e6022cc89967eb1b3cd3cd"
@@ -2441,9 +2446,9 @@
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
-"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#8eedf27def2a92042b9156ed9a0479d79a7452eb":
+"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#ded3c1046372b540cca75b60d64b11d0939d3051":
   version "3.1.1"
-  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#8eedf27def2a92042b9156ed9a0479d79a7452eb"
+  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#ded3c1046372b540cca75b60d64b11d0939d3051"
   dependencies:
     resize-observer-polyfill "^1.5.1"
 
@@ -3161,6 +3166,11 @@ capacitor-secure-storage-plugin@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/capacitor-secure-storage-plugin/-/capacitor-secure-storage-plugin-0.10.0.tgz#dbe96fe86c070a7c2ac7f43564d956f76cd683af"
   integrity sha512-dV4E+HTZAJWC3gef7sBXaAkkb6wvcZHyXjJIHXNb3yz9gRQ/5VMLqCxa0khqpwgWh5oIbo4XFxg3g5tEkfaNMg==
+
+capacitor-share-extension@4.0.0-beta.0:
+  version "4.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/capacitor-share-extension/-/capacitor-share-extension-4.0.0-beta.0.tgz#70aa2375961cc00c64ec83bcc8a12b989634289e"
+  integrity sha512-YdQgm7eMNuXY2rRVRrdhBtY5n11DpkBx6oD+ei/7l/XsEJc+lMdei3shCkcv4Dj2qJUgv4rBvxYywzcswhC1Fw==
 
 chalk@5.3.0:
   version "5.3.0"
@@ -5977,10 +5987,10 @@ react-transition-group@^4.3.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react-virtualized@^9.22.5:
-  version "9.22.5"
-  resolved "https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.5.tgz"
-  integrity sha512-YqQMRzlVANBv1L/7r63OHa2b0ZsAaDp1UhVNEdUaXI8A5u6hTpA5NYtUueLH2rFuY/27mTGIBl7ZhqFKzw18YQ==
+react-virtualized@^9.22.6:
+  version "9.22.6"
+  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.22.6.tgz#3ae2aa69eca61cf3af332e2f9d6b4aa5638786d5"
+  integrity sha512-U5j7KuUQt3AaMatlMJ0UJddqSiX+Km0YJxSqbAzIiGw5EmNz0khMyqP2hzgu4+QUtm+QPIrxzUX4raJxmVJnHg==
   dependencies:
     "@babel/runtime" "^7.7.2"
     clsx "^1.0.4"

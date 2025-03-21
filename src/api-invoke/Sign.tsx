@@ -6,13 +6,35 @@ import { WalletContext } from "../components/Popup";
 import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import { AccountIcon } from "../components/app/Home";
 import SelectAccount from "../components/app/SelectAccount";
+import { Capacitor } from "@capacitor/core";
+import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import { useEmit, useEvent } from "../components/messaging/components/EventContext";
+import { ResponsivePopup } from "../components/Settings";
+import { WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
+// import { InAppBrowser } from '@capgo/inappbrowser'
+
+
+export const SignPopup = ({visible, setVisible, uri}) => {
+
+  return (
+    <ResponsivePopup
+    destroyOnClose
+    visible={visible}
+    bodyStyle={{height: "500px", overflow: "scroll"}}
+    setVisible={setVisible}
+    title="Sign Message"
+    >
+      <Sign uri={uri} onClose={() => setVisible(false)} />
+    </ResponsivePopup>
+  )
+}
 
 export const signMessage = (privateKey, message) => {
   let messageToSign = "Signed Message: " + message // Add prefix to message as a security measure to prevent to sign a block by mistake / from an attacker request
   const signed = tools.sign(privateKey, messageToSign)
   return signed
 }
-export default function Sign() {
+export default function Sign({uri, onClose}) {
   const {wallet} = useContext(WalletContext)
   const [message, setMessage] = useState("")
   const [callback, setCallback] = useState(false)
@@ -23,8 +45,24 @@ export default function Sign() {
   const proxyWorker = "https://proxy-signature.xno.link" // Cloudflare Worker to protect client's IP
   const [searchParams] = useSearchParams();
   const navigate = useNavigate()
-  const submitURL = searchParams.get("url") || ""
+  const [submitURL, setSubmitURL] = useState(searchParams.get("url") || "")
   useEffect(() => {
+    if (uri){
+      let url = new URL(uri)
+      let searchParams = new URLSearchParams(url.search)
+      
+      setMessage(searchParams.get("message"))
+      try {
+        setCallback(searchParams.get("callback"))
+        setSubmitURL(searchParams.get("url"))
+        setHostname(new URL(searchParams.get("url")).hostname)
+      } catch (error) {
+        console.log(error)
+        Toast.show({content: error, icon: 'fail'})
+      }
+    }
+    else{
+
     setMessage(searchParams.get("message"))
     try {
       let submitHost = new URL(submitURL).hostname
@@ -34,9 +72,11 @@ export default function Sign() {
       console.log(error)
       navigate("/")
     }
+  }
+
   }, [])
   return (
-    <div className="flex flex-col overflow-hidden  w-full h-full">
+    <div className="flex flex-col   w-full h-full">
       <nav className="flex select-none w-full shadow-md items-center rounded-b-lg justify-start p-2 bg-slate-800 text-center">
         <div className="w-full flex flex-row items-center">
           <div className="justify-center flex w-full">
@@ -50,7 +90,7 @@ export default function Sign() {
       <div className="flex justify-center h-full p-4">
         <div className="flex flex-col justify-between h-full w-full">
           <div className="flex flex-col w-full justify-start mt-0 items-center mb-4">
-            <div className="flex flex-col space-y-1 overflow-hidden justify-center text-center w-full">
+            <div className="flex flex-col space-y-1  justify-center text-center w-full">
               <div className="flex mb-2 items-center justify-center">
                 {/** image placeholder */}
                
@@ -121,10 +161,19 @@ export default function Sign() {
               .then((data) => {
                 console.log(data)
                 setResult(data)
-                window.open(callback, "_blank")
+                if (Capacitor.isNativePlatform()) {
+                  // InAppBrowser.openInSystemBrowser({url: callback, options: DefaultSystemBrowserOptions})
+                  // InAppBrowser.openWebView({url: callback, isPresentAfterPageLoad: true});
+                  WebviewOverlay.toggleSnapshot(false);
+                  if (onClose) onClose()
+                }
+                else{
+                  window.open(callback, "_blank")
+                }
             })
               .catch((error) => {
-                Toast.show({content: "An error occurred while signing the message", icon: 'fail'})
+                Toast.show({content: "An error occurred while signing the message: " + error,
+                  icon: 'fail'})
                 console.log(error)
             }).finally(() => {
               setIsLoading(false)
@@ -158,12 +207,17 @@ export default function Sign() {
                     
                     </div>
                 <Button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              // navigate("/")
+              if (onClose){
+                onClose()
+              }
+            }}
             className="w-full mt-4"
             shape="rounded"
             color="primary"
           >
-            Go Home
+            Close
           </Button>
                 </>
                 }

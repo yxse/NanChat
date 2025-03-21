@@ -22,6 +22,7 @@ import { ImportFromFile } from '../Initialize/restore/ImportFromFile';
 import { PasswordImport } from '../Initialize/restore/PasswordImport';
 import { ImportFromGoogleDrive } from '../Initialize/restore/ImportFromGoogleDrive';
 import { ImportFromICloud } from '../Initialize/restore/ImportFromICloud';
+import { SeedVerifiedBadge } from '../messaging/utils';
 
 function getTimestampFilename() {
     const now = new Date();
@@ -40,7 +41,6 @@ function getTimestampFilename() {
 }
 
 function BackupSecretPhrase() {
-    const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [backupActive, setBackupActive] = useLocalStorageState('backupActive', {
         defaultValue: {
             manual: false,
@@ -74,8 +74,6 @@ function BackupSecretPhrase() {
     else {
         mnemonic = walletLib.fromLegacySeed(seed).mnemonic
     }
-
-    const icon = seedVerified ? <MdOutlineSettingsBackupRestore size={24} /> : <Badge content={Badge.dot}><MdOutlineSettingsBackupRestore size={24} /></Badge>
 
 
     let iconDownloadBackup = <DownlandOutline />
@@ -137,15 +135,7 @@ function BackupSecretPhrase() {
                     }}
                 />
                 <div className="p-2 mt-2" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                    {
-                        !seedVerified ? <>
-                            <Badge content={Badge.dot} style={{ marginRight: 8 }}>
-                            </Badge>
-                            Backup your wallet
-                        </>
-
-                            : "Backup your wallet"
-                    }
+                    Backup Secret Phrase
                 </div>
 
                 <List style={{ marginTop: 16, marginBottom: 16 }}>
@@ -178,10 +168,12 @@ function BackupSecretPhrase() {
 
 
             </ResponsivePopup>
-            <List.Item prefix={icon} onClick={() => {
+            <List.Item
+            extra={<SeedVerifiedBadge />}
+             prefix={ <MdOutlineSettingsBackupRestore size={24} />} onClick={() => {
                 setPinVisible(true)
             }}>
-                Backup Wallet
+                Backup Secret Phrase
             </List.Item>
             <ResponsivePopup
                 visible={backupVisible && backupType === 'encrypted-file'}
@@ -198,13 +190,22 @@ function BackupSecretPhrase() {
 
                 {
                     !passwordBackupActive ?
-                        <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} /> :
+                        <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} wallet={wallet} /> :
                         <div>
                             
                             <div className="flex flex-col gap-2 p-4 mt-4 mb-4">
                                 {
                                     Capacitor.getPlatform() === "web" &&
                                     <div className="flex flex-col gap-2">
+                                        <Button size='large' shape='rounded' onClick={async () => {
+                                            Modal.show({
+                                                closeOnMaskClick: true,
+                                                content: <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} wallet={wallet}/>
+                                            })
+                                        }
+                                        }>
+                                            Download
+                                        </Button>
                                         <ImportFromFile onWalletSelected={handleVerifyWallet} mode="verify" />
                                     </div>
                                 }
@@ -289,9 +290,8 @@ function BackupSecretPhrase() {
 
 
 
-const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text }: { setBackupVisible: any, setBackupType: any, setVisible: any }) => {
-    const { activeAccount } = useWallet()
-    const { wallet } = useContext(WalletContext)
+const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text, wallet }: { setBackupVisible: any, setBackupType: any, setVisible: any }) => {
+    const { activeAccount } = useWallet() // this is not workig in the modal for some reason
     let seed = wallet?.wallets['XNO']?.seed
     if (seed == null) {
         return null
@@ -318,6 +318,7 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text 
                 <PasswordForm
                     onFinish={async (values) => {
 
+                        try {
                         let encryptedSeed = await encrypt(seed, values.password)
                         let fileName = 'nanchat-backup-' + getTimestampFilename() + '-' + activeAccount?.replace('nano_', '').slice(0, 8) + '.txt'
                         Toast.show({
@@ -325,9 +326,8 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text 
                             duration: 0,
                         })
                         let success = false
-                        try {
                             if (Capacitor.getPlatform() === 'ios') {
-                                let uri = await backupWalletICloud(encryptedSeed, fileName)
+                                let uri = await backupWalletGoogleDrive(encryptedSeed, fileName)
                                 if (uri) {
                                     success = true
                                     setBackupActive({ ...backupActive, icloud: true })
@@ -342,7 +342,7 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text 
                                 const blob = new Blob([encryptedSeed], { type: 'text/plain;charset=utf-8' });
                                 saveAs(blob, fileName);
                                 success = true
-                                setBackupActive({ ...backupActive, encryptedFile: true })
+                                // setBackupActive({ ...backupActive, encryptedFile: true })
                             }
 
                             if (success) {

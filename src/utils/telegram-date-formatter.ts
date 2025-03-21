@@ -31,11 +31,12 @@ function formatTelegramDate(date) {
     }
     
     // Check if message is from this week
-    const weekStart = new Date(now);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const lastWeek = new Date(now);
+    lastWeek.setDate(lastWeek.getDate() - 7);
     
-    if (messageDate >= weekStart) {
-        return messageDate.toLocaleDateString(undefined, { weekday: 'short' });
+    
+    if (messageDate >= lastWeek) {
+        return messageDate.toLocaleDateString(undefined, { weekday: 'long' });
     }
     
     // For older messages, return date in DD/MM/YYYY format

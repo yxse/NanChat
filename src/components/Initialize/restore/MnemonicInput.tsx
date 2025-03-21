@@ -62,7 +62,6 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
           label="Recovery Phrase">
         <TextArea
         style={{backgroundColor: "var(--main-background-color)", padding: 8, borderRadius: 6}}
-        autoFocus
           className="mt-4"
           autoSize
           value={mnemonicInputs.join(" ")}

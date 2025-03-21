@@ -1,10 +1,11 @@
 import React from 'react'
 import './ReloadPrompt.css'
 
-import { useRegisterSW } from 'virtual:pwa-register/react'
+// import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Button } from 'antd-mobile'
 
 function ReloadPrompt() {
+  return null
   const {
     offlineReady: [offlineReady, setOfflineReady],
     needRefresh: [needRefresh, setNeedRefresh],

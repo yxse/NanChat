@@ -26,6 +26,34 @@ import ChatInputAdd from "./ChatInputAdd";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { useEvent } from "./EventContext";
 
+
+const mutateLocal = (mutate, mutateChats, message, account, activeAccount) => {
+  const id = Math.random().toString();
+  mutate(currentPages => {
+      const newPages = [...(currentPages || [])];
+      // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
+      // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
+      newPages[0] = [{ ...message, isLocal: true, _id: id}, ...(newPages[0] || [])];
+      return newPages;
+  }, false);
+  mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
+      const newChats = [...(currentChats || [])];
+      const chatIndex = newChats.findIndex(chat => chat.id === account);
+      if (chatIndex !== -1) {
+          const newChat = { ...newChats[chatIndex] };
+          newChat.lastMessage = message.content;
+          newChat.lastMessageTimestamp = new Date().toISOString();
+          newChat.lastMessageId = id;
+          newChat.isLocal = true;
+          newChat.lastMessageFrom = activeAccount;
+          newChat.height = newChat.height + 1;
+          newChats.splice(chatIndex, 1);
+          newChats.unshift(newChat);
+      }
+      return newChats;
+  }, false);
+}
+
 const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined }) => {
     let {
         account
@@ -48,6 +76,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
     // const {data: names} = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
     const {data: chats, mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const { mutate: mutateMessages} = useChat(account);
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
@@ -144,7 +173,11 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         chatId: chatId,
         height: chat?.height + 1, // only used for the local mutate, it might be not always accurate
       };
+      if (defaultNewMessage){
+        message.nanoApp = new URL(defaultNewMessage).hostname; // for nano app sharing
+      }
       onSent(message);
+      mutateLocal(mutateMessages, mutate, message, account, activeAccount);
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
@@ -165,7 +198,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
 
      socket.emit('message', messageEncrypted);
      setNewMessage('');
-     messageInputRef.current?.focus();
+     if (!defaultNewMessage){ // defautlNewMessage is used to share from webiew popup, don't need to open keyboard by focus
+         messageInputRef.current?.focus();
+      }
      if (account !== chatId){
       // redirect to chat id when initial message
        mutate()
@@ -188,6 +223,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         tip: {ticker, hash}
       };
       onSent(message);
+      mutateLocal(mutateMessages, mutate, message, account, activeAccount);
      const messageEncrypted = { ...message };
      messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
      socket.emit('message', messageEncrypted);
@@ -207,6 +243,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         stickerId: stickerId
       };
       onSent(message);
+      mutateLocal(mutateMessages, mutate, message, account, activeAccount);
      const messageEncrypted = { ...message };
      if (chat.type === "private") {
       messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
@@ -236,6 +273,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         }
       };
       onSent(message);
+      mutateLocal(mutateMessages, mutate, message, account, activeAccount);
       socket.emit('message', message);
     }
 
@@ -260,6 +298,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           paddingBottom: 8,
           paddingTop: 4,
           backgroundColor: 'var(--adm-color-background)',
+          display: defaultNewMessage ? 'none' : 'block', // hide input when sharing from webview
         }}
         onSubmit={sendMessage} className=" px-4">
        

@@ -46,7 +46,7 @@ export const MetadataCard = ({ message  }) => {
         </div>
         }
             <div>
-              <div>
+              <div style={{color: 'var(--adm-color-text)'}}>
                 {data.title}
               </div>
               <p style={{color: 'var(--adm-color-text-secondary)'}} className='text-sm'>
@@ -65,7 +65,9 @@ export const MetadataCard = ({ message  }) => {
             </div>
         </Card>
         {
-          openUrl && <Discover defaultURL={url} />
+          openUrl && <Discover defaultURL={url} onClose={() => {
+            setOpenUrl(false)
+          }}/>
         }
         
         </>

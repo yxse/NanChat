@@ -4,7 +4,7 @@ import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { socket } from '../socket';
 import { AccountIcon } from '../../app/Home';
-import { Button, Divider, Form, Input, List, Modal, NavBar, Toast } from 'antd-mobile';
+import { Badge, Button, Divider, Form, Input, List, Modal, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
 import useSWR from 'swr';
@@ -16,7 +16,7 @@ import icon from "../../../../../public/icons/icon.png";
 import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import SelectAccount from '../../../app/SelectAccount';
 import Settings, { CopyToClipboard } from '../../../Settings';
-import { showAccountQRCode } from '../../utils';
+import { SeedVerifiedBadge, showAccountQRCode } from '../../utils';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -56,14 +56,17 @@ const ProfileHome: React.FC = () => {
                 >
                     Name
                 </List.Item>
+                
+              
                 <List.Item
-                extra={formatAddress(me?._id, 8, 3)}
+                extra={formatAddress(me?._id)}
                 onClick={() => {
                     Modal.show({
                         closeOnMaskClick: true,
                         showCloseButton: true,
-                        title: 'Account',
+                        title: 'Linked Account',
                         content: 
+                        <div>
                         <div 
                         style={{wordBreak: 'break-all', textAlign: 'center', maxWidth: "200px", margin: "auto"}}
                         onClick={() => {
@@ -74,6 +77,7 @@ const ProfileHome: React.FC = () => {
                             copyToClipboard(me?._id);
                         }}>
                            {me?._id}
+                        </div>
                         </div>
                     });
                 }
@@ -98,6 +102,7 @@ const ProfileHome: React.FC = () => {
                 >
                     My QR Code
                 </List.Item>
+                
                 </List>
             <List className='my-4' mode='card'>
             <List.Item
@@ -112,8 +117,9 @@ const ProfileHome: React.FC = () => {
             <List.Item
                     prefix={<SetOutline fontSize={24} />}
                     onClick={() => navigate('/me/settings')}
+                    extra={<SeedVerifiedBadge/>}
                     >
-                        Settings
+                            Settings
                     </List.Item>
             </List>
             {/* <Settings /> */}

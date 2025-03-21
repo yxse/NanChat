@@ -1,12 +1,16 @@
-import { Modal } from "antd-mobile";
+import { Badge, Modal } from "antd-mobile";
 import { QRCodeSVG } from "qrcode.react";
 import icon from "../../../public/icons/icon.png";
+import useLocalStorageState from "use-local-storage-state";
 
 
 export const hasLink = (message: string) => {
     return message.match(/(https?:\/\/[^\s]+)/g)
 }
 
+export const isNanoAppMessage = (message: string) => {
+    return message.nanoApp
+}
 export const isSpecialMessage = (message: Message) => {
     
     return message?.stickerId || message?.tip || message?.file ||
@@ -104,5 +108,25 @@ export const showAccountQRCode = (me) => {
       )
     })
 }
+
+
+export const SeedVerifiedBadge = ({children, icon = false}) => {
+  const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
+
+  if (seedVerified) return children
+  if (icon) return (
+    <Badge content={Badge.dot}>
+      {children}
+    </Badge>
+  )
+  return (
+    <>
+     <Badge content={Badge.dot} />
+        {children}
+    </>
+  )
+}
+
+  
 
 export const TEAM_ACCOUNT = import.meta.env.VITE_PUBLIC_TEAM_ACCOUNT as string;

@@ -31,6 +31,8 @@ import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
 import { TEAM_ACCOUNT } from "../utils";
+import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
+import { useInviteFriends } from "../hooks/use-invite-friends";
 
 
 const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
@@ -53,6 +55,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     const {isMobile, width} = useWindowDimensions();
     const [page, setPage] = useState(0);
     const [height, setHeight] = useState(2000)
+    const { inviteFriends } = useInviteFriends();
     const {
         messages,
         loadMore,
@@ -234,24 +237,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
     useEffect(() => {
         scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
-        if (account) {
-            if (width <= 768) {
-                // hide nabar when in chat and chatlist hidden (screen < 768)
-                const admTabBar = document.querySelector('.adm-tab-bar.bottom');
-                if (admTabBar) {
-                    admTabBar.setAttribute('style', 'display: none');
-                }
-                return () => {
-                    setAutoScroll(true);
-                    if (admTabBar) {
-                        admTabBar.setAttribute('style', 'display: block');
-                    }
-                };
-            }
-        }
 
     }, [account, width]);
 
+    useHideNavbarOnMobile(account);
     useEffect(() => {
         // console.log("height", infiniteScrollRef.current?.scrollTop);
         // console.log("height", infiniteScrollRef.current?.scrollHeight);
@@ -371,7 +360,6 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             {
                 account != null && (
                     <List.Item
-                        style={{ zIndex: 1 }}
                     // prefix={
                     //     <AccountIcon account={account} width={48} />
                     // }
@@ -448,7 +436,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         <div>
         <InfoMessageEncrypted />
         {
-             account === TEAM_ACCOUNT ? <WelcomeMessage /> : 
+             chat?.creator === TEAM_ACCOUNT ? <WelcomeMessage /> : 
              
                  <StartConversation address={address} />
         }
@@ -573,30 +561,6 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             // mutate(prev => {
                             //     return [...prev, { ...message, isLocal: true }];
                             // }, false);
-                            const id = Math.random().toString();
-                            mutate(currentPages => {
-                                const newPages = [...(currentPages || [])];
-                                // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
-                                // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
-                                newPages[0] = [{ ...message, isLocal: true, _id: id}, ...(newPages[0] || [])];
-                                return newPages;
-                            }, false);
-                            mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
-                                const newChats = [...(currentChats || [])];
-                                const chatIndex = newChats.findIndex(chat => chat.id === account);
-                                if (chatIndex !== -1) {
-                                    const newChat = { ...newChats[chatIndex] };
-                                    newChat.lastMessage = message.content;
-                                    newChat.lastMessageTimestamp = new Date().toISOString();
-                                    newChat.lastMessageId = id;
-                                    newChat.isLocal = true;
-                                    newChat.lastMessageFrom = activeAccount;
-                                    newChat.height = newChat.height + 1;
-                                    newChats.splice(chatIndex, 1);
-                                    newChats.unshift(newChat);
-                                }
-                                return newChats;
-                            }, false);
                             setTimeout(() => {
                                 scrollToBottom();
                             }, 0);
@@ -625,15 +589,12 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     backgroundColor: 'var(--adm-color-background)',
                                 }}
                             >
-                                This account is not yet on NanWallet
+                                This account is not yet on NanChat
                             </div>
                             <Button 
                             color="primary"
                             onClick={() => {
-                                ShareModal({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
-                                    url: `https://nanwallet.com/chat/${activeAccount}`
-                                })
+                                inviteFriends();
                             }}
                             className="mt-4"
                             size="middle"

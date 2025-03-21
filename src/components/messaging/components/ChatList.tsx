@@ -30,6 +30,8 @@ import { CopyButton } from "../../app/Icons";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
 import { showAccountQRCode } from "../utils";
+import { useInviteFriends } from "../hooks/use-invite-friends";
+import BackupContacts from "./contacts/BackupContacts";
 
 
 export const ChatAvatar = ({ chat }) => {
@@ -98,6 +100,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     // const accountData = accounts?.find(name => name._id === activeAccount)
     const filteredChats = chats
     const {isMobile} = useWindowDimensions()
+    const {inviteFriends} = useInviteFriends()
     useEffect(() => {
         socket.on('chat', (chat: string) => {
             mutate();
@@ -125,13 +128,6 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     }
     , [activeAccountPk, me]);
 
-    const inviteFriends = () => {   
-        ShareModal({
-            title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and add me via NanChat ID: ${me?.username} or via my nano account: ${activeAccount}`,
-            url: `https://nanwallet.com/chat/${activeAccount}`
-        })
-    }
-  
     if (ledger) {
         return <LedgerNotCompatible />
     }
@@ -284,7 +280,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                                     key={chat.id}
                                     extra={
                                         <div className="flex flex-col items-end">
-                                            <div>{formatTelegramDate(chat.lastMessageTimestamp)}</div>
+                                            <div
+                                            className="text-xs"
+                                            >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
                                                 {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
                                                 <div>
                                                     <span 
@@ -391,9 +389,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         </List>
                     </div> */}
                 </div>
-                <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted using nano.
-                </div>
+                <BackupContacts />
                 <div className="text-center mb-6 pb-6">
                         <Button 
                             color="primary"
@@ -417,7 +413,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
 
 export const AccountAvatar = ({ url, account, badgeColor }) => {
     if (url == null) {
-        url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account
+        url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account + "%26outline%3Dtrue"
     }
 
     const icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={48} />

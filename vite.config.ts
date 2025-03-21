@@ -15,24 +15,36 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    VitePWA({
-      mode: 'development',
-      strategies: 'injectManifest',
-      injectManifest: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-      },
-      // workbox: {
-      //    maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-      // },
-      srcDir: 'public',
-      filename: 'firebase-messaging-sw.js',
-      devOptions: {
-        enabled: false,
-        type: 'module',
-      },
-       registerType: 'prompt'
-       },
-      ),
+    // VitePWA({
+    //   mode: 'development',
+    //   strategies: 'injectManifest',
+    //   injectManifest: {
+    //     maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+    //   },
+    //   // workbox: {
+    //   //    maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+    //   // },
+    //   srcDir: 'public',
+    //   filename: 'firebase-messaging-sw.js',
+    //   devOptions: {
+    //     enabled: false,
+    //     type: 'module',
+    //   },
+    //    registerType: 'prompt'
+    //    },
+    //   ),
+    // VitePWA({
+    //   mode: 'development',
+    //   strategies: 'injectManifest',
+    //   srcDir: 'public',
+    //   filename: 'firebase-messaging-sw.js',
+    //   devOptions: {
+    //     enabled: false,
+    //     type: 'module',
+    //   },
+    //    registerType: 'prompt'
+    //    },
+    //   ),
     nodePolyfills({
       include: ['crypto', 'stream', 'vm', 'process'],
       globals: {

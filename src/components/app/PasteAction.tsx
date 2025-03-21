@@ -8,13 +8,14 @@ import { PasteIcon } from './Icons';
 import { ScanCodeOutline } from 'antd-mobile-icons';
 import { Scanner } from './Scanner';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
+import { SignPopup } from '../../api-invoke/Sign';
 // import { Scanner } from '@yudiel/react-qr-scanner';
 
 function PasteAction({mode = "paste", uri = "", setUri}) {
   const [visible, setVisible] = React.useState(false);
+  const [visibleSign, setVisibleSign] = React.useState(false);
   const [activeTicker, setActiveTicker] = React.useState<string | null>(null);
   const navigate = useNavigate();
-
   useEffect(() => {
     if (uri) {
       executeURI(uri);
@@ -25,7 +26,8 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
   function executeURI(uri: string) {
     try {
       if (uri.startsWith("nanauth://sign?")) {
-        navigate(uri.replace("nanauth://sign?", "/sign?"));
+        // navigate(uri.replace("nanauth://sign?", "/sign?"));
+        setVisibleSign(true);
         return;
       }
       if (uri.startsWith("https://nanwallet.com/?uri=")) { // handle universal link
@@ -123,6 +125,15 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         modalVisible={visible}
         setModalVisible={setVisible}
         setAction={() => { }}
+      />
+      <SignPopup 
+        visible={visibleSign}
+        setVisible={setVisibleSign}
+        uri={uri}
+        onSign={(result) => {
+          WebviewOverlay.toggleSnapshot(false);
+          setVisibleSign(false);
+        }}
       />
     </>
   )

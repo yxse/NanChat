@@ -14,3 +14,5 @@ vite.config.ts.timestamp*
 dev-dist/
 android/.idea/deploymentTargetSelector.xml
 .DS_Store
+*.keystore
+yarn-error.log

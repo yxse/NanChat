@@ -5,8 +5,9 @@
   "identifier": "com.nanwallet.dev",
   "build": {
     "frontendDist": "../dist",
-    "beforeDevCommand": "npm run ui",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173"
   },
   "app": {
     "windows": [
