@@ -13,6 +13,9 @@ PODS:
     - Capacitor
   - CapacitorCommunityFileOpener (6.0.1):
     - Capacitor
+  - CapacitorCommunityGenericOauth2 (6.1.0):
+    - Capacitor
+    - OAuthSwift (= 2.2.0)
   - CapacitorCommunityInAppReview (6.0.0):
     - Capacitor
   - CapacitorCordova (6.2.0)
@@ -23,10 +26,14 @@ PODS:
     - FirebaseMessaging (~> 10.25)
   - CapacitorHaptics (6.0.2):
     - Capacitor
+  - CapacitorIcloudDrive (0.0.1):
+    - Capacitor
   - CapacitorInappbrowser (1.0.2):
     - Capacitor
     - OSInAppBrowserLib (~> 1.0)
   - CapacitorKeyboard (6.0.3):
+    - Capacitor
+  - CapacitorLocalNotifications (6.1.2):
     - Capacitor
   - CapacitorMlkitBarcodeScanning (6.2.0):
     - Capacitor
@@ -37,6 +44,8 @@ PODS:
     - Capacitor
     - SwiftKeychainWrapper
   - CapacitorShare (6.0.3):
+    - Capacitor
+  - CapacitorShareExtension (0.0.1):
     - Capacitor
   - CapacitorSplashScreen (6.0.3):
     - Capacitor
@@ -142,6 +151,7 @@ PODS:
     - nanopb/encode (= 2.30910.0)
   - nanopb/decode (2.30910.0)
   - nanopb/encode (2.30910.0)
+  - OAuthSwift (2.2.0)
   - OSInAppBrowserLib (1.0.0)
   - PromisesObjC (2.4.0)
   - SQLCipher (4.6.1):
@@ -164,17 +174,21 @@ DEPENDENCIES:
   - "CapacitorClipboard (from `../../node_modules/.pnpm/@capacitor+clipboard@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/clipboard`)"
   - "CapacitorCommunityBluetoothLe (from `../../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le`)"
   - "CapacitorCommunityFileOpener (from `../../node_modules/.pnpm/@capacitor-community+file-opener@6.0.1_@capacitor+core@6.2.0/node_modules/@capacitor-community/file-opener`)"
+  - "CapacitorCommunityGenericOauth2 (from `../../node_modules/.pnpm/@capacitor-community+generic-oauth2@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/generic-oauth2`)"
   - "CapacitorCommunityInAppReview (from `../../node_modules/.pnpm/@capacitor-community+in-app-review@6.0.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/in-app-review`)"
   - "CapacitorCordova (from `../../node_modules/.pnpm/@capacitor+ios@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor/ios`)"
   - "CapacitorFilesystem (from `../../node_modules/.pnpm/@capacitor+filesystem@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/filesystem`)"
   - "CapacitorFirebaseMessaging (from `../../node_modules/.pnpm/@capacitor-firebase+messaging@6.1.0_@capacitor+core@6.2.0_firebase@11.1.0/node_modules/@capacitor-firebase/messaging`)"
   - "CapacitorHaptics (from `../../node_modules/.pnpm/@capacitor+haptics@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/haptics`)"
+  - CapacitorIcloudDrive (from `../../../my-icloud-plugin`)
   - "CapacitorInappbrowser (from `../../node_modules/.pnpm/@capacitor+inappbrowser@1.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/inappbrowser`)"
   - "CapacitorKeyboard (from `../../node_modules/.pnpm/@capacitor+keyboard@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/keyboard`)"
+  - "CapacitorLocalNotifications (from `../../node_modules/.pnpm/@capacitor+local-notifications@6.1.2_@capacitor+core@6.2.0/node_modules/@capacitor/local-notifications`)"
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/.pnpm/@capacitor-mlkit+barcode-scanning@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor-mlkit/barcode-scanning`)"
   - "CapacitorNativeSettings (from `../../node_modules/.pnpm/capacitor-native-settings@6.0.2_@capacitor+core@6.2.0/node_modules/capacitor-native-settings`)"
   - "CapacitorSecureStoragePlugin (from `../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin`)"
   - "CapacitorShare (from `../../node_modules/.pnpm/@capacitor+share@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/share`)"
+  - "CapacitorShareExtension (from `../../node_modules/.pnpm/capacitor-share-extension@https+++codeload.github.com+calvinckho+capacitor-share-extension+ta_4fyavyhgkkbit4tzohfs4refzq/node_modules/capacitor-share-extension`)"
   - "CapacitorSplashScreen (from `../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/.pnpm/@capacitor+status-bar@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorDataStorageSqlite (from `../../node_modules/.pnpm/@capgo+capacitor-data-storage-sqlite@6.0.59_@capacitor+core@6.2.0_localforage@1.10.0/node_modules/@capgo/capacitor-data-storage-sqlite`)"
@@ -199,6 +213,7 @@ SPEC REPOS:
     - MLKitCommon
     - MLKitVision
     - nanopb
+    - OAuthSwift
     - OSInAppBrowserLib
     - PromisesObjC
     - SQLCipher
@@ -220,6 +235,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor-community+bluetooth-le@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/bluetooth-le"
   CapacitorCommunityFileOpener:
     :path: "../../node_modules/.pnpm/@capacitor-community+file-opener@6.0.1_@capacitor+core@6.2.0/node_modules/@capacitor-community/file-opener"
+  CapacitorCommunityGenericOauth2:
+    :path: "../../node_modules/.pnpm/@capacitor-community+generic-oauth2@6.1.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/generic-oauth2"
   CapacitorCommunityInAppReview:
     :path: "../../node_modules/.pnpm/@capacitor-community+in-app-review@6.0.0_@capacitor+core@6.2.0/node_modules/@capacitor-community/in-app-review"
   CapacitorCordova:
@@ -230,10 +247,14 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/@capacitor-firebase+messaging@6.1.0_@capacitor+core@6.2.0_firebase@11.1.0/node_modules/@capacitor-firebase/messaging"
   CapacitorHaptics:
     :path: "../../node_modules/.pnpm/@capacitor+haptics@6.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/haptics"
+  CapacitorIcloudDrive:
+    :path: "../../../my-icloud-plugin"
   CapacitorInappbrowser:
     :path: "../../node_modules/.pnpm/@capacitor+inappbrowser@1.0.2_@capacitor+core@6.2.0/node_modules/@capacitor/inappbrowser"
   CapacitorKeyboard:
     :path: "../../node_modules/.pnpm/@capacitor+keyboard@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/keyboard"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/.pnpm/@capacitor+local-notifications@6.1.2_@capacitor+core@6.2.0/node_modules/@capacitor/local-notifications"
   CapacitorMlkitBarcodeScanning:
     :path: "../../node_modules/.pnpm/@capacitor-mlkit+barcode-scanning@6.2.0_@capacitor+core@6.2.0/node_modules/@capacitor-mlkit/barcode-scanning"
   CapacitorNativeSettings:
@@ -242,6 +263,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/.pnpm/capacitor-secure-storage-plugin@0.10.0_@capacitor+core@6.2.0/node_modules/capacitor-secure-storage-plugin"
   CapacitorShare:
     :path: "../../node_modules/.pnpm/@capacitor+share@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/share"
+  CapacitorShareExtension:
+    :path: "../../node_modules/.pnpm/capacitor-share-extension@https+++codeload.github.com+calvinckho+capacitor-share-extension+ta_4fyavyhgkkbit4tzohfs4refzq/node_modules/capacitor-share-extension"
   CapacitorSplashScreen:
     :path: "../../node_modules/.pnpm/@capacitor+splash-screen@6.0.3_@capacitor+core@6.2.0/node_modules/@capacitor/splash-screen"
   CapacitorStatusBar:
@@ -261,17 +284,21 @@ SPEC CHECKSUMS:
   CapacitorClipboard: 4443c3cdb7c77b1533dfe3ff0f9f7756aa8579df
   CapacitorCommunityBluetoothLe: 0d4d197e0d0eadb84d4c3a6683768088253419d9
   CapacitorCommunityFileOpener: 6373ac7cf5b48ef7086927608aaba524f1e676e4
+  CapacitorCommunityGenericOauth2: cd98e4a7b684b9fc4c857d6f904fc3fc11812802
   CapacitorCommunityInAppReview: e5c93959637a956ce993134734d7df90390ea167
   CapacitorCordova: b33e7f4aa4ed105dd43283acdd940964374a87d9
   CapacitorFilesystem: 59270a63c60836248812671aa3b15df673fbaf74
   CapacitorFirebaseMessaging: 5241b825d7f2bf4d02616c3cc63d374f178092b4
   CapacitorHaptics: 4fc15afe22b123d093e6ace24d95e8e3b1f261b9
+  CapacitorIcloudDrive: 569841d6bf4f6453dd4b868a3023f8321cfb360b
   CapacitorInappbrowser: ff7837d4d03094bbabac22414f0b20977e8f01f6
   CapacitorKeyboard: e89189ad398b815b6ff7e52271f0fb4f911a0a0a
+  CapacitorLocalNotifications: 65d718c32cbcb753697627bea76dd4336ef85dc2
   CapacitorMlkitBarcodeScanning: 7652be9c7922f39203a361de735d340ae37e134e
   CapacitorNativeSettings: 082f8d0cf79260b62adf4f6cad34e0a248c0d1e6
   CapacitorSecureStoragePlugin: 545b51d782d35e61a39231ecf99a966b060a2cbb
   CapacitorShare: d2a742baec21c8f3b92b361a2fbd2401cdd8288e
+  CapacitorShareExtension: b921d79692ad6a474f26ce504ee1e5e4c7681ac1
   CapacitorSplashScreen: fd8bf1bf9081d9aa8817b7cd37d740d1bdaf2fb2
   CapacitorStatusBar: b16799a26320ffa52f6c8b01737d5a95bbb8f3eb
   CapgoCapacitorDataStorageSqlite: 252c3760b30d606519559a72f44375208995420f
@@ -292,6 +319,7 @@ SPEC CHECKSUMS:
   MLKitCommon: afcd11b6c0735066a0dde8b4bf2331f6197cbca2
   MLKitVision: 90922bca854014a856f8b649d1f1f04f63fd9c79
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
+  OAuthSwift: 75efbb5bd9a4b2b71a37bd7e986bf3f55ddd54c6
   OSInAppBrowserLib: c3d0b21a0c8b6d81e69117ad08bb6b8a4849c4e1
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
@@ -299,6 +327,6 @@ SPEC CHECKSUMS:
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   TeamhiveCapacitorWebviewOverlay: 95d258bd547084392cdbcb4d8c309cb5609e7ca7
 
-PODFILE CHECKSUM: 1bf713e4e9d36aecacd9730a5407960b0bc3af87
+PODFILE CHECKSUM: 2d12ed9941977e3d5fe56b27d8fc9245c0da7b5c
 
 COCOAPODS: 1.16.2

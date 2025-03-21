@@ -18,6 +18,12 @@ export default defineConfig({
     VitePWA({
       mode: 'development',
       strategies: 'injectManifest',
+      injectManifest: {
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+      },
+      // workbox: {
+      //    maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+      // },
       srcDir: 'public',
       filename: 'firebase-messaging-sw.js',
       devOptions: {

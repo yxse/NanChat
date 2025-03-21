@@ -13,3 +13,4 @@ bun.lockb
 vite.config.ts.timestamp*
 dev-dist/
 android/.idea/deploymentTargetSelector.xml
+.DS_Store

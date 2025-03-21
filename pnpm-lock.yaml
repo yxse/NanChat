@@ -17,6 +17,9 @@ importers:
       '@capacitor-community/file-opener':
         specifier: '6'
         version: 6.0.1(@capacitor/core@6.2.0)
+      '@capacitor-community/generic-oauth2':
+        specifier: ^6.1.0
+        version: 6.1.0(@capacitor/core@6.2.0)
       '@capacitor-community/in-app-review':
         specifier: ^6.0.0
         version: 6.0.0(@capacitor/core@6.2.0)
@@ -56,6 +59,9 @@ importers:
       '@capacitor/keyboard':
         specifier: ^6.0.3
         version: 6.0.3(@capacitor/core@6.2.0)
+      '@capacitor/local-notifications':
+        specifier: '6'
+        version: 6.1.2(@capacitor/core@6.2.0)
       '@capacitor/share':
         specifier: '6'
         version: 6.0.3(@capacitor/core@6.2.0)
@@ -116,6 +122,15 @@ importers:
       '@yudiel/react-qr-scanner':
         specifier: ^2.0.1
         version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@zxcvbn-ts/core':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@zxcvbn-ts/language-common':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@zxcvbn-ts/language-en':
+        specifier: ^3.0.2
+        version: 3.0.2
       antd-mobile:
         specifier: ^5.38.1
         version: 5.38.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -131,12 +146,18 @@ importers:
       bip39:
         specifier: ^3.1.0
         version: 3.1.0
+      capacitor-icloud-drive:
+        specifier: https://github.com/Benskalz/icloud-plugin.git#200a0acdb260d59d4cb06b4307a9d4fef6e90c93
+        version: https://codeload.github.com/Benskalz/icloud-plugin/tar.gz/200a0acdb260d59d4cb06b4307a9d4fef6e90c93(@capacitor/core@6.2.0)
       capacitor-native-settings:
         specifier: ^6.0.2
         version: 6.0.2(@capacitor/core@6.2.0)
       capacitor-secure-storage-plugin:
         specifier: ^0.10.0
         version: 0.10.0(@capacitor/core@6.2.0)
+      capacitor-share-extension:
+        specifier: github:calvinckho/capacitor-share-extension#capacitor-6
+        version: https://codeload.github.com/calvinckho/capacitor-share-extension/tar.gz/0d97816b3eca154e641e85b125689f5b3b8d01b6
       currency-symbol-map:
         specifier: ^5.1.0
         version: 5.1.0
@@ -156,8 +177,8 @@ importers:
         specifier: ^1.10.0
         version: 1.10.0
       multi-nano-web:
-        specifier: ^1.7.0
-        version: 1.7.0
+        specifier: ^1.8.0
+        version: 1.8.0
       nano-address-validator:
         specifier: ^3.0.0
         version: 3.0.0
@@ -824,6 +845,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
+  '@capacitor-community/generic-oauth2@6.1.0':
+    resolution: {integrity: sha512-3qj13SEqBZAYa3DcD0Tu92EVmHJanFPXbcQYM3SZBI+LPVnpP4GTzW60QCR/PXt+iUbv/Er42akSuLE348Cmsw==}
+    peerDependencies:
+      '@capacitor/core': '>=6'
+
   '@capacitor-community/in-app-review@6.0.0':
     resolution: {integrity: sha512-k4GxGepsNV7YFf/GdAG0+M05U4Ew3SbzvrWVNUut+0tdTqxvLPCMzVBA41dolDSgRW7iDt923AKcRkKTJcv5FA==}
     peerDependencies:
@@ -893,6 +919,11 @@ packages:
 
   '@capacitor/keyboard@6.0.3':
     resolution: {integrity: sha512-V/mURxBI68HvClYjrGBlOriWkwYN7r+cWid/igJz/3scNc/V81DgQ9fpoLr4W0I5NY7YxOesjIJLuLO+LT18mQ==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
+  '@capacitor/local-notifications@6.1.2':
+    resolution: {integrity: sha512-LZrwkuh+EaIbpIOeqotUUB31MWA3BF+Hdf9ZdOK9MVJyHG7hL27ja/mx50tO6VW3+nlaXSeygkRZPIuuV4UQRQ==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
@@ -1968,6 +1999,15 @@ packages:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
 
+  '@zxcvbn-ts/core@3.0.4':
+    resolution: {integrity: sha512-aQeiT0F09FuJaAqNrxynlAwZ2mW/1MdXakKWNmGM1Qp/VaY6CnB/GfnMS2T8gB2231Esp1/maCWd8vTG4OuShw==}
+
+  '@zxcvbn-ts/language-common@3.0.4':
+    resolution: {integrity: sha512-viSNNnRYtc7ULXzxrQIVUNwHAPSXRtoIwy/Tq4XQQdIknBzw4vz36lQLF6mvhMlTIlpjoN/Z1GFu/fwiAlUSsw==}
+
+  '@zxcvbn-ts/language-en@3.0.2':
+    resolution: {integrity: sha512-Zp+zL+I6Un2Bj0tRXNs6VUBq3Djt+hwTwUz4dkt2qgsQz47U0/XthZ4ULrT/RxjwJRl5LwiaKOOZeOtmixHnjg==}
+
   acorn@8.14.0:
     resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
     engines: {node: '>=0.4.0'}
@@ -2222,6 +2262,12 @@ packages:
   caniuse-lite@1.0.30001692:
     resolution: {integrity: sha512-A95VKan0kdtrsnMubMKxEKUKImOPSuCpYgxSQBo036P5YYgVIcOYJEgt/txJWqObiRQeISNCfef9nvlQ0vbV7A==}
 
+  capacitor-icloud-drive@https://codeload.github.com/Benskalz/icloud-plugin/tar.gz/200a0acdb260d59d4cb06b4307a9d4fef6e90c93:
+    resolution: {tarball: https://codeload.github.com/Benskalz/icloud-plugin/tar.gz/200a0acdb260d59d4cb06b4307a9d4fef6e90c93}
+    version: 0.0.1
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   capacitor-native-settings@6.0.2:
     resolution: {integrity: sha512-1Ez1pquq7X+VqoRevpsCudyYI7uHcH70ras2Riwp98zfGFCBE9mg4mw3mrmwDfPoQXXjlTJWziof5DnqZhsoXw==}
     peerDependencies:
@@ -2231,6 +2277,10 @@ packages:
     resolution: {integrity: sha512-dV4E+HTZAJWC3gef7sBXaAkkb6wvcZHyXjJIHXNb3yz9gRQ/5VMLqCxa0khqpwgWh5oIbo4XFxg3g5tEkfaNMg==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
+
+  capacitor-share-extension@https://codeload.github.com/calvinckho/capacitor-share-extension/tar.gz/0d97816b3eca154e641e85b125689f5b3b8d01b6:
+    resolution: {tarball: https://codeload.github.com/calvinckho/capacitor-share-extension/tar.gz/0d97816b3eca154e641e85b125689f5b3b8d01b6}
+    version: 4.0.0
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -2637,6 +2687,10 @@ packages:
 
   fast-uri@3.0.6:
     resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
+
+  fastest-levenshtein@1.0.16:
+    resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
+    engines: {node: '>= 4.9.1'}
 
   fastq@1.18.0:
     resolution: {integrity: sha512-QKHXPW0hD8g4UET03SdOdunzSouc9N4AuHdsX8XNcTsuz+yYFILVNIX4l9yHABMhiEI9Db0JTTIpu0wB+Y1QQw==}
@@ -3268,8 +3322,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  multi-nano-web@1.7.0:
-    resolution: {integrity: sha512-UMDbJmuynaF6abhzUdD48XB/0XCr/jMnSCNcD7Y3PqQ18PYKVxjpp4OwdlIEXOj+E9yMimRfSDLZieaweGrNXg==}
+  multi-nano-web@1.8.0:
+    resolution: {integrity: sha512-faWnwWdYP/iIChUjmosHEYuc+4Yb4nCP/c5EJ1zjxS7MbA6PE3q2A7nyJ/gV7NhEUCKI4T5z73WYLrfqMPl+Ng==}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -5325,6 +5379,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
+  '@capacitor-community/generic-oauth2@6.1.0(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   '@capacitor-community/in-app-review@6.0.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
@@ -5398,6 +5456,10 @@ snapshots:
       '@capacitor/core': 6.2.0
 
   '@capacitor/keyboard@6.0.3(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
+  '@capacitor/local-notifications@6.1.2(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
@@ -6527,6 +6589,14 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       webrtc-adapter: 9.0.1
 
+  '@zxcvbn-ts/core@3.0.4':
+    dependencies:
+      fastest-levenshtein: 1.0.16
+
+  '@zxcvbn-ts/language-common@3.0.4': {}
+
+  '@zxcvbn-ts/language-en@3.0.2': {}
+
   acorn@8.14.0: {}
 
   ahooks@3.8.4(react@18.3.1):
@@ -6842,6 +6912,10 @@ snapshots:
 
   caniuse-lite@1.0.30001692: {}
 
+  capacitor-icloud-drive@https://codeload.github.com/Benskalz/icloud-plugin/tar.gz/200a0acdb260d59d4cb06b4307a9d4fef6e90c93(@capacitor/core@6.2.0):
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   capacitor-native-settings@6.0.2(@capacitor/core@6.2.0):
     dependencies:
       '@capacitor/core': 6.2.0
@@ -6849,6 +6923,8 @@ snapshots:
   capacitor-secure-storage-plugin@0.10.0(@capacitor/core@6.2.0):
     dependencies:
       '@capacitor/core': 6.2.0
+
+  capacitor-share-extension@https://codeload.github.com/calvinckho/capacitor-share-extension/tar.gz/0d97816b3eca154e641e85b125689f5b3b8d01b6: {}
 
   chalk@4.1.2:
     dependencies:
@@ -7367,6 +7443,8 @@ snapshots:
   fast-json-stable-stringify@2.1.0: {}
 
   fast-uri@3.0.6: {}
+
+  fastest-levenshtein@1.0.16: {}
 
   fastq@1.18.0:
     dependencies:
@@ -8017,7 +8095,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  multi-nano-web@1.7.0:
+  multi-nano-web@1.8.0:
     dependencies:
       bignumber.js: 9.0.2
       blakejs: 1.2.1
