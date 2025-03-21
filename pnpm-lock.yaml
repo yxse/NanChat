@@ -17,6 +17,9 @@ importers:
       '@capacitor-community/file-opener':
         specifier: '6'
         version: 6.0.1(@capacitor/core@6.2.0)
+      '@capacitor-community/generic-oauth2':
+        specifier: ^6.1.0
+        version: 6.1.0(@capacitor/core@6.2.0)
       '@capacitor-community/in-app-review':
         specifier: ^6.0.0
         version: 6.0.0(@capacitor/core@6.2.0)
@@ -56,6 +59,9 @@ importers:
       '@capacitor/keyboard':
         specifier: ^6.0.3
         version: 6.0.3(@capacitor/core@6.2.0)
+      '@capacitor/local-notifications':
+        specifier: ^7.0.0
+        version: 7.0.0(@capacitor/core@6.2.0)
       '@capacitor/share':
         specifier: '6'
         version: 6.0.3(@capacitor/core@6.2.0)
@@ -111,11 +117,20 @@ importers:
         specifier: ~2
         version: 2.2.0
       '@teamhive/capacitor-webview-overlay':
-        specifier: git://github.com/Benskalz/capacitor-webview-overlay.git#8eedf27def2a92042b9156ed9a0479d79a7452eb
-        version: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb(@capacitor/core@6.2.0)
+        specifier: https://github.com/Benskalz/capacitor-webview-overlay.git#ded3c1046372b540cca75b60d64b11d0939d3051
+        version: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/ded3c1046372b540cca75b60d64b11d0939d3051(@capacitor/core@6.2.0)
       '@yudiel/react-qr-scanner':
         specifier: ^2.0.1
         version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@zxcvbn-ts/core':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@zxcvbn-ts/language-common':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@zxcvbn-ts/language-en':
+        specifier: ^3.0.2
+        version: 3.0.2
       antd-mobile:
         specifier: ^5.38.1
         version: 5.38.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -137,6 +152,9 @@ importers:
       capacitor-secure-storage-plugin:
         specifier: ^0.10.0
         version: 0.10.0(@capacitor/core@6.2.0)
+      capacitor-share-extension:
+        specifier: 4.0.0-beta.0
+        version: 4.0.0-beta.0
       currency-symbol-map:
         specifier: ^5.1.0
         version: 5.1.0
@@ -156,8 +174,8 @@ importers:
         specifier: ^1.10.0
         version: 1.10.0
       multi-nano-web:
-        specifier: ^1.7.0
-        version: 1.7.0
+        specifier: ^1.8.0
+        version: 1.8.0
       nano-address-validator:
         specifier: ^3.0.0
         version: 3.0.0
@@ -198,8 +216,8 @@ importers:
         specifier: ^10.0.5
         version: 10.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-virtualized:
-        specifier: ^9.22.5
-        version: 9.22.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^9.22.6
+        version: 9.22.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -824,6 +842,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
+  '@capacitor-community/generic-oauth2@6.1.0':
+    resolution: {integrity: sha512-3qj13SEqBZAYa3DcD0Tu92EVmHJanFPXbcQYM3SZBI+LPVnpP4GTzW60QCR/PXt+iUbv/Er42akSuLE348Cmsw==}
+    peerDependencies:
+      '@capacitor/core': '>=6'
+
   '@capacitor-community/in-app-review@6.0.0':
     resolution: {integrity: sha512-k4GxGepsNV7YFf/GdAG0+M05U4Ew3SbzvrWVNUut+0tdTqxvLPCMzVBA41dolDSgRW7iDt923AKcRkKTJcv5FA==}
     peerDependencies:
@@ -895,6 +918,11 @@ packages:
     resolution: {integrity: sha512-V/mURxBI68HvClYjrGBlOriWkwYN7r+cWid/igJz/3scNc/V81DgQ9fpoLr4W0I5NY7YxOesjIJLuLO+LT18mQ==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
+
+  '@capacitor/local-notifications@7.0.0':
+    resolution: {integrity: sha512-+k93w1W0hZTVxM8rjttEyUKkkHxOW776POFM4snDcwv+sAxWX+YK+oqIwNtln6N5Plp3Z9TkQS0RufwZbl7GUw==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@capacitor/share@6.0.3':
     resolution: {integrity: sha512-BkNM73Ix+yxQ7fkni8CrrGcp1kSl7u+YNoPLwWKQ1MuQ5Uav0d+CT8M67ie+3dc4jASmegnzlC6tkTmFcPTLeA==}
@@ -1856,8 +1884,8 @@ packages:
   '@tauri-apps/plugin-notification@2.2.0':
     resolution: {integrity: sha512-uhE3a2gFlqwiWhY/JbhXOF13K4iILEYxUk0D2Y+q69HP6tnfPqKCuNTHxDM0H+oFAakXESNmJVnYw0Vi4IrMMQ==}
 
-  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb':
-    resolution: {tarball: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb}
+  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/ded3c1046372b540cca75b60d64b11d0939d3051':
+    resolution: {tarball: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/ded3c1046372b540cca75b60d64b11d0939d3051}
     version: 3.1.1
     peerDependencies:
       '@capacitor/core': ^4.6.3
@@ -1967,6 +1995,15 @@ packages:
     peerDependencies:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+
+  '@zxcvbn-ts/core@3.0.4':
+    resolution: {integrity: sha512-aQeiT0F09FuJaAqNrxynlAwZ2mW/1MdXakKWNmGM1Qp/VaY6CnB/GfnMS2T8gB2231Esp1/maCWd8vTG4OuShw==}
+
+  '@zxcvbn-ts/language-common@3.0.4':
+    resolution: {integrity: sha512-viSNNnRYtc7ULXzxrQIVUNwHAPSXRtoIwy/Tq4XQQdIknBzw4vz36lQLF6mvhMlTIlpjoN/Z1GFu/fwiAlUSsw==}
+
+  '@zxcvbn-ts/language-en@3.0.2':
+    resolution: {integrity: sha512-Zp+zL+I6Un2Bj0tRXNs6VUBq3Djt+hwTwUz4dkt2qgsQz47U0/XthZ4ULrT/RxjwJRl5LwiaKOOZeOtmixHnjg==}
 
   acorn@8.14.0:
     resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
@@ -2231,6 +2268,9 @@ packages:
     resolution: {integrity: sha512-dV4E+HTZAJWC3gef7sBXaAkkb6wvcZHyXjJIHXNb3yz9gRQ/5VMLqCxa0khqpwgWh5oIbo4XFxg3g5tEkfaNMg==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
+
+  capacitor-share-extension@4.0.0-beta.0:
+    resolution: {integrity: sha512-YdQgm7eMNuXY2rRVRrdhBtY5n11DpkBx6oD+ei/7l/XsEJc+lMdei3shCkcv4Dj2qJUgv4rBvxYywzcswhC1Fw==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -2637,6 +2677,10 @@ packages:
 
   fast-uri@3.0.6:
     resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
+
+  fastest-levenshtein@1.0.16:
+    resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
+    engines: {node: '>= 4.9.1'}
 
   fastq@1.18.0:
     resolution: {integrity: sha512-QKHXPW0hD8g4UET03SdOdunzSouc9N4AuHdsX8XNcTsuz+yYFILVNIX4l9yHABMhiEI9Db0JTTIpu0wB+Y1QQw==}
@@ -3268,8 +3312,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  multi-nano-web@1.7.0:
-    resolution: {integrity: sha512-UMDbJmuynaF6abhzUdD48XB/0XCr/jMnSCNcD7Y3PqQ18PYKVxjpp4OwdlIEXOj+E9yMimRfSDLZieaweGrNXg==}
+  multi-nano-web@1.8.0:
+    resolution: {integrity: sha512-faWnwWdYP/iIChUjmosHEYuc+4Yb4nCP/c5EJ1zjxS7MbA6PE3q2A7nyJ/gV7NhEUCKI4T5z73WYLrfqMPl+Ng==}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -3843,11 +3887,11 @@ packages:
       react: '>=16.6.0'
       react-dom: '>=16.6.0'
 
-  react-virtualized@9.22.5:
-    resolution: {integrity: sha512-YqQMRzlVANBv1L/7r63OHa2b0ZsAaDp1UhVNEdUaXI8A5u6hTpA5NYtUueLH2rFuY/27mTGIBl7ZhqFKzw18YQ==}
+  react-virtualized@9.22.6:
+    resolution: {integrity: sha512-U5j7KuUQt3AaMatlMJ0UJddqSiX+Km0YJxSqbAzIiGw5EmNz0khMyqP2hzgu4+QUtm+QPIrxzUX4raJxmVJnHg==}
     peerDependencies:
-      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
-      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
+      react: ^16.3.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -5325,6 +5369,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
+  '@capacitor-community/generic-oauth2@6.1.0(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   '@capacitor-community/in-app-review@6.0.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
@@ -5398,6 +5446,10 @@ snapshots:
       '@capacitor/core': 6.2.0
 
   '@capacitor/keyboard@6.0.3(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
+  '@capacitor/local-notifications@7.0.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
@@ -6149,7 +6201,7 @@ snapshots:
 
   '@rc-component/mini-decimal@1.1.0':
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
 
   '@react-spring/animated@9.6.1(react@18.3.1)':
     dependencies:
@@ -6425,7 +6477,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.2.0
 
-  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/8eedf27def2a92042b9156ed9a0479d79a7452eb(@capacitor/core@6.2.0)':
+  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/ded3c1046372b540cca75b60d64b11d0939d3051(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
       resize-observer-polyfill: 1.5.1
@@ -6527,11 +6579,19 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       webrtc-adapter: 9.0.1
 
+  '@zxcvbn-ts/core@3.0.4':
+    dependencies:
+      fastest-levenshtein: 1.0.16
+
+  '@zxcvbn-ts/language-common@3.0.4': {}
+
+  '@zxcvbn-ts/language-en@3.0.2': {}
+
   acorn@8.14.0: {}
 
   ahooks@3.8.4(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       dayjs: 1.11.13
       intersection-observer: 0.12.2
       js-cookie: 3.0.5
@@ -6658,7 +6718,7 @@ snapshots:
 
   babel-plugin-macros@3.1.0:
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       cosmiconfig: 7.1.0
       resolve: 1.22.10
 
@@ -6849,6 +6909,8 @@ snapshots:
   capacitor-secure-storage-plugin@0.10.0(@capacitor/core@6.2.0):
     dependencies:
       '@capacitor/core': 6.2.0
+
+  capacitor-share-extension@4.0.0-beta.0: {}
 
   chalk@4.1.2:
     dependencies:
@@ -7133,7 +7195,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       csstype: 3.1.3
 
   dom-serializer@2.0.0:
@@ -7367,6 +7429,8 @@ snapshots:
   fast-json-stable-stringify@2.1.0: {}
 
   fast-uri@3.0.6: {}
+
+  fastest-levenshtein@1.0.16: {}
 
   fastq@1.18.0:
     dependencies:
@@ -8017,7 +8081,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  multi-nano-web@1.7.0:
+  multi-nano-web@1.8.0:
     dependencies:
       bignumber.js: 9.0.2
       blakejs: 1.2.1
@@ -8506,7 +8570,7 @@ snapshots:
 
   rc-field-form@1.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       async-validator: 4.2.5
       rc-util: 5.44.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
@@ -8514,7 +8578,7 @@ snapshots:
 
   rc-motion@2.9.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       classnames: 2.5.1
       rc-util: 5.44.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
@@ -8522,7 +8586,7 @@ snapshots:
 
   rc-segmented@2.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       classnames: 2.5.1
       rc-motion: 2.9.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-util: 5.44.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -8531,7 +8595,7 @@ snapshots:
 
   rc-util@5.44.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.3.1
@@ -8610,16 +8674,16 @@ snapshots:
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  react-virtualized@9.22.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-virtualized@9.22.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       clsx: 1.2.1
       dom-helpers: 5.2.1
       loose-envify: 1.4.0

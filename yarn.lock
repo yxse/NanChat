@@ -3167,6 +3167,11 @@ capacitor-secure-storage-plugin@^0.10.0:
   resolved "https://registry.yarnpkg.com/capacitor-secure-storage-plugin/-/capacitor-secure-storage-plugin-0.10.0.tgz#dbe96fe86c070a7c2ac7f43564d956f76cd683af"
   integrity sha512-dV4E+HTZAJWC3gef7sBXaAkkb6wvcZHyXjJIHXNb3yz9gRQ/5VMLqCxa0khqpwgWh5oIbo4XFxg3g5tEkfaNMg==
 
+capacitor-share-extension@4.0.0-beta.0:
+  version "4.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/capacitor-share-extension/-/capacitor-share-extension-4.0.0-beta.0.tgz#70aa2375961cc00c64ec83bcc8a12b989634289e"
+  integrity sha512-YdQgm7eMNuXY2rRVRrdhBtY5n11DpkBx6oD+ei/7l/XsEJc+lMdei3shCkcv4Dj2qJUgv4rBvxYywzcswhC1Fw==
+
 chalk@5.3.0:
   version "5.3.0"
   resolved "https://registry.npmjs.org/chalk/-/chalk-5.3.0.tgz"

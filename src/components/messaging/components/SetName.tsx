@@ -42,15 +42,16 @@ const SetName: React.FC = () => {
                     {/* Update your name */}
                 </div>
                 :
-            <div className="text-center">
-                <div className='text-2xl mb-4'>
-                    NanChat
-                </div>
-                <div className='text-base flex items-center mb-6'>
-                    <LockOutline className='mr-2' />
-                    End-to-end encrypted chat using nano
-                </div>
-            </div>
+                null
+            // <div className="text-center">
+            //     <div className='text-2xl mb-4'>
+            //         NanChat
+            //     </div>
+            //     <div className='text-base flex items-center mb-6'>
+            //         <LockOutline className='mr-2' />
+            //         End-to-end encrypted chat using nano
+            //     </div>
+            // </div>
             }
             <Form 
             style={{width: '100%', maxWidth: 500}}
@@ -89,7 +90,7 @@ const SetName: React.FC = () => {
                 <Button 
                 className='w-full'
                 type='submit' color='primary' size='large'>
-                    Done
+                    {isRegistered ? 'Done' : 'Next'}
                 </Button>
                     </>
             }>
@@ -100,9 +101,10 @@ const SetName: React.FC = () => {
                 </Form.Header>
                 }
                 <Form.Item
-                rules={[{required: true, min: 2, max: 24, message: 'Name must be between 2 and 24 characters'}]}
+                rules={[{required: true, min: 1, max: 24, message: 'Name must be between 1 and 24 characters'}]}
                  extra='' name={'name'}>
                     <Input
+                    enterKeyHint='done'
                     clearable
                     autoFocus
                         placeholder="Enter your name"

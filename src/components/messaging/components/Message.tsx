@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AddCircleOutline, DeleteOutline, LockFill } from "antd-mobile-icons";
+import { AddCircleOutline, CompassOutline, DeleteOutline, LockFill } from "antd-mobile-icons";
 import { WalletContext } from "../../Popup";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfilePicture from "./profile/ProfilePicture";
@@ -20,7 +20,7 @@ import { Action } from "antd-mobile/es/components/popover";
 import { copyToClipboard } from "../../../utils/format";
 import { CopyIcon } from "../../app/Icons";
 import { deleteMessage } from "../fetcher";
-import { AiOutlineRollback } from "react-icons/ai";
+import { AiOutlineRollback, AiOutlineWallet } from "react-icons/ai";
 import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
 
@@ -244,28 +244,31 @@ export const WelcomeMessage = ({}) => {
         style={{ }}
       >
         <List.Item
+        prefix={<AddCircleOutline />}
         // arrowIcon={<AddCircleOutline style={{width: 32, height: 32, cursor: 'pointer'}}  />}
          onClick={() => {
           emit('open-input-plus', {open: true})
         }}>
 
-          Transfer currencies, photo and files
+          Transfer Nano
         </List.Item>
         <List.Item
+        prefix={<AiOutlineWallet />}
           onClick={() => {
-            navigate("/")
+            navigate("/wallet")
           }}
         >
 
-          Multi Currencies Nano Wallet
+          Nano Wallet
         </List.Item>
-                <List.Item onClick={() => {
+                <List.Item
+                prefix={<CompassOutline />}
+                 onClick={() => {
                   navigate("/discover")
                 }}>
 
-          Discover Nano Apps
+          Nano Apps
                 </List.Item>
-        
         
       </List>
       <div

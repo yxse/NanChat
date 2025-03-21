@@ -32,6 +32,7 @@ import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
 import { TEAM_ACCOUNT } from "../utils";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
+import { useInviteFriends } from "../hooks/use-invite-friends";
 
 
 const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
@@ -54,6 +55,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     const {isMobile, width} = useWindowDimensions();
     const [page, setPage] = useState(0);
     const [height, setHeight] = useState(2000)
+    const { inviteFriends } = useInviteFriends();
     const {
         messages,
         loadMore,
@@ -434,7 +436,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         <div>
         <InfoMessageEncrypted />
         {
-             account === TEAM_ACCOUNT ? <WelcomeMessage /> : 
+             chat?.creator === TEAM_ACCOUNT ? <WelcomeMessage /> : 
              
                  <StartConversation address={address} />
         }
@@ -587,15 +589,12 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     backgroundColor: 'var(--adm-color-background)',
                                 }}
                             >
-                                This account is not yet on NanWallet
+                                This account is not yet on NanChat
                             </div>
                             <Button 
                             color="primary"
                             onClick={() => {
-                                ShareModal({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at https://nanwallet.com/chat/${activeAccount}`,
-                                    url: `https://nanwallet.com/chat/${activeAccount}`
-                                })
+                                inviteFriends();
                             }}
                             className="mt-4"
                             size="middle"
