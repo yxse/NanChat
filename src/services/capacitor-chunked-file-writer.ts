@@ -4,6 +4,7 @@ import { restoreData, setData } from './database.service';
 import { FileOpener } from '@capacitor-community/file-opener';
 import { Toast } from 'antd-mobile';
 import {GenericOAuth2} from "@capacitor-community/generic-oauth2";
+import CloudStorage from 'capacitor-icloud-drive';
 
 const path = `${Directory.Data}/downloads`;
 
@@ -23,7 +24,7 @@ const optionGoogleAuth = {
     appId: import.meta.env.VITE_PUBLIC_GOOGLE_ANDROID_APP_ID,
     responseType: "code", // if you configured a android app in google dev console the value must be "code"
     redirectUrl: "com.nanwallet.app:/", 
-  }
+  },
 }
 const DIRECTORY_WALLET_BACKUP = "nanchat-wallet-backups";
 // First, search for the folder to see if it exists
@@ -110,6 +111,14 @@ async function writeFileChunked(path, blob, directory = Directory.Data, recursiv
   return consume_blob();
 }
 export async function loadWalletsFromICloud() {
+  const result = await CloudStorage.listFilesFromiCloudDrive();
+  console.log(result.files);
+  return result.files.map(file => {
+    return {
+      name: file.name,
+      size: file.size
+    }
+  });
   const file = await Filesystem.readdir({
     directory: Directory.Documents,
     path: DIRECTORY_WALLET_BACKUP
@@ -123,18 +132,21 @@ export async function loadWalletsFromICloud() {
 }
 
 export async function loadWalletFromICloud(filename) {
-  const file = await Filesystem.readFile({
-    directory: Directory.Documents,
-    path: `${DIRECTORY_WALLET_BACKUP}/${filename}`
-  })
+  const file = await CloudStorage.readFromiCloudDrive({
+    fileName: filename
+  });
   return file.data;
+  // const file = await Filesystem.readFile({
+  //   directory: Directory.Documents,
+  //   path: `${DIRECTORY_WALLET_BACKUP}/${filename}`
+  // })
+  // return file.data;
 }
 
 export async function deleteWalletFromICloud(filename) {
-  await Filesystem.deleteFile({
-    directory: Directory.Documents,
-    path: `${DIRECTORY_WALLET_BACKUP}/${filename}`
-  })
+  await CloudStorage.deleteFromiCloudDrive({
+    fileName: filename
+  });
 }
 
 export async function deleteWalletFromGoogleDrive(fileId, token) {
@@ -220,13 +232,28 @@ export async function backupWalletGoogleDrive(encryptedWalletTxt, filename) {
   });
 }
 
+async function saveToiCloudDrive(fileName, data) {
+  try {
+    const result = await CloudStorage.saveToiCloudDrive({
+      fileName: fileName, 
+      data: data
+    });
+    console.log('File saved to iCloud Drive successfully:', result);
+    return result;
+  } catch (error) {
+    console.error('Error saving to iCloud Drive:', error);
+    throw error;
+  }
+}
+
 export async function backupWalletICloud(encryptedWalletTxt, filename) {
-  const file = await Filesystem.writeFile({
-    directory: Directory.Documents,
-    data: encryptedWalletTxt,
-    path: `${DIRECTORY_WALLET_BACKUP}/${filename}`,
-    recursive: true
-  });
+  const file = await saveToiCloudDrive(filename, encryptedWalletTxt);
+  // const file = await Filesystem.writeFile({
+  //   directory: Directory.Documents,
+  //   data: encryptedWalletTxt,
+  //   path: `${DIRECTORY_WALLET_BACKUP}/${filename}`,
+  //   recursive: true
+  // });
   if (file.uri) {
     return file.uri;
   }
@@ -344,6 +371,8 @@ function arrayBufferToBase64(buffer) {
  * @returns {Promise<Array<{name: string, size: number}>>} - List of files with their sizes.
  */
 export async function listFilesWithSize(directory: Directory = Directory.Data, path: string = ''): Promise<Array<{name: string, size: number}>> {
+
+
   try {
     const files = await Filesystem.readdir({ directory, path });
     let fileSizes = [];
