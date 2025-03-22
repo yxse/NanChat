@@ -389,7 +389,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         </List>
                     </div> */}
                 </div>
-                <BackupContacts />
+                <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
+                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted using nano.
+                </div>
                 <div className="text-center mb-6 pb-6">
                         <Button 
                             color="primary"
