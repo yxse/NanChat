@@ -38,7 +38,7 @@ export const ImportFromFile: React.FC<ImportFromFileProps> = ({
           file.click();
         }}
         shape="rounded"
-        color={mode === "verify" ? "primary" : "default"}
+        color={"default"}
         className="w-full"
         size="large"
       >
