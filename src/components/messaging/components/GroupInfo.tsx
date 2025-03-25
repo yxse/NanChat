@@ -1,4 +1,4 @@
-import { AddOutline, LockFill, LockOutline, MessageOutline, MinusOutline, PhoneFill, SendOutline } from "antd-mobile-icons";
+import { AddOutline, LockFill, LockOutline, MessageOutline, MinusOutline, PhoneFill, SendOutline, SystemQRcodeOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -6,7 +6,7 @@ import { IoSendOutline } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { useWallet, WalletContext } from "../../Popup";
-import { convertAddress, formatAddress } from "../../../utils/format";
+import { convertAddress, copyToClipboard, formatAddress } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
@@ -43,6 +43,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [visibleRemove, setVisibleRemove] = useState(false);
     const {activeAccountPk} = useWallet()
+    const sharedAccount = chat?.sharedAccount?.replace('nano_', 'group_') // replace nano_ prefix just in case to prevent confusion
     return (
         <div className="">
             <List.Item
@@ -188,8 +189,10 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                 Group Name
             </List.Item>
             <List.Item
+            extra={<SystemQRcodeOutline />}
                 onClick={() => {
                     let modal = Modal.show({
+                        showCloseButton: true,
                         closeOnMaskClick: true,
                         content: (
                             <div>
@@ -213,7 +216,41 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             >
                 Group QR Code  
             </List.Item>
+           
             </List>
+            <List style={{marginTop: 16}}>
+            <List.Item
+            extra={formatAddress(sharedAccount)}
+                onClick={() => {
+                    let modal = Modal.show({
+                        closeOnMaskClick: true,
+                        content: (
+                            <div>
+                                <div 
+                                                        style={{wordBreak: 'break-all', textAlign: 'center', maxWidth: "200px", margin: "auto"}}
+                                                        onClick={() => {
+                                                            Toast.show({
+                                                                content: 'Copied',
+                                                                duration: 2000
+                                                            });
+                                                            copyToClipboard(sharedAccount);
+                                                        }}>
+                                                           {sharedAccount}
+                                                        </div>
+                                
+                                <div style={{color: 'var(--adm-color-text-secondary)', marginTop: 16, maxWidth: 256}}>
+                                Public account used for end-to-end encryption. Verify it with the group by a secure mean for a guaranteed end-to-end encryption. A new account is generated each time a participant join or leave the group.  
+                                </div>
+
+                            </div>
+                        ),
+                    });
+                }}
+            >
+                Shared Key 
+            </List.Item>
+            </List>
+
             </div>
 
         </div>

@@ -21,16 +21,11 @@ import { fetcherAccount } from '../messaging/fetcher';
 import { useInviteFriends } from '../messaging/hooks/use-invite-friends';
 import ImportContactsFromShare, { useContacts } from '../messaging/components/contacts/ImportContactsFromShare';
 import BackupContacts, { useBackupContacts } from '../messaging/components/contacts/BackupContacts';
+import ChatInputTip from '../messaging/components/ChatInputTip';
+import { defaultContacts } from '../messaging/utils';
 
 
-export const defaultContacts = [
-        {
-            name: 'NanWallet Team',
-            addresses: [
-                { network: 'XNO', address: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij' },
-            ]
-        },
-]
+
 
 
 const Contacts: React.FC = ({onlyImport = false}) => {
@@ -450,6 +445,17 @@ const Contacts: React.FC = ({onlyImport = false}) => {
         }
         return convertAddress(addresses[0].address, 'XNO');
     }
+    const NotYetOnNanChat = ( {addresses} ) => {
+        const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
+        if (isLoading) {
+            return null
+        }
+        if (!name?.username) {
+            return  <div style={{color: "var(--adm-color-text-secondary)"}} className='text-center text-lg mt-4 mb-4'>
+            This account is not yet on NanChat
+        </div>
+        }
+    }
     const InviteContactButton = ({ addresses }) => {
         const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
         const {inviteFriends} = useInviteFriends()
@@ -457,9 +463,10 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             return null
         }
         if (name?.username) {
-            return       <Button
-            color='default'
-            className='w-full mt-4'
+            return  <div className='text-center'><Button
+            // color='default'
+            // className='w-full mt-4'
+            style={{borderRadius: 12}}
             onClick={() => {
                 navigate(
                     `/chat/${findNanoAddress(contactToEdit.addresses)}`
@@ -468,30 +475,34 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             }}
             size='large'
         >
-            <Space align='center' justify='center'>
+            <div style={{fontSize: 34}}>
             💬
-                Messages
-            </Space>
-        </Button>
+            </div>
+            <div className='mt-2'>
+            Messages
+          </div>
+        </Button></div>
         }
         return <>
-         <div style={{color: "var(--adm-color-text-secondary)"}} className='text-center text-lg mt-4'>
-                        This account is not yet on NanChat
-                    </div>
+        
+                    <div className='text-center'>
                     <Button
-                        shape='rounded'
                         color='primary'
-                        className='w-full mt-4'
+                        style={{borderRadius: 12}}
                         onClick={() => {
                             inviteFriends()
                         }}
                         size='large'
                     >
-                        <Space align='center' justify='center'>
-                        📲
-                            Invite 
-                        </Space>
+                        <div style={{fontSize: 34}}>
+                        ✉️
+                        </div>
+                        
                     </Button>
+                    <div className='mt-2'>
+                        Invite
+                        </div>
+                    </div>
                     </>
     }
     if (onlyImport && contacts.length > 0) {
@@ -673,37 +684,32 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                             </List.Item>
                         ))}
                     </List>
+                    <NotYetOnNanChat addresses={contactToEdit?.addresses} />
+                    <div style={{display: "flex", justifyContent: "space-evenly"}}>
                     <InviteContactButton addresses={contactToEdit?.addresses} />
-              
+                    <ChatInputTip toAddress={findNanoAddress(contactToEdit?.addresses)} onTipSent={() => {
+                    }} />
+                    <div className='text-center'>
                     <Button
                         color='default'
-                        className='w-full mt-4'
-                        onClick={() => {
-                            navigate('/chat/' + contactToEdit.addresses.find((address) => address.network === 'XNO')?.address);
-                        }}
-                        size='large'
-                    >
-                        <Space align='center' justify='center'>
-                        💸
-                            Transfer
-                        </Space>
-                    </Button>
-                    <Button
-                        className='w-full mt-4 mb-4'
+                        style={{borderRadius: 12}}
                         onClick={() => {
                             form.setFieldsValue({ name: contactToEdit.name, network: '', address: '' });
                             setIsEditingAddress(false);
                             setAddContactVisible(true)
                         }}
                         size='large'
-                        color='default'
                     >
-                         <Space align='center' justify='center'>
-                         ➕
-                            Add Address
-                        </Space>
+                        <div style={{fontSize: 34}}>
+                        ➕
+                        </div>
+                        
                     </Button>
-                    
+                    <div className='mt-2' style={{maxWidth: 64}}>
+                        Address
+                        </div>
+                    </div>
+                    </div>
                 </Card>
             </ResponsivePopup>
             <ResponsivePopup

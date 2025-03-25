@@ -23,6 +23,7 @@ import { PasswordImport } from '../Initialize/restore/PasswordImport';
 import { ImportFromGoogleDrive } from '../Initialize/restore/ImportFromGoogleDrive';
 import { ImportFromICloud } from '../Initialize/restore/ImportFromICloud';
 import { SeedVerifiedBadge } from '../messaging/utils';
+import { convertAddress } from '../../utils/format';
 
 function getTimestampFilename() {
     const now = new Date();
@@ -57,8 +58,7 @@ function BackupSecretPhrase() {
     const [backupTypeVisible, setBackupTypeVisible] = useState(false);
     const [passwordImportVisible, setPasswordImportVisible] = useState(false);
     const [encryptedSeed, setEncryptedSeed] = useState<string | null>(null);
-    const { activeAccount } = useWallet()
-    const { wallet } = useContext(WalletContext)
+    const {wallet, activeAccount} = useWallet()
     let mnemonic = ""
     // let seed = localStorage.getItem('masterSeed')
     let seed = wallet?.wallets['XNO']?.seed
@@ -77,7 +77,7 @@ function BackupSecretPhrase() {
 
 
     let iconDownloadBackup = <DownlandOutline />
-    let textList = "Download"
+    let textList = "File"
     let textSave = "Download"
     const BackupNow = <div style={{ color: 'var(--adm-color-primary)' }}>Backup now</div>
     let description = backupActive.encryptedFile ? 'Active' : BackupNow
@@ -134,10 +134,9 @@ function BackupSecretPhrase() {
                         setVisible(true)
                     }}
                 />
-                <div className="p-2 mt-2" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                    Backup Secret Phrase
+                <div className="p-2 mt-2">
+                    Backup Secret Recovery Phrase
                 </div>
-
                 <List style={{ marginTop: 16, marginBottom: 16 }}>
 
                     <List.Item
@@ -163,7 +162,7 @@ function BackupSecretPhrase() {
                     </List.Item>
                 </List>
                 <div className="text-sm p-2" style={{ color: 'var(--adm-color-text-secondary)', marginBottom: 32 }}>
-                    It is recommended to complete both backup options to help prevent loss of funds.
+                    Secret recovery phrase is the only way to recover your account. It is recommended to complete both backup options to help prevent loss of funds.
                 </div>
 
 
@@ -173,7 +172,7 @@ function BackupSecretPhrase() {
              prefix={ <MdOutlineSettingsBackupRestore size={24} />} onClick={() => {
                 setPinVisible(true)
             }}>
-                Backup Secret Phrase
+                Backup Recovery Phrase
             </List.Item>
             <ResponsivePopup
                 visible={backupVisible && backupType === 'encrypted-file'}
@@ -190,7 +189,7 @@ function BackupSecretPhrase() {
 
                 {
                     !passwordBackupActive ?
-                        <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} wallet={wallet} /> :
+                        <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} wallet={wallet} activeAccount={activeAccount} /> :
                         <div>
                             
                             <div className="flex flex-col gap-2 p-4 mt-4 mb-4">
@@ -200,7 +199,7 @@ function BackupSecretPhrase() {
                                         <Button size='large' shape='rounded' onClick={async () => {
                                             Modal.show({
                                                 closeOnMaskClick: true,
-                                                content: <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} wallet={wallet}/>
+                                                content: <BackupWithPassword setBackupVisible={setBackupVisible} setBackupType={setBackupType} setVisible={setVisible} text={textSave} wallet={wallet} activeAccount={activeAccount}/>
                                             })
                                         }
                                         }>
@@ -290,9 +289,10 @@ function BackupSecretPhrase() {
 
 
 
-const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text, wallet }: { setBackupVisible: any, setBackupType: any, setVisible: any }) => {
-    const { activeAccount } = useWallet() // this is not workig in the modal for some reason
+const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text, wallet, activeAccount }: { setBackupVisible: any, setBackupType: any, setVisible: any }) => {
+    // const { activeAccount } = useWallet() // this is not workig in the modal for some reason
     let seed = wallet?.wallets['XNO']?.seed
+    let slicedAccount = activeAccount?.replace('nano_', '').slice(0, 8)
     if (seed == null) {
         return null
     }
@@ -320,7 +320,7 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
 
                         try {
                         let encryptedSeed = await encrypt(seed, values.password)
-                        let fileName = 'nanchat-backup-' + getTimestampFilename() + '-' + activeAccount?.replace('nano_', '').slice(0, 8) + '.txt'
+                        let fileName = 'nanchat-backup-' + getTimestampFilename() + '-' + slicedAccount + '.txt'
                         Toast.show({
                             icon: 'loading',
                             duration: 0,

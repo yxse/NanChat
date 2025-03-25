@@ -130,3 +130,12 @@ export const SeedVerifiedBadge = ({children, icon = false}) => {
   
 
 export const TEAM_ACCOUNT = import.meta.env.VITE_PUBLIC_TEAM_ACCOUNT as string;
+
+export const defaultContacts = [
+        {
+            name: 'NanWallet Team',
+            addresses: [
+                { network: 'XNO', address: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij' },
+            ]
+        },
+]

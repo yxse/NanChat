@@ -11,11 +11,11 @@ import { InAppBrowser } from '@capgo/inappbrowser';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { Filesystem } from '@capacitor/filesystem';
 import useLocalStorageState from 'use-local-storage-state';
-import { defaultContacts } from '../../../app/Contacts';
 import { networks } from '../../../../utils/networks';
 import ProfilePicture from './../profile/ProfilePicture';
 import { formatAddress } from '../../../../utils/format';
 import { useBackupContacts } from './BackupContacts';
+import { defaultContacts } from '../../utils';
 
 
 export const useContacts = () => {
