@@ -38,8 +38,8 @@ export async function biometricAuthIfAvailable() {
     let r = await BiometricAuth.checkBiometry()
     if (r.isAvailable){
         await BiometricAuth.authenticate({
-            allowDeviceCredential: true,
-            iosFallbackTitle: "Use Passcode",
+            allowDeviceCredential: false,
+            iosFallbackTitle: "",
             // reason: "Confirm to enable biometric authentication"
         })
     }

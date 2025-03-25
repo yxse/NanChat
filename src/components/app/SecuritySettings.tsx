@@ -47,7 +47,7 @@ function SecuritySettings() {
     , [])
 
     const WhenToAuthenticateSettings = () => {
-      const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", {defaultValue: ["launch"]});
+      const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", {defaultValue: ["send"]});
       const [pinVisible, setPinVisible] = useState(false);
       const [actionToRemove, setActionToRemove] = useState("")
       const WhenToAuthenticateItem = ({value, children}) => {
@@ -195,54 +195,31 @@ function SecuritySettings() {
               prefix={<MdOutlinePassword size={24} />}
               onClick={async () => {
                 let modal = Modal.show({
+                  showCloseButton: true,
                   closeOnMaskClick: true,
-                  title: "Require a password to open Cesium ?",
+                  title: "Require a password to open NanChat ?",
                   content: (
                     <div>
                       <div className="mb-2 ">Password will be used to encrypt your secret phrase.</div>
-                      <Form className="high-contrast">
-                      <Input
-                        id="password"
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder="Password"
-                        className="mt-2"
-                      />
-                      <Input
-                        id="verify-password"
-                        type="password"
-                        autoComplete="new-password"
-                        placeholder="Verify Password"
-                        className="mt-2"
-                      />
-                      </Form>
-                      <Button
-                        className="mt-2"
-                        onClick={async () => {
-                          let password = document.getElementById("password") as HTMLInputElement;
-                          let verifyPassword = document.getElementById("verify-password") as HTMLInputElement;
-                          if (password.value !== verifyPassword.value) {
-                            Toast.show({
-                              icon: "fail",
-                              content: "Passwords do not match"
-                            })
-                            return
-                          }
-
-                          let encryptedSeed = await encrypt(seed.seed, password.value)
-                          await setSeedLocal({seed: encryptedSeed, isPasswordEncrypted: true})
-                          await setSeed(encryptedSeed, true)
-                          
-                          Toast.show({
-                            icon: "success",
-                            content: "Password enabled"
-                          })
-                        setHasPassword(true)
-                          modal.close()
-                        }}
-                      >
-                        Enable Password
-                      </Button>
+                      <div style={{color: "var(--adm-color-warning)"}}>
+                      Your password cannot be recovered if you forget it! </div>
+                       <PasswordForm
+                                          onFinish={async (values) => {
+                                            const password = values.password
+                                            let encryptedSeed = await encrypt(seed.seed, password)
+                                            await setSeedLocal({seed: encryptedSeed, isPasswordEncrypted: true})
+                                            await setSeed(encryptedSeed, true)
+                                            
+                                            Toast.show({
+                                              icon: "success",
+                                              content: "Password enabled"
+                                            })
+                                          setHasPassword(true)
+                                            modal.close()
+                                          }}
+                                          buttonText={"Enable Password"}
+                                      />
+                                  
                     </div>
                   ),
                 });

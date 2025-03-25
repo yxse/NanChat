@@ -8,6 +8,7 @@ import { getIsPasswordEncrypted, getPinInfo, verifyPin } from "../../utils/stora
 import { showLogoutSheet } from "../Settings"
 import PasscodeKeyboard from "./PasscodeKeyboard"
 
+let isAuthenticating = false
 
 export const ForgotYourPin = ({ type = "PIN" }) => {
     return <div
@@ -33,20 +34,47 @@ export const ForgotYourPin = ({ type = "PIN" }) => {
     </div>
 }
 
+const authCanceled = ({setRetry}) => {
+    let modal = Modal.show({
+        title: "Biometrics authentication canceled",
+        closeOnMaskClick: false,
+        closeOnAction: false,
+        content: 'You canceled the biometrics authentication. Authentication is required to access the wallet. Do you want to try again or sign out?',
+        actions: [
+          {
+            key: "settings", text: "Try again", onClick: async () => {
+                setRetry((r) => r + 1)
+                modal.close()
+            }
+          },
+          {
+            danger: true,
+            key: "signout", text: "Sign out", onClick: async () => {
+              await showLogoutSheet()
+            }
+          },
+        ]
+      })
+}
+
 export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description, title = "Enter your PIN", location }) => {
     // const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", { defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none" });
     const confirmationMethod = localStorage.getItem("confirmation-method")
     const [locked, setLocked] = useState(false)
     const [nextAttemptDate, setNextAttemptDate] = useState(0)
     const [attemptRemaining, setAttemptRemaining] = useState(10)
-    const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", { defaultValue: ["launch"] })
+    const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", { defaultValue: ["send"] })
     const alwaysAuthenticate = ["backup-secret-phrase", "change-confirmation-method", "create-wallet" ]
     const [error, setError] = useState("")
+    const [retry, setRetry] = useState(0)
     const showCloseButton = location === "launch" ? false : true
     const ref = useRef()
     const byPassAuthentication = !whenToAuthenticate.includes(location) && !alwaysAuthenticate.includes(location)
     useEffect(() => {
         async function authenticateByConfirmationMethod() {
+            // onAuthenticated()
+            //         setVisible(false)
+            //         return 
             if (location === "launch") {
                 let isPasswordEncrypted = await getIsPasswordEncrypted()
                 if (isPasswordEncrypted) { // no need to authenticate on launch if the wallet is already password protected
@@ -56,13 +84,26 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                 }
             }
             if (confirmationMethod !== '"pin"') {
-                authenticate().then(() => {
+                try {
+                    if (isAuthenticating) return
+                    isAuthenticating = true
+                    await authenticate()
                     setVisible(false)
                     onAuthenticated()
-                }).catch((e) => {
-                    Toast.show({ icon: "fail", content: e.message })
+                    return
+                } catch (error) {
+                    console.error(error)
                     setVisible(false)
-                })
+                    Toast.show({ icon: "fail", content: error.message })
+                    if (location === "launch") {
+                        authCanceled({setRetry: setRetry})
+                        setVisible(true)
+                    }
+                    return
+                }
+                finally {
+                    isAuthenticating = false
+                }
             }
             else {
                 getPinInfo().then(({ nextAttempt, attemptsRemaining }) => {
@@ -85,7 +126,7 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
             // authenticate using biometrics or pin depending on the setting
             authenticateByConfirmationMethod()
         }
-    }, [visible])
+    }, [visible, retry])
 
     const PinPopup = () => {
         const [pin, setPin] = useState("")

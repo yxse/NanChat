@@ -181,7 +181,8 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
       { hasWallet && 
       <PinAuthPopup
         location={"launch"}
-        description={"Unlock your wallet"} visible={authVisible} setVisible={setAuthVisible} onAuthenticated={async () => getSeed().then((seed) => {
+        description={"Unlock your wallet"} visible={authVisible} setVisible={setAuthVisible} onAuthenticated={async () => {
+          const seed = await getSeed()
           if (seed?.seed && !seed?.isPasswordEncrypted) {
             setWalletState("unlocked");
           }
@@ -201,7 +202,7 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
             dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed.seed, mutate, dispatch) } });
             // dispatch({ type: "ADD_WALLET", payload: { ticker: ticker, seed: localStorage.getItem('seed'), mutate: mutate } });
           }
-        })} />}
+        }} />}
       {children}
     </WalletContext.Provider>
   );
