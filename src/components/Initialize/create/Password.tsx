@@ -4,7 +4,7 @@ import React, { Dispatch, useState, useEffect, useContext, useDeferredValue} fro
 import { IoArrowBack } from "react-icons/io5";
 
 import storage, { setSeed } from "../../../utils/storage";
-import { Button, Card, Form, Input, List, Modal, Toast } from "antd-mobile";
+import { Button, Card, Form, Input, List, Modal, ProgressBar, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../Popup";
 import { LockOutline } from "antd-mobile-icons";
@@ -51,7 +51,9 @@ export const PasswordForm = ({onFinish,  buttonText = "Create Wallet"}) => {
   form={form}
         onFinish={onFinish}
         className="form-list high-contrast"
-        footer={<Button
+        footer={
+          <>
+        <Button
           type='submit' 
           size="large"
           color="primary"
@@ -59,7 +61,9 @@ export const PasswordForm = ({onFinish,  buttonText = "Create Wallet"}) => {
           className="mt-4 w-full"
           >
             {buttonText}
-          </Button>}
+          </Button>
+            </>
+          }
         mode="card" style={{}}>
           <Form.Item className="form-list" style={{}} rules={[
             { required: true, message: "Password cannot be empty" },
@@ -74,7 +78,16 @@ export const PasswordForm = ({onFinish,  buttonText = "Create Wallet"}) => {
                         className="mt-2"
                       />
                       </Form.Item>
-                   
+                        <div className="text-sm pl-4 pr-4 mr-2 mb-4" style={{textAlign: "start"}}>
+                          <ProgressBar
+                           text={password?.length > 0 ? <p style={{color: getColorClass(result.score)}}>{getStrengthText(result.score)}</p> : null}
+            percent={result ? result?.score * 25 : 0}
+            style={{
+              '--fill-color':  getColorClass(result?.score),
+            }}
+          />
+          
+                        </div>
                       <Form.Item 
                       className="form-list"
                       validateFirst
@@ -100,21 +113,7 @@ export const PasswordForm = ({onFinish,  buttonText = "Create Wallet"}) => {
                         className="mt-2"
                       />
                       </Form.Item>
-                      {result && (
-                        <div className="text-sm pl-4">
-                          {
-                            (result.score === 0 || result.score === 1) ? (
-                              <p style={{color: "var(--adm-color-danger)"}}>Weak Password</p>
-                            ) : result.score === 2 ? (
-                              <p style={{color: "var(--adm-color-warning)"}}>Medium Password</p>
-                            ) : result.score === 3 ? (
-                             <p style={{color: "var(--adm-color-success)"}}>Strong Password</p>
-                            ) : (
-                              <p style={{color: "var(--adm-color-success)"}}>Very Strong Password</p>
-                            )
-                          }
-                        </div>
-                      )}
+                   
                       </Form>
                     
                       </div>
@@ -283,15 +282,27 @@ export default function Password({
   );
 }
 
-function getColorClass(strength: string): string {
-  switch (strength) {
-    case "WEAK":
-      return "!text-red-500";
-    case "MEDIUM":
-      return "!text-yellow-500";
-    case "STRONG":
-      return "!text-green-500";
-    default:
-      return "";
+function getStrengthText(score: number) {
+  if (score === 0 || score === 1) {
+    return "Weak"
   }
+  if (score === 2) {
+    return "Weak"
+  }
+  if (score === 3) {
+    return "Good"
+  }
+  return "Strong"
+}
+function getColorClass(score: number) {
+  if (score === 0 || score === 1) {
+    return "var(--adm-color-warning)"
+  }
+  if (score === 2) {
+    return "var(--adm-color-warning)"
+  }
+  if (score === 3) {
+    return "var(--adm-color-primary)"
+  }
+  return "var(--adm-color-success)"
 }
