@@ -310,7 +310,9 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
             <div className="text-2xl text-center p-2">
                 Create Password
             </div>
-            <div className='p-2 mb-2 text-center'>
+            <div className='p-2 mb-2 text-center' style={{
+                // marginBottom: 350
+                }}>
                 This password will encrypt your secret phrase file.
                 <div style={{ color: 'var(--adm-color-warning)' }}>
                     Do not lose your password or your backup will be unrecoverable.
@@ -327,7 +329,7 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
                         })
                         let success = false
                             if (Capacitor.getPlatform() === 'ios') {
-                                let uri = await backupWalletGoogleDrive(encryptedSeed, fileName)
+                                let uri = await backupWalletICloud(encryptedSeed, fileName)
                                 if (uri) {
                                     success = true
                                     setBackupActive({ ...backupActive, icloud: true })
@@ -363,7 +365,7 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
                         catch (error) {
                             Toast.show({
                                 icon: 'fail',
-                                content: 'Failed to backup secret phrase.',
+                                content: 'Failed to backup secret phrase.' + error,
                             });
                         }
                     }}

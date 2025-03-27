@@ -24,7 +24,9 @@ const MessageRaw = ({ message }) => {
             containerType: 'inline-size',
         }}>
         {message?.type === "group" && <><ProfileName address={message.fromAccount} />{": "}</>}
-        {decrypted}
+        {decrypted ? decrypted : 
+        '\u00A0' // blank space to keep the height
+        } 
         </div>
         
     )

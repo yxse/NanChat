@@ -16,7 +16,7 @@ import { fetcherAccount, fetcherMessages, joinRequest } from "../fetcher";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
-import { useChat } from "../hooks/useChat";
+import { getKey, useChat } from "../hooks/useChat";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Message, { InfoMessageEncrypted, WelcomeMessage } from "./Message";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
@@ -33,9 +33,12 @@ import { StatusBar } from "@capacitor/status-bar";
 import { TEAM_ACCOUNT } from "../utils";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
-
+import { useChats } from "../hooks/use-chats";
+import { useSWRConfig } from "swr"
+import { unstable_serialize } from 'swr/infinite'
 
 const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
+    const {mutate: mutateInifinite} = useSWRConfig();
     const {
         account
     } = useParams();
@@ -65,8 +68,9 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         hasMore,
     } = useChat(account);
 
-    const { data: chats, mutate: mutateChats, isLoading } = useSWR<Chat[]>(`/chats`, fetcherMessages);
-    const chat = chats?.find(chat => chat.id === account);
+    const {chat, chats, isLoading, mutateChats} = useChats(account);
+    // console.log("chats", chats);
+    // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
     if (chat?.participants[0]?._id === chat?.participants[1]?._id) {
@@ -112,59 +116,62 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         }
     }, [])
     useEffect(() => {
-        socket.on('message', (message: Message) => {
-            // setMessages(prev => [...prev, message]);
-            // if (message.fromAccount !== address && chat?.type === 'private') {
-            //     debugger
-            //     return;
-            // }
-            // console.log('message', message);
-            if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
-                mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
-                    const newChats = [...(currentChats || [])];
-                    const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
-                    if (chatIndex !== -1) {
-                        const newChat = { ...newChats[chatIndex] };
-                        newChat.lastMessage = message.content;
-                        newChat.unreadCount = message.fromAccount === activeAccount ?
-                         0 : // don't increment unread count if message is from ourself
-                        (
-                            message.chatId === account ? 0 : // don't increment unread count if chat is the current open chat
-                            newChat.unreadCount + 1
-                        );
-                        newChat.lastMessageFrom = message.fromAccount;
-                        newChat.lastMessageTimestamp = new Date().toISOString();
-                        newChat.lastMessageId = message._id;
-                        newChat.isLocal = false;
-                        newChat.height = message.height;
-                        // move chat to top
-                        newChats.splice(chatIndex, 1);
-                        newChats.unshift(newChat);
-                    }
-                    return newChats;
-                }, false);
-            }
+        socket.emit('join', account); // join chat id
+//         socket.on('message', (message: Message) => {
+//             // setMessages(prev => [...prev, message]);
+//             // if (message.fromAccount !== address && chat?.type === 'private') {
+//             //     debugger
+//             //     return;
+//             // }
+//             // console.log('message', message);
+//             // if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
+//             //     mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
+//             //         const newChats = [...(currentChats || [])];
+//             //         const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
+//             //         if (chatIndex !== -1) {
+//             //             const newChat = { ...newChats[chatIndex] };
+//             //             newChat.lastMessage = message.content;
+//             //             newChat.unreadCount = message.fromAccount === activeAccount ?
+//             //              0 : // don't increment unread count if message is from ourself
+//             //             (
+//             //                 message.chatId === account ? 0 : // don't increment unread count if chat is the current open chat
+//             //                 newChat.unreadCount + 1
+//             //             );
+//             //             newChat.lastMessageFrom = message.fromAccount;
+//             //             newChat.lastMessageTimestamp = new Date().toISOString();
+//             //             newChat.lastMessageId = message._id;
+//             //             newChat.isLocal = false;
+//             //             newChat.height = message.height;
+//             //             // move chat to top
+//             //             newChats.splice(chatIndex, 1);
+//             //             newChats.unshift(newChat);
+//             //         }
+//             //         return newChats;
+//             //     }, false);
+//             // }
 
-            if (account == null) return // don't mutate messages if on /chat page to prevent showing new message if chat not selected
-            if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate messages if not for this chat
+//             if (account == null) return // don't mutate messages if on /chat page to prevent showing new message if chat not selected
+            
+// // debugger
+            
+//                 if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate messages if not for this chat
+//                 // mutate(currentPages => {
+//                 //     if (account == null) return // don't mutate if on /chat page to prevent showing new message if chat not selected
+//                 //     if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
+//                 //     const newPages = [...(currentPages || [])];
+//                 //     newPages[0] = [message, ...(newPages[0] || [])];
+//                 //     return newPages;
+//                 // }, false);
 
-            mutate(currentPages => {
-                if (account == null) return // don't mutate if on /chat page to prevent showing new message if chat not selected
-                if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
-                const newPages = [...(currentPages || [])];
-                newPages[0] = [message, ...(newPages[0] || [])];
-                return newPages;
-            }, false);
-
-            console.log("pathname", location.pathname);
-            console.log("chatId", message.chatId);
-            // if (location.pathname !== `/chat/${message.chatId}`) {
-            sendNotificationTauri(message.fromAccountName, "New message");
-            // }
-            // setTimeout(() => {
-            //     // window.scrollTo(0, document.body.scrollHeight);
-            // }, 1000);
-        });
+//             console.log("pathname", location.pathname);
+//             console.log("chatId", message.chatId);
+//             // if (location.pathname !== `/chat/${message.chatId}`) {
+//             sendNotificationTauri(message.fromAccountName, "New message");
+//             // }
+//             // setTimeout(() => {
+//             //     // window.scrollTo(0, document.body.scrollHeight);
+//             // }, 1000);
+//         });
         socket.on('update-join-request-message', (newMessage) => {
             console.log("join request update", newMessage);
             mutate(currentPages => {
@@ -188,7 +195,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         });
 
         return () => {
-            socket.off('message');
+            // socket.off('message');
             socket.off('update-join-request-message');
             socket.off('delete-message');
         };

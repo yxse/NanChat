@@ -115,12 +115,12 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   return (
 
     <ResponsivePopup
-    
+    bodyClassName={action === "send" ? "disable-keyboard-resize": ""}
     position={isMobile ? "bottom" : "right" }
     destroyOnClose={action === 'send' ? true : false} // destroy send modal on close e
-    showCloseButton={action === 'receive' ? true : false}
+    showCloseButton={true}
     visible={modalVisible}
-    closeOnSwipe={true}
+    // closeOnSwipe={true}
     closeOnMaskClick={true}
     onClose={() => {
       setAction('')

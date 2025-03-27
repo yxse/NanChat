@@ -27,18 +27,20 @@ export function useUnreadCount() {
 }
 const LIMIT = 50;
 // Custom hook for chat functionality
+
+export const getKey = (pageIndex, previousPageData, chatId) => {
+  // console.log({pageIndex, previousPageData});
+  // debugger
+  if (previousPageData && previousPageData[previousPageData.length - 1].height == 0) {
+    // debugger
+    return null;
+  }
+  if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=-1`;
+  return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
+};
 export function useChat(chatId) {
   // Get messages using infinite loading
-  const getKey = (pageIndex, previousPageData) => {
-    // console.log({pageIndex, previousPageData});
-    // debugger
-    if (previousPageData && previousPageData[previousPageData.length - 1].height == 0) {
-      // debugger
-      return null;
-    }
-    if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=-1`;
-    return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
-  };
+  
 
   const {
     data: pages,
@@ -48,7 +50,7 @@ export function useChat(chatId) {
     mutate,
     isLoading,
     isValidating 
-  } = useSWRInfinite(getKey, fetcherMessagesCache, {
+  } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId), fetcherMessagesCache, {
     revalidateFirstPage: false,
     
     // revalidateOnFocus: false,

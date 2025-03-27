@@ -20,6 +20,7 @@ import { useChat } from "../hooks/useChat";
 import ChatInputTip from "./ChatInputTip";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import ProfileName from "./profile/ProfileName";
+import { useChats } from "../hooks/use-chats";
 
 const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, messageInputRef }) => {
     const {
@@ -36,7 +37,7 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     // const { data: messagesHistory } = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
     // const {data: names} = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
-    const { data: chats, mutate } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const {chats} = useChats();
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
@@ -49,7 +50,8 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
 
     useEffect(() => {
         if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
-            socket.emit('typing', address || chat?.id);
+            // socket.emit('typing', address || chat?.id);
+            socket.emit('typing', chat?.id);
             setLastEmitTime(Date.now());
         }
     }
@@ -116,9 +118,9 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
             })
         });
 
-        return () => {
-            socket.off('message');
-        };
+        // return () => {
+        //     socket.off('message');
+        // };
     }, [address, chat]);
 
     // console.log("typing render")

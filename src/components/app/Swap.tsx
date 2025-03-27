@@ -104,9 +104,13 @@ const SelectTicker = ({ side, visible, setVisible, allCurrencies,  isLoading, se
 }
 
 export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultTo = "BAN", onSuccess, fiatDefaultTo, defaultAction = "swap"}) {
- 
+  const {
+    lowBalanceUsd,
+    isLoading: isLoadingBalancesA,
+    refreshBalances,
+  } = useWalletBalance();
   const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
-    getAllCurrencies, fetcher, {
+    lowBalanceUsd ? null : getAllCurrencies, fetcher, {
     errorRetryCount: 0
   });
   // const [result, setResult] = useState<string>(null);
@@ -248,11 +252,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
     }
   }, [])
 
-  const {
-    lowBalanceUsd,
-    isLoading: isLoadingBalancesA,
-    refreshBalances,
-  } = useWalletBalance();
+ 
   
   const [action, setAction] = useState(defaultAction);
 

@@ -32,6 +32,7 @@ import ProfileName from "./profile/ProfileName";
 import { showAccountQRCode } from "../utils";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import BackupContacts from "./contacts/BackupContacts";
+import { useChats } from "../hooks/use-chats";
 
 
 export const ChatAvatar = ({ chat }) => {
@@ -75,13 +76,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { account } = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const { data: chats, mutate, error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages, {onError: async (error) => {
-        console.log("aze error get chats", error)
-        if (error === 401 || error === 403) {
-            // debugger
-            await getNewChatToken(activeAccount, activeAccountPk)
-        }
-    }});
+    const {chats, mutateChats: mutate, isLoading: isLoadingChat} = useChats(account);
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -99,7 +94,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     // );
     // const accountData = accounts?.find(name => name._id === activeAccount)
     const filteredChats = chats
-    const {isMobile} = useWindowDimensions()
+    const {isMobile, width} = useWindowDimensions()
     const {inviteFriends} = useInviteFriends()
     useEffect(() => {
         socket.on('chat', (chat: string) => {
@@ -230,7 +225,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         // style={isMobile ? {} : { minWidth: 500 }}
         >
             {
-                (location.pathname === "/chat" || !isMobile) &&
+                (location.pathname === "/chat" || width > 768) &&
             <NavBar
             className="app-navbar "
             right={right}

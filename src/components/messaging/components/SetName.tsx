@@ -13,13 +13,14 @@ import { fetcherAccount, fetcherMessages, getNewChatToken } from '../fetcher';
 import useSWR from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
 import { useHideNavbarOnMobile } from '../../../hooks/use-hide-navbar';
+import { useChats } from '../hooks/use-chats';
 
 const SetName: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
     const {activeAccount, activeAccountPk} = useWallet();
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
-    const {  mutate: mutateChats } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const {mutateChats} = useChats();
 
     useHideNavbarOnMobile(true);
     const {ledger} = useContext(LedgerContext);

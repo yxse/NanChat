@@ -3,9 +3,10 @@ import React from 'react';
 import ProfilePicture from './profile/ProfilePicture';
 import { fetcherMessages } from '../fetcher';
 import useSWR from 'swr';
+import { useChats } from '../hooks/use-chats';
 
 const GroupAvatar = ({ chatId }) => {
-  const { data: chats,error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+  const {chats} = useChats(chatId);
   const chat = chats?.find((chat) => chat.id === chatId);
   const participants = chat?.participants.slice(0, 9);
   // Extract initials from group name with null/undefined safety

@@ -4,7 +4,8 @@ import { DotLoading } from "antd-mobile";
 
 const ProfileName = ({ address, fallback }) => {
     const { data, isLoading } = useSWR(address, fetcherAccount, {
-        dedupingInterval: 60000,
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
     });
 
     if (isLoading) return null

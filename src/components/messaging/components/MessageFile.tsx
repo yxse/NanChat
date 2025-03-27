@@ -18,6 +18,7 @@ import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener'
 import { readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
 import { setData } from "../../../services/database.service";
 import { dangerousExtensions } from "../utils";
+import { useChats } from "../hooks/use-chats";
 
 const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
     const download = async () => {
@@ -78,8 +79,7 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
   };
 
 const MessageFile = ({ message, side, file, deleteMode=false }) => {
-    const { data: chats, mutate: mutateChats, isLoading } = useSWR<Chat[]>(`/chats`, fetcherMessages, {dedupingInterval: 1000 * 60 * 5})
-    const chat = chats?.find(chat => chat.id === message.chatId)
+    const {chat} = useChats(message.chatId)
     const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(null)
     const [fileMeta, setFileMeta] = useState(file.meta)
@@ -115,7 +115,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                         await writeUint8ArrayToFile(
                           e.data.fileID,
                           e.data.decrypted, 
-                          {name: file.meta.name, type: file.meta.type}
+                          {name: file.meta?.name, type: file.meta?.type}
                         );
                       
                         

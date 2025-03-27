@@ -34,22 +34,31 @@ import NetworkList from "./NetworksList";
 import SelectTickerAll from "../swap/SelectTickerAll";
 import { IoSwapVerticalOutline } from "react-icons/io5";
 import SwapHistory from "./SwapHistory";
-import { createOrder, createOrderFiat, fetcher, getAllCurrencies, getEstimate, getEstimateFiat, getFiatCurrencies, getLimits, getLimitsFiat, getOrder } from "../../nanswap/swap/service";
+import { createOrder, createOrderFiat, fetcher, getAllCurrencies, getEstimate, getEstimateFiat, getFeelessCurrencies, getFiatCurrencies, getLimits, getLimitsFiat, getOrder } from "../../nanswap/swap/service";
 import { GoCreditCard } from "react-icons/go";
 import { fetchBalance } from "./Network";
 import { WalletContext } from "../Popup";
 import { convertAddress, MIN_USD_SWAP } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { Capacitor } from "@capacitor/core";
-import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+// import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import {InAppBrowser } from '@capgo/inappbrowser';
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 
 export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo = "XNO", onSuccess, setAction}) {
-  const { data: allCurrencies, isLoading: isLoadingCurrencies } = useSWR(
-    getAllCurrencies, fetcher, {
-    errorRetryCount: 0
-  });
-  const feeless = allCurrencies && Object.values(allCurrencies).filter((currency) => currency?.feeless == true)
+  const feeless = {};
+  for (const [ticker, network] of Object.entries(networks)) {
+    if (!network.custom) {
+      feeless[ticker] = network;
+      feeless[ticker].ticker = ticker;
+    }
+  }
+  
+  // const { data: feeless, isLoading: isLoadingCurrencies } = useSWR(
+  //   getFeelessCurrencies, fetcher, {
+  //   errorRetryCount: 0
+  // });
+  // const feeless = allCurrencies && Object.values(allCurrencies).filter((currency) => currency?.feeless == true)
   const { data: fiatCurrencies, isLoading: isLoadingFiatCurrencies } = useSWR(
     getFiatCurrencies, fetcher, {
     errorRetryCount: 0
@@ -125,10 +134,10 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
         }} />
       </Popup> */}
       {
-        (isLoadingCurrencies || isLoadingFiatCurrencies) ? <DotLoading /> :
+        (isLoadingFiatCurrencies) ? <DotLoading /> :
           <SelectTickerAll
             allCurrencies={side === "from" ? fiatCurrenciesEnabled : feeless}
-            isLoadingCurrencies={isLoadingCurrencies}
+            isLoadingCurrencies={false}
             onClick={(ticker) => {
               console.log(ticker, side);
               if (side === "from") {
@@ -179,7 +188,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
       else{
         const link = "https://payments.guardarian.com/checkout?tid=" + exchange.orderId;
         if (Capacitor.isNativePlatform()) {
-            await InAppBrowser.openInSystemBrowser({url: link, options: DefaultSystemBrowserOptions})
+            await InAppBrowser.open({url: link})
         }
         else {
           window.open(link, "_blank");
@@ -251,7 +260,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
     } catch (error) {
       console.error("Error sending:", error);
       Toast.show({
-        content: "Error sending",
+        content: "Buy Error: " + error,
       });
     } finally {
       setIsLoading(false);
@@ -431,48 +440,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
                 </div>
               </Form.Item>
             </div>
-            {
-              (!networks.hasOwnProperty(selectedTo) ||
-              allCurrencies?.[selectedTo]?.feeless == false) // show address for btc if not nanbtc feeless 
-              &&
-              <div className="flex justify-between">
-                <Form.Item
-                  label="Address"
-                  name={"address"}
-                  style={{ width: "100%" }}
-                >
-                  <TextArea
-                    autoSize={{ minRows: 2, maxRows: 4 }}
-                    placeholder="Recipient Address"
-                    rows={2}
-                  />
-                </Form.Item>
-                <Scanner
-                  onScan={(result) => {
-                    form.setFieldValue("address", result);
-                  }
-                }>
-
-                <ScanCodeOutline
-                  fontSize={24}
-                  className="cursor-pointer text-gray-200 mr-4 mt-4"
-                  />
-                  </Scanner>
-              </div>
-            }
-            {
-              allCurrencies?.[selectedTo]?.hasExternalId &&
-              <Form.Item
-                label="Memo"
-                name={"externalId"}
-                style={{ width: "100%" }}
-                required={false}
-              >
-                <Input
-                  placeholder="Recipient Memo (optional)"
-                />
-              </Form.Item>
-            }
+          
           </Form>
         </div>
      

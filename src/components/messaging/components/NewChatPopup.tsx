@@ -1,4 +1,4 @@
-import { Button, CenterPopup, CheckList, DotLoading, Ellipsis, List, Popup, SearchBar } from 'antd-mobile'
+import { Button, CenterPopup, CheckList, DotLoading, Ellipsis, List, Popup, SearchBar, Skeleton } from 'antd-mobile'
 import React, { useState } from 'react'
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
@@ -65,7 +65,21 @@ export const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition
         </CheckList>
     );
 }
-
+const SkeletonAccountListItems = () => {
+    return (
+          <div className="divide-y divide-solid divide-gray-700 w-full">
+            {[1, 2, 3, 4, 5, 6].map((_, idx) => (
+              <List key={idx} mode="default">
+                <List.Item>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-8 h-8 bg-gray-500 rounded-full"></div>
+                    <div className="w-1/2 h-4 bg-gray-500 rounded"></div>
+                  </div>
+                </List.Item>
+              </List>
+            ))}
+          </div>
+        )}
 function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSelect, accounts = [], alreadySelected}) {
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
@@ -84,7 +98,7 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
         if (previousPageData && !previousPageData.length) return null // reached the end
         return `/accounts?page=${pageIndex}${searchText ? `&search=${searchText}` : ''}`
     }
-    const { data: pages, size, setSize, isLoading} = useSWRInfinite<string[]>(
+    const { data: pages, size, setSize, isLoading, isValidating} = useSWRInfinite<string[]>(
         getKey, fetcherMessages, {keepPreviousData: true});
     if (!pages) {
         return <DotLoading />
@@ -102,6 +116,7 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                 onClose={() => setVisible(false)}
                 closeOnMaskClick={true}
                 closeOnSwipe={false}
+                bodyStyle={{height: '90vh'}}
             >
                 <div className=" ">
                     {/* <span
@@ -159,9 +174,8 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                     />
                 </div>
                 <div style={{  }}>
-                    
                         <InfiniteScroll
-                        height={400}
+                        height={'calc(90vh - 57px - 44px - 8px)'}
                             dataLength={all?.length}
                             next={() => {
                                 console.log('loading more')
@@ -171,7 +185,7 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                                 null
                               }
                             hasMore={true}
-                            loader={isLoading && <DotLoading />}
+                            loader={(isValidating || isLoading) && <SkeletonAccountListItems />}
                         >
                            
                     {/* <div className="text-base  pl-4 m-2">

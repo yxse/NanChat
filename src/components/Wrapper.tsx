@@ -87,10 +87,24 @@ if (Capacitor.getPlatform() === "ios"){
     }
     try {
 
-      const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
+      // const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
+      const popup: HTMLElement = document.querySelectorAll('.adm-popup-body:not(.disable-keyboard-resize)');
       console.log("popup", popup);
       popup.forEach((element) => {
         element.style.marginBottom = `${info.keyboardHeight}px`;
+        // element.style.paddingTop = info.keyboardHeight < 360 ? (360 - info.keyboardHeight) + 'px' : '0px';
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+    try {
+
+      const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
+      console.log("popup", popup);
+      popup.forEach((element) => {
+        element.style.marginBottom = `${info.keyboardHeight}px`;
+        element.style.paddingTop = info.keyboardHeight < 360 ? (360 - info.keyboardHeight) + 'px' : '0px';
       });
     } catch (e) {
       console.log(e);
@@ -116,15 +130,27 @@ if (Capacitor.getPlatform() === "ios"){
     }
     try {
 
-      const popup: HTMLElement = document.querySelectorAll('.adm-popup-body');
+      // const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
+      const popup: HTMLElement = document.querySelectorAll('.adm-popup-body:not(.disable-keyboard-resize)');
       console.log("popup", popup);
       popup.forEach((element) => {
         element.style.marginBottom = `0px`;
+        // element.style.paddingTop = `360px`;
       });
     } catch (e) {
       console.log(e);
     }
+    try {
 
+      const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
+      console.log("popup", popup);
+      popup.forEach((element) => {
+        element.style.marginBottom = `0px`;
+        element.style.paddingTop = `360px`;
+      });
+    } catch (e) {
+      console.log(e);
+    }
   
   });
   

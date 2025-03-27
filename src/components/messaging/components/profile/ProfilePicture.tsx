@@ -5,7 +5,8 @@ import { accountIconUrl } from "../../../app/Home";
 
 const ProfilePicture = ({ address, width=42, borderRadius=8 }) => {
     const { data, isLoading } = useSWR(address, fetcherAccount, {
-        dedupingInterval: 60000,
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
         fallbackData: { profilePicture: { url: accountIconUrl(address) } }
     });
     if (isLoading) return null

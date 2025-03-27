@@ -72,15 +72,119 @@ import AppUrlListener from "./AppUrlListener";
 import Buy from "./Buy";
 import ChatSocket from "../messaging/socket";
 import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import NotificationSettings from "./NotificationSettings";
 import { authenticate } from "../../utils/biometrics";
-import { getIsPasswordEncrypted } from "../../utils/storage";
+import { getIsPasswordEncrypted, getSeed } from "../../utils/storage";
 import useSWR from "swr";
 import { fetcherChat, getNewChatToken } from "../messaging/fetcher";
 import { useUnreadCount } from "../messaging/hooks/useChat";
 import FileManagement from '../FileManagement';
+import { FirebaseMessaging } from "@capacitor-firebase/messaging";
+import { getToken } from "../../nano/notifications";
+import { box, wallet } from "multi-nano-web";
+import { ShareExtension } from 'capacitor-share-extension';
+import { getSharedKey } from "../../services/sharedkey";
 
+
+
+
+// run this as part of the app launch
+if (Capacitor.isPluginAvailable('ShareExtension')) {
+  window.addEventListener('sendIntentReceived',  () => {
+      checkIntent();
+  });
+  checkIntent();
+}
+
+async function checkIntent() {
+  try {
+      const result: any = await ShareExtension.checkSendIntentReceived();
+      /* sample result::
+      { payload: [
+          {
+              "type":"image%2Fjpg",
+              "description":"",
+              "title":"IMG_0002.JPG",
+              // url contains a full, platform-specific file URL that can be read later using the Filsystem API.
+              "url":"file%3A%2F%2F%2FUsers%2Fcalvinho%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FE4C13502-3A0B-4DF4-98ED-9F31DDF03672%2Fdata%2FContainers%2FShared%2FAppGroup%2FF41DC1F5-54D7-4EC5-9785-5248BAE06588%2FIMG_0002.JPG",
+              // webPath returns a path that can be used to set the src attribute of an image for efficient loading and rendering.
+              "webPath":"capacitor%3A%2F%2Flocalhost%2F_capacitor_file_%2FUsers%2Fcalvinho%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FE4C13502-3A0B-4DF4-98ED-9F31DDF03672%2Fdata%2FContainers%2FShared%2FAppGroup%2FF41DC1F5-54D7-4EC5-9785-5248BAE06588%2FIMG_0002.JPG",
+          }]
+       } 
+       */
+      if (result && result.payload && result.payload.length) {
+          console.log('Intent received: ', JSON.stringify(result));
+      }
+  } catch (err) {
+      console.log(err);
+  }
+}
+
+
+
+FirebaseMessaging.addListener("notificationReceived", async (event) => {
+  try {
+    
+
+  console.log("notificationReceived: ", { event });
+  // return
+  // focus window
+  // window.focus();
+  let seed = await getSeed();
+  let accounts = wallet.legacyAccounts(seed.seed, 0, 1);
+  let activeAccount = accounts[0].address;
+  let message = event.notification.data.message;
+  let idInt = event.notification.data.idInt;
+  let idMessage = event.notification.data.idMessage;
+  let fromAccount = event.notification.data.fromAccount;
+  let fromAccountName = event.notification.data.fromAccountName;
+  let toAccount = event.notification.data.toAccount;
+  // let title = event.notification.data.aps.alert.title;
+  let title = event.notification.data.title;
+  let targetAccount = fromAccount === activeAccount ? message.toAccount : fromAccount;
+  let chatId = event.notification.data.chatId;
+  let isGroupMessage = event.notification.data.type === "group";
+  
+  // console.log("decryption", message, targetAccount, accounts[0].privateKey);
+  
+  
+  
+  let decryptionKey = accounts[0].privateKey;
+  if (isGroupMessage) {
+    decryptionKey = await getSharedKey(chatId, toAccount, decryptionKey);
+  }
+  let decrypted = message
+  try {
+    decrypted = box.decrypt(message, targetAccount, decryptionKey);
+    localStorage.setItem(`message-${idMessage}`, decrypted);
+    decrypted 
+  } catch (error) {
+    console.error('Message decryption failed:', error); // could happen for sticker or special message
+
+  }
+
+  console.log("decrypted: ", decrypted);
+    // localStorage.setItem(`message-${message._id}`, decrypted);
+    LocalNotifications.schedule({
+          notifications: [
+            {
+              title: title,
+              body: 
+              isGroupMessage ? `${fromAccountName}: ${decrypted}` : decrypted,
+              id: +idInt,
+              schedule: { at: new Date() },
+
+            }
+          ]
+        })
+
+      } catch (error) {
+        Toast.show({content: error.message, icon: 'fail'})
+      }
+
+})
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -231,7 +335,7 @@ export const MenuBar = () => {
       <Popup
       destroyOnClose
       position={"bottom"}
-      closeOnSwipe
+      // closeOnSwipe
         visible={visible}
         onClose={() => {
           setVisible(false);
@@ -361,6 +465,9 @@ export default function App() {
     }
     console.log("index render")
     useEffect(() => {
+
+    
+
       getNewChatToken(activeAccount, activeAccountPk).then((r) => {
         console.log("got new chat token", r);
       })

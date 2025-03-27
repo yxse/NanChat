@@ -17,10 +17,10 @@ import { formatAddress } from '../../../utils/format';
 import { LockFill } from 'antd-mobile-icons';
 import useSWR from 'swr';
 import { fetcherMessages, fetcherMessagesPost } from '../../fetcher';
-import { defaultContacts } from '../../../app/Contacts';
 import { box } from 'multi-nano-web';
 import { useWallet } from '../../../Popup';
 import { useSWRConfig } from "swr"
+import { defaultContacts } from '../../utils';
 
 
 export const useBackupContacts = () => {

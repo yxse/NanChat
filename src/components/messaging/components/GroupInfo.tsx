@@ -24,6 +24,7 @@ import GroupAvatar from "./group-avatar";
 import NewChatPopup from "./NewChatPopup";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import QRCode from "qrcode.react";
+import { useChats } from "../hooks/use-chats";
 
 const GroupInfo: React.FC<{}> = ({  }) => {
     const {
@@ -38,7 +39,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
         defaultValue: []
     });
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
-    const { data: chats, mutate, error, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const {chats, mutateChats: mutate} = useChats();
     const chat = chats?.find((chat) => chat.id === account);
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [visibleRemove, setVisibleRemove] = useState(false);

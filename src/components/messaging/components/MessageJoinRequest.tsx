@@ -25,13 +25,13 @@ import { networks } from "../../../utils/networks";
 import { DateHeader } from "../../app/History";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
+import { useChats } from "../hooks/use-chats";
 
 const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   const { activeAccount, activeAccountPk } = useWallet();
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
-  const { data: chats, mutate: mutateChats, isLoading: isLoadingChat } = useSWR<Chat[]>(`/chats`, fetcherMessages);
-  const chat = chats?.find((c) => c.id === message.chatId);
+  const { chat, mutateChats, isLoading: isLoadingChat} = useChats(message.chatId);
   const { data, isLoading } = useSWR(`/names?accounts=${addresses.join(',')}`, fetcherMessages, {
     dedupingInterval: 60000,
   });

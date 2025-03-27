@@ -285,7 +285,7 @@ export async function writeUint8ArrayToFile(
     throw new Error('Data must be a Uint8Array, received: ' + typeof data);
   }
   if (Capacitor.getPlatform() === 'web') {
-    let blob = new Blob([data]);
+    let blob = new Blob([data], {type: meta.type});
    let r =  
     await Filesystem.writeFile({
       path: fileID,

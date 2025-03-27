@@ -20,6 +20,7 @@ import useLocalStorageState from "use-local-storage-state";
 import ProfilePicture from "./profile/ProfilePicture";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { HeaderStatus } from "./HeaderStatus";
+import { useChats } from "../hooks/use-chats";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {
@@ -27,7 +28,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     } = useParams();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const {mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const {mutateChats} = useChats();
     const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
     const name = names?.[0];
     const nameOrAccount = name?.name || formatAddress(account);
@@ -179,7 +180,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                     await fetcherMessagesPost('/block-chat', {
                                         chatId: account
                                     })
-                                    await mutate()
+                                    await mutateChats()
                                     navigate('/chat')
                                 } catch (error) {
                                     console.error(error)

@@ -52,6 +52,7 @@ import { authenticate, secureAuthIfAvailable } from "../../utils/biometrics";
 import { PinAuthPopup } from "../Lock/PinLock";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
+import ProfileName from "../messaging/components/profile/ProfileName";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -171,6 +172,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       rules={rules}
     >
       <Input
+      id="amount"
       className="form-list"
       type="number"
       step={"any"}
@@ -218,7 +220,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
   const [amountInFiat, setAmountInFiat] = useState<number>(0);
   const [inputRef, setInputFocus] = useFocus()
   const [pinVisible, setPinVisible] = useState(false)
-  const {isMobile} = useWindowDimensions()
+  const {isMobile, height} = useWindowDimensions()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   const {mutate,cache}=useSWRConfig()
   let isScanning = false;
@@ -233,9 +235,9 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
 
   let dataPrepareSend = null;
   return (
-    <div
-    style={{width: "100%"}}
-     className="divide-y divide-solid divide-gray-700 space-y-6">
+    <div style={{minWidth: 350, overflow: "auto", maxHeight: "90vh"}}
+    //  className="divide-y divide-solid divide-gray-700 space-y-6"
+     >
       <div className="container  relative mx-auto">
         <div className="text-center text-xl p-2">
           {/* <NavBar onBack={() => navigate(`/${ticker}`)}> */}
@@ -305,8 +307,11 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
             className="mt-4 form-list"
             layout="horizontal"
             footer={
-              <div className="space-y-4">
+              <div className="space-y-4 popup-primary-button" style={{paddingTop: 
+              (height <= 745 || !isMobile) ? 0 // on small screen, no padding to prevent overflow, padding is used to prevent content shifting when keyboard is opened
+              : 360}}>
               <Button
+              className=""
                 loading={isLoading}
                 block
                 type="submit"
@@ -314,7 +319,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 size="large"
                 shape="rounded"
                 >
-                Send
+                Next
               </Button>
               {/* <Button
                 block
@@ -352,6 +357,12 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 }
               >
                 <TextArea
+                onEnterPress={(e) => {
+                  document?.getElementById("amount")?.focus()
+                  e.preventDefault()
+
+                }}
+                enterKeyHint="next"
                   autoSize={{ minRows: 3, maxRows: 4 }}
                   placeholder="Enter Address"
                   rows={2}
@@ -410,22 +421,23 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               setDataSend(false)
             }}
           closeOnMaskClick
+          showCloseButton
           >
-            <div style={{minWidth: 350}}>
+            <div style={{minWidth: 350, overflow: "auto"}}>
               <Card >
               <div className="text-xl  text-center p-2 mb-2">Sending</div>
                 <div className="text-center">
                   <div className="text-2xl">
                      {form.getFieldValue("amount")} {ticker}
                   </div>
-                  <div className="text-base text-gray-400">
+                  <div className="text-base" style={{color: "var(--adm-color-text-secondary)"}}>
                     ~<ConvertToBaseCurrency amount={form.getFieldValue("amount")} ticker={ticker} />
                   </div>
                 </div>
                 <Divider />
                 <div className="space-y-3 mt-6 mb-5">
                 <div className="flex justify-between text-base mt-6">
-                  <div className="text-gray-400">Asset</div>
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>Asset</div>
                   <div className="flex items-center">
                   <img
                   className="mr-2"
@@ -437,9 +449,16 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   </div>
                 </div>
                 <div className="flex justify-between text-base">
-                  <div className="text-gray-400">To</div>
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>From</div>
                   <div>
-                    {formatAddress(form.getFieldValue("address"))}
+                    <ProfileName address={activeAccount} fallback={`Account ${wallet.activeIndex + 1}`} /> ({formatAddress(activeAccount, 11, 7)})
+                    {/* <AliasInternetIdentifier email={} /> */}
+                    </div>
+                </div>
+                <div className="flex justify-between text-base">
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>To</div>
+                  <div>
+                  <ProfileName address={form.getFieldValue("address")} fallback={``} /> ({formatAddress(form.getFieldValue("address"), 11, 7)})
                     <Alias account={form.getFieldValue("address")} />
                     {/* <AliasInternetIdentifier email={} /> */}
                     </div>
@@ -513,6 +532,9 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                    setConfirmPopupOpen(false);
                 }}
                 />
+                <div 
+                style={{paddingTop: (height <= 745 || !isMobile) ? 0 : 350}}
+                >
                 <Button
                 shape="rounded"
                 loading={isLoading}
@@ -544,7 +566,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 }}
                 className="w-full mt-4"
                 >
-                  Confirm
+                  Send
                 </Button>
                 <Button 
                 shape="rounded"
@@ -553,6 +575,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 color="default" onClick={() => setConfirmPopupOpen(false)}>
                   Cancel
                 </Button>
+                </div>
               </Card>
             </div>
           </ResponsivePopup>

@@ -60,8 +60,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@capacitor/core@6.2.0)
       '@capacitor/local-notifications':
-        specifier: ^7.0.0
-        version: 7.0.0(@capacitor/core@6.2.0)
+        specifier: '6'
+        version: 6.1.2(@capacitor/core@6.2.0)
       '@capacitor/share':
         specifier: '6'
         version: 6.0.3(@capacitor/core@6.2.0)
@@ -137,6 +137,9 @@ importers:
       antd-mobile-icons:
         specifier: ^0.3.0
         version: 0.3.0
+      argon2-browser:
+        specifier: ^1.18.0
+        version: 1.18.0
       async-lock:
         specifier: ^1.4.1
         version: 1.4.1
@@ -156,8 +159,8 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(@capacitor/core@6.2.0)
       capacitor-share-extension:
-        specifier: 4.0.0-beta.0
-        version: 4.0.0-beta.0
+        specifier: '3'
+        version: 3.0.0
       currency-symbol-map:
         specifier: ^5.1.0
         version: 5.1.0
@@ -922,10 +925,10 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
-  '@capacitor/local-notifications@7.0.0':
-    resolution: {integrity: sha512-+k93w1W0hZTVxM8rjttEyUKkkHxOW776POFM4snDcwv+sAxWX+YK+oqIwNtln6N5Plp3Z9TkQS0RufwZbl7GUw==}
+  '@capacitor/local-notifications@6.1.2':
+    resolution: {integrity: sha512-LZrwkuh+EaIbpIOeqotUUB31MWA3BF+Hdf9ZdOK9MVJyHG7hL27ja/mx50tO6VW3+nlaXSeygkRZPIuuV4UQRQ==}
     peerDependencies:
-      '@capacitor/core': '>=7.0.0'
+      '@capacitor/core': ^6.0.0
 
   '@capacitor/share@6.0.3':
     resolution: {integrity: sha512-BkNM73Ix+yxQ7fkni8CrrGcp1kSl7u+YNoPLwWKQ1MuQ5Uav0d+CT8M67ie+3dc4jASmegnzlC6tkTmFcPTLeA==}
@@ -2064,6 +2067,9 @@ packages:
   arg@5.0.2:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
 
+  argon2-browser@1.18.0:
+    resolution: {integrity: sha512-ImVAGIItnFnvET1exhsQB7apRztcoC5TnlSqernMJDUjbc/DLq3UEYeXFrLPrlaIl8cVfwnXb6wX2KpFf2zxHw==}
+
   array-buffer-byte-length@1.0.2:
     resolution: {integrity: sha512-LHE+8BuR7RYGDKvnrmcuSq3tDcKv9OFEXQt/HpbZhY7V6h0zlUXutnAD82GiFx9rdieCMjkvtcsPqBwgUl1Iiw==}
     engines: {node: '>= 0.4'}
@@ -2278,8 +2284,8 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
-  capacitor-share-extension@4.0.0-beta.0:
-    resolution: {integrity: sha512-YdQgm7eMNuXY2rRVRrdhBtY5n11DpkBx6oD+ei/7l/XsEJc+lMdei3shCkcv4Dj2qJUgv4rBvxYywzcswhC1Fw==}
+  capacitor-share-extension@3.0.0:
+    resolution: {integrity: sha512-tZPJLtyEZImz+vsPfG58vKzxP3qr7n4hubHxOhhFV5EqJxT0iqeFvaytra3DLu1eJWEPaHc9rtLCXA13ATYwKQ==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -5458,7 +5464,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
-  '@capacitor/local-notifications@7.0.0(@capacitor/core@6.2.0)':
+  '@capacitor/local-notifications@6.1.2(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
@@ -6670,6 +6676,8 @@ snapshots:
 
   arg@5.0.2: {}
 
+  argon2-browser@1.18.0: {}
+
   array-buffer-byte-length@1.0.2:
     dependencies:
       call-bound: 1.0.3
@@ -6923,7 +6931,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
-  capacitor-share-extension@4.0.0-beta.0: {}
+  capacitor-share-extension@3.0.0: {}
 
   chalk@4.1.2:
     dependencies:

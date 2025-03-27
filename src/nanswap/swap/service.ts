@@ -3,6 +3,7 @@ import { networks } from "../../utils/networks";
 export const fetcher = (url) => fetch(url).then((res) => res.json());
 const BASE_URL = import.meta.env.VITE_PUBLIC_BACKEND + '/partners/';
 
+export const getFeelessCurrencies = BASE_URL + 'get-currencies';
 export const getAllCurrencies = BASE_URL + 'all-currencies';
 export const getOrder = BASE_URL + 'get-order?id=';
 export const getEstimate = BASE_URL + 'get-estimate';

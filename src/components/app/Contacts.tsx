@@ -758,8 +758,9 @@ export const SelectContact = ({ ticker, onSelect }) => {
             setVisible(true);
         }} />
         <ResponsivePopup
+        closeOnSwipe={true}
         showCloseButton
-            bodyStyle={{ maxHeight: '50vh', overflow: 'auto' }}
+            bodyStyle={{ maxHeight: '90vh', overflow: 'auto' }}
             destroyOnClose
             visible={visible}
             onClose={() => setVisible(false)}

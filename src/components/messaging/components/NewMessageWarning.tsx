@@ -5,13 +5,14 @@ import { fetcherMessages, fetcherMessagesPost } from '../fetcher';
 import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { formatAddress } from '../../../utils/format';
+import { useChats } from '../hooks/use-chats';
 
 function NewMessageWarning({fromAddress, account, chatId}) {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
     const [isLoading, setIsLoading] = useState(false);
-    const {mutate} = useSWR<Chat[]>(`/chats`, fetcherMessages);
+    const {mutateChats: mutate} = useChats();
     const navigate = useNavigate();
 
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === fromAddress));

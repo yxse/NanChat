@@ -70,6 +70,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
           </div>
             </div>
         <ResponsivePopup
+        bodyClassName="disable-keyboard-resize"
         destroyOnClose={true}
         visible={activeTicker}
         onClose={() => {
@@ -77,6 +78,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
             setActiveTicker(null)
         }}
         closeOnMaskClick={true}
+        showCloseButton={true}
         >
             {
                 activeTicker && 
