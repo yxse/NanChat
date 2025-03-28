@@ -28,6 +28,7 @@
     "@capacitor-mlkit/barcode-scanning": "^6.2.0",
     "@capacitor/android": "^6.2.0",
     "@capacitor/app": "^6.0.2",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/browser": "6",
     "@capacitor/clipboard": "^6.0.2",
     "@capacitor/core": "^6.2.0",
