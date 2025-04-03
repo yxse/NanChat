@@ -83,6 +83,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
             {
                 activeTicker && 
             <Send 
+            hideAddress={true}
             onClose={() => {
                 setVisible(false)
                 setActiveTicker(null)

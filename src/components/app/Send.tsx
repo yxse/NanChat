@@ -156,16 +156,21 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       validateFirst
       required={false}
       extra={
-        <div className="flex justify-between space-x-2 items-center mr-2">
-          <div className="flex items-center cursor-pointer" onClick={switchAmountType}>
+        <div 
+        className="flex justify-between space-x-2 items-center mr-2">
+          <div
+          style={{}}
+           className="flex items-center cursor-pointer" onClick={switchAmountType}>
             {currency}
             <CgArrowsExchangeV size={20} />
           </div>
           {
             type === "send" &&
-          <a className="text-blue-400" onClick={setMaxAmount}>
+          <span 
+          style={{ borderBottom: "1px dashed", cursor: "pointer" }}
+           onClick={setMaxAmount}>
             Max
-          </a>
+          </span>
           }
         </div>
       }
@@ -195,7 +200,7 @@ const useFocus = () => {
   return [ htmlElRef, setFocus ] 
 }
 
-export default function Send({ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null}) {
+  ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null, hideAddress = false}) {
   
   // const [result, setResult] = useState<string>(null);
   const {wallet} = useContext(WalletContext)
@@ -253,13 +258,15 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
 
 {
   amountType === "fiat" ?
-  <div className="text-sm text-gray-400 appearance-none">
+  <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
     Available: ~<ConvertToBaseCurrency amount={balance} ticker={ticker} />
   </div> :
-  <div className="text-sm text-gray-400 appearance-none">
+  <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
     Available: {balanceLoading ? <DotLoading /> : balance} {ticker}
   </div>
 }
+
+
           <Form
           style={successPopupOpen ? {display: "none"} : {}}
             initialValues={{
