@@ -91,7 +91,7 @@ const SetName: React.FC = () => {
                 <Button 
                 className='w-full'
                 type='submit' color='primary' size='large'>
-                    {isRegistered ? 'Done' : 'Next'}
+                    {isRegistered ? 'Done' : 'Done'}
                 </Button>
                     </>
             }>

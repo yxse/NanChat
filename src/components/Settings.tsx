@@ -31,6 +31,7 @@ import ProfileHome from "./messaging/components/profile/ProfileHome";
 import { getSeed, removeSeed } from "../utils/storage";
 import { copyToClipboard } from "../utils/format";
 import { useWindowDimensions } from "../hooks/use-windows-dimensions";
+import { useHideNavbarOnMobile } from "../hooks/use-hide-navbar";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -168,7 +169,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
     hex: "#6495ED",
   });
   const { cache } = useSWRConfig()
-
+  useHideNavbarOnMobile(true)
   const options = [
     { value: "XNO", label: "XNO", hex: "#6495ED" },
     { value: "XDG", label: "XDG", hex: "#A7C7E7" },
