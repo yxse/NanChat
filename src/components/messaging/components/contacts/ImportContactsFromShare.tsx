@@ -16,10 +16,26 @@ import ProfilePicture from './../profile/ProfilePicture';
 import { formatAddress } from '../../../../utils/format';
 import { useBackupContacts } from './BackupContacts';
 import { defaultContacts } from '../../utils';
+import { fetcherMessages } from '../../fetcher';
+import useSWR from 'swr';
 
 
 export const useContacts = () => {
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
+    const { data: contactsOnNanChat } = useSWR<Chat[]>(
+        `/names?accounts=${contacts.map((contact) => contact.addresses[0].address).join(',')}`, 
+        fetcherMessages);
+     
+    let contactsNotOnNanChat = contacts.filter((contact) => {
+        return !contactsOnNanChat?.find((c) => c._id === contact.addresses[0].address);
+    });
+    contactsNotOnNanChat = contactsNotOnNanChat.map((contact) => {
+        return {
+            _id: contact.addresses[0].address,
+            name: contact.name,
+        }
+    })
+
     const {backupContacts} = useBackupContacts()
 
     const parseContacts = (text) => {
@@ -117,7 +133,10 @@ export const useContacts = () => {
 
 
     return {
-        addContacts
+        addContacts,
+        contacts,
+        contactsOnNanChat,
+        contactsNotOnNanChat
     }
 }
 

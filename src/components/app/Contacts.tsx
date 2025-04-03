@@ -26,7 +26,212 @@ import { defaultContacts } from '../messaging/utils';
 
 
 
+export const ImportContacts = ({}) => {
+    const [popupVisible, setPopupVisible] = useState(false);
+    const [importMethod, setImportMethod] = useState('');
+    const {addContacts} = useContacts();
 
+    function decodeBase64Utf16LE(base64String) {
+        // Step 1: Convert Base64 to binary data
+        const binaryString = atob(base64String);
+        
+        // Step 2: Create a Uint8Array from the binary string
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        // Step 3: Decode the bytes as UTF-16LE
+        const decoder = new TextDecoder('utf-16le');
+        const decodedString = decoder.decode(bytes);
+        
+        return decodedString;
+      }
+
+    const PopupContentNault = () => {
+        const [step, setStep] = useState(0);
+        const parseNault = (urlNaultExport) => {
+            try {
+                if (!urlNaultExport.startsWith('https://nault.cc/import-address-book#')) {
+                    Toast.show({
+                        icon: 'fail',
+                        content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
+                        duration: 5000,
+                    });
+                    return;
+                }
+                const parsed = urlNaultExport?.split('https://nault.cc/import-address-book#')[1];
+                const text = decodeBase64Utf16LE(parsed);
+
+                addContacts(text)
+            } catch (error) {
+                console.error(error);
+                Toast.show({
+                    icon: 'fail',
+                    content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
+                    duration: 5000,
+                });                            
+            }
+        }
+        return <div>
+            <div className='text-xl text-center mb-4'>
+                Import Contacts from Nault
+            </div>
+            <List>
+                <List.Item>
+                    1) Open Nault and go to Address Book
+                </List.Item>
+                <List.Item>
+                    2) Click on "IMPORT / EXPORT" at the top, select "Export Address Book" and click "COPY TO CLIPBOARD"
+                </List.Item>
+                <List.Item>
+                    3) Click on "Paste from Clipboard" below
+                </List.Item>
+            </List>
+            <div className='w-full text-center' style={{paddingRight: 16, paddingLeft: 16}}>
+            <Button
+            className='mt-4 w-full'
+            color={step === 0 ? 'primary' : 'default'}
+            size='large'
+            shape='rounded'
+            onClick={() => {
+                window.open('https://nault.cc/address-book', '_blank');
+                setStep(1);
+            }}
+            >
+                Open Nault
+            </Button>
+            <Button
+            className='mt-4 w-full'
+            color={step === 1 ? 'primary' : 'default'}
+            size='large'
+            shape='rounded'
+            onClick={() => {
+                pasteFromClipboard().then((urlNaultExport) => {
+                   parseNault(urlNaultExport)
+                });
+            }}
+            >
+                Paste from Clipboard
+            </Button>
+            <Scanner
+            onScan={(result) => {
+                parseNault(result);
+            }}>
+            <Button
+            className='mt-4 mb-4 w-full'
+            color={'default'}
+            size='large'
+            shape='rounded'
+            onClick={() => {
+                
+            }}
+            >
+                Or Scan QR Code
+            </Button>
+            </Scanner>
+            
+            </div>
+        </div>;
+    }
+    const PopupContentNatriumKalium = () => {
+        return <div>
+            <div className='text-xl text-center mb-4'>
+                Import Contacts from {importMethod}
+            </div>
+            <List>
+                <List.Item>
+                    1) Open {importMethod} and go to Contacts
+                </List.Item>
+                <List.Item>
+                    2) Click on <UploadOutline style={{display: 'inline'}}/> button at the top right
+                </List.Item>
+                <List.Item>
+                    3) Select open in NanChat
+                </List.Item>
+            </List>
+            <div className='w-full text-center'>
+            <Button
+            className='mt-4 mb-4'
+            color='primary'
+            size='large'
+            shape='rounded'
+            onClick={() => {
+                window.location.href = importMethod === 'Natrium' ? 'manta://contacts' : 'banano://contacts';
+            }}
+            >
+                Open {importMethod}
+            </Button>
+            </div>
+        </div>;
+    }
+    return  <div className=''>
+        
+        <List>
+        <List.Item
+        clickable
+        onClick={() => {
+            setPopupVisible(true);
+            setImportMethod('Natrium');
+        }}
+        >
+            Contacts from Natrium
+        </List.Item>
+        <List.Item
+        clickable
+        onClick={() => {
+            setPopupVisible(true);
+            setImportMethod('Kalium');
+        }}
+        >
+            Contacts from Kalium
+        </List.Item>
+        <List.Item
+        clickable
+        onClick={() => {
+            setPopupVisible(true);
+            setImportMethod('Nault');
+        }}
+        >
+            Contacts from Nault
+        </List.Item>
+        </List>
+    <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
+        <List mode='default'>
+        <List.Item
+        clickable
+        description="Nault, Natrium and Kalium export file supported"
+        >
+            Contacts from a file
+        </List.Item>
+        </List>
+    </label>
+    <input
+        onChange={(e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                
+                addContacts(text)
+
+
+            };
+            reader.readAsText(file);
+        }}
+        accept='.json,.txt'
+        className='hidden'
+        id="file_input" type="file" />
+        <ResponsivePopup
+            visible={popupVisible}
+            onClose={() => setPopupVisible(false)}
+            closeOnMaskClick={true}
+            >
+            {importMethod === 'Nault' ? <PopupContentNault /> : <PopupContentNatriumKalium />}
+        </ResponsivePopup>
+
+</div>
+}
 
 const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
@@ -231,212 +436,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
         </Card>
     }
 
-     const ImportContacts = () => {
-        const [popupVisible, setPopupVisible] = useState(false);
-        const [importMethod, setImportMethod] = useState('');
-        function decodeBase64Utf16LE(base64String) {
-            // Step 1: Convert Base64 to binary data
-            const binaryString = atob(base64String);
-            
-            // Step 2: Create a Uint8Array from the binary string
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            
-            // Step 3: Decode the bytes as UTF-16LE
-            const decoder = new TextDecoder('utf-16le');
-            const decodedString = decoder.decode(bytes);
-            
-            return decodedString;
-          }
-
-        const PopupContentNault = () => {
-            const [step, setStep] = useState(0);
-            const parseNault = (urlNaultExport) => {
-                try {
-                    if (!urlNaultExport.startsWith('https://nault.cc/import-address-book#')) {
-                        Toast.show({
-                            icon: 'fail',
-                            content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
-                            duration: 5000,
-                        });
-                        return;
-                    }
-                    const parsed = urlNaultExport?.split('https://nault.cc/import-address-book#')[1];
-                    const text = decodeBase64Utf16LE(parsed);
-
-                    addContacts(text)
-                } catch (error) {
-                    console.error(error);
-                    Toast.show({
-                        icon: 'fail',
-                        content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
-                        duration: 5000,
-                    });                            
-                }
-            }
-            return <div>
-                <div className='text-xl text-center mb-4'>
-                    Import Contacts from Nault
-                </div>
-                <List>
-                    <List.Item>
-                        1) Open Nault and go to Address Book
-                    </List.Item>
-                    <List.Item>
-                        2) Click on "IMPORT / EXPORT" at the top, select "Export Address Book" and click "COPY TO CLIPBOARD"
-                    </List.Item>
-                    <List.Item>
-                        3) Click on "Paste from Clipboard" below
-                    </List.Item>
-                </List>
-                <div className='w-full text-center' style={{paddingRight: 16, paddingLeft: 16}}>
-                <Button
-                className='mt-4 w-full'
-                color={step === 0 ? 'primary' : 'default'}
-                size='large'
-                shape='rounded'
-                onClick={() => {
-                    window.open('https://nault.cc/address-book', '_blank');
-                    setStep(1);
-                }}
-                >
-                    Open Nault
-                </Button>
-                <Button
-                className='mt-4 w-full'
-                color={step === 1 ? 'primary' : 'default'}
-                size='large'
-                shape='rounded'
-                onClick={() => {
-                    pasteFromClipboard().then((urlNaultExport) => {
-                       parseNault(urlNaultExport)
-                    });
-                }}
-                >
-                    Paste from Clipboard
-                </Button>
-                <Scanner
-                onScan={(result) => {
-                    parseNault(result);
-                }}>
-                <Button
-                className='mt-4 mb-4 w-full'
-                color={'default'}
-                size='large'
-                shape='rounded'
-                onClick={() => {
-                    
-                }}
-                >
-                    Or Scan QR Code
-                </Button>
-                </Scanner>
-                
-                </div>
-            </div>;
-        }
-        const PopupContentNatriumKalium = () => {
-            return <div>
-                <div className='text-xl text-center mb-4'>
-                    Import Contacts from {importMethod}
-                </div>
-                <List>
-                    <List.Item>
-                        1) Open {importMethod} and go to Contacts
-                    </List.Item>
-                    <List.Item>
-                        2) Click on <UploadOutline style={{display: 'inline'}}/> button at the top right
-                    </List.Item>
-                    <List.Item>
-                        3) Select open in NanChat
-                    </List.Item>
-                </List>
-                <div className='w-full text-center'>
-                <Button
-                className='mt-4 mb-4'
-                color='primary'
-                size='large'
-                shape='rounded'
-                onClick={() => {
-                    window.location.href = importMethod === 'Natrium' ? 'manta://contacts' : 'banano://contacts';
-                }}
-                >
-                    Open {importMethod}
-                </Button>
-                </div>
-            </div>;
-        }
-        return  <div className='text-white mb-4'>
-            <Divider>
-                Import Contacts
-            </Divider>
-            <List>
-            <List.Item
-            clickable
-            onClick={() => {
-                setPopupVisible(true);
-                setImportMethod('Natrium');
-            }}
-            >
-                Import from Natrium
-            </List.Item>
-            <List.Item
-            clickable
-            onClick={() => {
-                setPopupVisible(true);
-                setImportMethod('Kalium');
-            }}
-            >
-                Import from Kalium
-            </List.Item>
-            <List.Item
-            clickable
-            onClick={() => {
-                setPopupVisible(true);
-                setImportMethod('Nault');
-            }}
-            >
-                Import from Nault
-            </List.Item>
-            </List>
-        <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
-            <List mode='default'>
-            <List.Item
-            clickable
-            description="Nault, Natrium and Kalium export file supported"
-            >
-                Import from a file
-            </List.Item>
-            </List>
-        </label>
-        <input
-            onChange={(e) => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const text = e.target.result;
-                    
-                    addContacts(text)
-
-
-                };
-                reader.readAsText(file);
-            }}
-            accept='.json,.txt'
-            className='hidden'
-            id="file_input" type="file" />
-            <ResponsivePopup
-                visible={popupVisible}
-                onClose={() => setPopupVisible(false)}
-                closeOnMaskClick={true}
-                >
-                {importMethod === 'Nault' ? <PopupContentNault /> : <PopupContentNatriumKalium />}
-            </ResponsivePopup>
-
-    </div>
-    }
+     
 
     const findNanoAddress = (addresses) => {
         if (addresses == null) return null;
@@ -599,6 +599,9 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                     </SwipeAction>
                 ))}
             </List>
+            <Divider>
+            Import Contacts
+            </Divider>
             <ImportContacts />
 
             {/* <Button

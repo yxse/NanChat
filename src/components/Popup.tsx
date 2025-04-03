@@ -23,6 +23,7 @@ import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-settings";
 import { showLogoutSheet } from "./Settings";
 import enUS from 'antd-mobile/es/locales/en-US'
+import { defaultContacts } from "./messaging/utils";
 
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
@@ -232,6 +233,7 @@ export default function InitialPopup() {
             walletState === "no-wallet" && <InitializeScreen
               theme={theme}
               onCreated={() => {
+                localStorage.setItem('contacts', JSON.stringify(defaultContacts));
                 localStorage.setItem('hasWallet', 'true');
                 Toast.show({
                   icon: "success",

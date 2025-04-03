@@ -1,6 +1,6 @@
-import { Button, CenterPopup, CheckList, DotLoading, Ellipsis, List, Popup, SearchBar, Skeleton } from 'antd-mobile'
+import { Button, CenterPopup, CheckList, Divider, DotLoading, Ellipsis, List, Popup, SearchBar, Skeleton } from 'antd-mobile'
 import React, { useState } from 'react'
-import { AiOutlinePlusCircle } from 'react-icons/ai'
+import { AiOutlineImport, AiOutlinePlusCircle } from 'react-icons/ai'
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
 import { useNavigate } from 'react-router-dom';
 import { formatAddress } from '../../../utils/format';
@@ -8,33 +8,24 @@ import { AccountAvatar } from './ChatList';
 import useSWR from 'swr';
 import { fetcherMessages } from '../fetcher';
 import useLocalStorageState from 'use-local-storage-state';
-import Contacts from '../../app/Contacts';
+import Contacts, { ImportContacts } from '../../app/Contacts';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 import { RiVerifiedBadgeFill } from 'react-icons/ri';
-import { CheckCircleFill, CheckCircleOutline, MailOutline } from 'antd-mobile-icons';
+import { AddCircleOutline, CheckCircleFill, CheckCircleOutline, MailOutline, UserAddOutline } from 'antd-mobile-icons';
 import { useWallet } from '../../Popup';
 import { MdOutlineCircle } from 'react-icons/md';
+import { defaultContacts } from '../utils';
+import { useContacts } from './contacts/ImportContactsFromShare';
+import { useInviteFriends } from '../hooks/use-invite-friends';
 
-export const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition = true, selectedAccounts, setSelectedAccounts, alreadySelected }) => {
-    // remove duplicate accounts
-    const uniqueAccounts = accounts.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
-    return (
-        <CheckList
-        value={selectedAccounts}
-        onChange={(v) => {
-            setSelectedAccounts(v)
-        }}
-         multiple extra={active => 
-            active ? <CheckCircleFill /> : <MdOutlineCircle color='var(--adm-color-text-secondary)' />
-        } >
-            <List.Item>
-                Select one or more accounts
-            </List.Item>
-            {
-                uniqueAccounts?.map(account => (
-                    <CheckList.Item
-                    disabled={alreadySelected?.includes(account._id)}
+
+
+
+const CheckListItemAccount = ({ account, disabled }) => {
+  
+    return <CheckList.Item
+                    disabled={disabled}
                     value={account._id}
                         // onClick={() => {
                         //     onClick && onClick(account)
@@ -46,7 +37,7 @@ export const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition
                             verified={account?.verified}
                                 url={account?.profilePicture?.url}
                                 account={account._id}
-                                badgeColor={badgeColor}
+                                badgeColor={"gray"}
                             />
                         }
                     >
@@ -59,9 +50,53 @@ export const AccountListItems = ({ accounts, badgeColor, onClick, viewTransition
                             {account.username}
                         </div>
                         </div>
-                    </CheckList.Item>
+            </CheckList.Item>
+}
+const Subtitle = ({title}) => {
+    return <div className="m-4"
+    style={{color: 'var(--adm-color-text-secondary)', fontWeight: 500}}>
+        {title}
+    </div>
+}
+export const AccountListItems = ({ accounts, title, badgeColor, onClick, viewTransition = true, selectedAccounts, setSelectedAccounts, alreadySelected, mode }) => {
+    // remove duplicate accounts
+    const { inviteFriends } = useInviteFriends();
+    const inviteButton = () => <div 
+style={{color: 'var(--adm-color-primary)', cursor: 'pointer'}}
+onClick={() => {
+    inviteFriends()
+}}>
+    Invite
+</div>
+    const uniqueAccounts = accounts.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
+    const selectedIcon = active => 
+        active ? <CheckCircleFill /> : <MdOutlineCircle color='var(--adm-color-text-secondary)' />
+
+    return (
+        <CheckList
+        value={selectedAccounts}
+        onChange={(v) => {
+            if (mode === "invite") {
+                inviteFriends()
+                return
+            }
+            setSelectedAccounts(v)
+        }}
+         multiple 
+         extra={mode === "invite" ? inviteButton : selectedIcon}>
+            
+            {title && <Subtitle title={title} />}
+            {
+                uniqueAccounts?.map(account => (
+                    <CheckListItemAccount
+                    disabled={alreadySelected?.includes(account._id)}
+                    account={account} key={account._id} />
                 ))
             }
+            {/* {
+                mode === "invite" &&
+           <Divider>Import contacts</Divider>
+            } */}
         </CheckList>
     );
 }
@@ -80,15 +115,13 @@ const SkeletonAccountListItems = () => {
             ))}
           </div>
         )}
-function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSelect, accounts = [], alreadySelected}) {
+function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, accounts = [], alreadySelected}) {
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
     const {wallet, activeAccount} = useWallet( )
     const [searchText, setSearchText] = useState('')
-    const [contacts, setContacts] = useLocalStorageState('contacts', {
-        defaultValue: []
-    });
+    const {contacts, contactsOnNanChat, contactsNotOnNanChat} = useContacts()
     const [selectedAccounts, setSelectedAccounts] = useState(alreadySelected || [])
     const navigate = useNavigate();
 
@@ -173,9 +206,14 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                         }}
                     />
                 </div>
+                <List>
+                <List.Item>
+                    Select one or more contacts
+                    </List.Item>
+                    </List>
                 <div style={{  }}>
                         <InfiniteScroll
-                        height={'calc(90vh - 57px - 44px - 8px)'}
+                        height={'calc(90vh - 57px - 44px - 8px - 50px)'}
                             dataLength={all?.length}
                             next={() => {
                                 console.log('loading more')
@@ -188,27 +226,39 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                             loader={(isValidating || isLoading) && <SkeletonAccountListItems />}
                         >
                            
-                    {/* <div className="text-base  pl-4 m-2">
-                        Your Nano contacts
-                    </div> */}
-                    {/* <Contacts onlyImport={true} /> */}
-                    {/* <AccountListItems
+                    <AccountListItems
+                    alreadySelected={alreadySelected}
+                        selectedAccounts={selectedAccounts}
+                        setSelectedAccounts={setSelectedAccounts}
+
+                        // title="Contacts on NanChat"
                         onClick={(account) => {
                             setVisible(false);
                         }}
-                        accounts={contacts
-                            .filter(contact => contact.addresses.find(network => network.network === 'XNO') && (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
-                            .map(contact => {
-                            return {
-                                _id: contact.addresses.find(network => network.network === 'XNO')?.address,
-                                name: contact.name,
-                            }
-                        })}
-                        badgeColor={"gray"} /> */}
+                        accounts={contactsOnNanChat}
+                        badgeColor={"gray"} />
 
+                    <AccountListItems
+                    mode="invite"
+                        // title="Invite to NanChat"
+                        onClick={(account) => {
+                            setVisible(false);
+                        }}
+                        accounts={contactsNotOnNanChat
+                            .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
+                        }
+                        
+                        badgeColor={"gray"} />
                     {/* <div className="text-base  pl-4 m-2">
                         All users
-                    </div> */}
+                        </div> */}
+                    {
+                        !searchText && 
+                        <>
+                    <Subtitle title="Import contacts" />
+                    <ImportContacts />
+                        </>
+                    }
                      {
                                 accounts?.length > 0 ? <AccountListItems
                                 selectedAccounts={selectedAccounts}
@@ -220,6 +270,7 @@ function NewChatPopup({visible, setVisible, title="Create new chat", onAccountSe
                                     accounts={accounts} badgeColor="gray" /> : 
                             
                             <AccountListItems
+                            title={searchText ? "Search results" : "Verified Accounts"}
                             alreadySelected={alreadySelected}
                                 selectedAccounts={selectedAccounts}
                                 setSelectedAccounts={setSelectedAccounts}
