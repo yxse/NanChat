@@ -1,7 +1,7 @@
 import { BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
-import { AiOutlineCreditCard, AiOutlineSwap, AiOutlineSync } from "react-icons/ai";
+import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineCreditCard, AiOutlineSwap, AiOutlineSync } from "react-icons/ai";
 import {
   Button,
   CapsuleTabs,
@@ -39,7 +39,7 @@ import { useLongPress } from "../../hooks/use-long-press";
 import { SiExpertsexchange } from "react-icons/si";
 import { RiTokenSwapLine } from "react-icons/ri";
 import SetAmountModal from "./SetAmountModal";
-import { CloseCircleFill } from "antd-mobile-icons";
+import { ArrowDownCircleOutline, CloseCircleFill } from "antd-mobile-icons";
 import { convertAddress, formatAmountMega, getURI, MIN_USD_SWAP, ShareModal } from "../../utils/format";
 import { CopyButton } from "./Icons";
 import { LedgerContext, WalletContext } from "../Popup";
@@ -56,6 +56,7 @@ import { HapticsImpact } from "../../utils/haptic";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import { IWebviewOverlayPlugin, WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
+import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
 // const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const fetchBalance = async (ticker: string, account: string) => {
@@ -319,7 +320,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
   const [modalVisible, setModalVisible] = useState(defaultReceiveVisible);
   const [action, setAction] = useState(defaultAction);
   const [defaultScannerOpen, setDefaultScannerOpen] = useState(false);
-  
+  useHideNavbarOnMobile(true)
   const onLongPress = useLongPress(() => {
     setAction('send');
     setModalVisible(true);
@@ -419,6 +420,48 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           </div>
         </Card>
         <div className="flex justify-center mt-4 space-x-4 ">
+        <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+            // navigate("/swap?from=" + ticker);
+          }}
+          >
+            <Button 
+            onClick={() => {
+              HapticsImpact({
+                style: ImpactStyle.Medium
+              });
+              setAction('receive');
+              setModalVisible(true);
+            }}
+            className="py-2 px-2 rounded-full ">
+              <AiOutlineArrowDown size={22} />
+            </Button>
+            <span className="text-xs mt-1">Receive</span>
+          </div>
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+            // navigate("/swap?from=" + ticker);
+          }}
+          >
+            <Button 
+            {...onLongPress}
+            style={{
+              userSelect: "none",
+              "WebkitUserSelect": "none",
+              "MozUserSelect": "none",
+              "msUserSelect": "none",
+              
+            }}
+            onClick={() => {
+              HapticsImpact({
+                style: ImpactStyle.Medium
+              });
+              setAction('send');
+              setModalVisible(true);
+            }}
+            className="py-2 px-2 rounded-full ">
+               <AiOutlineArrowUp size={22} />
+            </Button>
+            <span className="text-xs mt-1">Send</span>
+          </div>
         {
           (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
           <div className="flex flex-col items-center cursor-pointer" onClick={() => {
@@ -455,7 +498,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         {/* <Divider /> */}
       </div>
       {/* center  */}
-      <div
+      {/* <div
       style={{
         userSelect: "none",
         "WebkitUserSelect": "none",
@@ -496,60 +539,8 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         setModalVisible(true);
         setAction('send');
       }}>Send
-          </Button></div>
-      <CapsuleTabs defaultActiveKey={""} activeKey={""}
-      className="select-none hidden"
-      onChange={(key) => {
-          setModalVisible(true);
-          setAction(key);
-      }}>
-        
-        <CapsuleTabs.Tab
-
-          title={
-            "Receive"
-          }
-          key={"receive"}
-          />
-          
-   
-        <CapsuleTabs.Tab
-          key={"send"}
-          title={
-            <div {...onLongPress} style={{
-              userSelect: "none",
-              "WebkitUserSelect": "none",
-              "MozUserSelect": "none",
-              "msUserSelect": "none",
-              
-            }}>
-            Send
-            </div>
-          }
-        />
-          {/* <CapsuleTabs.Tab
-           // style={{borderRadius: "100%", display: "flex", padding: 0}}
-            title={<>
-             <div className="flex items-center flex-col">
-             <RiTokenSwapLine size={24} /> 
-            <span className="text-xs">Swap</span>
-             </div>
-       
-            <MdOutlineCurrencyExchange size={24} />
-            <AiOutlineSync size={24} />
-       "Swap"</>
-           }
-            key={"swap"}
-          /> */}
-        {/* {
-          ticker === "XNO" && <CapsuleTabs.Tab
-            title={
-              "Buy/Sell"
-            }
-            key={"swap"}
-          />
-        } */}
-      </CapsuleTabs>
+          </Button></div> */}
+    
       <NetworkStatus ticker={ticker} />
       <div className="mt-4">
       <PullToRefresh

@@ -3,6 +3,8 @@ import {
     useNavigate, useLocation, useParams
 } from "react-router-dom";
 import {
+  AiOutlineArrowDown,
+  AiOutlineArrowUp,
     AiOutlineHome,
     AiOutlineSwap
 } from "react-icons/ai";
@@ -17,6 +19,9 @@ import NetworkList from "../NetworksList";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../../utils/haptic";
+import { Capacitor } from "@capacitor/core";
+import { GoCreditCard } from "react-icons/go";
+import { useWalletBalance } from "../../../hooks/use-wallet-balance";
 
 
 export const SendReceive = () => {
@@ -33,7 +38,7 @@ export const SendReceive = () => {
     const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
     const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
     const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
-  
+    const {lowBalanceUsd} = useWalletBalance()
     const showAction = (action: "receive" | "send") => {
         setAction(action);
         if (activeMainNetworks.length + activeCustomNetworks.length === 1) {  // directly show the action if only one active network
@@ -49,39 +54,83 @@ export const SendReceive = () => {
       <>
          {
           isMobile && <>
-          
-      <div className="flex items-center justify-center gap-5 mb-5 mx-2">
-   
-        <Button
-        onClick={() => {
-            showAction("receive");
-            HapticsImpact({
-              style: ImpactStyle.Medium
-          });
-        }}
-        style={{width: "50%"}}
-            type="button"
-            shape="rounded"
-            size="large"
-          >
-            Receive
-          </Button>
-
-          <Button
-          onClick={() => {
-            showAction("send");
-            HapticsImpact({
-              style: ImpactStyle.Medium
-          });
+          <div className="flex justify-center mb-4 space-x-4 ">
+                  <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+                      // navigate("/swap?from=" + ticker);
+                    }}
+                    >
+                      <Button 
+                      onClick={() => {
+                        HapticsImpact({
+                          style: ImpactStyle.Medium
+                        });
+                        setAction('receive');
+                        setVisible(true);
+                      }}
+                      className="py-2 px-2 rounded-full ">
+                        <AiOutlineArrowDown size={22} />
+                      </Button>
+                      <span className="text-xs mt-1">Receive</span>
+                    </div>
+                    <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+                      // navigate("/swap?from=" + ticker);
+                    }}
+                    >
+                      <Button 
+                      // {...onLongPress}
+                      style={{
+                        userSelect: "none",
+                        "WebkitUserSelect": "none",
+                        "MozUserSelect": "none",
+                        "msUserSelect": "none",
+                        
+                      }}
+                      onClick={() => {
+                        HapticsImpact({
+                          style: ImpactStyle.Medium
+                        });
+                        setAction('send');
+                        setVisible(true);
+                      }}
+                      className="py-2 px-2 rounded-full ">
+                         <AiOutlineArrowUp size={22} />
+                         {/* 📤 */}
+                      </Button>
+                      <span className="text-xs mt-1">Send</span>
+                    </div>
+                    {
+          (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+            // navigate("/swap?from=" + ticker);
           }}
-          style={{width: "50%"}}
-            type="button"
-            shape="rounded"
-            size="large"
           >
-            Send
-          </Button>
-      </div>
+            <Button 
+            onClick={() => {
+              HapticsImpact({
+                style: ImpactStyle.Medium
+              });
+              setAction('swap');
+              setVisible(true);
+            }}
+            className="py-2 px-2 rounded-full ">
+              <AiOutlineSwap size={22} />
+            </Button>
+            <span className="text-xs mt-1">Swap</span>
+          </div>
+            }
+          {
+            <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+              setAction('buy');
+              setVisible(true);
+            }}
+            >
+              <Button className="py-2 px-2 rounded-full ">
+                <GoCreditCard size={22} className="" />
+              </Button>
+              <span className="text-xs mt-1">Buy</span>
+            </div>
+          }
+                    </div>
       </>
         }
         <ModalReceive
@@ -90,6 +139,7 @@ export const SendReceive = () => {
           setActiveTicker(null);
         }}
          action={action} ticker={activeTicker} modalVisible={activeTicker} setModalVisible={setVisible} setAction={setAction} />
+         
         <Popup
         position={"bottom"}
         // closeOnSwipe
@@ -100,6 +150,20 @@ export const SendReceive = () => {
           // onClick={() => setVisible(false)}
           closeOnMaskClick={true}
         >
+            { (action === 'swap' || action === 'buy') ? <Swap 
+           defaultAction={action}
+           onSuccess={() => {
+             Toast.show({icon: 'success'})
+             setVisible(false);
+             console.log("success swap")
+             window.scrollTo(0, 0);
+           }}
+           hideHistory={true} 
+           fiatDefaultTo={ticker}
+           defaultTo={ticker === "XNO" ? "BAN" : ticker}
+           defaultFrom={"XNO"} />
+           : 
+          
           <div           >
           <div>
             <div className="text-2xl  text-center p-2">{
@@ -112,6 +176,7 @@ export const SendReceive = () => {
             setVisible(false);
             setActiveTicker(ticker);
           }} /></div></div>
+        }
         </Popup>
       </>
     );
