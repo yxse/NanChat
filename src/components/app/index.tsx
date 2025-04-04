@@ -124,67 +124,6 @@ async function checkIntent() {
 
 
 
-FirebaseMessaging.addListener("notificationReceived", async (event) => {
-  try {
-    
-
-  console.log("notificationReceived: ", { event });
-  // return
-  // focus window
-  // window.focus();
-  let seed = await getSeed();
-  let accounts = wallet.legacyAccounts(seed.seed, 0, 1);
-  let activeAccount = accounts[0].address;
-  let message = event.notification.data.message;
-  let idInt = event.notification.data.idInt;
-  let idMessage = event.notification.data.idMessage;
-  let fromAccount = event.notification.data.fromAccount;
-  let fromAccountName = event.notification.data.fromAccountName;
-  let toAccount = event.notification.data.toAccount;
-  // let title = event.notification.data.aps.alert.title;
-  let title = event.notification.data.title;
-  let targetAccount = fromAccount === activeAccount ? message.toAccount : fromAccount;
-  let chatId = event.notification.data.chatId;
-  let isGroupMessage = event.notification.data.type === "group";
-  
-  // console.log("decryption", message, targetAccount, accounts[0].privateKey);
-  
-  
-  
-  let decryptionKey = accounts[0].privateKey;
-  if (isGroupMessage) {
-    decryptionKey = await getSharedKey(chatId, toAccount, decryptionKey);
-  }
-  let decrypted = message
-  try {
-    decrypted = box.decrypt(message, targetAccount, decryptionKey);
-    localStorage.setItem(`message-${idMessage}`, decrypted);
-    decrypted 
-  } catch (error) {
-    console.error('Message decryption failed:', error); // could happen for sticker or special message
-
-  }
-
-  console.log("decrypted: ", decrypted);
-    // localStorage.setItem(`message-${message._id}`, decrypted);
-    LocalNotifications.schedule({
-          notifications: [
-            {
-              title: title,
-              body: 
-              isGroupMessage ? `${fromAccountName}: ${decrypted}` : decrypted,
-              id: +idInt,
-              schedule: { at: new Date() },
-
-            }
-          ]
-        })
-
-      } catch (error) {
-        Toast.show({content: error.message, icon: 'fail'})
-      }
-
-})
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -240,11 +179,11 @@ export const MenuBar = () => {
       title: "Wallets",
       icon: <AiOutlineWallet size={btnSize} />,
     },
-    {
-      key: "swap",
-      title: "",
-      icon: swapBtn,
-    },
+    // {
+    //   key: "swap",
+    //   title: "",
+    //   icon: swapBtn,
+    // },
     {
       key: "discover",
       title: "Discover",
@@ -391,8 +330,6 @@ export default function App() {
   const {activeAccount, activeAccountPk} = useWallet();
   
 
-  
-
   const LockAfterInactivity = () => {
     const [timeSinceLastActivity, setTimeSinceLastActivity] = useState(0);
     const [lockTimeSeconds, setLockTimeSeconds] = useLocalStorageState("lock-after-inactivity", {defaultValue: 
@@ -473,6 +410,7 @@ export default function App() {
       })
     }
     , []);
+
   return (
     <>
     <LockAfterInactivity />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Toast } from 'antd-mobile';
 import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
@@ -8,6 +8,11 @@ import { Capacitor } from '@capacitor/core';
 import { isTauri } from '@tauri-apps/api/core';
 import { InAppBrowser } from '@capgo/inappbrowser';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { getSharedKey } from '../../services/sharedkey';
+import { box, wallet } from 'multi-nano-web';
+import { getSeed } from '../../utils/storage';
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 
 
 const isContactImport = (url: string) => {
@@ -25,7 +30,7 @@ const isContactImport = (url: string) => {
 
 const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
-
+    const location = useLocation();
     const [uri, setUri] = useState('');
     useEffect(() => {
       const handleOpenUrl = async () => {
@@ -65,7 +70,105 @@ const AppUrlListener: React.FC<any> = () => {
         }
 
     }, []);
+    useEffect(() => {
+
+      
+FirebaseMessaging.addListener("notificationReceived", async (event) => {
+  try {
+    
+
+  console.log("notificationReceived: ", { event });
+  let chatId = event.notification.data.chatId;
+  let url = event.notification.data.url;
+  if (url == null || location.pathname === "/") {
+    return
+  }
+  console.log("path", location.pathname, url);
+
+  if (location.pathname === url) {
+    return; // do not show notification if the user is already in the chat
+  }
+  // return
+  // focus window
+  // window.focus();
+  let seed = await getSeed();
+  let accounts = wallet.legacyAccounts(seed.seed, 0, 1);
+  seed = null; // remove seed from memory
+  let activeAccount = accounts[0].address;
+  let message = event.notification.data.message;
+  let idInt = event.notification.data.idInt;
+  let idMessage = event.notification.data.idMessage;
+  let fromAccount = event.notification.data.fromAccount;
+  let fromAccountName = event.notification.data.fromAccountName;
+  let toAccount = event.notification.data.toAccount;
+  // let title = event.notification.data.aps.alert.title;
+  let title = event.notification.data.title;
+  let targetAccount = fromAccount === activeAccount ? message.toAccount : fromAccount;
+  let isGroupMessage = event.notification.data.type === "group";
+  // console.log("decryption", message, targetAccount, accounts[0].privateKey);
   
+  
+  
+  let decryptionKey = accounts[0].privateKey;
+  if (isGroupMessage) {
+    decryptionKey = await getSharedKey(chatId, toAccount, decryptionKey);
+  }
+  let decrypted = message
+  try {
+    decrypted = box.decrypt(message, targetAccount, decryptionKey);
+    localStorage.setItem(`message-${idMessage}`, decrypted);
+    decrypted 
+  } catch (error) {
+    console.error('Message decryption failed:', error); // could happen for sticker or special message
+
+  }
+  accounts = null; 
+  decryptionKey = null; 
+
+  console.log("decrypted: ", decrypted);
+    // localStorage.setItem(`message-${message._id}`, decrypted);
+    LocalNotifications.schedule({
+          notifications: [
+            {
+              threadIdentifier: chatId,
+              title: title,
+              body: 
+              isGroupMessage ? `${fromAccountName}: ${decrypted}` : decrypted,
+              id: +idInt,
+              schedule: { at: new Date(Date.now() + 10) },
+              extra: {
+                url: url,
+              }
+            }
+          ]
+        })
+
+      } catch (error) {
+        Toast.show({content: error.message, icon: 'fail'})
+      }
+
+})
+      LocalNotifications.addListener("localNotificationActionPerformed", async (event) => {
+        const notification = event.notification;
+        const extra = notification.extra
+        console.log("localNotificationActionPerformed", notification);
+        console.log("extra", extra);
+        // navigate to the url
+        navigate(extra.url, {replace: true});
+        LocalNotifications.getDeliveredNotifications().then((notifications) => {
+          // remove notification of the chat
+          const notificationsChat = notifications.notifications.filter((notification) => notification.extra?.url === extra.url);
+          console.log("notification filtered", notificationsChat);
+          LocalNotifications.removeDeliveredNotifications({notifications: notificationsChat});
+        });
+      });
+
+      return () => {
+        FirebaseMessaging.removeAllListeners();
+      }
+    }
+
+    , [location.pathname]);
     return <PasteAction mode="invisible" uri={uri} setUri={setUri} />;
   };
   
