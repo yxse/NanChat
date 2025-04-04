@@ -24,6 +24,36 @@ import { GoCreditCard } from "react-icons/go";
 import { useWalletBalance } from "../../../hooks/use-wallet-balance";
 
 
+export const ButtonActionCircle = ({title, icon, onClick}) => {
+  return <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+    // navigate("/swap?from=" + ticker);
+  }}
+  ><Button 
+  size="large"
+// shape="rounded"
+                      // {...onLongPress}
+                      style={{
+                        userSelect: "none",
+                        "WebkitUserSelect": "none",
+                        "MozUserSelect": "none",
+                        "msUserSelect": "none",
+                        "borderRadius": "12px",      
+                      }}
+                      onClick={() => {
+                        HapticsImpact({
+                          style: ImpactStyle.Medium
+                        });
+                        onClick();
+                      }}
+                      className=" ">
+                         {icon}
+                      </Button>
+
+
+  <span className="mt-1 text-sm">{title}</span>
+</div>
+}
+
 export const SendReceive = () => {
     const navigate = useNavigate();
     const {ticker}= useParams();
@@ -54,82 +84,38 @@ export const SendReceive = () => {
       <>
          {
           isMobile && <>
-          <div className="flex justify-center mb-4 space-x-4 ">
-                  <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-                      // navigate("/swap?from=" + ticker);
+          <div className="flex justify-center mb-4" style={{gap: 24}}>
+                    <ButtonActionCircle
+                    title="Receive"
+                    icon={<AiOutlineArrowDown size={22} />}
+                    onClick={() => {
+                      showAction('receive');
                     }}
-                    >
-                      <Button 
-                      onClick={() => {
-                        HapticsImpact({
-                          style: ImpactStyle.Medium
-                        });
-                        setAction('receive');
-                        setVisible(true);
-                      }}
-                      className="py-2 px-2 rounded-full ">
-                        <AiOutlineArrowDown size={22} />
-                      </Button>
-                      <span className="text-xs mt-1">Receive</span>
-                    </div>
-                    <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-                      // navigate("/swap?from=" + ticker);
+                    />
+                    <ButtonActionCircle
+                    title="Send"
+                    icon={<AiOutlineArrowUp size={22} />}
+                    onClick={() => {
+                      showAction('send');
                     }}
-                    >
-                      <Button 
-                      // {...onLongPress}
-                      style={{
-                        userSelect: "none",
-                        "WebkitUserSelect": "none",
-                        "MozUserSelect": "none",
-                        "msUserSelect": "none",
-                        
-                      }}
-                      onClick={() => {
-                        HapticsImpact({
-                          style: ImpactStyle.Medium
-                        });
-                        setAction('send');
-                        setVisible(true);
-                      }}
-                      className="py-2 px-2 rounded-full ">
-                         <AiOutlineArrowUp size={22} />
-                         {/* 📤 */}
-                      </Button>
-                      <span className="text-xs mt-1">Send</span>
-                    </div>
-                    {
-          (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-            // navigate("/swap?from=" + ticker);
-          }}
-          >
-            <Button 
-            onClick={() => {
-              HapticsImpact({
-                style: ImpactStyle.Medium
-              });
-              setAction('swap');
-              setVisible(true);
-            }}
-            className="py-2 px-2 rounded-full ">
-              <AiOutlineSwap size={22} />
-            </Button>
-            <span className="text-xs mt-1">Swap</span>
-          </div>
-            }
-          {
-            <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-              setAction('buy');
-              setVisible(true);
-            }}
-            >
-              <Button className="py-2 px-2 rounded-full ">
-                <GoCreditCard size={22} className="" />
-              </Button>
-              <span className="text-xs mt-1">Buy</span>
-            </div>
-          }
+                    />
+                    {(Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
+                    <ButtonActionCircle
+                    title="Swap"
+                    icon={<AiOutlineSwap size={22} />}
+                    onClick={() => {
+                      setAction('swap');
+                      setVisible(true);
+                    }}
+                    />}
+                    <ButtonActionCircle
+                    title="Buy"
+                    icon={<GoCreditCard size={22} />}
+                    onClick={() => {
+                      setAction('buy');
+                      setVisible(true);
+                    }}
+                    />
                     </div>
       </>
         }
@@ -171,7 +157,9 @@ export const SendReceive = () => {
             }</div>
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>
-          <NetworkList hidePrice={true} onClick={(ticker) => {
+          <NetworkList 
+          hideZeroBalance={action === "send"}
+          hidePrice={true} onClick={(ticker) => {
             // navigate(ticker + "/" + action);
             setVisible(false);
             setActiveTicker(ticker);

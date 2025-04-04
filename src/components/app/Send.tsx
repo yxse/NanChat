@@ -199,9 +199,7 @@ const useFocus = () => {
 
   return [ htmlElRef, setFocus ] 
 }
-
-  ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null, hideAddress = false}) {
-  
+export default function Send({ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null, hideAddress = false}) {
   // const [result, setResult] = useState<string>(null);
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -340,7 +338,9 @@ const useFocus = () => {
                 </div>
             }
           >
-            <div className="flex justify-between">
+            <div
+            style={hideAddress ? {display: "none"} : {}}
+             className="flex justify-between">
               <Form.Item
               className="form-list"
                 label=""

@@ -57,6 +57,7 @@ import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import { IWebviewOverlayPlugin, WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
 import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
+import { ButtonActionCircle } from "./wallet/SendReceive";
 // const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const fetchBalance = async (ticker: string, account: string) => {
@@ -419,81 +420,43 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
             ~ <ConvertToBaseCurrency amount={balance} ticker={ticker} /> 
           </div>
         </Card>
-        <div className="flex justify-center mt-4 space-x-4 ">
-        <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-            // navigate("/swap?from=" + ticker);
+        <div className="flex justify-center mt-4" style={{gap: 24}}>
+          <ButtonActionCircle
+          title="Receive"
+          icon={<AiOutlineArrowDown size={22} />}
+          onClick={() => {
+            setAction('receive');
+            setModalVisible(true);
           }}
-          >
-            <Button 
-            onClick={() => {
-              HapticsImpact({
-                style: ImpactStyle.Medium
-              });
-              setAction('receive');
-              setModalVisible(true);
-            }}
-            className="py-2 px-2 rounded-full ">
-              <AiOutlineArrowDown size={22} />
-            </Button>
-            <span className="text-xs mt-1">Receive</span>
-          </div>
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-            // navigate("/swap?from=" + ticker);
+          />
+          <ButtonActionCircle
+          title="Send"
+          icon={<AiOutlineArrowUp size={22} />}
+          onClick={() => {
+            setAction('send');
+            setModalVisible(true);
           }}
-          >
-            <Button 
-            {...onLongPress}
-            style={{
-              userSelect: "none",
-              "WebkitUserSelect": "none",
-              "MozUserSelect": "none",
-              "msUserSelect": "none",
-              
-            }}
-            onClick={() => {
-              HapticsImpact({
-                style: ImpactStyle.Medium
-              });
-              setAction('send');
-              setModalVisible(true);
-            }}
-            className="py-2 px-2 rounded-full ">
-               <AiOutlineArrowUp size={22} />
-            </Button>
-            <span className="text-xs mt-1">Send</span>
-          </div>
+          />
         {
           (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-            // navigate("/swap?from=" + ticker);
+          <ButtonActionCircle
+          title="Swap"
+          icon={<AiOutlineSwap size={22} />}
+          onClick={() => {
+            setAction('swap');
+            setModalVisible(true);
           }}
-          >
-            <Button 
-            onClick={() => {
-              HapticsImpact({
-                style: ImpactStyle.Medium
-              });
-              setAction('swap');
-              setModalVisible(true);
-            }}
-            className="py-2 px-2 rounded-full ">
-              <AiOutlineSwap size={22} />
-            </Button>
-            <span className="text-xs mt-1">Swap</span>
-          </div>
+          />
             }
-          {
-            <div className="flex flex-col items-center cursor-pointer" onClick={() => {
-              setAction('buy');
-              setModalVisible(true);
-            }}
-            >
-              <Button className="py-2 px-2 rounded-full ">
-                <GoCreditCard size={22} className="" />
-              </Button>
-              <span className="text-xs mt-1">Buy</span>
-            </div>
-          }
+          <ButtonActionCircle
+          title="Buy"
+          icon={<GoCreditCard size={22} className="" />}
+          onClick={() => {
+            setAction('buy');
+            setModalVisible(true);
+          }}
+          />
+
         </div>
         {/* <Divider /> */}
       </div>

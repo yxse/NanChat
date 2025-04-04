@@ -23,6 +23,7 @@ import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineSend, AiOutlineSwap } fr
 import { CopyIcon } from "./Icons";
 import { WalletContext } from "../Popup";
 import { fetcherChat } from "../messaging/fetcher";
+import { useWalletBalance } from "../../hooks/use-wallet-balance";
 
 
 
@@ -371,18 +372,21 @@ export const ItemCopyAddress = ({ address, ticker, onClick }) => {
     </div>
     </List.Item>
 }
-export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = true, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker}) {
+export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = true, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker, hideZeroBalance}) {
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
   
+  const {balances} = useWalletBalance()
+  const hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data === 0) : []
   
-
+  const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker));
+  const filteredActiveCustomNetworks = activeCustomNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker));
   return (<>
     <List >
 
-      {activeMainNetworks.map((ticker) => (
+      {filteredActiveMainNetworks.map((ticker) => (
         <List.Item
         className={selectedTicker === ticker ? "active" : ""}
         >
@@ -400,7 +404,7 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
         </List.Item>
       ))}
       {
-        activeCustomNetworks.map((ticker) => (
+        filteredActiveCustomNetworks.map((ticker) => (
           <List.Item>
             <NetworkItem
               network={customNetworks[ticker]}
