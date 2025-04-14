@@ -92,6 +92,10 @@
       document.body.classList = "natrium-theme";
       document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
     }
+    else if (localStorage.getItem('theme') === 'banano') {
+      document.body.classList = "banano-theme";
+      document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+    }
     else {
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         // document.body.classList.add('dark-theme');
