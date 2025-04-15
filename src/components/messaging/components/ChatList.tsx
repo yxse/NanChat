@@ -351,7 +351,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         // style={isMobile ? {} : { minWidth: 500 }}
         >
             {
-                (location.pathname === "/chat" || width > 768) &&
+                (location.pathname === "/" || location.pathname === "/chat" || width > 768) &&
             <NavBar
             className="app-navbar "
             right={right}

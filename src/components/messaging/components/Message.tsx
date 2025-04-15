@@ -377,14 +377,7 @@ const MessageContent = ({
 
   return (
     <div
-      style={{
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-word',
-        backgroundColor: isFromCurrentUser 
-          ? 'var(--adm-color-primary)' 
-          : 'var(--adm-color-background)',
-      }}
-      className={`max-w-[70%] p-2 rounded-md ${borderRadiusClass}`}
+      className={`chat-message max-w-[70%] p-2 rounded-md ${borderRadiusClass} ${isFromCurrentUser ? 'to' : 'from'}` }
     >
       {type === 'group' && !isFromCurrentUser && (
         <span style={{ color: 'var(--adm-color-text-secondary)' }} className="text-sm">

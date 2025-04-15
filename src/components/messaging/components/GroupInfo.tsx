@@ -29,8 +29,12 @@ import { AiOutlineCrown } from "react-icons/ai";
 import ProfileName from "./profile/ProfileName";
 
 export const AccountCard = ({ account }) => {
-
-return <div className="" style={{ display: 'flex', flexDirection: 'column', gap: 2}}>
+const navigate = useNavigate();
+return <div 
+onClick={() => {
+    navigate(`/chat/${account._id}/info`)
+}}
+className="" style={{ display: 'flex', flexDirection: 'column', gap: 2, cursor: 'pointer'}}>
                                 <ProfilePicture address={account?._id} key={account?._id} width={58} borderRadius={8}/>
                                 <div
                                 className="text-sm text-center"

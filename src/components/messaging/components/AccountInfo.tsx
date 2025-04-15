@@ -62,16 +62,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                              }
                         }}
                         className="w-8 h-8 text-gray-500 cursor-pointer" />
-                    
-                    <div className="flex-1 text-center">
-                        <h2 className="font-medium flex items-center justify-center gap-2">
-                            <ProfileName address={account}/>
-                        </h2>
-                        <HeaderStatus lastOnline={names?.[0]?.lastOnline} />
-                    </div>
-                    <div className="mr-2">
-                        <ProfilePicture address={account} />
-                    </div>
+             
                 </div>
             </List.Item>
             <Card style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
@@ -96,8 +87,16 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
             </Popup>
          
                 <List>
-                <List.Item title="NanChat ID:">
-                    {name?.username}
+                <List.Item>
+                    <div style={{display: "flex", alignItems: "center", gap: 8}} className="text-2xl">
+                <ProfilePicture address={account} width={72} clickable/>
+                <div style={{display: "flex", flexDirection: "column", gap: 4}}>
+                <ProfileName address={account} />
+                <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
+                    NanChat ID: {name?.username}
+                </div>
+                </div>
+                </div>
                 </List.Item>
                     <List.Item
                     description={
@@ -114,7 +113,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             title="Account:"
                             children={
                                 <div>
-                                <p className="break-all mb-2">
+                                <p className="break-all mb-2 text-sm">
                                             {account}
                                         </p></div>
                             }
@@ -162,8 +161,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         >
                             
                         </List.Item>
-                </List>
-              
+                        <List.Item>
                          <Button 
             onClick={async () => {
                 Modal.show({
@@ -193,12 +191,14 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     ]
                 })
             }}
-            className="w-full mt-4"
+            className="w-full"
             size="large"
             shape="rounded"
             color="danger">
                 Block
-            </Button>
+            </Button></List.Item>
+                </List>
+              
                    
                
                 </Card>

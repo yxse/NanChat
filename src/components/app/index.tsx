@@ -217,7 +217,7 @@ export const MenuBar = () => {
         "msUserSelect": "none",
       }}
         className={"bottom"}
-        activeKey={location.pathname.split("/")[1]}
+        activeKey={location.pathname.split("/")[1] || "chat"}
         onChange={(key) => {
           console.log(location.pathname);
           // setWidget(key);

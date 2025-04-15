@@ -367,6 +367,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             {
                 account != null && (
                     <List.Item
+                    style={{borderBottom: '1px solid var(--adm-color-border)'}}
                     // prefix={
                     //     <AccountIcon account={account} width={48} />
                     // }

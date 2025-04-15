@@ -792,3 +792,14 @@ input[type=number]::-webkit-outer-spin-button {
   /* fix Badge count on Menu being cut  */
   overflow: unset !important; 
 }
+
+.chat-message{
+  white-space: pre-wrap;
+  word-break: break-word;
+  background-color: var(--adm-color-primary);
+}
+
+.chat-message.from{
+  background-color: var(--adm-color-background);
+  /* background-color: #1e1e1e; */
+}
