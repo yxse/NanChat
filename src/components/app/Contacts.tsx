@@ -23,14 +23,15 @@ import ImportContactsFromShare, { useContacts } from '../messaging/components/co
 import BackupContacts, { useBackupContacts } from '../messaging/components/contacts/BackupContacts';
 import ChatInputTip from '../messaging/components/ChatInputTip';
 import { defaultContacts } from '../messaging/utils';
+import { Capacitor } from '@capacitor/core';
 
 
 
-export const ImportContacts = ({}) => {
+export const ImportContacts = ({showAdd = false}) => {
     const [popupVisible, setPopupVisible] = useState(false);
     const [importMethod, setImportMethod] = useState('');
     const {addContacts} = useContacts();
-
+    const navigate = useNavigate();
     function decodeBase64Utf16LE(base64String) {
         // Step 1: Convert Base64 to binary data
         const binaryString = atob(base64String);
@@ -166,8 +167,11 @@ export const ImportContacts = ({}) => {
         </div>;
     }
     return  <div className=''>
-        
         <List>
+         
+
+        {
+            Capacitor.getPlatform() !== 'web' &&<>
         <List.Item
         clickable
         onClick={() => {
@@ -185,7 +189,8 @@ export const ImportContacts = ({}) => {
         }}
         >
             Contacts from Kalium
-        </List.Item>
+        </List.Item></>
+    }
         <List.Item
         clickable
         onClick={() => {
@@ -200,10 +205,24 @@ export const ImportContacts = ({}) => {
         <List mode='default'>
         <List.Item
         clickable
-        description="Nault, Natrium and Kalium export file supported"
+        // description="Nault, Natrium and Kalium export file supported"
         >
-            Contacts from a file
+            Contacts from file
+            <div className="text-xs" style={{color: "var(--adm-color-text-secondary)"}}>
+            Nault, Natrium and Kalium export file supported
+                        </div>
         </List.Item>
+        {
+                showAdd && 
+        <List.Item
+        clickable
+        onClick={() => {
+            navigate('/contacts?add=true'); // eventually this should be a popup
+        }}
+        >
+            Add contact manually
+        </List.Item>
+        }
         </List>
     </label>
     <input
@@ -223,11 +242,16 @@ export const ImportContacts = ({}) => {
         className='hidden'
         id="file_input" type="file" />
         <ResponsivePopup
+        showCloseButton
             visible={popupVisible}
-            onClose={() => setPopupVisible(false)}
+            onClose={() => {
+                setPopupVisible(false)
+                setImportMethod('');
+            }}
             closeOnMaskClick={true}
             >
-            {importMethod === 'Nault' ? <PopupContentNault /> : <PopupContentNatriumKalium />}
+            {importMethod === 'Nault' && <PopupContentNault /> }
+            {importMethod === 'Kalium' || importMethod === 'Natrium' && <PopupContentNatriumKalium /> }
         </ResponsivePopup>
 
 </div>

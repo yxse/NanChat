@@ -25,6 +25,7 @@ export function useChats(chatId?: string): UseChatsReturn {
       revalidateOnFocus: false,
       revalidateIfStale: false,
       revalidateOnReconnect: true,
+      revalidateOnMount: false,
     }
   );
   const chat = chats?.find(chat => chat.id === chatId);
@@ -66,6 +67,14 @@ export function useChats(chatId?: string): UseChatsReturn {
     
   }, [chats])
 
+  useEffect(() => {
+    const isFirstLoad = !sessionStorage.getItem('app-initialized');
+    mutateChats() // fetch all chats on first load, then chats should be updated by socket
+    if (isFirstLoad) { 
+      mutateChats() // fetch all chats on first load, then chats should be updated by socket
+      sessionStorage.setItem('app-initialized', 'true');
+    }
+  }, []);
   // {onError: async (error) => {
   //         console.log("aze error get chats", error)
   //         if (error === 401 || error === 403) {

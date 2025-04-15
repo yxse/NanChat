@@ -9,7 +9,7 @@ import { AccountIcon } from '../../app/Home';
 import { Button, Form, Input, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
-import { fetcherAccount, fetcherMessages, getNewChatToken } from '../fetcher';
+import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from '../fetcher';
 import useSWR from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
 import { useHideNavbarOnMobile } from '../../../hooks/use-hide-navbar';
@@ -31,7 +31,7 @@ const SetName: React.FC = () => {
     return (
         <div>
             <NavBar
-                            onBack={() => navigate(-1)}
+                            onBack={() => navigate('/me')}
                     className="app-navbar "
                     backArrow={true}>
                       Name
@@ -59,33 +59,26 @@ const SetName: React.FC = () => {
             initialValues={{name: me?.name}}
             mode='card'
             onFinish={(values) => {
-                console.log(values);
-                console.log(activeAccount);
-                const message = "My name is " + values.name;
-                const signature = tools.sign(activeAccountPk, message);
-                // const account = activeAccount.address;
-                console.log(signature);
-                fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/set-name', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({name: values.name, signature, account: activeAccount})
-                }).then(async (res) => {
+                fetcherMessagesPost('/set-name', {
+                    name: values.name,
+                    account: activeAccount
+                }).then((res) => {
                     console.log(res);
                     Toast.show({icon: 'success'});
-                    await getNewChatToken(activeAccount, activeAccountPk) // todo refact this with a /register
-                    await mutateChats();
+                    mutate({name: values.name});
+                    // navigate('/chat');
                     if (isRegistered) {
-                        navigate(-1);
+                        navigate('/me');
                     }
                     else{
                         navigate('/chat');
                     }
-                    // localStorage.setItem('name', values.name);
-                    mutate({name: values.name});
-                });
+                }).catch((err) => {
+                    console.log(err);
+                    Toast.show({icon: 'fail', content: err.message});
+                })
             }}
+
             footer={
                 <>
                 <Button 

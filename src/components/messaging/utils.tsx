@@ -102,7 +102,7 @@ export const showAccountQRCode = (me) => {
             style={{borderRadius: 8}}
           />
           <div className="text-sm mt-2 text-center mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
-            Scan to start an encrypted chat with me
+            Scan to start an end-to-end encrypted chat with me
           </div>
         </div>
       )
@@ -110,18 +110,18 @@ export const showAccountQRCode = (me) => {
 }
 
 
-export const SeedVerifiedBadge = ({children, icon = false}) => {
+export const SeedVerifiedBadge = ({children, icon = false, count=0}) => {
   const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
 
   if (seedVerified) return children
   if (icon) return (
-    <Badge content={Badge.dot}>
+    <Badge content={count ? count : Badge.dot} style={{marginLeft: 4}}>
       {children}
     </Badge>
   )
   return (
     <>
-     <Badge content={Badge.dot} />
+     <Badge content={count ? count : Badge.dot}/>
         {children}
     </>
   )

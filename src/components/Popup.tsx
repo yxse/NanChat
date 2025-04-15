@@ -87,10 +87,10 @@ function walletsReducer(state, action) {
   }
 }
 export const useWallet = () => {
-  const { wallet } = useContext(WalletContext)
+  const { wallet, dispatch } = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
   const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-  return { wallet, activeAccount, activeAccountPk }
+  return { wallet, activeAccount, activeAccountPk, dispatch };
 }
 let appListener: PluginListenerHandle;
 
@@ -235,17 +235,17 @@ export default function InitialPopup() {
               onCreated={() => {
                 localStorage.setItem('contacts', JSON.stringify(defaultContacts));
                 localStorage.setItem('hasWallet', 'true');
-                Toast.show({
-                  icon: "success",
-                  content: <div className="text-center">
-                    Wallet created with success!
-                  </div>,
-                  duration: 3000,
-                })
-                setShowConfetti(true);
-                setTimeout(() => {
-                  setConfettiCount(0);
-                }, 5000);
+                // Toast.show({
+                //   icon: "success",
+                //   content: <div className="text-center">
+                //     Wallet created with success!
+                //   </div>,
+                //   duration: 3000,
+                // })
+                // setShowConfetti(true);
+                // setTimeout(() => {
+                //   setConfettiCount(0);
+                // }, 5000);
               }}
               setWalletState={setWalletState} />
           }

@@ -19,6 +19,7 @@ import { useSearchParams } from "react-router-dom";
 import { AiOutlineShareAlt } from "react-icons/ai";
 import { FaRegCircleDot } from "react-icons/fa6";
 import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-card";
+import { useChats } from "../../messaging/hooks/use-chats";
 const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const ChatName = ({ chat }) => {
@@ -70,7 +71,7 @@ export const ChatListItems = ({ chats, onClick, viewTransition = true, selectedA
 
 export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const { wallet } = useContext(WalletContext);
-    const {data: chats} = useSWR("/chats", fetcherMessages);
+    const {chats} = useChats();
     const accounts = chats?.map((chat) => chat.participants).flat()
     const [shareContent, setShareContent] = useState("nothing");
     const [selectedChat, setSelectedChat] = useState(null);

@@ -388,7 +388,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           navigate("/wallet");
         }}
         backArrow={true}>
-          <span className="">{networks[ticker].name}</span>
+          <span className="">{networks[ticker]?.name}</span>
         </NavBar>
      
       <div className="container  relative mx-auto ">
@@ -401,7 +401,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           }}/>
           <div className="flex justify-center m-2">
             <img
-              src={networks[ticker].logo}
+              src={networks[ticker]?.logo}
               alt={`${ticker} logo`}
               width={48}
             />

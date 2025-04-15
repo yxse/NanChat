@@ -21,6 +21,7 @@ import ProfilePicture from "./profile/ProfilePicture";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { HeaderStatus } from "./HeaderStatus";
 import { useChats } from "../hooks/use-chats";
+import ProfileName from "./profile/ProfileName";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {
@@ -64,7 +65,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     
                     <div className="flex-1 text-center">
                         <h2 className="font-medium flex items-center justify-center gap-2">
-                            {nameOrAccount} {names?.[0]?.verified && <RiVerifiedBadgeFill />}
+                            <ProfileName address={account}/>
                         </h2>
                         <HeaderStatus lastOnline={names?.[0]?.lastOnline} />
                     </div>

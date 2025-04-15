@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AddCircleOutline, CompassOutline, DeleteOutline, LockFill } from "antd-mobile-icons";
+import { AddCircleOutline, CompassOutline, DeleteOutline, LockFill, UserAddOutline } from "antd-mobile-icons";
 import { WalletContext } from "../../Popup";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfilePicture from "./profile/ProfilePicture";
@@ -23,6 +23,7 @@ import { deleteMessage } from "../fetcher";
 import { AiOutlineRollback, AiOutlineWallet } from "react-icons/ai";
 import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
+import { MdOutlineSync } from "react-icons/md";
 
 const Message = memo(({ 
   message, 
@@ -74,7 +75,15 @@ const Message = memo(({
       });
     }
   }, [decrypted, dispatch, message._id]);
-
+  const [sending, setSending] = useState(false);
+    useEffect(() => {
+      // set sending after 2 seconds
+      setTimeout(() => {
+        if (message.status === 'sent_local') {
+        setSending(true);
+        }
+      }, 2000)
+    }, [message]);
   if (!decrypted) {
     return null;
   }
@@ -137,11 +146,11 @@ const Message = memo(({
       {...onLongPress}
       onContextMenu={handleRightClick}
         key={message._id}
-        style={{ alignItems: "flex-start" }}
+        style={{ alignItems: "center" }}
         className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mb-2 mx-2`}
       >
         {!isFromCurrentUser && <ProfilePictureLink address={message.fromAccount} />}
-
+        {sending && <MdOutlineSync className='ai-spin' size={22} style={{marginRight: 4}}  />}
       <Popover.Menu
         mode="dark"
         actions={actions}
@@ -268,6 +277,14 @@ export const WelcomeMessage = ({}) => {
                 }}>
 
           Nano Apps
+                </List.Item>
+                <List.Item
+                prefix={<UserAddOutline />}
+                 onClick={() => {
+                  navigate("/contacts")
+                }}>
+
+          Add Nano Contacts
                 </List.Item>
         
       </List>

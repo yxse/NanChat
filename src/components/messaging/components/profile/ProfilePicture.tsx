@@ -7,13 +7,12 @@ const ProfilePicture = ({ address, width=42, borderRadius=8 }) => {
     const { data, isLoading } = useSWR(address, fetcherAccount, {
             revalidateIfStale: false,
             revalidateOnFocus: false,
-        fallbackData: { profilePicture: { url: accountIconUrl(address) } }
     });
     if (isLoading) return null
     return (
         <img
             style={{ borderRadius: borderRadius }}
-            src={data?.profilePicture?.url} width={width} alt="pfp"  />
+            src={data?.profilePicture?.url || accountIconUrl(address)} width={width} alt="pfp"  />
     )
 }
 

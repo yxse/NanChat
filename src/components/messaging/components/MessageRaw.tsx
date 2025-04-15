@@ -23,7 +23,7 @@ const MessageRaw = ({ message }) => {
             overflow: 'hidden',
             containerType: 'inline-size',
         }}>
-        {message?.type === "group" && <><ProfileName address={message.fromAccount} />{": "}</>}
+        {message?.type === "group" && <><ProfileName includeVerified={false} address={message.fromAccount} />{": "}</>}
         {decrypted ? decrypted : 
         '\u00A0' // blank space to keep the height
         } 

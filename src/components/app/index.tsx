@@ -34,7 +34,7 @@ import Art from "./Art";
 import Swap from "./Swap";
 import History from "./History";
 import Network, { ModalReceive } from "./Network";
-import { Badge, CapsuleTabs, Popup, SafeArea, SideBar, TabBar, Toast } from "antd-mobile";
+import { Badge, CapsuleTabs, Popup, reduceMotion, SafeArea, SideBar, TabBar, Toast } from "antd-mobile";
 import Send from "./Send";
 import Protocol_handler from "./protocol_handler";
 import Sign from "../../api-invoke/Sign";
@@ -86,7 +86,9 @@ import { getToken } from "../../nano/notifications";
 import { box, wallet } from "multi-nano-web";
 import { ShareExtension } from 'capacitor-share-extension';
 import { getSharedKey } from "../../services/sharedkey";
+import { SeedVerifiedBadge } from "../messaging/utils";
 
+// reduceMotion()
 
 
 
@@ -192,7 +194,7 @@ export const MenuBar = () => {
     {
       key: "me",
       title: "Me",
-      icon: <UserOutline size={btnSize} />
+      icon: <SeedVerifiedBadge count={1} icon={true}><UserOutline size={btnSize} /></SeedVerifiedBadge>
     },
     // {
     //   key: "settings",
@@ -402,14 +404,13 @@ export default function App() {
     }
     console.log("index render")
     useEffect(() => {
-
-    
-
-      getNewChatToken(activeAccount, activeAccountPk).then((r) => {
-        console.log("got new chat token", r);
-      })
+      if (activeAccount){
+        getNewChatToken(activeAccount, activeAccountPk).then((r) => {
+          console.log("got new chat token", r);
+        })
+      }
     }
-    , []);
+    , [activeAccount, activeAccountPk]);
 
   return (
     <>

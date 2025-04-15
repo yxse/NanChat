@@ -4,10 +4,11 @@ import { UserOutline } from 'antd-mobile-icons';
 import { WalletContext } from '../../../Popup';
 import { convertAddress } from '../../../../utils/format';
 import useSWR from 'swr';
-import { fetcherAccount, fetcherMessages } from '../../fetcher';
+import { fetcherAccount, fetcherMessages, fetcherMessagesPost } from '../../fetcher';
 import { accountIconUrl } from '../../../app/Home';
 import { networks } from '../../../../utils/networks';
 import { ArtImages } from '../../../app/Art';
+import { getChatToken } from '../../../../utils/storage';
 
 const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
     const { wallet } = useContext(WalletContext)
@@ -68,6 +69,9 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
         '/upload/upload-profile-picture', {
         method: 'POST',
         body: formData,
+        headers: {
+          'token': await getChatToken()
+        },
       });
 
       const data = await response.json();
@@ -163,25 +167,18 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
                 key={icon}
                 onClick={async () => {
                     setCurrentAvatar(networks[icon].icon + convertAddress(activeAccount, icon));
-                    fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/upload/update-pfp', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({account: activeAccount, url: networks[icon].icon + convertAddress(activeAccount, icon)})
+                    fetcherMessagesPost('/upload/update-pfp', {
+                      url: networks[icon].icon + convertAddress(activeAccount, icon),
                     }).then((res) => {
                         console.log(res);
-                        if (res.ok) {
+                        if (!res?.error) {
                             Toast.show({
                                 icon: 'success',
-                                content: 'Profile picture updated successfully',
-                                position: 'bottom',
                             });
                             mutate();
                         }
 
                     });
-
                 }}
                 src={networks[icon].icon + convertAddress(activeAccount, icon)} className="w-24 h-24" />
             )
@@ -190,15 +187,11 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
       </div>
       <ArtImages onImageClick={(url) => {
           setCurrentAvatar(url);
-          fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/upload/update-pfp', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({account: activeAccount, url})
+          fetcherMessagesPost('/upload/update-pfp', {
+              url,
           }).then((res) => {
               console.log(res);
-              if (res.ok) {
+              if (!res?.error) {
                   Toast.show({
                       icon: 'success',
                       content: 'Profile picture updated successfully',

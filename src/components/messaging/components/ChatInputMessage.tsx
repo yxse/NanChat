@@ -28,16 +28,20 @@ import { useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
 
 
-const mutateLocal = (mutate, mutateChats, message, account, activeAccount) => {
+const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
   const id = Math.random().toString();
-  mutate(currentPages => {
+  await mutate(currentPages => {
       const newPages = [...(currentPages || [])];
       // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
       // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
-      newPages[0] = [{ ...message, isLocal: true, _id: id}, ...(newPages[0] || [])];
+      newPages[0] = [{ ...message, isLocal: true, _id: id, status: "sent_local"}, ...(newPages[0] || [])];
       return newPages;
   }, false);
-  mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
+
+
+
+
+  await mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
       const newChats = [...(currentChats || [])];
       const chatIndex = newChats.findIndex(chat => chat.id === account);
       if (chatIndex !== -1) {
@@ -157,14 +161,21 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
       let chatId = account;
+      let height = chat?.height + 1 // only used for the local mutate, it might be not always accurate
       if (!newMessage.trim()) return;
-      if (messagesHistory.length === 0 && account.startsWith('nano_')) {
-        let r = await fetcherMessagesPost(`/chat`, {
+      if (messagesHistory?.length === 0 && account.startsWith('nano_')) {
+        let r = await fetcherMessagesPost('/chat', {
           type: "private",
           participants: [activeAccount, account],
         })
-        
+        console.log("created chat", r);
+        await mutateChats( currentChats => {
+          const newChats = [...(currentChats || [])];
+          newChats.unshift(r);
+          return newChats;
+        }, false);
         chatId = r.id;
+        height = 0;
       }
       const message: Message = {
         content: newMessage,
@@ -172,7 +183,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
-        height: chat?.height + 1, // only used for the local mutate, it might be not always accurate
+        height: height,
       };
       if (defaultNewMessage){
         message.nanoApp = new URL(defaultNewMessage).hostname; // for nano app sharing
@@ -186,10 +197,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
       else if (chat.type === "group") {
         let sharedAccount = chat.sharedAccount;
-        if (sharedAccount == null){
-          sharedAccount = await updateSharedKeys(chatId, chat.participants.map(participant => participant._id), activeAccountPk);
-        }
         messageEncrypted['content'] = box.encrypt(newMessage, sharedAccount, activeAccountPk);
+        messageEncrypted['toAccount'] = sharedAccount;
         localStorage.setItem("message-" + messageEncrypted['content'], newMessage);
       }
       else{
@@ -204,7 +213,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
      if (account !== chatId){
       // redirect to chat id when initial message
-      mutateChats()
+      // mutateChats()
        navigate(`/chat/${chatId}`); 
      }
 

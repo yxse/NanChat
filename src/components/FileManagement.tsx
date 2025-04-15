@@ -70,7 +70,7 @@ const FileManagement = () => {
     <div>
       <NavBar
         onBack={() => {
-          navigate('/settings')
+          navigate('/me/settings')
         }}
       >
         Downloaded Files

@@ -42,7 +42,6 @@ const GroupAvatar = ({ chatId }) => {
     gap = 0;
     width = (widthTotal / 3) - gap; //
   }
-
   return (
     <div className=""
      style={{

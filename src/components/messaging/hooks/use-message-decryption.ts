@@ -13,6 +13,12 @@ const useMessageDecryption = ({ message }) => {
       return message.content;
     }
 
+    if (message.height == -1){
+      return ''; // chat created but no messages yet
+    }
+    if (message.content == "welcome_message") {
+      return "Welcome to NanChat!";
+    }
     if (wallet.messages[message._id]) {
       return wallet.messages[message._id];
     }
@@ -44,7 +50,9 @@ const useMessageDecryption = ({ message }) => {
   
   const isGroupMessage = message?.type === 'group';
   let targetAccount = message.fromAccount === activeAccount ? toAccount : message.fromAccount;
-
+  if (isGroupMessage) {
+    targetAccount = message.fromAccount;
+  }
   useEffect(() => {
     // Only proceed with decryption if we don't have cached content
     if (decryptedContent !== null) {
@@ -71,7 +79,8 @@ const useMessageDecryption = ({ message }) => {
         
       } catch (error) {
         console.error('Message decryption failed:', error);
-        setDecryptedContent(message.content);
+        // setDecryptedContent(message.content);
+        setDecryptedContent("🔒");
       }
     };
 

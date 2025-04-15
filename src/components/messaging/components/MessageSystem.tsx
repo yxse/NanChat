@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { useWallet, WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
@@ -33,6 +33,9 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
   if (message.content.includes('recalled')) {
     action = 'recalled a message';
   }
+  if (message.content.includes('created')) {
+    action = 'created the group';
+  }
   
   const { data, isLoading } = useSWR(`/names?accounts=${addresses?.join(',')}`, fetcherMessages, {
     dedupingInterval: 60000,
@@ -43,10 +46,8 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
   }
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
-        
-          {
-            activeAccount === addresses?.[0] ? "You " : data?.find((d) => d._id === addresses?.[0])?.name}
-          {action !== "recalled a message" && <span className="text-xs">({formatAddress(addresses?.[0])})</span>} {action} {" "}
+        <Link to={'/chat/' + addresses?.[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
+          {data?.find((d) => d._id === addresses?.[0])?.name} </Link> {action} {" "}
 
           {addresses?.map((address, index) => {
             if (index === 0) {
@@ -54,7 +55,9 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
             }
             return (
               <span key={index} className="" style={{ color: "var(--adm-color-text-secondary)" }}>
-                {activeAccount === address ? "You " : data?.find((d) => d._id === address)?.name} <span className="text-xs">({formatAddress(address)})</span>
+                <Link to={'/chat/' + address + '/info'} style={{ color: "var(--adm-color-primary)" }}>
+                {data?.find((d) => d._id === address)?.name}
+                  </Link>
                 {index === addresses.length - 1 ? null : ", "}
               </span>
             );

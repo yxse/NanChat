@@ -21,7 +21,7 @@ export default function InitializeScreen({
   const [wizardI, setWizardI] = useState<number>(0);
   return (
     <>
-      {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} />}
+      {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated}/>}
       {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 2 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 3 && <Done setW={setWizardI} theme={theme} />}

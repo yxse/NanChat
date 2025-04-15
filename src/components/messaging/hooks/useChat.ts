@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from '../../Popup';
+import { useChats } from './use-chats';
 
 
 const sendMessage = async (chatId, content) => {
@@ -15,7 +16,7 @@ const sendMessage = async (chatId, content) => {
 };
 
 export function useUnreadCount() {
-  const {data: chats} = useSWR<Chat[]>(`/chats`, fetcherMessages);
+  const {chats} = useChats();
   const {activeAccount} = useWallet()
   if (chats === undefined || chats?.error) return null;
   return chats?.reduce((acc, chat) => {

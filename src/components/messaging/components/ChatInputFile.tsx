@@ -9,6 +9,7 @@ import { formatSize } from '../../../utils/format';
 import { saveFileInCache } from '../../../services/database.service';
 import { AiOutlineSwap } from 'react-icons/ai';
 import { writeUint8ArrayToFile } from '../../../services/capacitor-chunked-file-writer';
+import { getChatToken } from '../../../utils/storage';
 
 const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
@@ -115,12 +116,21 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                         '/upload/upload-encrypted-file', {
                         method: 'POST',
                         body: formData,
+                        headers: {
+                            'token': await getChatToken(),
+                        },
                     });
                     
                     const data = await response.json();
                     
-                    if (!response.ok) {
-                        throw new Error(data.error || 'Upload failed');
+                    if (!response.ok || data.error) {
+                        // throw new Error(data.error || 'Upload failed');
+                        Toast.show({
+                            icon: 'fail',
+                            content: data.error || 'Upload failed',
+                            position: 'center',
+                        });
+                        return;
                     }
         
                     let fileId = data.url.split('/').pop();
@@ -168,11 +178,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
             
             
         } catch (error) {
-            Toast.show({
-                icon: 'fail',
-                content: error.message || 'Upload failed',
-                position: 'bottom',
-            });
+           
             throw new Error(error.message);
         } finally {
             setLoading(false);

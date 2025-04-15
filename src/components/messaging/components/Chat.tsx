@@ -80,79 +80,15 @@ const {
         };
     }, [activeAccount, onlineAccount, accounts]);
 
-
-    useEffect(() => {
-        socket.on('message', async (message: Message) => {
-            try {
-                
-            
-            console.log('message', message);
-            console.log('account', account);
-            if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
-                            mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
-                                const newChats = [...(currentChats || [])];
-                                const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
-                                if (chatIndex !== -1) {
-                                    const newChat = { ...newChats[chatIndex] };
-                                    newChat.lastMessage = message.content;
-                                    newChat.unreadCount = message.fromAccount === activeAccount ?
-                                     0 : // don't increment unread count if message is from ourself
-                                    (
-                                        message.chatId === account ? 0 : // don't increment unread count if chat is the current open chat
-                                        newChat.unreadCount + 1
-                                    );
-                                    newChat.lastMessageFrom = message.fromAccount;
-                                    newChat.lastMessageTimestamp = new Date().toISOString();
-                                    newChat.lastMessageId = message._id;
-                                    newChat.isLocal = false;
-                                    newChat.height = message.height;
-                                    // move chat to top
-                                    newChats.splice(chatIndex, 1);
-                                    newChats.unshift(newChat);
-                                }
-                                return newChats;
-                            }, false);
-                        }
-                        
-                if (message.fromAccount == activeAccount) return // don't mutate if message is from ourself
-                mutateInifinite(unstable_serialize((index, prevPageData) => {
-                    return getKey(index, prevPageData, message.chatId)
-                }), (currentPages) => {
-                    // if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
-                    const newPages = [...(currentPages || [])];
-                    newPages[0] = [message, ...(newPages[0] || [])];
-                    return newPages;
-                }
-                , false);
-
-                // if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate messages if not for this chat
-                //                 mutate(currentPages => {
-                //                     if (account == null) return // don't mutate if on /chat page to prevent showing new message if chat not selected
-                //                     if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
-                //                     const newPages = [...(currentPages || [])];
-                //                     newPages[0] = [message, ...(newPages[0] || [])];
-                //                     return newPages;
-                //                 }, false);
-
-            } catch (error) {
-                console.log('error', error);
-            }
-            finally {
-                console.log('finally');
-            }
-        });
-        return () => {
-            socket.off('message');
-        };
-    }, [activeAccount, chats]);
     useEffect(() => {
         // todo add modal
         askPermission();
         
     }, [])
     useEffect(() => {
-        if (me && me.error === "Account not found") {
+        if (me && !me?.name) {
             navigate('/profile/name'); 
+            return
         }
     }
     , [ me]);

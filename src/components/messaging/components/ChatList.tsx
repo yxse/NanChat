@@ -33,7 +33,12 @@ import { showAccountQRCode } from "../utils";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import BackupContacts from "./contacts/BackupContacts";
 import { useChats } from "../hooks/use-chats";
-
+import {
+    List as VirtualizedList,
+    AutoSizer,
+    WindowScroller,
+  } from 'react-virtualized'
+import { updateSharedKeys } from "../../../services/sharedkey";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -70,6 +75,28 @@ export const LedgerNotCompatible = () => {
     );
 }
 
+const Footer = () => {
+    const {inviteFriends} = useInviteFriends()
+    return <div><div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
+    <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted using nano.
+</div>
+<div className="text-center mb-6 pb-6">
+    <Button 
+        color="primary"
+        onClick={() => {
+            inviteFriends();
+        }}
+        className="mt-4"
+        size="middle"
+        shape="rounded"
+        >
+            <Space align="center">
+            {/* <MailOutline /> */}
+            Invite Friends to Chat
+            </Space>
+        </Button>
+</div></div>
+}
 
 const ChatList: React.FC = ({ onChatSelect }) => {
     const { wallet } = useContext(WalletContext)
@@ -96,32 +123,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const filteredChats = chats
     const {isMobile, width} = useWindowDimensions()
     const {inviteFriends} = useInviteFriends()
-    useEffect(() => {
-        socket.on('chat', (chat: string) => {
-            mutate();
-        });
-
-        return () => {
-            socket.off('chat');
-        };
-    }, []);
+   
 
 
-    useEffect(() => {
-        if (!isLoading && activeAccount && !me?.name) {
-            navigate('/profile/name'); 
-        }
-        if (!activeAccountPk) {
-            return;
-        }
-        // getNewChatToken(activeAccount, activeAccountPk).then(token => {
-        //     // socket.auth = { token };
-        //     // socket.connect();
-        //     console.log('token', token);
-        // });
-
-    }
-    , [activeAccountPk, me]);
 
     if (ledger) {
         return <LedgerNotCompatible />
@@ -220,6 +224,128 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         </Popover.Menu>
         </div>
       )
+
+      function rowRenderer({
+        index,
+        key,
+        style,
+      }: {
+        index: number
+        key: string
+        style: CSSProperties
+      }) {
+        // console.log("index", index)
+
+        // render footer if index is last
+        if (index === chats.length) {
+            return <List.Item
+            key={key}
+            style={{...style, backgroundColor: 'var(--main-background-color)'}}
+
+            ><Footer /></List.Item>
+        }
+        const chat = filteredChats[index]
+        if (!chat) return
+    
+        let accountTo = activeAccount;
+                            let from = chat.participants.find(participant => participant._id !== activeAccount);
+                            if (chat.participants[0]?._id === chat.participants[1]?._id) { // chat with self
+                                from = chat.participants[0]; 
+                            }
+                            if (chat.type === 'group') {
+                                from = {_id: chat.lastMessageFrom}
+                                accountTo = chat.sharedAccount;
+
+                            }
+                            const accountFrom = from?._id;
+                            const hasName = from?.name;
+                            const pfp = from?.profilePicture?.url
+        return (
+            <List.Item
+            style={style}
+            key={key}
+            arrowIcon={false}
+                className={chat.id === account ? 'active' : ''}
+                onClick={() => {
+                    onChatSelect(chat.id)
+                    // local mutate to update unread count
+                    mutate(chats.map(chatToMutate => {
+                        if (chatToMutate.id === chat.id) {
+                            chatToMutate.unreadCount = 0;
+                        }
+                        return chatToMutate;
+                    }), false);
+                }}
+                extra={
+                    <div className="flex flex-col items-end">
+                        <div
+                        className="text-xs"
+                        >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
+                            {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
+                            <div>
+                                <span 
+                                style={{backgroundColor: 'var(--adm-color-primary)', color: 'var(--adm-color-text' }}
+                                className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
+                                    {chat.unreadCount}
+                                </span>
+                            </div>
+                        )
+                        : // empty div to keep the same height
+                        <div>
+                            <span className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
+                                {''}
+                            </span>
+                        </div>
+                        }
+                    </div>
+                }
+                prefix={
+                    
+                    
+                    <div style={{paddingTop: 8, paddingBottom: 8}}>
+                        <ChatAvatar chat={chat} />
+                   
+                        </div>
+                }
+                // Ellipsis component is laggy when there are many messages
+                // description={<Ellipsis content={decrypted || '...'} />}
+                description={<MessageRaw 
+                    key={chat.lastMessageId}
+                    message={{
+                    content: chat.lastMessage,
+                    fromAccount: accountFrom,
+                    toAccount: accountTo,
+                    _id: chat.lastMessageId,
+                    isLocal: chat.isLocal,
+                    type: chat.type,
+                    chatId: chat.id,
+                    height: chat.height,
+                }} />}
+            >
+                <div className="flex items-center gap-2">
+                    {
+                        chat.type === 'group' ?
+                            <>
+                                {chat.name || "Group Chat"}
+                            </>
+                            :
+                            <>
+                                {
+                                    hasName ? hasName : formatAddress(accountFrom)
+                                }
+                                {
+                                    from?.verified && <RiVerifiedBadgeFill />
+                                }
+                            </>
+                    }
+                </div>
+                <div className="flex justify-between">
+                </div>
+            </List.Item>
+        )
+      }
+
+      
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
@@ -235,112 +361,41 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         }
             <div className="">
                 <div className="">
-                    <List>
-                        {filteredChats?.map(chat => {
-                            let accountTo = activeAccount;
-                            let from = chat.participants.find(participant => participant._id !== activeAccount);
-                            if (chat.participants[0]?._id === chat.participants[1]?._id) { // chat with self
-                                from = chat.participants[0]; 
-                            }
-                            if (chat.type === 'group') {
-                                from = {_id: chat.lastMessageFrom}
-                                accountTo = chat.sharedAccount;
+                   
+          <div style={{ }}>
 
-                            }
-                            const accountFrom = from?._id;
-                            const hasName = from?.name;
-                            const pfp = from?.profilePicture?.url
-                            // const decrypted = useMessageDecryption({
-                            //     message: {
-                            //         content: chat.lastMessage,
-                            //         fromAccount: accountFrom,
-                            //         toAccount: activeAccount,
-                            //         _id: chat.lastMessageId,
-                            //     }})
-                            // if (!accountFrom) return null;
-                            return (
-                                <List.Item
-                                arrowIcon={false}
-                                    className={chat.id === account ? 'active' : ''}
-                                    onClick={() => {
-                                        onChatSelect(chat.id)
-                                        // local mutate to update unread count
-                                        mutate(chats.map(chatToMutate => {
-                                            if (chatToMutate.id === chat.id) {
-                                                chatToMutate.unreadCount = 0;
-                                            }
-                                            return chatToMutate;
-                                        }), false);
-                                    }}
-                                    key={chat.id}
-                                    extra={
-                                        <div className="flex flex-col items-end">
-                                            <div
-                                            className="text-xs"
-                                            >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
-                                                {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
-                                                <div>
-                                                    <span 
-                                                    style={{backgroundColor: 'var(--adm-color-primary)', color: 'var(--adm-color-text' }}
-                                                    className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
-                                                        {chat.unreadCount}
-                                                    </span>
-                                                </div>
-                                            )
-                                            : // empty div to keep the same height
-                                            <div>
-                                                <span className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
-                                                    {''}
-                                                </span>
-                                            </div>
-                                            }
-                                        </div>
-                                    }
-                                    prefix={
-                                        
-                                        
-                                        <div style={{paddingTop: 8, paddingBottom: 8}}>
-                                            <ChatAvatar chat={chat} />
-                                       
-                                            </div>
-                                    }
-                                    // Ellipsis component is laggy when there are many messages
-                                    // description={<Ellipsis content={decrypted || '...'} />}
-                                    description={<MessageRaw 
-                                        key={chat.lastMessageId}
-                                        message={{
-                                        content: chat.lastMessage,
-                                        fromAccount: accountFrom,
-                                        toAccount: accountTo,
-                                        _id: chat.lastMessageId,
-                                        isLocal: chat.isLocal,
-                                        type: chat.type,
-                                        chatId: chat.id,
-                                    }} />}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        {
-                                            chat.type === 'group' ?
-                                                <>
-                                                    {chat.name || "Group Chat"}
-                                                </>
-                                                :
-                                                <>
-                                                    {
-                                                        hasName ? hasName : formatAddress(accountFrom)
-                                                    }
-                                                    {
-                                                        from?.verified && <RiVerifiedBadgeFill />
-                                                    }
-                                                </>
-                                        }
-                                    </div>
-                                    <div className="flex justify-between">
-                                    </div>
-                                </List.Item>
-                            )
-                        })}
-                    </List>
+          <List 
+            className="chat-list"          
+          >
+          <div style={{ height:
+          isMobile ? "calc(100dvh - 47px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 47px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
+          // 47px for the header, 58px for the menu
+          , overflow: "hidden" }}>
+            <AutoSizer>
+              {({ width, height }) => (
+                <VirtualizedList
+                  rowCount={chats.length + 1} // +1 for footer
+                  rowRenderer={rowRenderer}
+                  width={width}
+                  height={height}
+                  rowHeight={
+                    ({ index }) => {
+                      if (index === chats.length) return 236; // footer height
+                      return 70;
+                    }
+                  }
+                  overscanRowCount={10}
+                //   isScrolling={isScrolling}
+                //   scrollTop={scrollTop}
+                />
+              )}
+            </AutoSizer></div>
+          </List>
+            </div>
+          
+
+      
+
         <NewChatPopup
         onAccountSelect={async (accounts) => {
             if (accounts.length === 1) {
@@ -356,15 +411,14 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                     return
                 }
                 else {
-                    mutate()
                     navigate(`/chat/${r.id}`, { viewTransition: false, replace: true })
+                    await updateSharedKeys(r.id, r.participants.map(participant => participant._id), activeAccountPk);
                     Toast.show({icon: 'success'})
                 }
 
             }
         }}
           visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
-                    
                     
                     
                     {/* <div className="text-center text-gray-500 mt-4 flex items-center justify-start ml-2">
@@ -384,25 +438,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                         </List>
                     </div> */}
                 </div>
-                <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                        <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted using nano.
-                </div>
-                <div className="text-center mb-6 pb-6">
-                        <Button 
-                            color="primary"
-                            onClick={() => {
-                                inviteFriends()
-                            }}
-                            className="mt-4"
-                            size="middle"
-                            shape="rounded"
-                            >
-                                <Space align="center">
-                                {/* <MailOutline /> */}
-                                Invite Friends to Chat
-                                </Space>
-                            </Button>
-                    </div>
+                
             </div>
         </div>
     );

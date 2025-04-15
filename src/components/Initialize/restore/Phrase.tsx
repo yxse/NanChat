@@ -31,6 +31,7 @@ import { ImportFromGoogleDrive } from "./ImportFromGoogleDrive";
 import { ImportFromICloud } from "./ImportFromICloud";
 import { MnemonicInput } from "./MnemonicInput";
 import { PasswordImport } from "./PasswordImport";
+import { LedgerSelect } from "../Start";
 
 export default function ImportPhrase({
   setW,
@@ -95,7 +96,7 @@ export default function ImportPhrase({
         </div>
       </div>
 <Card
-      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
+      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20, overflow: "auto"}}
         
       >
       <div className="">
@@ -134,6 +135,10 @@ export default function ImportPhrase({
           <ImportFromGoogleDrive onWalletSelected={handleWalletSelected} />
           <ImportFromICloud onWalletSelected={handleWalletSelected} />
           </div>
+          <Divider>
+            Or
+          </Divider>
+          <LedgerSelect setWalletState={setWalletState} /> 
           
           <PasswordImport
             visible={importFileVisible}
@@ -164,7 +169,7 @@ export default function ImportPhrase({
       
       </div>
       </Card>
-
+      
       <ToastContainer
         position="top-center"
         autoClose={1000}

@@ -25,6 +25,21 @@ import NewChatPopup from "./NewChatPopup";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import QRCode from "qrcode.react";
 import { useChats } from "../hooks/use-chats";
+import { AiOutlineCrown } from "react-icons/ai";
+import ProfileName from "./profile/ProfileName";
+
+export const AccountCard = ({ account }) => {
+
+return <div className="" style={{ display: 'flex', flexDirection: 'column', gap: 2}}>
+                                <ProfilePicture address={account?._id} key={account?._id} width={58} borderRadius={8}/>
+                                <div
+                                className="text-sm text-center"
+                                style={{ width: '58px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--adm-color-text-secondary)' }}
+                                >
+                                    {account.name}
+                                </div>
+                            </div>
+}
 
 const GroupInfo: React.FC<{}> = ({  }) => {
     const {
@@ -39,11 +54,10 @@ const GroupInfo: React.FC<{}> = ({  }) => {
         defaultValue: []
     });
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
-    const {chats, mutateChats: mutate} = useChats();
-    const chat = chats?.find((chat) => chat.id === account);
+    const {chat, mutateChats: mutate} = useChats(account);
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [visibleRemove, setVisibleRemove] = useState(false);
-    const {activeAccountPk} = useWallet()
+    const {activeAccountPk, activeAccount} = useWallet()
     const sharedAccount = chat?.sharedAccount?.replace('nano_', 'group_') // replace nano_ prefix just in case to prevent confusion
     return (
         <div className="">
@@ -77,15 +91,13 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             <Card style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' , alignItems: 'center'}}>
                     {
-                        chat?.participants.map((participant, index) => (
-                            <div className="" style={{ display: 'flex', flexDirection: 'column', gap: 2}}>
-                                <ProfilePicture address={participant?._id} key={index} width={58} borderRadius={8}/>
-                                <div
-                                className="text-sm text-center"
-                                style={{ width: '58px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--adm-color-text-secondary)' }}
-                                >{participant.name}</div>
-                            </div>
-                        ))
+                        chat?.participants.map((participant, index) => {
+                            return (
+                            <AccountCard
+                            key={index}
+                            account={participant}
+                            />
+                        )})
                     }
                      {/* add & remove with border dash */}
                      <Button
@@ -121,6 +133,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                 }}
                 visible={visibleAdd} setVisible={setVisibleAdd} title="Add Participant" />
                 <NewChatPopup 
+                hideImportContacts
                 accounts={chat?.participants}
                 onAccountSelect={async (accounts) => {
                     let newParticipants = chat?.participants?.map((participant) => participant._id) || []
@@ -220,6 +233,17 @@ const GroupInfo: React.FC<{}> = ({  }) => {
            
             </List>
             <List style={{marginTop: 16}}>
+            <List.Item
+            extra={<div style={{display: 'flex', gap: 4, alignItems: 'center'}}>
+                <AccountIcon account={chat?.creator} width={24} />
+                <ProfileName address={chat?.creator} />
+                </div>}
+                onClick={() => {
+                    navigate(`/chat/${chat?.creator}/info`)
+                }}
+            >
+                Admin
+            </List.Item>
             <List.Item
             extra={formatAddress(sharedAccount)}
                 onClick={() => {

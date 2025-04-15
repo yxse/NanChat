@@ -211,7 +211,6 @@ console.log("balance 2", totalBalance);
 export default function Home({ }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
-  const [modalSettingsVisible, setModalSettingsVisible] = useState(false);
   const {mutate,cache}=useSWRConfig()
 
   const navigate = useNavigate();
@@ -409,17 +408,6 @@ export default function Home({ }) {
 
       </FloatingBubble> */}
       </PullToRefresh>
-        <Modal
-        bodyStyle={{height: "100vh", width: "500px"}}
-        style={{height: "100vh"}}
-        closeOnMaskClick
-        onClose={() => setModalSettingsVisible(false)}
-        visible={modalSettingsVisible} 
-        // visible={true}
-        content={
-        //  <Settings isNavOpen={true} setNavOpen={() => {}} />
-         <iframe src="/settings" className="w-full h-full" /> // only temporary, a bit hacky settings in modal is nice for pc users
-         } />
       </div>
       </div>
     </div>

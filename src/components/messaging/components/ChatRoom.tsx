@@ -95,7 +95,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         if (!isLoading && chat == null && !account?.startsWith('nano_')) {
             setTimeout(() => { // this somehow fix huge performance issue on iphone when selecting chat and coming back multiple times
-                navigate('/chat');
+                // navigate('/chat');
               }, 0);
             if (searchParams.has('join')) {
                 Modal.confirm({
@@ -307,7 +307,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
 
                 <div className="flex-1 text-center">
                     <h2 className="font-medium flex items-center justify-center gap-2">
-                    <ProfileName address={address} fallback={formatAddress(address)} /> {participant?.verified && <RiVerifiedBadgeFill />}
+                    <ProfileName address={address} fallback={formatAddress(address)} />
                     </h2>
                     <HeaderStatus lastOnline={participant?.lastOnline} />
                 </div>
@@ -393,7 +393,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                             }}
                         >
 
-                            Select a chat to start E2EE messaging
+                            Select a chat to start messaging
                         </span>
                     </div>
                 )
@@ -517,7 +517,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                             // ref={index === messages.length - 1 ? messagesEndRef : null}
                                             >
                                                 <Message
-                                                    // key={message._id}
+                                                    key={message._id + message.status}
                                                     message={message}
                                                     prevMessage={messages[index + 1]}
                                                     nextMessage={messages[index - 1]}

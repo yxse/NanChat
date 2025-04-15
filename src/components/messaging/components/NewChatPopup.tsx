@@ -115,7 +115,7 @@ const SkeletonAccountListItems = () => {
             ))}
           </div>
         )}
-function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, accounts = [], alreadySelected}) {
+function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, accounts = [], alreadySelected, hideImportContacts = false}) {
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
@@ -123,6 +123,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
     const [searchText, setSearchText] = useState('')
     const {contacts, contactsOnNanChat, contactsNotOnNanChat} = useContacts()
     const [selectedAccounts, setSelectedAccounts] = useState(alreadySelected || [])
+    const [popupImportContactsVisible, setPopupImportContactsVisible] = useState(false);
     const navigate = useNavigate();
 
     const getKey = (pageIndex, previousPageData) => {
@@ -140,6 +141,8 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
     // console.log({pages})
     // console.log({all})
     // console.log({size})
+    const accountsToInvite = contactsNotOnNanChat
+        .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
     return (
         <>
             <ResponsivePopup
@@ -238,25 +241,45 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                         accounts={contactsOnNanChat}
                         badgeColor={"gray"} />
 
+{
+    accountsToInvite.length > 0 &&
                     <AccountListItems
                     mode="invite"
-                        // title="Invite to NanChat"
-                        onClick={(account) => {
-                            setVisible(false);
-                        }}
-                        accounts={contactsNotOnNanChat
-                            .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
-                        }
-                        
-                        badgeColor={"gray"} />
+                    // title="Invite to NanChat"
+                    onClick={(account) => {
+                        setVisible(false);
+                    }}
+                    accounts={accountsToInvite}
+                    
+                    badgeColor={"gray"} />
+                }
                     {/* <div className="text-base  pl-4 m-2">
                         All users
                         </div> */}
                     {
-                        !searchText && 
+                        !searchText && !hideImportContacts &&
                         <>
-                    <Subtitle title="Import contacts" />
-                    <ImportContacts />
+                   
+                    <List>
+                         <List.Item
+                            clickable
+                            prefix={<UserAddOutline fontSize={48} style={{padding: 8}}/>}
+                            onClick={() => {
+                                setPopupImportContactsVisible(true);
+                            }}
+                            >
+                                Import Contacts
+                            </List.Item>
+                            </List>
+                            <ResponsivePopup
+                            visible={popupImportContactsVisible}
+                            onClose={() => setPopupImportContactsVisible(false)}
+                            closeOnMaskClick={true}
+                            closeOnSwipe={false}
+                            // bodyStyle={{height: '90vh'}}
+                            >
+                        <ImportContacts showAdd />
+                            </ResponsivePopup>
                         </>
                     }
                      {

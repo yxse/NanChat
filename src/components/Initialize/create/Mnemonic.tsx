@@ -49,6 +49,9 @@ export default function Mnemonic({
     for (let ticker of Object.keys(networks)) {
       dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
     }
+    setSeed(generatedWallet.seed, false)
+        setWalletState("unlocked");
+        onCreated()
   }, []);
   return (
     <>
@@ -105,7 +108,9 @@ export default function Mnemonic({
             HapticsImpact({
               style:ImpactStyle.Medium
             });
-            if (isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
+            if (
+              true ||
+              isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
               let biometricAuth = await BiometricAuth.checkBiometry()
               let webauthnAuth = webauthn.client.isAvailable()
               

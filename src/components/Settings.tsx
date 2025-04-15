@@ -125,7 +125,7 @@ export const showLogoutSheet = async () => {
               await removeSeed()
               actionSheet.close()
               actionSheet1.close()
-              window.location.reload()
+              window.location.href = "/"
             }
           },
           { 
@@ -405,16 +405,6 @@ className="mb-24"
                           Light
                         </CheckList.Item>
                         <CheckList.Item
-                          value="natrium"
-                          onClick={() => {
-                            document.body.classList = "natrium-theme";
-                            document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
-                            // setTheme("natrium");
-                          }}
-                        >
-                          Natrium
-                        </CheckList.Item>
-                        <CheckList.Item
                           value="system"
                           onClick={() => {
                             localStorage.removeItem("theme");
@@ -430,6 +420,29 @@ className="mb-24"
                         >
                           System
                         </CheckList.Item>
+                        <CheckList.Item
+                          value="natrium"
+                          onClick={() => {
+                            document.body.classList = "natrium-theme";
+                            document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+                            // setTheme("natrium");
+                          }}
+                        >
+                          Nano
+                        </CheckList.Item>
+                        
+                        <CheckList.Item
+                          value="banano"
+                          onClick={() => {
+                            document.body.classList = "banano-theme";
+                            document.documentElement.setAttribute("data-prefers-color-scheme", "dark");
+                            // setTheme("natrium");
+                          }}
+                        >
+                          Banano
+                        </CheckList.Item>
+
+                      
                       </CheckList>
                     </div>
                   ),

@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { useWallet, WalletContext } from "../../Popup";
 import { convertAddress, formatAddress } from "../../../utils/format";
@@ -44,8 +44,8 @@ const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   if (message.joinRequest.status === "pending") {
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
-        {
-          activeAccount === addresses[0] ? "You " : data?.find((d) => d._id === addresses[0])?.name} <span className="text-xs">({formatAddress(addresses[0])})</span> asked to join the chat
+        <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>{data?.find((d) => d._id === addresses[0])?.name}</Link>
+           asked to join the chat
           <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}
         </span>  
@@ -105,8 +105,9 @@ const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   };
   return (
     <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
-      {
-        activeAccount === addresses[0] ? "You " : data?.find((d) => d._id === addresses[0])?.name} <span className="text-xs">({formatAddress(addresses[0])})</span> asked to join the chat
+      <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
+       {data?.find((d) => d._id === addresses[0])?.name} </Link>
+        asked to join the chat
         <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}
         </span>  

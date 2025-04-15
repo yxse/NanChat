@@ -57,7 +57,7 @@ export default function ChangeRep() {
         <div className="">
           <NavBar 
           className="app-navbar "
-          onBack={() => navigate(`/settings`)}>
+          onBack={() => navigate(`/me/settings`)}>
             Change {networks[ticker].name} Representative
           </NavBar>
           <Card style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>

@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
 import { useUnreadCount } from "../../messaging/hooks/useChat";
+import { SeedVerifiedBadge } from "../../messaging/utils";
 
 
 export const SideBarMenu = () => {
@@ -46,7 +47,7 @@ export const SideBarMenu = () => {
       // }
       {
         key: "me",
-        title: "Me",
+        title: <>Me<SeedVerifiedBadge size={btnSize} count={1} icon={false}/></>,
         icon: <UserOutline size={btnSize} />
       }
     ];

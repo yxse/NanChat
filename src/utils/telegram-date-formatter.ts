@@ -36,11 +36,15 @@ function formatTelegramDate(date) {
     
     
     if (messageDate >= lastWeek) {
-        return messageDate.toLocaleDateString(undefined, { weekday: 'long' });
+        return messageDate.toLocaleDateString(
+            'en-US'
+            , { weekday: 'long' });
     }
     
     // For older messages, return date in DD/MM/YYYY format
-    return messageDate.toLocaleDateString(undefined, {
+    return messageDate.toLocaleDateString(
+        'en-US'
+        , {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'

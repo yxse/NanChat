@@ -1,9 +1,9 @@
 import { Button, Card, Dialog, Divider, Modal, Space, Toast } from "antd-mobile";
 import Navbar from "../Lock/Navbar";
-import { Dispatch, useContext, useState } from "react";
+import { Dispatch, useContext, useEffect, useState } from "react";
 import { LedgerService, LedgerStatus } from "../../ledger.service";
 import { Link, useNavigate } from "react-router-dom";
-import { LedgerContext, WalletContext } from "../Popup";
+import { LedgerContext, useWallet, WalletContext } from "../Popup";
 
 import { mutate, useSWRConfig } from "swr";
 import { networks } from "../../utils/networks";
@@ -20,6 +20,8 @@ import { HapticsImpact } from "../../utils/haptic";
 import { IoArrowBack } from "react-icons/io5";
 // export async function resetLedger() {
 // }
+import { wallet as walletLib } from "multi-nano-web";
+import { setSeed } from "../../utils/storage";
 
 export function DisconnectLedger({ icon = false }) {
   const { ledger, setLedger, setWalletState } = useContext(LedgerContext);
@@ -263,16 +265,27 @@ export default function Start({
   setWalletState,
   setW,
   theme,
+  onCreated
 }: {
   setWalletState: Dispatch<React.SetStateAction<"unlocked" | "locked" | "no-wallet" | "loading">>;
   setW: Dispatch<React.SetStateAction<number>>;
   theme: "dark" | "light";
+  onCreated: () => any;
 }) {
+  const {dispatch} = useWallet()
   // const navigate = useNavigate();
-
+  useEffect(() => {
+    const generatedWallet = walletLib.generateLegacy()
+    for (let ticker of Object.keys(networks)) {
+      dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
+    }
+    setSeed(generatedWallet.seed, false)
+       
+  }, []);
+  // const navigate = useNavigate();
   return (
     <div className="min-h-[554px]">
-      <div
+      {/* <div
               className={`step-p-nav ${
                 theme == "light" && "!bg-white !text-black !border-slate-400"
               }`}
@@ -285,9 +298,9 @@ export default function Start({
                 <IoArrowBack size={20} />
               </div>
              
-            </div>
-      <Card
-      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
+            </div> */}
+      <div
+      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 64}}
         className={`${theme == "light" && "!bg-white !text-black"
           } flex flex-col justify-between align-center p-4 h-full`}
       >
@@ -299,7 +312,7 @@ export default function Start({
                 <img
                 style={{borderRadius: 24}}
                   src={nanchat}
-                  width={128}
+                  width={100}
                   alt="NanWallet Logo"
                   draggable={false}
                 />
@@ -321,12 +334,15 @@ export default function Start({
               HapticsImpact({
                 style:ImpactStyle.Medium
               });
-              setW(1)
+              // setW(1)
+              setWalletState("unlocked");
+              onCreated()
+              // navigate("/profile/name");
             }}
             className="w-full mt-4"
             size="large"
             color="primary">
-            Create a new wallet
+            Create a new account
           </Button>
           <Button
             shape="rounded"
@@ -339,7 +355,7 @@ export default function Start({
             className="w-full mt-4 mb-2"
             size="large"
             color="default">
-            I already have a wallet
+            I already have a account
           </Button>
           {/* <div
               className={`${theme == "light" &&
@@ -350,13 +366,13 @@ export default function Start({
             >
               Use Ledger
             </div> */}
-          <Divider />
-          <LedgerSelect setWalletState={setWalletState} />
+          {/* <Divider />
+          <LedgerSelect setWalletState={setWalletState} /> */}
           {/* <Link to="/XNO">XNO</Link> */}
 
         </div>
           </div>
-      </Card>
+      </div>
           {/* <div className="text-center mt-4">
           <div className="flex flex-col">
                   <span className="text-sm" style={{ color: "var(--adm-color-text-secondary)", marginTop: 128}}>

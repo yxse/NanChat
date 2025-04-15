@@ -226,7 +226,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
             <div className="flex flex-col ml-3 justify-center">
               <div>{network.name}
               {
-                hidePrice &&
+                !hidePrice &&
                 <span className="text-xs ml-1" style={{ color: "var(--adm-color-text-secondary)" }}>
                 {ticker}
               </span>
