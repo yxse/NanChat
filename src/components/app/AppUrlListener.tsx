@@ -134,16 +134,9 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   // focus window
   // window.focus();
   let seed = await getSeed();
-  let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
-  activeAddresses = JSON.parse(activeAddresses);
-  const index = activeAddresses.findIndex((address) => address === event.notification.data.toAccount);
-  if (index === -1) {
-    return; // do not show notification if address is not active
-  }
-
-  let accounts = wallet.legacyAccounts(seed.seed, index, index + 1);
+  
+  
   seed = null; // remove seed from memory
-  let activeAccount = accounts[0].address;
   let message = event.notification.data.message;
   let idInt = event.notification.data.idInt;
   let idMessage = event.notification.data.idMessage;
@@ -152,15 +145,22 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let toAccount = event.notification.data.toAccount;
   // let title = event.notification.data.aps.alert.title;
   let title = event.notification.data.title;
-  let targetAccount = fromAccount === activeAccount ? message.toAccount : fromAccount;
+  let targetAccount = fromAccount;
   let isGroupMessage = event.notification.data.type === "group";
   // console.log("decryption", message, targetAccount, accounts[0].privateKey);
   
   
   
-  let decryptionKey = accounts[0].privateKey;
+  let decryptionKey
   if (isGroupMessage) {
     decryptionKey = await getSharedKey(chatId, toAccount, decryptionKey);
+  }
+  else {
+    let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
+    activeAddresses = JSON.parse(activeAddresses);
+    const index = activeAddresses.findIndex((address) => address === event.notification.data.toAccount);
+    let accounts = wallet.legacyAccounts(seed.seed, index, index + 1);
+    decryptionKey = accounts[0].privateKey;
   }
   let decrypted = message
   try {
