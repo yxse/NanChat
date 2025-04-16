@@ -194,13 +194,13 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
           amount: megaToRaw(selectedFrom, amount),
         })
         await wallet.wallets[selectedFrom].send(data);
-        await mutate((key) => key.startsWith("history-" + selectedFrom) || key.startsWith("balance-" + selectedFrom));
+        await mutate((key) => key?.startsWith("history-" + selectedFrom) || key?.startsWith("balance-" + selectedFrom));
         onSuccess && onSuccess();
         await new Promise((resolve) => setTimeout(resolve, 1000));
         mutate("balance-" + selectedTo);
         mutate(`${getOrder}${exchange.id}`);
-        await mutate((key) => key.startsWith("history-" + selectedFrom) || key.startsWith("balance-" + selectedFrom));
-        await mutate((key) => key.startsWith("history-" + selectedTo) || key.startsWith("balance-" + selectedTo));
+        await mutate((key) => key?.startsWith("history-" + selectedFrom) || key?.startsWith("balance-" + selectedFrom));
+        await mutate((key) => key?.startsWith("history-" + selectedTo) || key?.startsWith("balance-" + selectedTo));
 
       }
       else {

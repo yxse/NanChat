@@ -72,7 +72,49 @@ const AppUrlListener: React.FC<any> = () => {
     }, []);
     useEffect(() => {
 
-      
+      FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
+        console.log("notificationActionPerformed: ", { event });
+        Toast.show({
+          content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
+        })
+        navigate('/') // to prevent bug when navigating back
+        navigate(event.notification.data.url);
+      }
+      );
+      FirebaseMessaging.addListener("notificationReceived", (event) => {
+        console.log("notificationReceived: ", { event });
+        // focus window
+        // window.focus();
+        if (window.location.pathname === event.notification.data.url) {
+          return // prevent showing notification if already on the page
+        }
+        if (!event.notification.body?.includes("New message")) { // only show toast notification for message since already showing toast when receiving crypto
+          return 
+        }
+        Toast.show({
+          position: "top",
+          content: <div>
+            {/* <div><b>{event.notification.data.url}</b></div> */}
+            {/* <div><b>{window.location.pathname }</b></div> */}
+            <div><b>{event.notification.title}</b></div>
+            <div>{event.notification.body}</div>
+          </div>
+        })
+        
+        
+        // navigate(event.notification.data.url);
+      });
+      if (Capacitor.getPlatform() === "web") {
+        // return
+        console.log("adding service worker web event listenerw");
+        navigator.serviceWorker.addEventListener("message", (event: any) => {
+          console.log("serviceWorker message: ", { event });
+          if (event.data.messageType === "notification-clicked" && event.data.data.url) {
+            navigate(event.data.data.url); // navigate to url only when clicked
+          }
+        });
+      }
+  
 FirebaseMessaging.addListener("notificationReceived", async (event) => {
   try {
     
@@ -92,7 +134,14 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   // focus window
   // window.focus();
   let seed = await getSeed();
-  let accounts = wallet.legacyAccounts(seed.seed, 0, 1);
+  let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
+  activeAddresses = JSON.parse(activeAddresses);
+  const index = activeAddresses.findIndex((address) => address === event.notification.data.toAccount);
+  if (index === -1) {
+    return; // do not show notification if address is not active
+  }
+
+  let accounts = wallet.legacyAccounts(seed.seed, index, index + 1);
   seed = null; // remove seed from memory
   let activeAccount = accounts[0].address;
   let message = event.notification.data.message;

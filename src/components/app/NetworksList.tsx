@@ -383,10 +383,25 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   
   const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker));
   const filteredActiveCustomNetworks = activeCustomNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker));
+
+  // order network based on .rank if exists
+  const sortedActiveMainNetworks = filteredActiveMainNetworks.sort((a, b) => {
+    if (networks[a].rank && networks[b].rank) {
+      return networks[a].rank - networks[b].rank;
+    }
+    else if (networks[a].rank) {
+      return -1;
+    }
+    else if (networks[b].rank) {
+      return 1;
+    }
+    return 0
+  });
+  
   return (<>
     <List >
 
-      {filteredActiveMainNetworks.map((ticker) => (
+      {sortedActiveMainNetworks.map((ticker) => (
         <List.Item
         className={selectedTicker === ticker ? "active" : ""}
         >

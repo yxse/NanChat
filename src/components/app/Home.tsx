@@ -218,65 +218,7 @@ export default function Home({ }) {
   useEffect(() => {
     // todo add modal
     askPermission();
-    FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
-      console.log("notificationActionPerformed: ", { event });
-      Toast.show({
-        content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
-      })
-      navigate('/') // to prevent bug when navigating back
-      navigate(event.notification.data.url);
-    }
-    );
-    FirebaseMessaging.addListener("notificationReceived", (event) => {
-      console.log("notificationReceived: ", { event });
-      // focus window
-      // window.focus();
-      if (window.location.pathname === event.notification.data.url) {
-        return // prevent showing notification if already on the page
-      }
-      if (!event.notification.body?.includes("New message")) { // only show toast notification for message since already showing toast when receiving crypto
-        return 
-      }
-      Toast.show({
-        position: "top",
-        content: <div>
-          {/* <div><b>{event.notification.data.url}</b></div> */}
-          {/* <div><b>{window.location.pathname }</b></div> */}
-          <div><b>{event.notification.title}</b></div>
-          <div>{event.notification.body}</div>
-        </div>
-      })
-      
-      // mutate chats to update the unread count, this do not scale well
-      // to optimize, we could use a /unread endpoint or mutate locally using notification data (requires chat id and encrypted message in the notif) or paginate the /chats
-      mutate("/chats")
-      
-      // navigate(event.notification.data.url);
-    });
-    if (Capacitor.getPlatform() === "web") {
-      // return
-      console.log("adding service worker web event listenerw");
-      navigator.serviceWorker.addEventListener("message", (event: any) => {
-        console.log("serviceWorker message: ", { event });
-        if (event.data.messageType === "notification-clicked" && event.data.data.url) {
-          navigate(event.data.data.url); // navigate to url only when clicked
-        }
-        // const notification = new Notification(event.data.notification.title, {
-        //   body: event.data.notification.body,
-        // });
-
-        // notification.onclick = (eventClicked => {
-          // console.log("notification clicked: ", { eventClicked, event });
-          // navigate(event.data.data.url);
-          // event.data.notification.close()
-          // focuse
-          // window.focus();
-
-          // navigate(event.data.data.url);
-        // })
-      });
-    }
-
+  
   }, [])
   const nanftsImage = [
     "https://i.nanwallet.com/unsafe/plain/https://images.nanswap.com/fb1f98ba-2d7d-49e3-8e85-a8f76bffb74b@webp", // nyano
