@@ -123,7 +123,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   console.log("notificationReceived: ", { event });
   let chatId = event.notification.data.chatId;
   let url = event.notification.data.url;
-  if (url == null || location.pathname === "/" && isActive) {
+  if (url == null || ((location.pathname === "/chat" || location.pathname === "/") && isActive)) {
     return
   }
   console.log("path", location.pathname, url);
@@ -137,11 +137,12 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let seed = await getSeed();
   
   
-  seed = null; // remove seed from memory
+  
   let message = event.notification.data.message;
   let idInt = event.notification.data.idInt;
   let idMessage = event.notification.data.idMessage;
   let fromAccount = event.notification.data.fromAccount;
+  let sharedAccount = event.notification.data.sharedAccount;
   let fromAccountName = event.notification.data.fromAccountName;
   let toAccount = event.notification.data.toAccount;
   // let title = event.notification.data.aps.alert.title;
@@ -150,20 +151,20 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let isGroupMessage = event.notification.data.type === "group";
   // console.log("decryption", message, targetAccount, accounts[0].privateKey);
   
-  
-  
-  let decryptionKey
+  let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
+  activeAddresses = JSON.parse(activeAddresses);
+  const index = activeAddresses?.findIndex((address) => address === toAccount);
+  let accounts = wallet.legacyAccounts(seed.seed, index, index + 1);
+  let decryptionKey = accounts[0].privateKey;
+  console.log("decryptionKey", decryptionKey);
+  console.log("accounts", accounts);
+  console.log("activeAddresses", activeAddresses);
+  console.log("index", index);
+  console.log("targetAccount", targetAccount);
   if (isGroupMessage) {
-    decryptionKey = await getSharedKey(chatId, toAccount, decryptionKey);
+    decryptionKey = await getSharedKey(chatId, sharedAccount, decryptionKey);
   }
-  else {
-    let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
-    activeAddresses = JSON.parse(activeAddresses);
-    const index = activeAddresses.findIndex((address) => address === event.notification.data.toAccount);
-    let accounts = wallet.legacyAccounts(seed.seed, index, index + 1);
-    decryptionKey = accounts[0].privateKey;
-    accounts = null; 
-  }
+
   let decrypted = message
   try {
     decrypted = box.decrypt(message, targetAccount, decryptionKey);
@@ -175,7 +176,8 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   }
   
   decryptionKey = null; 
-
+  accounts = null;
+  seed = null; // remove seed from memory
   console.log("decrypted: ", decrypted);
     // localStorage.setItem(`message-${message._id}`, decrypted);
     LocalNotifications.schedule({
@@ -195,6 +197,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
         })
 
       } catch (error) {
+        console.log(error.stack);
         Toast.show({content: error.message, icon: 'fail'})
       }
 
@@ -205,7 +208,8 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
         console.log("localNotificationActionPerformed", notification);
         console.log("extra", extra);
         // navigate to the url
-        navigate(extra.url, {replace: true});
+        navigate("/");
+        navigate(extra.url);
         LocalNotifications.getDeliveredNotifications().then((notifications) => {
           // remove notification of the chat
           const notificationsChat = notifications.notifications.filter((notification) => notification.extra?.url === extra.url);
