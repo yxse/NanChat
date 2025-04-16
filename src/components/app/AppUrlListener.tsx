@@ -116,18 +116,19 @@ const AppUrlListener: React.FC<any> = () => {
       }
   
 FirebaseMessaging.addListener("notificationReceived", async (event) => {
+  
   try {
-    
 
+    let {isActive} = await App.getState();
   console.log("notificationReceived: ", { event });
   let chatId = event.notification.data.chatId;
   let url = event.notification.data.url;
-  if (url == null || location.pathname === "/") {
+  if (url == null || location.pathname === "/" && isActive) {
     return
   }
   console.log("path", location.pathname, url);
 
-  if (location.pathname === url) {
+  if (location.pathname === url && isActive) {
     return; // do not show notification if the user is already in the chat
   }
   // return
