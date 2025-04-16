@@ -98,8 +98,9 @@ const ChatSocket: React.FC = () => {
                     if (message.fromAccount == activeAccount){
                         // mutate only status if message is from ourself
                         // find message with message.height
-                        const messageIndex = currentPages[0].findIndex(m => m.height === message.height);
-                        if (messageIndex !== -1) {
+                        const messageIndex = currentPages?.[0].findIndex(m => m.height === message.height);                           
+                        //messageIndex can be undefined if new private chat
+                        if (messageIndex !== -1 && messageIndex !== undefined) {
                             const newPages = [...(currentPages || [])];
                             newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent"};
                             return newPages;

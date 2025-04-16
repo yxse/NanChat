@@ -32,6 +32,7 @@ import { ImportFromICloud } from "./ImportFromICloud";
 import { MnemonicInput } from "./MnemonicInput";
 import { PasswordImport } from "./PasswordImport";
 import { LedgerSelect } from "../Start";
+import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 
 export default function ImportPhrase({
   setW,
@@ -51,7 +52,7 @@ export default function ImportPhrase({
   const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
   const [importFileVisible, setImportFileVisible] = useState<boolean>(false)
   const [encryptedSeed, setEncryptedSeed] = useState<string>("")
-
+  const {isMobile} = useWindowDimensions()
 
   const initializeWalletsAndAuth = async (seed: string) => {
     for (let ticker of Object.keys(networks)) {
@@ -81,34 +82,20 @@ export default function ImportPhrase({
 
   return (
     <>
-      <div className="step-p-nav relative">
-        <div
-          className="cursor-pointer text-slate-400 hover:text-slate-200"
-          role="button"
-          onClick={() => setW(0)}
-        >
-          <IoArrowBack size={20} />
-        </div>
-        <div className="step-p-steps select-none">
-          <div className="step-dot mr-[10px]" />
-          <div className="step-dot mr-[10px] !bg-slate-700" />
-          <div className="step-dot !bg-slate-700" />
-        </div>
-      </div>
-<Card
-      style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20, overflow: "auto"}}
+       <NavBar
+                                  onBack={() => setW(0)}
+                                  // onBack={() => navigate('/me')}
+                          className="app-navbar "
+                          backArrow={true}>
+                            Import an account
+                          </NavBar>
+<div
+      style={{width: isMobile ? "100%" : 500, margin: "auto", borderRadius: 10, marginTop: 20, overflow: "auto"}}
         
       >
       <div className="">
-        <div className="">
-          <p className="text-2xl">Secret Recovery Phrase</p>
-          <p className="">
-            Import an existing wallet with your 24-word secret recovery phrase.
-          </p>
-        </div>
-
-
         <div className="justify-end items-center m-3 align-center">
+          
         <MnemonicInput
                 mode="import"
                 onImport={async (mnemonicInputs: string[]) => {
@@ -126,7 +113,6 @@ export default function ImportPhrase({
                   await initializeWalletsAndAuth(seed);
                 }}
               />
-          
           <Divider>
             Or
           </Divider>
@@ -168,7 +154,7 @@ export default function ImportPhrase({
            
       
       </div>
-      </Card>
+      </div>
       
       <ToastContainer
         position="top-center"

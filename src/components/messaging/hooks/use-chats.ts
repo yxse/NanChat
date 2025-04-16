@@ -69,7 +69,7 @@ export function useChats(chatId?: string): UseChatsReturn {
 
   useEffect(() => {
     const isFirstLoad = !sessionStorage.getItem('app-initialized');
-    mutateChats() // fetch all chats on first load, then chats should be updated by socket
+    mutateChats() // to force refresh
     if (isFirstLoad) { 
       mutateChats() // fetch all chats on first load, then chats should be updated by socket
       sessionStorage.setItem('app-initialized', 'true');

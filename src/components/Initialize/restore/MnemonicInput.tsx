@@ -58,29 +58,34 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
 
   return (
     <div>
+      <Form 
+     
+                className="form-mnemonic"
+                mode='card'>
         <Form.Item
-          label="Recovery Phrase">
+          label="">
         <TextArea
-        style={{backgroundColor: "var(--main-background-color)", padding: 8, borderRadius: 6}}
-          className="mt-4"
+        style={{ padding: 8, borderRadius: 6}}
+          className=""
           autoSize
           value={mnemonicInputs.join(" ")}
           onChange={(v) => {
             setMnemonicInputs(v.split(" "));
             validateMnemonic(v.split(" "));
           }}
-          placeholder="Enter your 24 word recovery phrase or a 64/128 hex characters seed" />
+          placeholder="Enter your 24 words recovery phrase or a 64/128 hex characters seed" />
           </Form.Item>
-        <Button
-          size="large"
-          color={"primary"}
-          disabled={!canContinue}
-          style={{width: "100%"}}
-          shape="rounded"
-          onClick={() => onImport(mnemonicInputs)}
-          >
-            {mode === "import" ? "Import Wallet" : "Verify Secret Phrase"}
-          </Button>
+          </Form>
+          <Button
+      className='w-full mt-5'
+        size="large"
+        color={"primary"}
+        disabled={!canContinue}
+        shape="rounded"
+        onClick={() => onImport(mnemonicInputs)}
+        >
+          {mode === "import" ? "Import Account" : "Verify Secret Phrase"}
+        </Button>
     
     <div className="justify-items-center m-3" style={{maxHeight: 200, overflowY: 'auto'}}>
       <div className="bg-transparent w-full scroll-auto overflow-y-auto rounded-md">

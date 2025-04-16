@@ -8,7 +8,8 @@ export const networks = {
     logo: "https://bucket.nanwallet.com/logo/XNO.svg",
     defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq", 
     rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/XNO",
-    icon: "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D"
+    icon: "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D",
+    rank: 1,
   },
   // "BTC-NANSWAP": {
   //   name: "NanBitcoin",

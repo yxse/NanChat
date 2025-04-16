@@ -57,7 +57,7 @@ const authCanceled = ({setRetry}) => {
       })
 }
 
-export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description, title = "Enter your PIN", location }) => {
+export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description, title = "Enter your PIN", location, onCancel }) => {
     // const [confirmationMethod, setConfirmationMethod] = useLocalStorageState("confirmation-method", { defaultValue: Capacitor.isNativePlatform() ? "enabled" : "none" });
     const confirmationMethod = localStorage.getItem("confirmation-method")
     const [locked, setLocked] = useState(false)
@@ -95,6 +95,9 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
                     console.error(error)
                     setVisible(false)
                     Toast.show({ icon: "fail", content: error.message })
+                    if (onCancel) {
+                        onCancel()
+                    }
                     if (location === "launch") {
                         authCanceled({setRetry: setRetry})
                         setVisible(true)

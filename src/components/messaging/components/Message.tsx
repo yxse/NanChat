@@ -242,7 +242,7 @@ export const WelcomeMessage = ({}) => {
 
 // Feel free to let us know if you have any problems or suggestions.
         type="private"
-        decrypted={`Welcome to NanChat! Here are some features that you can explore :
+        decrypted={`Welcome to NanChat! You can now send money and messages instantly all over the world, always with 0 fees. Here are some other features that you can explore :
 `}
         isFromCurrentUser={false}
         isPreviousMessageFromSameAccount={false}
@@ -252,15 +252,7 @@ export const WelcomeMessage = ({}) => {
       <List mode="card"
         style={{ }}
       >
-        <List.Item
-        prefix={<AddCircleOutline />}
-        // arrowIcon={<AddCircleOutline style={{width: 32, height: 32, cursor: 'pointer'}}  />}
-         onClick={() => {
-          emit('open-input-plus', {open: true})
-        }}>
-
-          Transfer Nano
-        </List.Item>
+        
         <List.Item
         prefix={<AiOutlineWallet />}
           onClick={() => {
@@ -270,6 +262,15 @@ export const WelcomeMessage = ({}) => {
 
           Nano Wallet
         </List.Item>
+        {/* <List.Item
+        prefix={<AddCircleOutline />}
+        // arrowIcon={<AddCircleOutline style={{width: 32, height: 32, cursor: 'pointer'}}  />}
+         onClick={() => {
+          emit('open-input-plus', {open: true})
+        }}>
+
+          Send Files and Nano
+        </List.Item> */}
                 <List.Item
                 prefix={<CompassOutline />}
                  onClick={() => {
@@ -284,7 +285,7 @@ export const WelcomeMessage = ({}) => {
                   navigate("/contacts")
                 }}>
 
-          Add Nano Contacts
+          Import Nano Contacts
                 </List.Item>
         
       </List>

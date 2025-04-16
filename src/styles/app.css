@@ -803,3 +803,7 @@ input[type=number]::-webkit-outer-spin-button {
   background-color: var(--adm-color-background);
   /* background-color: #1e1e1e; */
 }
+
+.form-mnemonic > .adm-list-card{
+  margin: 0px 0px 0px 0px;
+}

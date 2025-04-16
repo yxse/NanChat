@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ImageUploader, Toast, Button, Avatar, Divider } from 'antd-mobile';
-import { UserOutline } from 'antd-mobile-icons';
+import { AddCircleOutline, CameraOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
 import { WalletContext } from '../../../Popup';
 import { convertAddress } from '../../../../utils/format';
 import useSWR from 'swr';
@@ -9,6 +9,13 @@ import { accountIconUrl } from '../../../app/Home';
 import { networks } from '../../../../utils/networks';
 import { ArtImages } from '../../../app/Art';
 import { getChatToken } from '../../../../utils/storage';
+import { AiOutlinePlus } from 'react-icons/ai';
+import { NoAvatar } from '../icons/NoAvatar';
+import ReusableImageUploader from './reusable-image-uploader';
+
+
+
+
 
 const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
     const { wallet } = useContext(WalletContext)
@@ -110,53 +117,36 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
   let allIcons = Object.keys(networks).filter((network) => networks[network].icon != null);
   console.log(allIcons);  
 
-
+  const handleProfilePictureSuccess = (data) => {
+    setCurrentAvatar(data.url);
+    onUploadSuccess?.(data.url);
+    mutate();
+  };
 
   return (
     <div className="flex flex-col items-center space-y-4 p-4">
       {/* Current Avatar Display */}
       <div className="mb-4">
+        {
+          currentAvatar == null ?
+          <NoAvatar width='96px' height='96px' />
+          : 
           <Avatar
-            src={currentAvatar}
-            className="w-24 h-24"
-            fallback={<UserOutline className="w-24 h-12" />}
+          src={currentAvatar}
+          style={{ width: 96, height: 96 }}
+          fallback={<NoAvatar />}
           />
+        }
       </div>
 
       {/* Upload Button */}
-      <ImageUploader
-      deletable={false}
-        value={fileList}
-        onChange={(files) => {
-            // keep the latest file
-            if (files.length > 1)
-                setFileList([files[files.length - 1]]);
-            else
-                setFileList(files);
-        }}
-        maxCount={2}
-        showUpload={true}
-        upload={handleUpload}
-        onDelete={() => setCurrentAvatar(null)}
-        renderItem={() => null}
-      >
-        <div className="w-full px-4">
-          <Button
-            block
-            color="primary"
-            loading={loading}
-            disabled={loading}
-          >
-            {loading ? 'Uploading...' : 'Upload Profile Picture'}
-          </Button>
-        </div>
-      </ImageUploader>
-
-      {/* Instructions */}
-      <div className="text-center text-gray-500 text-sm mt-2">
-        <p>Maximum file size: 5MB</p>
-        <p>Supported formats: JPG, PNG, GIF</p>
-      </div>
+      <ReusableImageUploader
+        endpoint="/upload/upload-profile-picture"
+        additionalFormData={{ account: activeAccount }}
+        onUploadSuccess={handleProfilePictureSuccess}
+        buttonText="Select Profile Picture"
+        loadingText="Uploading..."
+      />
       <Divider />
       Or choose from: <br />
       <div className="flex flex-row space-x-4 items-center">

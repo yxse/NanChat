@@ -274,14 +274,14 @@ export default function Start({
 }) {
   const {dispatch} = useWallet()
   // const navigate = useNavigate();
-  useEffect(() => {
-    const generatedWallet = walletLib.generateLegacy()
-    for (let ticker of Object.keys(networks)) {
-      dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
-    }
-    setSeed(generatedWallet.seed, false)
+  // useEffect(() => {
+  //   const generatedWallet = walletLib.generateLegacy()
+  //   for (let ticker of Object.keys(networks)) {
+  //     dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
+  //   }
+  //   setSeed(generatedWallet.seed, false)
        
-  }, []);
+  // }, []);
   // const navigate = useNavigate();
   return (
     <div className="min-h-[554px]">
@@ -335,14 +335,15 @@ export default function Start({
                 style:ImpactStyle.Medium
               });
               // setW(1)
-              setWalletState("unlocked");
-              onCreated()
+              // setWalletState("unlocked");
+              // onCreated()
+              setW(6)
               // navigate("/profile/name");
             }}
             className="w-full mt-4"
             size="large"
             color="primary">
-            Create a new account
+            Create account
           </Button>
           <Button
             shape="rounded"
@@ -355,7 +356,7 @@ export default function Start({
             className="w-full mt-4 mb-2"
             size="large"
             color="default">
-            I already have a account
+            Import account
           </Button>
           {/* <div
               className={`${theme == "light" &&
