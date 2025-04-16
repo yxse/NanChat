@@ -161,6 +161,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
     const index = activeAddresses.findIndex((address) => address === event.notification.data.toAccount);
     let accounts = wallet.legacyAccounts(seed.seed, index, index + 1);
     decryptionKey = accounts[0].privateKey;
+    accounts = null; 
   }
   let decrypted = message
   try {
@@ -171,7 +172,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
     console.error('Message decryption failed:', error); // could happen for sticker or special message
 
   }
-  accounts = null; 
+  
   decryptionKey = null; 
 
   console.log("decrypted: ", decrypted);
