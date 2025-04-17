@@ -26,6 +26,7 @@ import ChatInputAdd from "./ChatInputAdd";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
+import { PiStickerFill, PiStickerLight } from "react-icons/pi";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -288,8 +289,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
 
     // const iconRisibank =  <img style={{filter: 'grayscale(0)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
     // const iconRisibankGray =  <img style={{filter: 'grayscale(1)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
-    const iconRisibankGray =  <SmileOutline style={{width: 32, height: 32}} />
-    const iconRisibank =  <SmileFill style={{width: 32, height: 32}} />
+    const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} />
+    const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} />
 
 
     // console.log("message input render")
