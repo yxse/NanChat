@@ -104,7 +104,65 @@ export function CopyToClipboard({ text, hideCopyIcon = false, textToDisplay }: {
     </div>
   );
 }
+export const showLogoutModal = async () => {
+  // First modal (warning modal)
+  Modal.show({
+    closeOnMaskClick: true,
+    title: (
+      <div 
+        className="text-center flex items-center justify-center gap-2"
+        style={{color: 'var(--adm-color-warning)', maxWidth: 300}}
+      >
+        <ExclamationTriangleOutline style={{minWidth: 24}} />
+        Make sure to have a backup of your recovery phrase. You will not be able to recover your funds and accounts without it.
+      </div>
+    ),
+    content: null,
+    closeOnAction: true,
+    actions: [
+      {
+        key: 'continue',
+        text: 'Continue',
+        danger: true,
+        onClick: () => {
+          // Second confirmation modal
+          const confirmModal = Modal.show({
+            title: null,
+            closeOnAction: true,
+            closeOnMaskClick: true,
+            actions: [
+              {
+                key: 'logout',
+                text: <div className="flex items-center gap-2 justify-center">
+                <ExclamationCircleOutline />
+                Remove Secret Phrase and Log Out
+              </div>,
+                danger: true,
+                onClick: async () => {
+                  await removeSeed();
+                  window.location.href = "/";
+                }
+              },
+              {
+                key: 'cancel',
+                text: 'Cancel'
+              }
+            ]
+          });
+        }
+      },
+      {
+        key: 'cancel',
+        text: 'Cancel'
+      }
+    ]
+  });
+};
 export const showLogoutSheet = async () => {
+  if (window.innerWidth > 1200) {
+    showLogoutModal()
+    return
+  }
   let actionSheet1 = showActionSheet({
     actions: [
       { key: '1',
@@ -152,7 +210,7 @@ export const showLogoutSheet = async () => {
     className="text-center text-xl flex items-center justify-center gap-2"
     style={{color: 'var(--adm-color-warning)'}}
     ><ExclamationTriangleOutline fontSize={24} style={{minWidth: 24}} />
-    Make sure you have saved the secret recovery phrase of your wallet. You will not be able to recover your funds without it.
+    Make sure to have a backup of your recovery phrase. You will not be able to recover your funds and accounts without it.
     </div>
   })
 }
