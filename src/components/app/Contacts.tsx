@@ -540,7 +540,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
         <div>
             <NavBar
                 className="app-navbar "
-                onBack={() => window.history.back()}
+                onBack={() => navigate('/me')}
                 // right={<Popover.Menu
                 //     trigger='click'
                 //     mode='dark'

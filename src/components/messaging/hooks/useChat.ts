@@ -1,9 +1,12 @@
 import useSWR, { } from 'swr';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from '../../Popup';
 import { useChats } from './use-chats';
+import { Badge } from '@capawesome/capacitor-badge';
+import { SeedVerifiedBadge } from '../utils';
+import useLocalStorageState from 'use-local-storage-state';
 
 
 const sendMessage = async (chatId, content) => {
@@ -16,15 +19,36 @@ const sendMessage = async (chatId, content) => {
 };
 
 export function useUnreadCount() {
+  const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const {chats} = useChats();
   const {activeAccount} = useWallet()
   if (chats === undefined || chats?.error) return null;
-  return chats?.reduce((acc, chat) => {
+  const unread = chats?.reduce((acc, chat) => {
     if (chat.lastMessageFrom !== activeAccount) {
       return acc + chat.unreadCount;
     }
     return acc;
-  }, 0) || null; // null to hide the badge
+  }, 0)
+
+  useEffect(() => {
+    // update badge count
+    let total = unread
+    if (!seedVerified) {
+      total = unread + 1; // if seed not verified, add 1 to badge count
+    }
+    if (total <= 0){
+      Badge.clear().catch((error) => {
+        console.error('Error clearing badge count:', error);
+      });
+      return;
+    }
+    Badge.set({
+      count: total,
+    }).catch((error) => {
+      console.error('Error setting badge count:', error);
+    });
+  }, [unread, seedVerified]);
+  return unread || null; // null to hide the badge
 }
 const LIMIT = 50;
 // Custom hook for chat functionality

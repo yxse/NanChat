@@ -65,7 +65,7 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
         <Form.Item
           label="">
         <TextArea
-        style={{ padding: 8, borderRadius: 6}}
+        style={{ padding: 8, borderRadius: 6, backgroundColor: mode !== "import" ? "var(--main-background-color)" : "unset" }}
           className=""
           autoSize
           value={mnemonicInputs.join(" ")}

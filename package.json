@@ -41,6 +41,7 @@
     "@capacitor/share": "6",
     "@capacitor/splash-screen": "^6.0.3",
     "@capacitor/status-bar": "6",
+    "@capawesome/capacitor-badge": "6",
     "@capgo/capacitor-data-storage-sqlite": "^6.0.59",
     "@capgo/inappbrowser": "6",
     "@emotion/react": "^11.11.4",
