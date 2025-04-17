@@ -130,6 +130,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
     return (
         <>
             <ResponsivePopup
+            bodyClassName="disable-keyboard-resize"
             key={"newChatPopup"}
                 // showCloseButton
                 visible={visible}
@@ -241,6 +242,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
     
     const accountsToInvite = contactsNotOnNanChat
         .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
+    const contactsOnNanChatFiltered = contactsOnNanChat?.filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
 
     return (
            <InfiniteScroll
@@ -266,7 +268,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                         onClick={(account) => {
                             setVisible(false);
                         }}
-                        accounts={contactsOnNanChat}
+                        accounts={contactsOnNanChatFiltered}
                         badgeColor={"gray"} />
 
 {
