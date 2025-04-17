@@ -22,10 +22,7 @@ import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import ProfileName from "./profile/ProfileName";
 import { useChats } from "../hooks/use-chats";
 
-const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, messageInputRef }) => {
-    const {
-        account
-    } = useParams();
+const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, messageInputRef, account }) => {
     const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
     const [lastEmitTime, setLastEmitTime] = useState(0);
     const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);

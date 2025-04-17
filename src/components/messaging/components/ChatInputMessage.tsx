@@ -63,7 +63,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     let {
         account
     } = useParams();
-    if (account === undefined && defaultChatId !== undefined) {
+    if (defaultChatId !== undefined) {
       account = defaultChatId;
     }
     const [stickerVisible, setStickerVisible] = useState(false);
@@ -312,6 +312,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         onSubmit={sendMessage} className=" px-4">
        
             <EmitTyping 
+            account={account}
             messageInputRef={messageInputRef}
             newMessage={newMessage} />
             <div
