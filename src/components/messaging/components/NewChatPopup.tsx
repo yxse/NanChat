@@ -18,6 +18,7 @@ import { MdOutlineCircle } from 'react-icons/md';
 import { defaultContacts } from '../utils';
 import { useContacts } from './contacts/ImportContactsFromShare';
 import { useInviteFriends } from '../hooks/use-invite-friends';
+import { ResponsivePopup } from '../../Settings';
 
 
 
@@ -119,30 +120,13 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
     const { isMobile } = useWindowDimensions()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
-    const {wallet, activeAccount} = useWallet( )
     const [searchText, setSearchText] = useState('')
-    const {contacts, contactsOnNanChat, contactsNotOnNanChat} = useContacts()
+    
     const [selectedAccounts, setSelectedAccounts] = useState(alreadySelected || [])
-    const [popupImportContactsVisible, setPopupImportContactsVisible] = useState(false);
+    
     const navigate = useNavigate();
 
-    const getKey = (pageIndex, previousPageData) => {
-        // console.log({pageIndex})
-        // console.log({previousPageData})
-        if (previousPageData && !previousPageData.length) return null // reached the end
-        return `/accounts?page=${pageIndex}${searchText ? `&search=${searchText}` : ''}`
-    }
-    const { data: pages, size, setSize, isLoading, isValidating} = useSWRInfinite<string[]>(
-        getKey, fetcherMessages, {keepPreviousData: true});
-    if (!pages) {
-        return <DotLoading />
-    }
-    const all = pages ? pages.flat() : []
-    // console.log({pages})
-    // console.log({all})
-    // console.log({size})
-    const accountsToInvite = contactsNotOnNanChat
-        .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
+   
     return (
         <>
             <ResponsivePopup
@@ -215,7 +199,50 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                     </List.Item>
                     </List>
                 <div style={{  }}>
-                        <InfiniteScroll
+                        <InfiniteScrollAccounts 
+                        visible={visible}
+                            setVisible={setVisible}
+                            searchText={searchText}
+                            accounts={accounts}
+                            alreadySelected={alreadySelected}
+                            selectedAccounts={selectedAccounts}
+                            setSelectedAccounts={setSelectedAccounts}
+                            hideImportContacts={hideImportContacts}
+                            onClick={(account) => {
+                                onAccountSelect && onAccountSelect(account)
+                                setVisible(false);
+                            } }
+                        />
+                </div>
+            </ResponsivePopup>
+        </>
+    )
+}
+
+const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, setSelectedAccounts, hideImportContacts, searchText, visible, setVisible }) => {
+    const [popupImportContactsVisible, setPopupImportContactsVisible] = useState(false);
+    const getKey = (pageIndex, previousPageData) => {
+        if (!visible) return null
+        // console.log({pageIndex})
+        // console.log({previousPageData})
+        if (previousPageData && !previousPageData.length) return null // reached the end
+        return `/accounts?page=${pageIndex}${searchText ? `&search=${searchText}` : ''}`
+    }
+    const { data: pages, size, setSize, isLoading, isValidating} = useSWRInfinite<string[]>(
+        getKey, fetcherMessages, {keepPreviousData: true});
+    if (!pages) {
+        return <DotLoading />
+    }
+    const all = pages ? pages.flat() : []
+    // console.log({pages})
+    // console.log({all})
+    // console.log({size})
+    const {contacts, contactsOnNanChat, contactsNotOnNanChat} = useContacts()
+    const accountsToInvite = contactsNotOnNanChat
+        .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
+
+    return (
+           <InfiniteScroll
                         height={'calc(90vh - 57px - 44px - 8px - 50px)'}
                             dataLength={all?.length}
                             next={() => {
@@ -305,9 +332,6 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                                 accounts={all} badgeColor="gray" />
                             }
                         </InfiniteScroll>
-                </div>
-            </ResponsivePopup>
-        </>
     )
 }
 

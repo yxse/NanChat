@@ -26,6 +26,10 @@ export async function decryptGroupMessage(content, chatId, sharedAccount, sender
   }
 
 export async function getSharedKey(chatId: string, sharedAccount: string, activeAccountPk: string) {
+    if (sharedAccount == null){
+        console.error("sharedAccount is null", chatId);
+        return null;
+    }
     const url = `/sharedKey/?chatId=${chatId}&sharedAccount=${sharedAccount}`;
     let sharedKey
     await initSqlStore();

@@ -41,12 +41,11 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
-    let participant = names?.find(participant => participant._id !== activeAccount)
+
     const [participantsTyping, setParticipantsTyping] = useState<string[]>([]);
     if (account?.startsWith('nano_')) {
         address = account;
     }
-    const nameOrAccount = participant?.name || formatAddress(address);
 
     useEffect(() => {
         if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
@@ -72,24 +71,25 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     }, []);
 
     useEffect(() => {
-        socket.on('typing', (account: string) => {
+        socket.on('typing', (typing) => {
+            const { chatId, account: accountTyping} = typing;
             // setTimeout(() => {
             //     // window.scrollTo(0, document.body.scrollHeight);
             //   }
             //   , 10);
-            console.log('typing', account, address);
-            if (account !== address && chat?.type === 'private') return
+            console.log('typing', chatId, accountTyping, address);
+            if (chatId !== account) return // show typing only for current chat
             setParticipantsTyping(
                 prev => {
-                    if (prev.find(participant => participant.account === account)) {
+                    if (prev.find(participant => participant.account === accountTyping)) {
                         return prev.map(participant => {
-                            if (participant.account === account) {
-                                return { account, time: Date.now() }
+                            if (participant.account === accountTyping) {
+                                return { account: accountTyping, time: Date.now() }
                             }
                             return participant;
                         });
                     }
-                    return [...prev, { account, time: Date.now() }];
+                    return [...prev, { account: accountTyping, time: Date.now() }];
                 }
             );
 
@@ -102,8 +102,9 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
 
         return () => {
             socket.off('typing');
+            setParticipantsTyping([]);
         };
-    }, [address, isKeyboardOpen]);
+    }, [address, isKeyboardOpen, chat, account]);
 
     useEffect(() => {
         socket.on('message', (message: Message) => {
@@ -132,34 +133,13 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
                 // position: 'fixed', bottom: '128px', width: '100%'
                 position: "relative",
             }}
-            className="flex items-center  mb-1">
-            {lastTypingTimeReceived > (dateNow - 4000) ? (
+            className="flex items-center">
                 <div
                     // style={{position: 'fixed', bottom: '128px', width: '100%'}}
                     className="flex items-center gap-2 mb-1"
                 >
-                    {
-                        chat?.type === 'private' ? 
-                        <span>
-                        <TypingDots />
-                        <b>
-                            {
-                                nameOrAccount
-                            }</b> is typing…
-                    </span>
-                    :
                     <AccountsAreTyping participantsTyping={participantsTyping} />
-                }
                 </div>
-            )
-                : <div
-                // style={{height: '21px'}}
-                >
-                    {/* <span><>&nbsp;</></span>  */}
-                    {/* placeholder to prevent content shift on typing */}
-                </div>
-
-            }
         </div>
     )
 };
@@ -171,14 +151,15 @@ const AccountsAreTyping = ({ participantsTyping }) => {
     }
     if (participantsTyping.length > 2) {
         return (
-            <span>
-                    Several people are typing…
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TypingDots /><span>Several people are typing…</span>
+            </div>
         )
     }
     return (
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
             <TypingDots />
+            <span>
             {
                 participantsTyping.map((participant, index) => (
                     <span key={participant.account}>
@@ -188,7 +169,7 @@ const AccountsAreTyping = ({ participantsTyping }) => {
                 ))
             }
 
-            {participantsTyping.length > 1 ? ' are typing…' : ' is typing…'}
+            {participantsTyping.length > 1 ? ' are typing…' : ' is typing…'}</span>
         </div>
     )
 }
@@ -196,10 +177,10 @@ const AccountsAreTyping = ({ participantsTyping }) => {
 const TypingDots = () => {
     return (
         <span style={{ display: 'inline-block' }}>
-            <svg height="25" width="40" className="loader">
-                <circle className="dot" cx="10" cy="20" r="3" style={{ fill: 'grey' }} />
-                <circle className="dot" cx="20" cy="20" r="3" style={{ fill: 'grey' }} />
-                <circle className="dot" cx="30" cy="20" r="3" style={{ fill: 'grey' }} />
+            <svg height="20" width="40" className="loader">
+                <circle className="dot" cx="10" cy="10" r="3" style={{ fill: 'grey' }} />
+                <circle className="dot" cx="20" cy="10" r="3" style={{ fill: 'grey' }} />
+                <circle className="dot" cx="30" cy="10" r="3" style={{ fill: 'grey' }} />
             </svg>
         </span>
     )

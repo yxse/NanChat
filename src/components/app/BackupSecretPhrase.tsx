@@ -291,6 +291,7 @@ function BackupSecretPhrase() {
 
 const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text, wallet, activeAccount }: { setBackupVisible: any, setBackupType: any, setVisible: any }) => {
     // const { activeAccount } = useWallet() // this is not workig in the modal for some reason
+    const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     let seed = wallet?.wallets['XNO']?.seed
     let slicedAccount = activeAccount?.replace('nano_', '').slice(0, 8)
     if (seed == null) {
@@ -353,7 +354,7 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
                                 });
                                 setBackupVisible(false)
                                 setBackupType(null)
-
+                                setSeedVerified(true)
                             }
                             else {
                                 Toast.show({

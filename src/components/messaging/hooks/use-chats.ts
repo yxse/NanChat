@@ -26,17 +26,18 @@ export function useChats(chatId?: string): UseChatsReturn {
       revalidateIfStale: false,
       revalidateOnReconnect: true,
       revalidateOnMount: false,
+      fallbackData: [],
     }
   );
   const chat = chats?.find(chat => chat.id === chatId);
   const profilePictures = {}
-  if (typeof chat !== 'undefined') {
-    for (const chat of chats) {
-      for (const participant of chat.participants) {
-        profilePictures[participant._id] = participant?.profilePicture?.url
-      }
-    }
-  }
+  // if (typeof chat !== 'undefined') {
+  //   for (const chat of chats) {
+  //     for (const participant of chat.participants) {
+  //       profilePictures[participant._id] = participant?.profilePicture?.url
+  //     }
+  //   }
+  // }
   // // Fetch specific chat only if chatId is provided
   // const {
   //   data: chat, 
@@ -56,20 +57,20 @@ export function useChats(chatId?: string): UseChatsReturn {
     }
   }
  }
-  useEffect(() => {
-    if (!chats) return;
+  // useEffect(() => {
+  //   if (!chats) return;
 
-    chats.forEach((updatedChat) => {
-      mutate(`/chat?chatId=${updatedChat.id}`, updatedChat, {revalidate: false});
-    });
-    mutateProfileName(chats)
+  //   chats.forEach((updatedChat) => {
+  //     mutate(`/chat?chatId=${updatedChat.id}`, updatedChat, {revalidate: false});
+  //   });
+  //   mutateProfileName(chats)
     
     
-  }, [chats])
+  // }, [chats])
 
   useEffect(() => {
     const isFirstLoad = !sessionStorage.getItem('app-initialized');
-    mutateChats() // to force refresh
+    // mutateChats() // to force refresh
     if (isFirstLoad) { 
       mutateChats() // fetch all chats on first load, then chats should be updated by socket
       sessionStorage.setItem('app-initialized', 'true');

@@ -77,12 +77,12 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         participant = chat?.participants[0];
     }
     let address = participant?._id;
+    let isNew = false
     if (account?.startsWith('nano_')) {
         address = account;
+        isNew = true;
     }
-    // const { data: names2 } = useSWR<Chat[]>(`/names?accounts=${address}`, fetcherMessages);
-    // const nameOrAccount = names2?.[0]?.name || formatAddress(address);
-    const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(address, fetcherAccount);
+    const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
     const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
     const accountExists = isLoadingNanwalletAccount || nanwalletAccount?.error === undefined;

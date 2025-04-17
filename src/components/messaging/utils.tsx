@@ -111,7 +111,7 @@ export const showAccountQRCode = (me) => {
 
 
 export const SeedVerifiedBadge = ({children, icon = false, count=0}) => {
-  const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
+  const [seedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
 
   if (seedVerified) return children
   if (icon) return (

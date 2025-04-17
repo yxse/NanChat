@@ -26,25 +26,25 @@ import { DateHeader } from "../../app/History";
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import { useChats } from "../hooks/use-chats";
+import ProfileName from "./profile/ProfileName";
 
 const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   const { activeAccount, activeAccountPk } = useWallet();
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
   const { chat, mutateChats, isLoading: isLoadingChat} = useChats(message.chatId);
-  const { data, isLoading } = useSWR(`/names?accounts=${addresses.join(',')}`, fetcherMessages, {
-    dedupingInterval: 60000,
-  });
   const [loadingAccept, setLoadingAccept] = useState(false);
   const [loadingReject, setLoadingReject] = useState(false);
 
-  if (isLoading || isLoadingChat) {
+  if (isLoadingChat) {
     return <DotLoading />;
   }
   if (message.joinRequest.status === "pending") {
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
-        <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>{data?.find((d) => d._id === addresses[0])?.name}</Link>
+        <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
+        <ProfileName address={addresses[0]} />
+        </Link>
            asked to join the chat
           <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}
@@ -106,7 +106,8 @@ const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   return (
     <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
       <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
-       {data?.find((d) => d._id === addresses[0])?.name} </Link>
+      <ProfileName address={addresses[0]} />
+       </Link>
         asked to join the chat
         <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}

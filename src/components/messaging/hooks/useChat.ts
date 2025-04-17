@@ -19,7 +19,7 @@ const sendMessage = async (chatId, content) => {
 };
 
 export function useUnreadCount() {
-  const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
+  const [seedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const {chats} = useChats();
   const {activeAccount} = useWallet()
   if (chats === undefined || chats?.error) return null;
@@ -65,8 +65,7 @@ export const getKey = (pageIndex, previousPageData, chatId) => {
 };
 export function useChat(chatId) {
   // Get messages using infinite loading
-  
-
+  const {mutateChats} = useChats(chatId);
   const {
     data: pages,
     error,
@@ -140,6 +139,22 @@ export function useChat(chatId) {
     setSize(size + 1);
   }, [setSize, size]);
 
+  useEffect(() => {
+    // mutate unreadCount to 0 when chat is opened
+    if (chatId) {
+      mutateChats(currentChats => {
+        const newChats = [...(currentChats || [])];
+        const chatIndex = newChats.findIndex(chat => chat.id === chatId);
+        if (chatIndex !== -1) {
+          const newChat = { ...newChats[chatIndex] };
+          newChat.unreadCount = 0;
+          newChats[chatIndex] = newChat
+        }
+        return newChats;
+      }, false);
+    }
+  }, [pages]);
+    
   // debugger
   const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;
   return {

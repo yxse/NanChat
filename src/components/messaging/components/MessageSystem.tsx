@@ -24,6 +24,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
 import { DateHeader } from "../../app/History";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
+import ProfileName from "./profile/ProfileName";
 
 const MessageSystem: React.FC<{ message }> = ({ message }) => {
   const { activeAccount } = useWallet();
@@ -37,17 +38,15 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
     action = 'created the group';
   }
   
-  const { data, isLoading } = useSWR(`/names?accounts=${addresses?.join(',')}`, fetcherMessages, {
-    dedupingInterval: 60000,
-  });
+  // const { data, isLoading } = useSWR(`/names?accounts=${addresses?.join(',')}`, fetcherMessages, {
+  //   dedupingInterval: 60000,
+  // });
 
-  if (isLoading) {
-    return <DotLoading />;
-  }
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
         <Link to={'/chat/' + addresses?.[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
-          {data?.find((d) => d._id === addresses?.[0])?.name} </Link> {action} {" "}
+        <ProfileName address={addresses?.[0]} />
+           </Link> {action} {" "}
 
           {addresses?.map((address, index) => {
             if (index === 0) {
@@ -56,7 +55,7 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
             return (
               <span key={index} className="" style={{ color: "var(--adm-color-text-secondary)" }}>
                 <Link to={'/chat/' + address + '/info'} style={{ color: "var(--adm-color-primary)" }}>
-                {data?.find((d) => d._id === address)?.name}
+                    <ProfileName address={address} />
                   </Link>
                 {index === addresses.length - 1 ? null : ", "}
               </span>

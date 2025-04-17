@@ -26,7 +26,6 @@ const ChatSocket: React.FC = () => {
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
     const { wallet } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
-    const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
     const {chats, mutateChats} = useChats();
     const {mutate: mutateInifinite} = useSWRConfig();
 
@@ -47,17 +46,11 @@ const ChatSocket: React.FC = () => {
            mutateChats()
         });
         socket.emit('join', activeAccount);
-        socket.on('accounts', (accounts: string[]) => {
-            console.log('online', accounts);
-            setOnlineAccount(accounts);
-        });
 
         return () => {
-            socket.off('newAccount');
-            socket.off('accounts');
             socket.io.off('reconnect');
         };
-    }, [activeAccount, onlineAccount, accounts]);
+    }, [activeAccount, onlineAccount]);
 
     useEffect(() => {
         socket.on('message', async (message: Message) => {

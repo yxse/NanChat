@@ -115,7 +115,6 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     // const onlineAccount = accounts?.online;
     // const offlineAccount = accounts?.offline;
     // const all = onlineAccount?.concat(offlineAccount);
-    // const { data: names } = useSWR<Chat[]>(`/names?accounts=${all?.map(account => account._id).join(',')}`, fetcherMessages, {keepPreviousData: true});
     // const filteredChats = chats?.filter(chat =>
     //     chat.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     // );
@@ -419,24 +418,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             }
         }}
           visible={isNewChatVisible} setVisible={setIsNewChatVisible} />
-                    
-                    
-                    {/* <div className="text-center text-gray-500 mt-4 flex items-center justify-start ml-2">
-                        Online - {onlineAccount?.length}
-                    </div>
-                    <div className="mt-2">
-                        <List>
-                            <AccountListItems accounts={onlineAccount} badgeColor="green" />
-                        </List>
-                    </div>
-                    <div className="text-center text-gray-500 mt-4 flex items-center justify-start ml-2">
-                        Offline - {offlineAccount?.length}
-                    </div>
-                    <div className="mt-2">
-                        <List>
-                            <AccountListItems accounts={offlineAccount} badgeColor="gray" />
-                        </List>
-                    </div> */}
+            
                 </div>
                 
             </div>

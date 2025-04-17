@@ -79,7 +79,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
-    // const {data: names} = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
     const {chat, mutateChats} = useChats(account);
     const { mutate: mutateMessages} = useChat(account);
 
@@ -126,13 +125,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     }, [address, chat]);
 
    
-    useEffect(() => {
-        if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
-          socket.emit('typing', address);
-          setLastEmitTime(Date.now());
-        }
-    }
-    , [newMessage]);
+    // useEffect(() => {
+    //     if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
+    //       socket.emit('typing', address);
+    //       setLastEmitTime(Date.now());
+    //     }
+    // }
+    // , [newMessage]);
     // , []);
 
     useEffect(() => {
