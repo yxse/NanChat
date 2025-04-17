@@ -306,9 +306,18 @@ hideHistory={true} defaultFrom={ticker} defaultTo={"BAN"} />}
     </>
   );
 };
-function SafeAreaWrapper({ children }) {
+function SafeAreaWrapper({ children, callback }) {
   const location = useLocation();
-  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("callback", callback);
+    if (callback) {
+      navigate(callback.callback);
+      return;
+    }
+  }
+  , [callback]);
   return (
     <>
       <SafeArea position="top" 
@@ -323,7 +332,7 @@ function SafeAreaWrapper({ children }) {
     </>
   );
 }
-export default function App() {
+export default function App({callback}) {
   const [widget, setWidget] = useState<
     "home" | "art" | "swap" | "history" | "network"
   >("home");
@@ -420,7 +429,7 @@ export default function App() {
       
       <ReloadPrompt />
       <Router>
-      <SafeAreaWrapper>
+      <SafeAreaWrapper callback={callback}>
       <ChatSocket />
         <div className="w-full body " 
         // style={{overflow: 'auto'}}

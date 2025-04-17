@@ -31,6 +31,29 @@ export const getNewChatToken = async (account, privateKey) => {
 
 export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
+export const fetcherChats = async (oldChats) => {
+    const lastSync = localStorage.getItem('lastSync');
+    if (lastSync){
+        return fetcherMessages('/chats?ts=' + lastSync).then((res) => {
+            if (res.error == null){
+                const allChats = oldChats.concat(res.chats);
+                // remove duplicates
+                const uniqueChats = Array.from(new Set(allChats.map(chat => chat._id)))
+                .map(id => allChats.find(chat => chat._id === id));
+                localStorage.setItem('lastSync', res.ts);
+                return uniqueChats
+            }
+        })
+    }
+    else{
+        return fetcherMessages('/chats').then((res) => {
+            if (res.error == null){
+                localStorage.setItem('lastSync', res.ts);
+                return res.chats;
+            }
+        })
+    }
+}
 export const fetcherMessages = (url) => getChatToken().then(async (token) => {
     if (token == null){
         throw new Error('Chat token not available')

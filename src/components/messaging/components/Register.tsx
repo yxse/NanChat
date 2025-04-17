@@ -36,7 +36,7 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     const [name, setName] = useState<string>("");
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const [currentAvatar, setCurrentAvatar] = useState(null);
-
+    const [skip, setSkip] = useState(false);
     useHideNavbarOnMobile(true);
     useEffect(() => {
         const generatedWallet = walletLib.generateLegacy()
@@ -71,31 +71,60 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
 })
 }
 const register = async () => {
+    if (skip){
+        setWalletState("unlocked");
+        onCreated({callback: "/wallet"});
+        return
+    }
     Toast.show({icon: 'loading'});
                     await setSeed(wallet.wallets["XNO"].seed, false)
-                    fetcherMessagesPost('/set-name', {
-                        name: name,
-                        account: activeAccount
-                    }).then(async (res) => {
-                        console.log(res);
-                        // Toast.show({icon: 'success'});
-                        await mutate({name: name});
-                        await mutateChats(); // preload chats
-                            // navigate('/chat');
-                            // setW(3);
-                            setWalletState("unlocked");
-                            onCreated()
-                            Toast.show({icon: 'success'})
-                           
-                    }).catch((err) => {
-                        console.log(err);
-                        Toast.show({icon: 'fail', content: err.message});
-                    })
-                }
+        fetcherMessagesPost('/set-name', {
+            name: name,
+            account: activeAccount
+        }).then(async (res) => {
+            console.log(res);
+            // Toast.show({icon: 'success'});
+            await mutate({name: name});
+            await mutateChats(); // preload chats
+                // navigate('/chat');
+                // setW(3);
+                setWalletState("unlocked");
+                onCreated()
+                Toast.show({icon: 'success'})
+                
+        }).catch((err) => {
+            console.log(err);
+            Toast.show({icon: 'fail', content: err.message});
+        })
+    }
  const handleProfilePictureSuccess = (data) => {
     setCurrentAvatar(data.url);
     mutate();
   };
+
+  const enablePin = async () => {
+    if (
+        true ||
+        isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
+        let biometricAuth = await BiometricAuth.checkBiometry()
+        let webauthnAuth = webauthn.client.isAvailable()
+        
+        // Toast.show({icon: "success", content: biometricAuth.strongBiometryIsAvailable})
+        // const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
+        const hasStrongAuth = biometricAuth.strongBiometryIsAvailable
+        if (hasStrongAuth){
+          localStorage.setItem('confirmation-method', '"enabled"')
+          setPinVisible(true)
+        }
+        else{
+          localStorage.setItem('confirmation-method', '"pin"')
+          setCreatePinVisible(true)
+        }
+      }
+      else{
+        setW(2)
+      }
+    }
     return (
         <div>
             <NavBar
@@ -123,29 +152,7 @@ const register = async () => {
             mode='card'
             onFinish={async (values) => {
                 setName(values.name)
-                if (
-                    true ||
-                    isTauri() || Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
-                    let biometricAuth = await BiometricAuth.checkBiometry()
-                    let webauthnAuth = webauthn.client.isAvailable()
-                    
-                    // Toast.show({icon: "success", content: biometricAuth.strongBiometryIsAvailable})
-                    // const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
-                    const hasStrongAuth = biometricAuth.strongBiometryIsAvailable
-                    if (hasStrongAuth){
-                      localStorage.setItem('confirmation-method', '"enabled"')
-                      setPinVisible(true)
-                    }
-                    else{
-                      localStorage.setItem('confirmation-method', '"pin"')
-                      setCreatePinVisible(true)
-                    }
-                  }
-                  else{
-                    setW(2)
-                  }
-                  
-             
+                enablePin()
             }}
 
             footer={
@@ -158,6 +165,14 @@ const register = async () => {
                 type='submit' color='primary' size='large'>
                    Next
                 </Button>
+                <div 
+                onClick={() => {
+                    enablePin()
+                    setSkip(true)
+                }}
+                style={{marginTop: 48, color: "var(--adm-color-primary)", cursor: "pointer"}}>
+                    Skip to wallet
+                    </div>
                 </div>
                     </>
             }>

@@ -214,7 +214,7 @@ export default function InitialPopup() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [confettiCount, setConfettiCount] = useState<number>(50);
-
+  const [callback, setCallback] = useState(null);
   const [ledger, setLedger] = useState(null);
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
   return (
@@ -227,12 +227,13 @@ export default function InitialPopup() {
             walletState === "locked" && <Lockscreen setWalletState={setWalletState} theme={theme} />
           }
           {
-            walletState === "unlocked" && <App />
+            walletState === "unlocked" && <App callback={callback} />
           }
           {
             walletState === "no-wallet" && <InitializeScreen
               theme={theme}
-              onCreated={() => {
+              onCreated={(callback) => {
+                setCallback(callback);
                 localStorage.setItem('contacts', JSON.stringify(defaultContacts));
                 localStorage.setItem('hasWallet', 'true');
                 // Toast.show({

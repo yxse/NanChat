@@ -1,7 +1,7 @@
 import useSWR, { mutate } from 'swr';
 import { useCallback, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherAccount, fetcherMessages, fetcherMessagesCache } from '../fetcher';
+import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from '../../Popup';
 
 interface UseChatsReturn {
@@ -21,7 +21,8 @@ export function useChats(chatId?: string): UseChatsReturn {
     mutate: mutateChats
   } = useSWR<Chat[]>(
     '/chats', 
-    fetcherMessages, {
+    () => fetcherChats(chats), // Pass the chats data to the fetcher
+     {
       revalidateOnFocus: false,
       revalidateIfStale: false,
       revalidateOnReconnect: true,
@@ -70,7 +71,7 @@ export function useChats(chatId?: string): UseChatsReturn {
 
   useEffect(() => {
     const isFirstLoad = !sessionStorage.getItem('app-initialized');
-    // mutateChats() // to force refresh
+    mutateChats() // to force refresh
     if (isFirstLoad) { 
       mutateChats() // fetch all chats on first load, then chats should be updated by socket
       sessionStorage.setItem('app-initialized', 'true');
