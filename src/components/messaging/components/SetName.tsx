@@ -72,6 +72,7 @@ const SetName: React.FC = () => {
                     }
                     else{
                         navigate('/chat');
+                        mutateChats(); // this can happen when switching to another account not yet registered
                     }
                 }).catch((err) => {
                     console.log(err);
