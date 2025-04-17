@@ -21,6 +21,7 @@ import useSWR from 'swr';
 
 
 export const useContacts = () => {
+    const {backupContacts} = useBackupContacts()
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const { data: contactsOnNanChat } = useSWR<Chat[]>(
         `/names?accounts=${contacts.map((contact) => contact.addresses[0].address).join(',')}`, 
@@ -36,7 +37,6 @@ export const useContacts = () => {
         }
     })
 
-    const {backupContacts} = useBackupContacts()
 
     const parseContacts = (text) => {
         const data = JSON.parse(text);

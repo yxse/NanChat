@@ -69,7 +69,7 @@ onClick={() => {
 }}>
     Invite
 </div>
-    const uniqueAccounts = accounts.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
+    const uniqueAccounts = accounts?.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
     const selectedIcon = active => 
         active ? <CheckCircleFill /> : <MdOutlineCircle color='var(--adm-color-text-secondary)' />
 
@@ -221,6 +221,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
 
 const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, setSelectedAccounts, hideImportContacts, searchText, visible, setVisible }) => {
     const [popupImportContactsVisible, setPopupImportContactsVisible] = useState(false);
+    const {contactsOnNanChat, contactsNotOnNanChat} = useContacts()
     const getKey = (pageIndex, previousPageData) => {
         if (!visible) return null
         // console.log({pageIndex})
@@ -237,7 +238,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
     // console.log({pages})
     // console.log({all})
     // console.log({size})
-    const {contacts, contactsOnNanChat, contactsNotOnNanChat} = useContacts()
+    
     const accountsToInvite = contactsNotOnNanChat
         .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
 

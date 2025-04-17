@@ -29,13 +29,14 @@ import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { HapticsImpact } from "../../utils/haptic";
 import { useWalletMultiBalance } from "../../hooks/use-wallet-multi-balance";
 import { isTouchDevice } from "../../utils/isTouchDevice";
+import { useChats } from "../messaging/hooks/use-chats";
 
 const MAX_ACCOUNTS = 5;
 function SelectAccount({ }) {
   const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
   const {wallet, dispatch} = useContext(WalletContext);
   const [visible, setVisible] = useState(false);
-  
+  const {mutateChats} = useChats();
   const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address;
   const {isMobile} = useWindowDimensions()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
@@ -52,6 +53,7 @@ function SelectAccount({ }) {
       if (wallet.activeIndex === accountIndex){
         dispatch({type: "SET_ACTIVE_INDEX", payload: 0});
       }
+      mutateChats();
     }
   }
   useEffect(() => {
@@ -131,6 +133,7 @@ function SelectAccount({ }) {
                 onClick={() => {
                   dispatch({type: "SET_ACTIVE_INDEX", payload: account.accountIndex});
                   setVisible(false);
+                  mutateChats();
                 }}
                 key={account.address}
                 prefix={
