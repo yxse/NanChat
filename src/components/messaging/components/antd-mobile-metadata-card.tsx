@@ -40,20 +40,20 @@ export const MetadataCard = ({ message  }) => {
         style={{maxWidth: 300, padding: 8, margin: 8, marginTop: 0}}>
         <div style={{ display: 'flex', gap: 8 }}>
           {
-            data.image && 
+            data?.image && 
         <div>
             <Avatar src={data.image} style={{marginTop: 4}}/>
         </div>
         }
             <div>
               <div style={{color: 'var(--adm-color-text)'}}>
-                {data.title}
+                {data?.title}
               </div>
               <p style={{color: 'var(--adm-color-text-secondary)'}} className='text-sm'>
-              {data.description}
+              {data?.description}
               </p>
             </div>{
-              !data.image && !data.title && !data.description && <div>
+              !data?.image && !data?.title && !data?.description && <div>
                 {url.replace('https://', '')}
               </div>
             }

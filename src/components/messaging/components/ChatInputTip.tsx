@@ -23,52 +23,62 @@ import NetworkList from "../../app/NetworksList";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
 
-const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent }) => {
+const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onTipSent, mode="button", filterTickers =[] }) => {
     const [visible, setVisible] = useState(false);
     const [activeTicker, setActiveTicker] = useState<string>(null);
     const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
     const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
     const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
     const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
-
-    console.log("tip rendered")
-    return (
-        <>
-       
-       <div
-                                  style={{textAlign: 'center'}}>
+    const onClick = () => {
+      if (activeMainNetworks.length + activeCustomNetworks.length === 1) {  // directly show the action if only one active network
+        let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
+        setActiveTicker(ticker);
+        }
+        else{
+        setVisible(true);
+        }
+    }
+    const ButtonTransfer = () => {
+      return <div
+      style={{textAlign: 'center'}}>
         <Button
         style={{borderRadius: 12}}
         size='large'
-        // style={{
-        //   flexShrink: 0,
-        //   padding: '0px',
-        //   border: "none",
-        //     width: '40px',
-        //     height: '40px',
-        //     display: 'flex',
-        //     justifyContent: 'center',
-        //     alignItems: 'center',
-        //     }}
-        // className="p-1 rounded-full bg-blue-500 text-white mr-1"
         onClick={() => {
-            if (activeMainNetworks.length + activeCustomNetworks.length === 1) {  // directly show the action if only one active network
-                let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
-                setActiveTicker(ticker);
-            }
-            else{
-                setVisible(true);
-            }
+          onClick();
         }}>
-            {/* <AiOutlineSwap fontSize={34} /> */}
-            <div style={{fontSize: 34}}>
-               💸
-            </div>
+        <div style={{fontSize: 34}}>
+        💸
+        </div>
         </Button>
         <div className='mt-2'>
-            Transfer
+        Transfer
+        </div>
+        </div>
+    }
+    const ButtonListTransfer = () => {
+      return <List>
+        <List.Item
+        onClick={() => {
+          onClick();
+        }}
+        >
+          <div className="">
+          💸 Transfer
           </div>
-            </div>
+        </List.Item>
+      </List>
+    }
+    console.log("tip rendered")
+    return (
+        <>
+       {
+        mode === "button" ? 
+        <ButtonTransfer />
+        :
+        <ButtonListTransfer />
+       }
         <ResponsivePopup
         bodyClassName="disable-keyboard-resize"
         destroyOnClose={true}
@@ -109,11 +119,13 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent }> = ({ toAddress, onTipSent
           <div>
           <div>
             <div className="text-2xl  text-center p-2">{
-              "Send"
+              "Transfer"
             }</div>
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>
-          <NetworkList hidePrice={true} onClick={(ticker) => {
+          <NetworkList
+          filterTickers={filterTickers}
+           hidePrice={true} onClick={(ticker) => {
             // navigate(ticker + "/" + action);
             setVisible(false);
             setActiveTicker(ticker);

@@ -12,6 +12,7 @@ import { getChatToken } from '../../../../utils/storage';
 import { AiOutlinePlus } from 'react-icons/ai';
 import { NoAvatar } from '../icons/NoAvatar';
 import ReusableImageUploader from './reusable-image-uploader';
+import { ProfilePictureUploadButton } from '../icons/ProfilePictureUploadButton';
 
 
 
@@ -129,7 +130,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
       <div className="mb-4">
         {
           currentAvatar == null ?
-          <NoAvatar width='96px' height='96px' />
+          null
           : 
           <Avatar
           src={currentAvatar}
@@ -141,14 +142,17 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
 
       {/* Upload Button */}
       <ReusableImageUploader
+      showButton={!currentAvatar == null}
         endpoint="/upload/upload-profile-picture"
         additionalFormData={{ account: activeAccount }}
         onUploadSuccess={handleProfilePictureSuccess}
         buttonText="Select Profile Picture"
         loadingText="Uploading..."
       />
-      <Divider />
-      Or choose from: <br />
+      <Divider style={{marginTop: 32}}>
+      Or choose from:  
+      </Divider>
+      
       <div className="flex flex-row space-x-4 items-center">
       {
         allIcons.map((icon) => {
@@ -170,7 +174,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
 
                     });
                 }}
-                src={networks[icon].icon + convertAddress(activeAccount, icon)} className="w-24 h-24" />
+                src={networks[icon].icon + convertAddress(activeAccount, icon)} style={{width: 64}} />
             )
         })
       }

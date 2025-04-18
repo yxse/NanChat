@@ -381,8 +381,18 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   const {balances} = useWalletBalance()
   const hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data === 0) : []
   
-  const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker));
-  const filteredActiveCustomNetworks = activeCustomNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker));
+  const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker)).filter((ticker) => {
+    if (filterTickers.length > 0) {
+      return filterTickers.includes(ticker);
+    }
+    return true;
+  })
+  const filteredActiveCustomNetworks = activeCustomNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker)).filter((ticker) => {
+    if (filterTickers.length > 0) {
+      return filterTickers.includes(ticker);
+    }
+    return true;
+  })
 
   // order network based on .rank if exists
   const sortedActiveMainNetworks = filteredActiveMainNetworks.sort((a, b) => {

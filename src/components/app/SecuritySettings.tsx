@@ -14,7 +14,7 @@ import { CreatePin } from "../Lock/CreatePin";
 import { PinAuthPopup } from "../Lock/PinLock";
 import { PasswordForm } from "../Initialize/create/Password";
 import { WalletContext } from "../Popup";
-import PrivacySettings from "./PrivacySettings";
+import PrivacySettings from "./BlockedChats";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [seed, setSeedLocal] = useState(undefined);
@@ -417,7 +417,15 @@ function SecuritySettings() {
         </div> 
         }
         <Divider />
-        <PrivacySettings />
+        <List mode="card">
+            <List.Item
+            onClick={() => {
+                navigate("/settings/security/blocked")
+            }}
+            >
+                Blocked Chats
+            </List.Item>
+        </List>
         <Divider />
         <List mode="card">
             <List.Item

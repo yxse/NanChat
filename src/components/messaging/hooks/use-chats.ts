@@ -1,8 +1,9 @@
 import useSWR, { mutate } from 'swr';
 import { useCallback, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache } from '../fetcher';
+import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost } from '../fetcher';
 import { useWallet } from '../../Popup';
+import { Toast } from 'antd-mobile';
 
 interface UseChatsReturn {
   chats: Chat[] | undefined;
@@ -11,6 +12,7 @@ interface UseChatsReturn {
   isLoadingChat: boolean;
   mutateChats: typeof mutate;
   profilePictures: any;
+  blockChat: (chatId: string) => Promise<void>;
 }
 
 export function useChats(chatId?: string): UseChatsReturn {
@@ -21,7 +23,7 @@ export function useChats(chatId?: string): UseChatsReturn {
     mutate: mutateChats
   } = useSWR<Chat[]>(
     '/chats', 
-    () => fetcherChats(chats), // Pass the chats data to the fetcher
+    () => fetcherChats(chats || []), // Pass the chats data to the fetcher
      {
       revalidateOnFocus: false,
       revalidateIfStale: false,
@@ -71,7 +73,7 @@ export function useChats(chatId?: string): UseChatsReturn {
 
   useEffect(() => {
     const isFirstLoad = !sessionStorage.getItem('app-initialized');
-    mutateChats() // to force refresh
+    // mutateChats() // to force refresh
     if (isFirstLoad) { 
       mutateChats() // fetch all chats on first load, then chats should be updated by socket
       sessionStorage.setItem('app-initialized', 'true');
@@ -84,12 +86,45 @@ export function useChats(chatId?: string): UseChatsReturn {
   //             await getNewChatToken(activeAccount, activeAccountPk)
   //         }
   //     }});
+
+  async function clearCache() {
+    sessionStorage.removeItem('app-initialized');
+    localStorage.removeItem('lastSync');
+    await mutateChats()
+  }
+  async function blockChat(chatId: string) {
+    let r = await fetcherMessagesPost('/block-chat', {
+      chatId: chatId
+  })
+
+  if (r.success) {
+      await mutateChats(
+          current => {
+              return current.filter((chat) => 
+                chat.id !== chatId // group chat
+              && !(chat.participants.length === 2 && chat.participants.some(participant => participant._id === chatId)) // 1:1 chat
+            )
+          }
+          , false
+      )
+  }
+  else if (r.error) {
+      Toast.show({
+          content: r.error,
+          icon: 'fail'
+      })
+  }
+  }
+    
+
   return { 
     chats, 
     chat, 
     isLoading, 
     profilePictures,
+    clearCache,
     mutateChats,
+    blockChat,
     // isLoadingChat, 
     
   };

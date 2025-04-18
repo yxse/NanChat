@@ -17,6 +17,7 @@ import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserContactOutline, U
 import SelectAccount from '../../../app/SelectAccount';
 import Settings, { CopyToClipboard } from '../../../Settings';
 import { SeedVerifiedBadge, showAccountQRCode } from '../../utils';
+import { AccountAvatar } from '../ChatList';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -24,7 +25,6 @@ const ProfileHome: React.FC = () => {
     const {wallet} = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
-
     return (
         <div className="">
                 <NavBar
@@ -39,11 +39,7 @@ const ProfileHome: React.FC = () => {
                     navigate('/profile/pfp')
                 }}
                 extra={
-                    <img
-                    src={me?.profilePicture?.url}
-                    width={64}
-                    alt='profile-picture'
-                    />
+                    <AccountAvatar  width={64} url={me?.profilePicture?.url} />
                 }
                 >
                     Profile Picture

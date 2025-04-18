@@ -2,6 +2,7 @@
   z-index: 1;
   /* background-color: rgb(16, 16, 24); */
   /* background-color: var(--main-background-color); */
+  
   padding: 10px 16px;
   display: flex;
   flex-shrink: 0;
@@ -17,6 +18,12 @@
   position: sticky;
   top: 0;
   
+}
+.adm-nav-bar {
+  background-color: var(--adm-color-background);
+}
+.adm-side-bar{
+  border-right: 1px solid var(--adm-color-border);
 }
 
 @media (max-width: 1200px) {

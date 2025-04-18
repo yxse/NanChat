@@ -20,14 +20,18 @@ import { AiOutlineShareAlt } from "react-icons/ai";
 import { FaRegCircleDot } from "react-icons/fa6";
 import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-card";
 import { useChats } from "../../messaging/hooks/use-chats";
+import ProfileName from "../../messaging/components/profile/ProfileName";
 const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
-export const ChatName = ({ chat }) => {
-    const { activeAccount } = useWallet();
-    return chat?.type === "group" ? chat?.name : chat?.participants.find(participant => participant._id !== activeAccount)?.name;
+export const ChatName = ({ chat, activeAccount }) => {
+    if (!activeAccount){ // pass activeAccount as param because useWallet doesnt work in Modal.show 
+        const { activeAccount: activeAccountWallet} = useWallet();
+        activeAccount = activeAccountWallet
+    }
+    return chat?.type === "group" ? (chat?.name || "Group Chat") : (chat?.participants?.find(participant => participant._id !== activeAccount)?.name || <ProfileName address={chat.id} />)
 }
 
-const ItemChat = ({ chat, onClick }) => {
+export const ItemChat = ({ chat, onClick }) => {
     return (
         <List.Item
             clickable={false}

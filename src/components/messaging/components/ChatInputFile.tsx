@@ -244,12 +244,12 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
     useEffect(() => {
       // update hover state when the button is hovered, can't use directly the css button hover since the input file is on top of the button i think so we recreate the hover effect with js
       if (refBtn.current) {
-        console.log("native", refBtn.current.nativeElement)
-        refBtn.current.nativeElement.addEventListener('mouseover', () => {
+        console.log("native", refBtn.current?.nativeElement)
+        refBtn.current?.nativeElement.addEventListener('mouseover', () => {
           console.log("hover")
           setIsHovering(true);
         });
-        refBtn.current.nativeElement.addEventListener('mouseout', () => {
+        refBtn.current?.nativeElement.addEventListener('mouseout', () => {
           setIsHovering(false);
         });
       }

@@ -20,6 +20,20 @@ import { fetcherMessages } from '../../fetcher';
 import useSWR from 'swr';
 
 
+
+export const useContact = () => {
+    const [contacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
+    const getContact = (address) => {
+        return contacts.find((contact) => {
+            return contact.addresses.find((a) => a.address === address);
+        });
+    }
+
+    return {
+        getContact
+    }
+}
+
 export const useContacts = () => {
     const {backupContacts} = useBackupContacts()
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
@@ -130,13 +144,11 @@ export const useContacts = () => {
        
     }
     
-
-
     return {
         addContacts,
         contacts,
         contactsOnNanChat,
-        contactsNotOnNanChat
+        contactsNotOnNanChat,
     }
 }
 

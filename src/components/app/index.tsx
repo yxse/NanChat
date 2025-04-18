@@ -87,6 +87,7 @@ import { box, wallet } from "multi-nano-web";
 import { ShareExtension } from 'capacitor-share-extension';
 import { getSharedKey } from "../../services/sharedkey";
 import { SeedVerifiedBadge } from "../messaging/utils";
+import BlockedChats from "./BlockedChats";
 
 // reduceMotion()
 
@@ -456,6 +457,7 @@ export default function App({callback}) {
             <Route path="/settings/notification" element={<NotificationSettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />
             <Route path="/settings/security/developer" element={<DeveloperSettings />} />
+            <Route path="/settings/security/blocked" element={<BlockedChats />} />
             <Route path="/buy" element={<Buy />} />
             <Route path="/swap" element={<Swap />} />
             <Route path="/swap/:id" element={<SwapTransaction />} />

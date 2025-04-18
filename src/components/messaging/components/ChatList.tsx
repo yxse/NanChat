@@ -39,6 +39,7 @@ import {
     WindowScroller,
   } from 'react-virtualized'
 import { updateSharedKeys } from "../../../services/sharedkey";
+import { NoAvatar } from "./icons/NoAvatar";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -329,12 +330,9 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                             </>
                             :
                             <>
-                                {
-                                    hasName ? hasName : formatAddress(accountFrom)
-                                }
-                                {
-                                    from?.verified && <RiVerifiedBadgeFill />
-                                }
+                                <ProfileName
+                                address={accountFrom}
+                                />
                             </>
                     }
                 </div>
@@ -426,24 +424,16 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     );
 };
 
-export const AccountAvatar = ({ url, account, badgeColor }) => {
+export const AccountAvatar = ({ url, width=48}) => {
+    let icon
     if (url == null) {
-        url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account + "%26outline%3Dtrue"
+        // url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account + "%26outline%3Dtrue"
+        icon = <NoAvatar height={width} width={width} />
     }
-
-    const icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={48} />
-    if (badgeColor == "gray"){ // show only active icon
-        return icon
+    else{
+        icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={width} />
     }
-    return (
-        <Badge
-            color={badgeColor}
-            content={Badge.dot}
-            style={{ '--top': '80%', '--right': '20%' }}
-        >
-            {icon}
-    </Badge>
-    );
+    return icon
 }
 
 export default ChatList;

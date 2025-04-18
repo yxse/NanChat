@@ -226,7 +226,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
     label: "XNO",
     hex: "#6495ED",
   });
-  const { cache } = useSWRConfig()
+  const { mutate } = useSWRConfig()
   useHideNavbarOnMobile(true)
   const options = [
     { value: "XNO", label: "XNO", hex: "#6495ED" },
@@ -589,8 +589,15 @@ className="mb-24"
                     count++
                   }
                 }
-                cache.clear()
                 localStorage.removeItem("app-cache")
+                localStorage.removeItem('lastSync');
+                sessionStorage.removeItem('app-initialized')
+                mutate(
+                  key => true, // which cache keys are updated
+                  undefined, // update cache data to `undefined`
+                  { revalidate: false } // do not revalidate
+                )
+                mutate("/chats") // preload chats
                 Toast.show({
                   icon: "success",
                   content: `Cleared ${count} items from cache`

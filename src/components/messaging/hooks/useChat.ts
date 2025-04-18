@@ -50,10 +50,10 @@ export function useUnreadCount() {
   }, [unread, seedVerified]);
   return unread || null; // null to hide the badge
 }
-const LIMIT = 50;
+const LIMIT = 20;
 // Custom hook for chat functionality
 
-export const getKey = (pageIndex, previousPageData, chatId) => {
+export const getKey = (pageIndex, previousPageData, chatId, height) => {
   // console.log({pageIndex, previousPageData});
   // debugger
   if (previousPageData && previousPageData[previousPageData.length - 1].height == 0) {
@@ -65,7 +65,7 @@ export const getKey = (pageIndex, previousPageData, chatId) => {
 };
 export function useChat(chatId) {
   // Get messages using infinite loading
-  const {mutateChats} = useChats(chatId);
+  const {mutateChats, chat} = useChats(chatId);
   const {
     data: pages,
     error,
@@ -74,7 +74,7 @@ export function useChat(chatId) {
     mutate,
     isLoading,
     isValidating 
-  } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId), fetcherMessagesCache, {
+  } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId, chat?.height), fetcherMessagesCache, {
     revalidateFirstPage: false,
     
     // revalidateOnFocus: false,

@@ -24,6 +24,8 @@ import BackupContacts, { useBackupContacts } from '../messaging/components/conta
 import ChatInputTip from '../messaging/components/ChatInputTip';
 import { defaultContacts } from '../messaging/utils';
 import { Capacitor } from '@capacitor/core';
+import { CardAddNewContact, InputAddressAndNetwork } from '../messaging/components/contacts/AddNewContact';
+import AddContacts from './AddContacts';
 
 
 
@@ -257,21 +259,65 @@ export const ImportContacts = ({showAdd = false}) => {
 </div>
 }
 
+export const InviteContactButton = ({ addresses }) => {
+    const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
+    const {inviteFriends} = useInviteFriends()
+    const navigate = useNavigate();
+    if (isLoading) {
+        return null
+    }
+    if (name?.username) {
+        return null
+    }
+    return <>
+    <List.Item
+    style={{color: 'var(--adm-color-primary)'}}
+     onClick={() => {
+        inviteFriends()
+    }}
+    >
+        Invite to NanChat
+    </List.Item>
+                </>
+}
+export const MessageButton = ({ addresses }) => {
+    const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
+    const {inviteFriends} = useInviteFriends()
+    const navigate = useNavigate();
+    if (isLoading) {
+        return null
+    }
+    if (name?.username) {
+        return <List.Item
+        // color='default'
+        // className='w-full mt-4'
+        onClick={() => {
+            navigate(
+                `/chat/${findNanoAddress(addresses)}`
+            ); // always navigate to chat with nano equivalent address, in case of eg: only banano contact
+        }}
+        size='large'
+    >
+        💬 Messages
+    </List.Item>
+    }
+    return null
+}
+
+export  const findNanoAddress = (addresses) => {
+    if (addresses == null) return null;
+    if (addresses.find((address) => address.network === 'XNO')) {
+        return addresses.find((address) => address.network === 'XNO').address;
+    }
+    return convertAddress(addresses[0].address, 'XNO');
+}
 const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
     const [addContactVisible, setAddContactVisible] = useState( searchParams.get("add") === "true" );
-    const [isEditingAddress, setIsEditingAddress] = useState(false);
-    const [selectNetworkVisible, setSelectNetworkVisible] = useState(false);
-    const [form] = Form.useForm();
-    const name = Form.useWatch('newName', form)
-    const network = Form.useWatch('network', form)
     const navigate = useNavigate();
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const [contactToEdit, setContactToEdit] = useState(null);
-    const [editContactVisible, setEditContactVisible] = useState(false);
   const {isMobile} = useWindowDimensions()
-  const ResponsivePopup = isMobile ? Popup : CenterPopup;
-    const {addContacts} = useContacts();
     const {backupContacts} = useBackupContacts()
     const handleExport = () => {
         // Handle export logic here
@@ -279,256 +325,6 @@ const Contacts: React.FC = ({onlyImport = false}) => {
         saveAs(blob, 'nanwallet-contacts.json');
     };
 
-    const handleAddContact = async () => {
-        // Handle add contact logic here
-        const values = form.getFieldsValue();
-        console.log(values);
-        if (contactToEdit !== null) {
-            let contactNewAddresses = [...contactToEdit.addresses, { network: values.network, address: values.address }];
-            let newContact = { name: values.newName, addresses: contactNewAddresses };
-            let newContacts = contacts.filter((contact) => contact.name !== contactToEdit.name);
-            newContacts.push(newContact);
-            setContacts(newContacts);
-            setAddContactVisible(false);
-            setContactToEdit(newContact);
-            Toast.show({
-                icon: 'success',
-            });
-            await backupContacts(newContacts)
-            return;
-        }
-        // check if name already exists
-        const exists = contacts.find((contact) => contact.name === values.name);
-        if (exists) {
-            Modal.alert({
-                title: 'Name already exists',
-                confirmText: 'OK',
-            });
-            return;
-        }
-        let newContact = { name: values.name, addresses: [{ network: values.network, address: values.address }] };
-        let newContacts = [...contacts, newContact];
-        setContacts(newContacts);
-        setAddContactVisible(false);
-        Toast.show({
-            icon: 'success',
-        });
-        await backupContacts(newContacts)
-    };
-
-    console.log(contacts)
-    const InputAddressAndNetwork = ({ form }) => {
-        return (<>
-            <Form.Item
-                name={'network'}
-                label='Network' onClick={() => setSelectNetworkVisible(true)}>
-                <Input
-                    placeholder='Network'
-                />
-            </Form.Item>
-            {
-                networks[network] &&
-                <Form.Item label='Address' name={'address'}>
-                    <Input
-                        placeholder={networks[network].prefix + '_'}
-                    />
-                </Form.Item>
-            }
-        </>);
-    };
-
-    const CardAddNewContact = () => {
-        return <Card>
-            <div className="text-center text-xl p-2 mb-4">
-                Add Contact
-            </div>
-
-            <Form 
-            initialValues={{
-                name: searchParams.get("name") || "",
-                network: searchParams.get("network") || "",
-                address: searchParams.get("address") || "",
-            }}
-            layout='horizontal' form={form}>
-                <Form.Item label='Name' name={'name'}>
-                    <Input
-                    autoFocus
-                        placeholder='Name'
-                    />
-                </Form.Item>
-                <InputAddressAndNetwork form={form} />
-            </Form>
-            <Button
-                className='w-full mt-4'
-                onClick={handleAddContact}
-                size='large'
-                color='primary'
-                shape='rounded'
-            >
-                Add Contact
-            </Button>
-            <Button
-                className='w-full my-4'
-                onClick={() => setAddContactVisible(false)}
-                size='large'
-                shape='rounded'
-
-            >
-                Close
-            </Button>
-        </Card>
-    }
-
-    const CardEditAddress = () => {
-        return <Card>
-            <div className='text-xl p-2 mb-4 flex justify-between items-center'>
-                <span>
-                    Edit Address
-                </span>
-                <Button
-                    onClick={async () => {
-                        Modal.confirm({
-                            title: 'Delete Address',
-                            content: 'Are you sure you want to delete this address?',
-                            onConfirm: async () => {
-                                let newAddresses = contactToEdit.addresses.filter((address) => address.address !== form.getFieldValue('address'));
-                                let newContact = { name: contactToEdit.name, addresses: newAddresses };
-                                let newContacts = contacts.filter((contact) => contact.name !== contactToEdit.name);
-                                newContacts.push(newContact);
-                                setContacts(newContacts);
-                                setIsEditingAddress(false);
-                                setAddContactVisible(false);
-                                setContactToEdit(newContact);
-                                Toast.show({
-                                    icon: 'success',
-                                });
-                                await backupContacts(newContacts)
-                            },
-                            confirmText: 'Delete',
-                            cancelText: 'Cancel',
-                            onCancel: () => { }
-                        });
-                    }}
-                >
-                    <AiOutlineDelete />
-                </Button>
-            </div>
-            <Form layout='horizontal' form={form}>
-                <InputAddressAndNetwork form={form} />
-            </Form>
-            <Button
-                className='w-full mt-4'
-                onClick={handleAddContact}
-                size='large'
-                color='primary'
-            >
-                Save Address
-            </Button>
-            <Button
-                className='w-full my-4'
-                onClick={() => setAddContactVisible(false)}
-                size='large'
-            >
-                Cancel
-            </Button>
-        </Card>
-    }
-    const CardNewAddress = () => {
-        return <Card>
-            <div className="text-center text-xl p-2 mb-4">
-                Add Address
-            </div>
-
-            <Form layout='horizontal' form={form}>
-                <InputAddressAndNetwork form={form} />
-            </Form>
-            <Button
-                className='w-full mt-4'
-                onClick={handleAddContact}
-                size='large'
-                color='primary'
-            >
-                Save Address
-            </Button>
-            <Button
-                className='w-full my-4'
-                onClick={() => setAddContactVisible(false)}
-                size='large'
-            >
-                Cancel
-            </Button>
-        </Card>
-    }
-
-     
-
-    const findNanoAddress = (addresses) => {
-        if (addresses == null) return null;
-        if (addresses.find((address) => address.network === 'XNO')) {
-            return addresses.find((address) => address.network === 'XNO').address;
-        }
-        return convertAddress(addresses[0].address, 'XNO');
-    }
-    const NotYetOnNanChat = ( {addresses} ) => {
-        const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
-        if (isLoading) {
-            return null
-        }
-        if (!name?.username) {
-            return  <div style={{color: "var(--adm-color-text-secondary)"}} className='text-center text-lg mt-4 mb-4'>
-            This account is not yet on NanChat
-        </div>
-        }
-    }
-    const InviteContactButton = ({ addresses }) => {
-        const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
-        const {inviteFriends} = useInviteFriends()
-        if (isLoading) {
-            return null
-        }
-        if (name?.username) {
-            return  <div className='text-center'><Button
-            // color='default'
-            // className='w-full mt-4'
-            style={{borderRadius: 12}}
-            onClick={() => {
-                navigate(
-                    `/chat/${findNanoAddress(contactToEdit.addresses)}`
-                ); // always navigate to chat with nano equivalent address, in case of eg: only banano contact
-                
-            }}
-            size='large'
-        >
-            <div style={{fontSize: 34}}>
-            💬
-            </div>
-            <div className='mt-2'>
-            Messages
-          </div>
-        </Button></div>
-        }
-        return <>
-        
-                    <div className='text-center'>
-                    <Button
-                        color='primary'
-                        style={{borderRadius: 12}}
-                        onClick={() => {
-                            inviteFriends()
-                        }}
-                        size='large'
-                    >
-                        <div style={{fontSize: 34}}>
-                        ✉️
-                        </div>
-                        
-                    </Button>
-                    <div className='mt-2'>
-                        Invite
-                        </div>
-                    </div>
-                    </>
-    }
     if (onlyImport && contacts.length > 0) {
         return null
     }
@@ -541,20 +337,6 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             <NavBar
                 className="app-navbar "
                 onBack={() => navigate('/me')}
-                // right={<Popover.Menu
-                //     trigger='click'
-                //     mode='dark'
-                //     actions={[
-                //         {
-                //             text: <ImportContacts />, key: 'import'
-                //         },
-                //         { text: 'Export', icon: <AiOutlineExport size={20} />, onClick: handleExport, key: 'export' },
-                //     ]}
-                // >
-                //     <Button size='mini' shape='rounded'>
-                //         Import/Export
-                //     </Button>
-                // </Popover.Menu>}
                 right={
                     <div style={{ fontSize: 24, marginTop: 6 }}>
                     <UserAddOutline
@@ -584,7 +366,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 // </div>
             }
             <List>
-                {contacts.sort((a, b) => a.name.localeCompare(b.name)).map((contact, index) => (
+                {contacts.sort((a, b) => a.name?.localeCompare(b.name)).map((contact, index) => (
                     <SwipeAction
                         key={index}
                         rightActions={[
@@ -615,9 +397,10 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         prefix={<ProfilePicture address={contact.addresses[0]?.address} width={48}  />}
                          key={index}
                             onClick={() => {
-                                setContactToEdit(contact);
-                                setEditContactVisible(true);
-                                form.setFieldsValue({ newName: contact.name });
+                                navigate(`/${findNanoAddress(contact.addresses)}/info`);
+                                // setContactToEdit(contact);
+                                // setEditContactVisible(true);
+                                // form.setFieldsValue({ newName: contact.name });
                             }}
                         >{contact.name}</List.Item>
                     </SwipeAction>
@@ -626,139 +409,17 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             <Divider>
             Import Contacts
             </Divider>
+            <AddContacts
+                defaultName={""}
+                defaultAddress={""}
+                defaultNetwork={""}
+                setAddContactVisible={setAddContactVisible}
+                addContactVisible={addContactVisible}
+                setContactToEdit={setContactToEdit}
+                contactToEdit={contactToEdit}
+                 />
             <ImportContacts />
 
-            {/* <Button
-                shape='rounded'
-                size='large'
-                color='primary'
-                onClick={() => setAddContactVisible(true)}
-                style={{ position: 'fixed', bottom: 100, right: 16 }}
-            >
-                <Space className='flex items-center'>
-                    <UserAddOutline/> Add Contact
-                </Space>
-            </Button> */}
-            <ResponsivePopup
-                destroyOnClose
-                visible={addContactVisible}
-                onClose={() => {
-                    setAddContactVisible(false)
-                    setIsEditingAddress(false)
-                }}
-                closeOnMaskClick={true}
-            >
-                {
-                    contactToEdit === null ? <CardAddNewContact /> : isEditingAddress ? <CardEditAddress /> : <CardNewAddress />
-                }
-            </ResponsivePopup>
-
-            <ResponsivePopup
-                visible={editContactVisible}
-                onClose={() => {
-                    setEditContactVisible(false)
-                    setContactToEdit(null)
-                    form.resetFields()
-                }}
-                closeOnMaskClick={true}
-            >
-                <Card>
-                    <div className='text-xl p-2 mb-4 flex justify-between items-center'>
-                        <span>
-                            Edit Contact
-                        </span>
-                        <Button
-                            onClick={async () => {
-                                let newContactName = form.getFieldValue('newName');
-                                let newContacts = contacts.filter((contact) => contact.name !== contactToEdit.name);
-                                let newContact = { name: newContactName, addresses: contactToEdit.addresses };
-                                newContacts.push(newContact);
-                                setContacts(newContacts);
-                                setEditContactVisible(false);
-                                setContactToEdit(null);
-                                await backupContacts(newContacts)
-                            }}
-                            color={name === contactToEdit?.name ? 'default' : 'primary'}
-                            className='text-sm'>
-                            OK
-                        </Button>
-                    </div>
-
-                    <Form layout='horizontal' form={form}>
-                        <Form.Item label='Name' name={'newName'}>
-                            <Input
-                                placeholder='Name'
-                            />
-                        </Form.Item>
-                    </Form>
-                    <List>
-                        {contactToEdit?.addresses.map((address, index) => (
-                            <List.Item
-                                key={index}
-                                onClick={() => {
-                                    setAddContactVisible(true)
-                                    setIsEditingAddress(true);
-                                    form.setFieldsValue({ network: address.network, address: address.address });
-                                }}
-                                prefix={<img
-                                    width={42}
-                                    src={networks[address.network]?.logo}
-                                    alt={`${address.network} logo`} />
-                                }
-                                description={formatAddress(address.address)}
-                            >
-                                {address.network}
-                            </List.Item>
-                        ))}
-                    </List>
-                    <NotYetOnNanChat addresses={contactToEdit?.addresses} />
-                    <div style={{display: "flex", justifyContent: "space-evenly"}}>
-                    <InviteContactButton addresses={contactToEdit?.addresses} />
-                    <ChatInputTip toAddress={findNanoAddress(contactToEdit?.addresses)} onTipSent={() => {
-                    }} />
-                    <div className='text-center'>
-                    <Button
-                        color='default'
-                        style={{borderRadius: 12}}
-                        onClick={() => {
-                            form.setFieldsValue({ name: contactToEdit.name, network: '', address: '' });
-                            setIsEditingAddress(false);
-                            setAddContactVisible(true)
-                        }}
-                        size='large'
-                    >
-                        <div style={{fontSize: 34}}>
-                        ➕
-                        </div>
-                        
-                    </Button>
-                    <div className='mt-2' style={{maxWidth: 64}}>
-                        Address
-                        </div>
-                    </div>
-                    </div>
-                </Card>
-            </ResponsivePopup>
-            <ResponsivePopup
-                destroyOnClose
-                visible={selectNetworkVisible}
-                onClose={() => setSelectNetworkVisible(false)}
-                closeOnMaskClick={true}
-            >
-                <Card>
-                    <div className="text-center text-xl p-2 mb-4">
-                        Select Network
-                    </div>
-                    <NetworkList
-                        hideActions={true}
-                        hideBalance={true}
-                        hidePrice={true} onClick={(ticker) => {
-                            form.setFieldsValue({ network: ticker });
-                            setSelectNetworkVisible(false);
-
-                        }} />
-                </Card>
-            </ResponsivePopup>
             <ImportContactsFromShare />
             <BackupContacts />
         </div>

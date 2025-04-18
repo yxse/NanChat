@@ -36,12 +36,24 @@ export const fetcherChats = async (oldChats) => {
     if (lastSync){
         return fetcherMessages('/chats?ts=' + lastSync).then((res) => {
             if (res.error == null){
-                const allChats = oldChats.concat(res.chats);
-                // remove duplicates
-                const uniqueChats = Array.from(new Set(allChats.map(chat => chat._id)))
-                .map(id => allChats.find(chat => chat._id === id));
+                // merge chats, the res.chat overwrite the old chats
+                let uniqueChats = [];
+                let chatIds = new Set();
+                res.chats.forEach((chat) => {
+                    if (!chatIds.has(chat.id)){
+                        chatIds.add(chat.id);
+                        uniqueChats.push(chat);
+                    }
+                });
+                // merge with old chats
+                oldChats.forEach((chat) => {
+                    if (!chatIds.has(chat.id)){
+                        uniqueChats.push(chat);
+                    }
+                });
+                // debugger
                 localStorage.setItem('lastSync', res.ts);
-                return uniqueChats
+                return uniqueChats;
             }
         })
     }
@@ -155,11 +167,6 @@ export const deleteMessage = (chatId, height) => fetcherMessagesPost('/delete-me
 
 export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/account?account=' + account)
 .then((res) => res.json()).then((data) => {
-    if (data?.profilePicture == null){
-        data.profilePicture = {
-            url: accountIconUrl(account)
-        }
-    }
     return data
 })
 export const fetcherMessagesPost = (url, data) => getChatToken().then(async (token) => {

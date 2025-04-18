@@ -1,7 +1,9 @@
 import { Badge, Modal } from "antd-mobile";
 import { QRCodeSVG } from "qrcode.react";
-import icon from "../../../public/icons/icon.png";
+import icon from "../../../public/icons/nanchat.svg";
 import useLocalStorageState from "use-local-storage-state";
+import { AccountAvatar } from "./components/ChatList";
+import { useState } from "react";
 
 
 export const hasLink = (message: string) => {
@@ -80,9 +82,10 @@ export const showAccountQRCode = (me) => {
       content: (
         <div className="flex justify-start items-center flex-col">
           <div className="text-xl mb-4 flex justify-start gap-2" style={{width: '200px'}}>
-          <img
-          style={{ borderRadius: 8 }}
-          src={me?.profilePicture?.url} width={42} alt="pfp"  />
+          <AccountAvatar
+          url={me?.profilePicture?.url}
+          width={42}
+          />
           {me?.name}
           </div>
           {/* <div className="text-sm mb-2">
@@ -97,11 +100,11 @@ export const showAccountQRCode = (me) => {
               excavate: false,
             }}
             includeMargin
-            value={`https://nanwallet.com/chat/${me?._id}`}
+            value={`https://nanchat.com/chat/${me?._id}`}
             size={200}
             style={{borderRadius: 8}}
           />
-          <div className="text-sm mt-2 text-center mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
+          <div className="text-base mt-4 text-center mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
             Scan to start an end-to-end encrypted chat with me
           </div>
         </div>

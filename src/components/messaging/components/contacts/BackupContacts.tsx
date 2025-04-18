@@ -40,7 +40,7 @@ export const useBackupContacts = () => {
             
             console.log('contacts backed up', data);
             if (!data.success) {
-                Toast.show({content: data.error, icon: 'fail'});
+                // Toast.show({content: data.error, icon: 'fail'}); // this can happen if no changes, editing only the network will result in same length, ignoring this case for now
             }
             else {
                 mutate()

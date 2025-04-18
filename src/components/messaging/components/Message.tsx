@@ -357,7 +357,7 @@ const ProfilePictureLink = ({ address }) => (
     flexDirection: 'column', 
     margin: '0 8px' 
   }}>
-    <Link to={`/chat/${address}`}>
+    <Link to={`/chat/${address}/info`}>
       <ProfilePicture address={address} />
     </Link>
   </div>

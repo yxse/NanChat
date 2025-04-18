@@ -36,12 +36,13 @@ function SelectAccount({ }) {
   const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
   const {wallet, dispatch} = useContext(WalletContext);
   const [visible, setVisible] = useState(false);
-  const {mutateChats} = useChats();
+  const {clearCache} = useChats();
   const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address;
   const {isMobile} = useWindowDimensions()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   const {balances, balancesConverted, totalBalance, isLoading} = useWalletMultiBalance();
   console.log({balances});
+
   const onClickHide = (accountIndex) => {
     if (accountIndex === 0){
       Toast.show({content: "Cannot hide the first account"});
@@ -53,7 +54,7 @@ function SelectAccount({ }) {
       if (wallet.activeIndex === accountIndex){
         dispatch({type: "SET_ACTIVE_INDEX", payload: 0});
       }
-      mutateChats();
+      clearCache();
     }
   }
   useEffect(() => {
@@ -133,7 +134,7 @@ function SelectAccount({ }) {
                 onClick={() => {
                   dispatch({type: "SET_ACTIVE_INDEX", payload: account.accountIndex});
                   setVisible(false);
-                  mutateChats();
+                  clearCache();
                 }}
                 key={account.address}
                 prefix={

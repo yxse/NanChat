@@ -10,7 +10,7 @@ import { convertAddress, copyToClipboard, formatAddress } from "../../../utils/f
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, Card, DotLoading, Input, List, Modal, Popup, Toast } from "antd-mobile";
+import { Button, Card, DotLoading, Input, List, Modal, NavBar, Popup, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { addParticipants, fetcherMessages, fetcherMessagesPost, removeParticipants } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -27,6 +27,8 @@ import QRCode from "qrcode.react";
 import { useChats } from "../hooks/use-chats";
 import { AiOutlineCrown } from "react-icons/ai";
 import ProfileName from "./profile/ProfileName";
+import { BlockChatButton } from "./NewMessageWarning";
+import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 
 export const AccountCard = ({ account }) => {
 const navigate = useNavigate();
@@ -63,35 +65,22 @@ const GroupInfo: React.FC<{}> = ({  }) => {
     const [visibleRemove, setVisibleRemove] = useState(false);
     const {activeAccountPk, activeAccount} = useWallet()
     const sharedAccount = chat?.sharedAccount?.replace('nano_', 'group_') // replace nano_ prefix just in case to prevent confusion
+    useHideNavbarOnMobile(true)
     return (
         <div className="">
-            <List.Item
-
-            // prefix={
-            //     <AccountIcon account={account} width={48} />
-            // }
+            <NavBar
+            onBack={() => {
+                    if (window.history?.length && window.history.length > 1) {
+                        navigate(-1);
+                     } else {
+                        navigate('/chat', { replace: true });
+                     }
+            }}
             >
-                <div
-                onClick={() => {
-                    
-                }}
-                    // style={{ height: '5vh' }}
-                    className="flex items-center">
-                    <BiChevronLeft
-                        onClick={(e) => {
-                            if (window.history?.length && window.history.length > 1) {
-                                navigate(-1);
-                             } else {
-                                navigate('/chat', { replace: true });
-                             }
-                        }}
-                        className="w-8 h-8 text-gray-500 cursor-pointer" />
-                    
-                    <div className="flex-1 text-center">
+            <div className="flex-1 text-center">
                         {chat?.name || 'Group '} Info ({chat?.participants.length})
                     </div>
-                </div>
-            </List.Item>
+            </NavBar>
             <Card style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' , alignItems: 'center'}}>
                     {
@@ -279,7 +268,14 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                 Shared Key 
             </List.Item>
             </List>
+                <BlockChatButton
+                mode="list"
+                chat={chat}
+                onSuccess={() => {
+                    navigate('/chat')
 
+                }}
+                />
             </div>
 
         </div>

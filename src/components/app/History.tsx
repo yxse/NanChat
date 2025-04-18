@@ -40,6 +40,7 @@ import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 import ProfileName from "../messaging/components/profile/ProfileName";
 import { HapticsImpact } from "../../utils/haptic";
+import AddContacts from "./AddContacts";
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -200,7 +201,12 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })
   const navigate = useNavigate();
   const { isMobile } = useWindowDimensions()
-
+  const [newContactVisible, setNewContactVisible] = useState(false)
+  const [newContactDefaultValues, setNewContactDefaultValues] = useState({
+    name: "",
+    network: ticker,
+    address: account
+  })
   const actions = [
     {
       text: "Copy address",
@@ -234,10 +240,16 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
       }
     },
     {
-      text: "Create contact",
+      text: "Create new contact",
       key: "add-to-contacts",
       onClick: () => {
-        navigate("/contacts/?address=" + activeTx.account + "&network=" + ticker + "&add=true");
+        // navigate("/contacts/?address=" + activeTx.account + "&network=" + ticker + "&add=true");
+        setNewContactDefaultValues({
+          name: "",
+          network: ticker,
+          address: activeTx.account
+        });
+        setNewContactVisible(true);
       }
     },
   ];
@@ -574,6 +586,16 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         </a> */}
       </div>
     </div >
+    <AddContacts
+    key={newContactDefaultValues.address}
+                defaultName={newContactDefaultValues.name}
+                defaultAddress={newContactDefaultValues.address}
+                defaultNetwork={newContactDefaultValues.network}
+                setAddContactVisible={setNewContactVisible}
+                addContactVisible={newContactVisible}
+                setContactToEdit={null}
+                contactToEdit={null}
+                 />
     </>
   );
 }

@@ -10,7 +10,7 @@ import { convertAddress, formatAddress, ShareModal } from "../../../utils/format
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Modal, SafeArea, Skeleton, Space, Toast } from "antd-mobile";
+import { Button, DotLoading, Input, List, Modal, NavBar, SafeArea, Skeleton, Space, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { fetcherAccount, fetcherMessages, joinRequest } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -221,7 +221,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         // scrp
         // debugger
-        if (document.activeElement === messageInputRef.current.nativeElement && isKeyboardOpen) {
+        if (document.activeElement === messageInputRef.current?.nativeElement && isKeyboardOpen) {
             messageInputRef.current?.blur();
             messageInputRef.current?.focus(); // probably hacky but fix scroll bottom android when keyboard open, cause maybe by istyping?
         }
@@ -289,64 +289,73 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     }
     const HeaderPrivate = () => {
         return (
-            <div
-                onClick={() => {
+            <NavBar
+            
+                className="app-navbar "
+                backArrow={true}
+                onBack={() => {
+                    navigate('/chat');
+                }}
+                right={
+                    <span style={{float: "right", cursor: "pointer"}}>
+                    <MoreOutline 
+                    onClick={() => {
+                        navigate(`/chat/${address}/info`);
+                    }}
+                    fontSize={24} /></span>
+                }
+                >
+                   <div 
+                   style={{cursor: "pointer"}}
+                   onClick={() => {
                     navigate(`/chat/${address}/info`);
                 }}
-                style={{
-                    // height: '5vh',
-                    touchAction: 'none',
-                }}
-                className="flex items-center cursor-pointer">
-                <BiChevronLeft
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/chat')
-                    }}
-                    className="w-8 h-8 text-gray-500" />
-
-                <div className="flex-1 text-center">
-                    <h2 className="font-medium flex items-center justify-center gap-2">
+                   className="flex-1 text-center">
+                    <h2 className="flex items-center justify-center gap-2">
                     <ProfileName address={address} fallback={formatAddress(address)} />
                     </h2>
                     <HeaderStatus lastOnline={participant?.lastOnline} />
                 </div>
-                <MoreOutline fontSize={24} className="mr-2" />
-            </div>
+                </NavBar>
+                
         )
+        
     }
     const HeaderGroup = () => {
         return (
-            <div
-                onClick={() => {
+            <NavBar
+                className="app-navbar "
+                backArrow={true}
+                onBack={() => {
+                    navigate(`/chat`);
+                }}
+                right={
+                    <span style={{float: "right", cursor: "pointer"}}>
+                    <MoreOutline 
+                    onClick={() => {
+                        navigate(`/chat/${
+                            account
+                        }/group`);
+                    }}
+                    fontSize={24} /></span>
+                }
+                >
+                   <div 
+                   style={{cursor: "pointer"}}
+                   onClick={() => {
                     navigate(`/chat/${
                         account
                     }/group`);
                 }}
-                style={{
-                    // height: '5vh',
-                    touchAction: 'none',
-                }}
-                className="flex items-center cursor-pointer">
-                <BiChevronLeft
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/chat')
-                    }}
-                    className="w-8 h-8 text-gray-500" />
-
-                <div className="flex-1 text-center">
-                    <h2 className="font-medium flex items-center justify-center">
-                        {/* <TeamOutline className="mr-2" /> */}
-                        {chat?.name || 'Group Chat'} ({chat?.participants.length})
+                   className="flex-1 text-center">
+                    <h2 className="flex items-center justify-center gap-2">
+                    {chat?.name || 'Group Chat'} ({chat?.participants.length})
                     </h2>
                 </div>
-                <div className="">
-                    {/* <GroupAvatar participants={chat?.participants} /> */}
-                </div>
-                <MoreOutline fontSize={24} className="mr-2" />
-            </div>
+                </NavBar>
+                
         )
+        
     }
 
     // console.log("messages", messages);
@@ -366,7 +375,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             }}>
             {
                 account != null && (
-                    <List.Item
+                    <div
                     style={{borderBottom: '1px solid var(--adm-color-border)'}}
                     // prefix={
                     //     <AccountIcon account={account} width={48} />
@@ -375,7 +384,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                         {
                             chat?.type === 'group' ? <HeaderGroup /> : <HeaderPrivate />
                         }
-                    </List.Item>
+                    </div>
                 )
             }
 
@@ -560,7 +569,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     chat &&
                     !chat?.accepted &&
                     activeAccount !== chat?.creator &&
-                    <NewMessageWarning fromAddress={address} account={activeAccount} chatId={account} />
+                    <NewMessageWarning fromAddress={address} account={activeAccount} chat={chat} />
                 }
                     <ChatInputMessage
                         messageInputRef={messageInputRef}

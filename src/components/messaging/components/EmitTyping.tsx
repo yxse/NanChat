@@ -91,7 +91,7 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
             );
 
             setLastTypingTimeReceived(Date.now());
-            if (document.activeElement === messageInputRef.current.nativeElement && isKeyboardOpen) {
+            if (document.activeElement === messageInputRef.current?.nativeElement && isKeyboardOpen) {
                 messageInputRef.current?.blur(); // fix content shift android when typing & keyboard open
                 messageInputRef.current?.focus();
             }

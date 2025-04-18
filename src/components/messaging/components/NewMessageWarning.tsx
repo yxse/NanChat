@@ -1,4 +1,4 @@
-import { Button, Modal } from 'antd-mobile'
+import { Button, List, Modal, Toast } from 'antd-mobile'
 import React, { useState } from 'react'
 import useLocalStorageState from 'use-local-storage-state';
 import { fetcherMessages, fetcherMessagesPost } from '../fetcher';
@@ -6,31 +6,99 @@ import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { formatAddress } from '../../../utils/format';
 import { useChats } from '../hooks/use-chats';
+import { ChatCheckOutline, ChatWrongOutline } from 'antd-mobile-icons';
+import { useWallet } from '../../Popup';
+import { ChatName } from '../../app/discover/Discover';
 
-function NewMessageWarning({fromAddress, account, chatId}) {
+export function BlockChatButton({chat, onSuccess, mode='button'}) {
+    const {blockChat} = useChats();
+    const {activeAccount} = useWallet();
+
+    const showModal = () => {
+        Modal.show({
+            closeOnMaskClick: true,
+            closeOnAction: true,
+            title: <div>{chat?.type === "group" ? "Leave" : "Block"} <ChatName chat={chat} activeAccount={activeAccount} /></div>,
+            actions: [
+                { 
+                    text: <div style={{display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center'}}>
+                            <ChatWrongOutline />
+                            {chat?.type === "group" ? "Leave" : "Block"}
+                        </div>
+                    ,
+                    key: 'block',
+                    danger: true, 
+                    onClick: async () => {
+                        Toast.show({
+                            icon: 'loading',
+                        })
+                        try {
+                            await blockChat(chat.id);
+                            onSuccess();
+                        } catch (error) {
+                            console.error(error)
+                        } finally {
+                            Toast.clear()
+                        }
+                    }
+                },
+                { text: 'Cancel', key: 'cancel' }
+            ]
+        })
+    }
+    if (mode === 'list') {
+        return <List mode='card'><List.Item
+            onClick={async () => {
+                showModal();
+            }}
+            className=""
+            style={{cursor: 'pointer'}}
+            >
+                <div style={{color: 'var(--adm-color-danger)', textAlign: 'start'}}>
+                {chat?.type === "group" ? "Leave" : "Block"}
+                </div>
+        </List.Item>
+        </List>
+    }
+    return <div 
+            onClick={async () => {
+                showModal();
+            }}
+            className="w-full mt-4"
+            style={{cursor: 'pointer'}}
+            >
+                <div style={{color: 'var(--adm-color-danger)', textAlign: 'center'}}>
+                Block
+                </div>
+        </div>
+}
+
+function NewMessageWarning({fromAddress, account, chat}) {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
+    const chatId = chat.id;
     const [isLoading, setIsLoading] = useState(false);
-    const {mutateChats: mutate} = useChats();
+    const {mutateChats: mutate, blockChat} = useChats();
     const navigate = useNavigate();
 
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === fromAddress));
   return (
         <div className="p-4 " style={{ backgroundColor: 'var(--adm-color-background)' }}>
-            <div className="text-center mb-2" style={{color: 'var(--adm-color-text-secondary)'}}>
-                New chat from {formatAddress(fromAddress)}
-            </div>
-            <div className='text-center mb-4 text-lg'>
+            <div className='text-center'>
+            <div className="mb-2 text-lg" >
+                {formatAddress(fromAddress)}
+            </div></div>
+            <div className='text-center mb-4 text-lg' style={{color: 'var(--adm-color-text-secondary)'}}>
                 {
                     inContacts ? (
-                        <b>
+                        <div>
                             In your contacts as {inContacts.name}
-                        </b>
+                        </div>
                     ) : (
-                        <b>
-                            Account is not in your contacts
-                        </b>
+                        <div>
+                            Not a contact
+                        </div>
                     )
                 }
             </div>
@@ -54,46 +122,16 @@ function NewMessageWarning({fromAddress, account, chatId}) {
             className="w-full"
             size="large"
             shape="rounded"
-            color="primary">
+            color='primary'
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4}}>
                 Accept chat
+                </div>
             </Button>
-            <Button 
-            onClick={async () => {
-                Modal.show({
-                    closeOnMaskClick: true,
-                    closeOnAction: true,
-                    title: 'Block chat',
-                    content: 'It is not possible to undo this operation, and the conversation history will be deleted from your inbox.', 
-                    actions: [
-                        { 
-                            text: 'Block', 
-                            key: 'block',
-                            danger: true, 
-                            onClick: async () => {
-                                setIsLoading(true)
-                                try {
-                                    await fetcherMessagesPost('/block-chat', {
-                                        chatId: chatId
-                                    })
-                                    await mutate()
-                                    navigate('/chat')
-                                } catch (error) {
-                                    console.error(error)
-                                } finally {
-                                    setIsLoading(false)
-                                }
-                            }
-                        },
-                        { text: 'Cancel', key: 'cancel' }
-                    ]
-                })
-            }}
-            className="w-full mt-4"
-            size="large"
-            shape="rounded"
-            color="danger">
-                Block
-            </Button>
+            <BlockChatButton 
+            chat={chat} onSuccess={() => {
+                navigate('/chat');
+            }} />
 </div>
         </div>
   )
