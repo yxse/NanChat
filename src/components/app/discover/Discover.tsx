@@ -170,7 +170,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
             
             
                 <List>
-                    {services.map((service, index) => (
+                    {services?.map((service, index) => (
                         <List.Item
                             key={index}
                             prefix={<img src={service.favicon} alt={service.name} style={{width: 40}} />}

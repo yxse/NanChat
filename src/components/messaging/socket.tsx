@@ -34,9 +34,11 @@ const ChatSocket: React.FC = () => {
         getChatToken().then((token) => {
                     socket.auth = { token };
                     socket.connect();
+                    console.log('socket connected');
                 });
         return () => {
             socket.disconnect();
+            console.log('disconnect socket');
         };
     }, [activeAccount]);
     useEffect(() => {
