@@ -1,4 +1,4 @@
-.app-navbar {
+.aapp-navbar {
   z-index: 1;
   /* background-color: rgb(16, 16, 24); */
   /* background-color: var(--main-background-color); */
@@ -27,7 +27,7 @@
 }
 
 @media (max-width: 1200px) {
-  .app-navbar {
+  .aapp-navbar {
     position: fixed;
     top: env(safe-area-inset-top);
     width: 100vw; 
@@ -39,7 +39,7 @@
   }
   .app:has(.app-navbar) {
     /* 46px is the header */
-    padding-top: 46px; 
+    /* padding-top: 46px;  */
   }
   
 }
@@ -797,6 +797,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .chat-list .adm-list-body{
   background-color: var(--main-background-color);
+  border-bottom: none;
 }
 
 .adm-tab-bar-wrap {

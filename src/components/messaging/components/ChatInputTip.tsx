@@ -58,8 +58,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
         </div>
     }
     const ButtonListTransfer = () => {
-      return <List>
-        <List.Item
+      return <List.Item
         onClick={() => {
           onClick();
         }}
@@ -68,7 +67,6 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
           💸 Transfer
           </div>
         </List.Item>
-      </List>
     }
     console.log("tip rendered")
     return (

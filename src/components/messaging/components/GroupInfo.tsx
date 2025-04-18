@@ -81,7 +81,8 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                         {chat?.name || 'Group '} Info ({chat?.participants.length})
                     </div>
             </NavBar>
-            <Card style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
+            <div style={{marginRight: 12, marginLeft: 12, marginTop: 16}}>
+            <Card style={{maxWidth: 576, margin: 'auto'}}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' , alignItems: 'center'}}>
                     {
                         chat?.participants.map((participant, index) => {
@@ -143,8 +144,9 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                 }}
                 visible={visibleRemove} setVisible={setVisibleRemove} title="Remove Participant" />
 </Card>
+</div>
 <div style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
-<List >
+<List mode="card">
             <List.Item
             extra={chat?.name || 'Not Set'}
             onClick={() => {
@@ -225,7 +227,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             </List.Item>
            
             </List>
-            <List style={{marginTop: 16}}>
+            <List style={{marginTop: 16}} mode="card">
             <List.Item
             extra={<div style={{display: 'flex', gap: 4, alignItems: 'center'}}>
                 <AccountIcon account={chat?.creator} width={24} />

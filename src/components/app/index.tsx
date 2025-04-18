@@ -324,9 +324,9 @@ function SafeAreaWrapper({ children, callback }) {
       <SafeArea position="top" 
       style={{
         backgroundColor: 
-          location.pathname.startsWith("/chat/") ?
-          "var(--adm-color-background)" :
-          "var(--main-background-color)" 
+          location.pathname.startsWith("/wallet") ?
+          "var(--main-background-color)" :
+          "var(--adm-color-background)" 
       }}
       />
       {children}

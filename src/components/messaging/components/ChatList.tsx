@@ -365,7 +365,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             className="chat-list"          
           >
           <div style={{ height:
-          isMobile ? "calc(100dvh - 47px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 47px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
+          isMobile ? "calc(100dvh - 45px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 47px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
           // 47px for the header, 58px for the menu
           , overflow: "hidden" }}>
             <AutoSizer>

@@ -159,7 +159,10 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 }]}
                 />
                 <ChatInputTip
-                filterTickers={contact?.addresses[0].network === 'ALL' ? [] : [contact?.addresses[0].network]} 
+                filterTickers={
+                    inContacts ? contact?.addresses[0].network === 'ALL' ? [] : [contact?.addresses[0].network]
+                    : []
+                } 
                 mode={"list"}
                 toAddress={account} onTipSent={() => {
                 }} />

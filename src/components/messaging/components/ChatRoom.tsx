@@ -291,7 +291,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         return (
             <NavBar
             
-                className="app-navbar "
+                className=" "
                 backArrow={true}
                 onBack={() => {
                     navigate('/chat');
