@@ -22,8 +22,8 @@ const SetName: React.FC = () => {
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const {mutateChats} = useChats();
 
-    useHideNavbarOnMobile(true);
     const {ledger} = useContext(LedgerContext);
+    useHideNavbarOnMobile(ledger ? false : true);
     const isRegistered = me?.name;
     if (ledger) {
         return <LedgerNotCompatible />

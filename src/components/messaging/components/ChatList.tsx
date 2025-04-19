@@ -41,6 +41,7 @@ import {
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { NoAvatar } from "./icons/NoAvatar";
 import { debounce } from 'lodash';
+import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -67,10 +68,11 @@ export const ChatAvatar = ({ chat }) => {
 }
 
 export const LedgerNotCompatible = () => {
+    useHideNavbarOnMobile(false);
     return (
         <div className="m-4">
         <div className="text-base mb-4">
-            Chat is not compatible with Ledger. Please disconnect Ledger to use E2E encrypted chat.
+            Chat is not compatible with Ledger. Please disconnect Ledger to use end-to-end encrypted chat.
         </div>
         <DisconnectLedger />
         </div>
