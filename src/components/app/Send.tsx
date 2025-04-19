@@ -19,7 +19,7 @@ import {
   TextArea,
   Toast,
 } from "antd-mobile";
-import { ScanCodeOutline, TextOutline, ScanningOutline } from "antd-mobile-icons";
+import { ScanCodeOutline, TextOutline, ScanningOutline, LinkOutline } from "antd-mobile-icons";
 import * as webauthn from '@passwordless-id/webauthn'
 import isValid from 'nano-address-validator';
 
@@ -600,18 +600,23 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               <Result
               className="text-xl"
                 status="success"
-                title={<div className="text-2xl text-gray-100">Success</div>}
+                title={<div 
+                  style={{}}
+                  className="text-2xl">Success</div>}
                 description={<>
                   <div className="text-lg">
                     {sentAmount} {ticker} sent to{" "} {formatAddress(sentTo)}
                   </div>
-                  <div className="text-base mt-2 flex justify-center space-x-2 items-baseline">
-                    <span>Hash: </span>    
-                    <CopyToClipboard text={result.hash} textToDisplay={result.hash.slice(0, 4) + "..." + result.hash.slice(-4)} /> 
-                    <a target="_blank" href={`https://nanexplorer.com/${networks[ticker].id}/block/${result.hash}`}>
-                    <FaExternalLinkAlt className="text-blue-300"  />
+                  {/* <div className="text-sm mt-4 " style={{}}>
+                    <a 
+                    className="flex justify-center space-x-2 items-baseline"
+                    target="_blank" href={`https://nanexplorer.com/${networks[ticker].id}/block/${result.hash}`}>
+                    <span>Hash: {result.hash.slice(0, 4) + "..." + result.hash.slice(-4)}
+                      </span>    
+                      <LinkOutline />
                       </a>
-                  </div></>
+                  </div> */}
+                  </>
                 }
                 />
                 

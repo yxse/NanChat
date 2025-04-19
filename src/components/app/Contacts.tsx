@@ -308,7 +308,7 @@ export const MessageButton = ({ addresses }) => {
 export  const findNanoAddress = (addresses) => {
     if (addresses == null) return null;
     if (addresses.find((address) => address.network === 'XNO')) {
-        return addresses.find((address) => address.network === 'XNO').address;
+        return 'nano_' + addresses?.find((address) => address.network === 'XNO').address?.split('_')[1];
     }
     return convertAddress(addresses[0].address, 'XNO');
 }
@@ -405,7 +405,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         prefix={<ProfilePicture address={contact.addresses[0]?.address} width={48}  />}
                          key={index}
                             onClick={() => {
-                                navigate(`/${findNanoAddress(contact.addresses)}/info`);
+                                navigate(`/${contact.addresses[0].address}/info`);
                                 // setContactToEdit(contact);
                                 // setEditContactVisible(true);
                                 // form.setFieldsValue({ newName: contact.name });

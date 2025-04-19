@@ -5,7 +5,6 @@ import useLocalStorageState from "use-local-storage-state";
 import { AccountAvatar } from "./components/ChatList";
 import { useState } from "react";
 
-
 export const hasLink = (message: string) => {
     return message.match(/(https?:\/\/[^\s]+)/g)
 }
@@ -136,9 +135,9 @@ export const TEAM_ACCOUNT = import.meta.env.VITE_PUBLIC_TEAM_ACCOUNT as string;
 
 export const defaultContacts = [
         {
-            name: 'NanWallet Team',
+            name: 'NanChat Team',
             addresses: [
-                { network: 'XNO', address: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij' },
+                { network: 'ALL', address: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij' },
             ]
         },
 ]

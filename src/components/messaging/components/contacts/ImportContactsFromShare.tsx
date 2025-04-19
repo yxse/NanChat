@@ -57,8 +57,7 @@ export const useContacts = () => {
         let newContacts = [];
         let count = 0;
         data.forEach((contact) => {
-            const exists = contacts.find((c) => c.name === contact.name);
-            if (!exists) {
+           
                 let addressesFormatted = [];
                 let addresses = []
                 if (contact.addresses !== undefined) { // nanwallet export file
@@ -84,12 +83,18 @@ export const useContacts = () => {
                     }
                 });
 
-                newContacts.push({
-                    name: contact.name,
-                    addresses: addressesFormatted
-                });
-                count++;
-            }
+                const exists = contacts.find((c) => c.addresses[0].address === addressesFormatted[0].address);
+                if (contact.name === "@NatriumDonations" || contact.name === "@KaliumDonations") {
+                    return;
+                }
+                const nameFormatted = contact.name?.startsWith('@') ? contact.name.slice(1) : contact.name;
+                if (!exists) {
+                    newContacts.push({
+                        name: nameFormatted,
+                        addresses: addressesFormatted
+                    });
+                    count++;
+             }
         });
         
         return {

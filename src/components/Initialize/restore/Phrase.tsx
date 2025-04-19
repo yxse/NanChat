@@ -124,7 +124,12 @@ export default function ImportPhrase({
           <Divider>
             Or
           </Divider>
-          <LedgerSelect setWalletState={setWalletState} /> 
+          <LedgerSelect
+          onConnect={() => {
+            onCreated({callback: "/wallet"})
+            setWalletState("unlocked");
+          }}
+           setWalletState={setWalletState} /> 
           
           <PasswordImport
             visible={importFileVisible}

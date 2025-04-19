@@ -38,7 +38,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const {blockChat} = useChats();
-    const { data: names } = useSWR<Chat[]>(`/names?accounts=${account}`, fetcherMessages);
+    const { data: names } = useSWR<Chat[]>(`/names?accounts=nano_${account?.split('_')[1]}`, fetcherMessages);
     const name = names?.[0];
     const nameOrAccount = name?.name || formatAddress(account);
     const {getContact} = useContact();
@@ -56,7 +56,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {isMobile} = useWindowDimensions();
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
 
-    const inOnNanchat = names?.find((name) => name._id === account);
+    const inOnNanchat = names?.find((name) => name._id === convertAddress(account, 'XNO'));
     const contact = getContact(account);
     useHideNavbarOnMobile(true)
     return (
@@ -90,9 +90,9 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 inOnNanchat ? 
                 <div>
                     <div style={{display: "flex", alignItems: "center", gap: 8}} className="text-2xl">
-                <ProfilePicture address={account} width={72} clickable/>
+                <ProfilePicture address={convertAddress(account, 'XNO')} width={72} clickable/>
                 <div style={{display: "flex", flexDirection: "column", gap: 4}}>
-                <ProfileName address={account} />
+                <ProfileName address={convertAddress(account, 'XNO')} />
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
                     NanChat ID: {name?.username}
                 </div>

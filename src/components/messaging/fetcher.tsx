@@ -165,7 +165,7 @@ export const acceptJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/
 export const rejectJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/join-request-reject', {chatId, fromAccount})
 export const deleteMessage = (chatId, height) => fetcherMessagesPost('/delete-message', {chatId, height})
 
-export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/account?account=' + account)
+export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/account?account=nano_' + account?.split('_')[1])
 .then((res) => res.json()).then((data) => {
     return data
 })
