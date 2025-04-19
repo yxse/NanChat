@@ -2,7 +2,7 @@ import { Button, Card, Dialog, Divider, Modal, Space, Toast } from "antd-mobile"
 import Navbar from "../Lock/Navbar";
 import { Dispatch, useContext, useEffect, useState } from "react";
 import { LedgerService, LedgerStatus } from "../../ledger.service";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LedgerContext, useWallet, WalletContext } from "../Popup";
 
 import { mutate, useSWRConfig } from "swr";
@@ -26,7 +26,8 @@ import { setSeed } from "../../utils/storage";
 export function DisconnectLedger({ icon = false }) {
   const { ledger, setLedger, setWalletState } = useContext(LedgerContext);
   const { wallet, dispatch } = useContext(WalletContext);
-  
+  const navigate = useNavigate();
+  const location = useLocation()
   async function resetLedger() {
     global.ledger.resetLedger()
     global.ledger = null
@@ -41,6 +42,10 @@ export function DisconnectLedger({ icon = false }) {
     Toast.show({
       content: "Ledger disconnected.",
     });
+    if (location.pathname === '/profile/name'){ // fix bug showing name when using & disconnecting ledger
+      navigate("/chat"); 
+    }
+
   }
   if (icon) {
     return <MdOutlineUsb

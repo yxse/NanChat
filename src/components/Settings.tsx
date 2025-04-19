@@ -641,10 +641,10 @@ className="mb-24"
             <div className="mt-4 pb-4">
             <LedgerSelect 
             onConnect={() => {
-              navigate("/")
+              navigate("/wallet")
             }}
               onDisconnect={() => {
-                navigate("/")
+                // navigate("/")
               }}
             />
             </div>

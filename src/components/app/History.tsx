@@ -157,7 +157,7 @@ export const Alias = ({ account }) => {
       <div className="flex items-center ">
         <AiOutlineWallet className="inline mr-1" />
         {/* <UserOutline className="inline mr-1" /> */}
-        <ProfileName address={accountNano} fallback={"Account " + +(wallet.accounts.findIndex((a) => a.address == accountNano)) + 1} />
+        <ProfileName address={accountNano} fallback={"Account " + +((wallet.accounts.findIndex((a) => a.address == accountNano)) + 1)} />
       </div>
     )
   }

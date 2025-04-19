@@ -127,7 +127,43 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const {isMobile, width} = useWindowDimensions()
     const {inviteFriends} = useInviteFriends()
    
+    const listRef = useRef(null);
+    const scrollKeyStore = `scrollTop-chat`;
+    const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
+    useEffect(() => {
+      // restore scroll position
+      const scrollTop = localStorage.getItem(scrollKeyStore);
+      if (scrollTop) {
+          const scrollTopInt = parseInt(scrollTop);
+          if (!isNaN(scrollTopInt)) {
+              if (listRef.current) {
+                  (listRef.current as any).scrollToPosition(scrollTopInt);
+              }
+          }
+      }
+      return () => {
+      }
+      }, [listRef]);
+      // Simple debounce implementation without lodash
 
+    // Debounced function to save to localStorage
+const saveScrollPosition = useCallback(
+  debounce((position) => {
+    try {
+      localStorage.setItem(`scrollTop-chat`, position.toString());
+      console.log('Scroll position saved:', position);
+    } catch (error) {
+      console.error('Error saving scroll position to localStorage:', error);
+    }
+  }, 200), // 200ms debounce time - adjust as needed
+  []
+);
+  // Clean up the debounce on unmount
+  useEffect(() => {
+      return () => {
+        saveScrollPosition.cancel();
+      };
+    }, [saveScrollPosition]);
 
 
     if (ledger) {
@@ -344,43 +380,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             </List.Item>
         )
       }
-      const listRef = useRef(null);
-      const scrollKeyStore = `scrollTop-chat`;
-      const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
-      useEffect(() => {
-        // restore scroll position
-        const scrollTop = localStorage.getItem(scrollKeyStore);
-        if (scrollTop) {
-            const scrollTopInt = parseInt(scrollTop);
-            if (!isNaN(scrollTopInt)) {
-                if (listRef.current) {
-                    (listRef.current as any).scrollToPosition(scrollTopInt);
-                }
-            }
-        }
-        return () => {
-        }
-        }, [listRef]);
-        // Simple debounce implementation without lodash
-
-      // Debounced function to save to localStorage
-  const saveScrollPosition = useCallback(
-    debounce((position) => {
-      try {
-        localStorage.setItem(`scrollTop-chat`, position.toString());
-        console.log('Scroll position saved:', position);
-      } catch (error) {
-        console.error('Error saving scroll position to localStorage:', error);
-      }
-    }, 200), // 200ms debounce time - adjust as needed
-    []
-  );
-    // Clean up the debounce on unmount
-    useEffect(() => {
-        return () => {
-          saveScrollPosition.cancel();
-        };
-      }, [saveScrollPosition]);
+     
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
