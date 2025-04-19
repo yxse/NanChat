@@ -78,6 +78,7 @@
     "hw-app-nan": "^1.3.0",
     "hw-app-nano": "^1.3.0",
     "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
     "multi-nano-web": "^1.8.0",
     "nano-address-validator": "^3.0.0",
     "nanocurrency": "^2.5.0",
