@@ -2585,9 +2585,9 @@
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
-"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#ded3c1046372b540cca75b60d64b11d0939d3051":
+"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#38959cf3b2c5b1cc7e5a92e497fe9a58b6b244f9":
   version "3.1.1"
-  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#ded3c1046372b540cca75b60d64b11d0939d3051"
+  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#38959cf3b2c5b1cc7e5a92e497fe9a58b6b244f9"
   dependencies:
     resize-observer-polyfill "^1.5.1"
 
@@ -5680,6 +5680,11 @@ jiti@^1.21.0:
   resolved "https://registry.npmjs.org/jiti/-/jiti-1.21.0.tgz"
   integrity sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==
 
+jotai@^2.4.0:
+  version "2.12.3"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.12.3.tgz#517ccfd92b35a3d98b944545166ddeecd29e7784"
+  integrity sha512-DpoddSkmPGXMFtdfnoIHfueFeGP643nqYUWC6REjUcME+PG2UkAtYnLbffRDw3OURI9ZUTcRWkRGLsOvxuWMCg==
+
 js-cookie@^2.x.x:
   version "2.2.1"
   resolved "https://registry.npmjs.org/js-cookie/-/js-cookie-2.2.1.tgz"
@@ -8632,6 +8637,14 @@ use-local-storage-state@^19.3.1:
   version "19.4.1"
   resolved "https://registry.npmjs.org/use-local-storage-state/-/use-local-storage-state-19.4.1.tgz"
   integrity sha512-AMDnatdkHuslnwMz5ahJAGubYgw7VY4QgWoN/6CWCjZtWdfBKIoHJZzYXbmmuCcdzoThbag7aUsyMqajKe7wmg==
+
+use-scroll-restoration@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/use-scroll-restoration/-/use-scroll-restoration-1.0.0.tgz#4cb62860058c32f7d1304c6d1b96e8bed2855e63"
+  integrity sha512-ZpDsqjuftS6MPFH4WPOFaIWZk85ZotpDkbkDSyxVcAHZxW7MVkCWP7O7FlGO5icYNiPOzEUohnVtsy2Sh6Jr0A==
+  dependencies:
+    jotai "^2.4.0"
+    react "^18.2.0"
 
 use-sync-external-store@^1.2.0:
   version "1.2.2"

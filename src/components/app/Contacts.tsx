@@ -27,6 +27,7 @@ import { Capacitor } from '@capacitor/core';
 import { CardAddNewContact, InputAddressAndNetwork } from '../messaging/components/contacts/AddNewContact';
 import AddContacts from './AddContacts';
 
+import { useScrollRestoration } from 'use-scroll-restoration';
 
 
 export const ImportContacts = ({showAdd = false}) => {
@@ -318,6 +319,9 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const [contactToEdit, setContactToEdit] = useState(null);
   const {isMobile} = useWindowDimensions()
+  const { ref, setScroll } = useScrollRestoration('contacts', {
+    persist: 'localStorage',
+  });
     const {backupContacts} = useBackupContacts()
     const handleExport = () => {
         // Handle export logic here
@@ -333,7 +337,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     }
 
     return (
-        <div>
+        <div >
             <NavBar
                 className="app-navbar "
                 onBack={() => navigate('/me')}
@@ -348,6 +352,10 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             >
                 Contacts
             </NavBar>
+             <div ref={ref} style={{ height:
+                isMobile ? "calc(100dvh - 45px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 45px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
+                // 47px for the header, 58px for the menu
+                , overflow: "auto" }}>
             {
                 contacts.length === 0 && 
                 <>
@@ -422,6 +430,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
 
             <ImportContactsFromShare />
             <BackupContacts />
+            </div>
         </div>
     );
 };

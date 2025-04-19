@@ -1,6 +1,6 @@
 import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Space, Toast } from "antd-mobile";
 import { AddCircleOutline, ChatAddOutline, FillinOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
@@ -341,8 +341,43 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             </List.Item>
         )
       }
-
-      
+      const listRef = useRef(null);
+      const scrollKeyStore = `scrollTop-chat`;
+      const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
+      useEffect(() => {
+        // restore scroll position
+        const scrollTop = localStorage.getItem(scrollKeyStore);
+        if (scrollTop) {
+            const scrollTopInt = parseInt(scrollTop);
+            if (!isNaN(scrollTopInt)) {
+                if (listRef.current) {
+                    (listRef.current as any).scrollToPosition(scrollTopInt);
+                }
+            }
+        }
+        return () => {
+        }
+        }, [listRef]);
+        // Simple debounce implementation without lodash
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+      // Debounced function to save to localStorage
+  const saveScrollPosition = useCallback(
+    debounce((position) => {
+      try {
+        localStorage.setItem(`scrollTop`, position.toString());
+        console.log('Scroll position saved:', position);
+      } catch (error) {
+        console.error('Error saving scroll position to localStorage:', error);
+      }
+    }, 200), // 200ms debounce time - adjust as needed
+    []
+  );
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
@@ -365,12 +400,13 @@ const ChatList: React.FC = ({ onChatSelect }) => {
             className="chat-list"          
           >
           <div style={{ height:
-          isMobile ? "calc(100dvh - 45px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 47px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
+          isMobile ? "calc(100dvh - 45px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 45px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
           // 47px for the header, 58px for the menu
           , overflow: "hidden" }}>
             <AutoSizer>
               {({ width, height }) => (
                 <VirtualizedList
+                    ref={listRef}
                   rowCount={chats.length + 1} // +1 for footer
                   rowRenderer={rowRenderer}
                   width={width}
@@ -383,7 +419,21 @@ const ChatList: React.FC = ({ onChatSelect }) => {
                   }
                   overscanRowCount={10}
                 //   isScrolling={isScrolling}
-                //   scrollTop={scrollTop}
+                onScroll={({ scrollTop }) => {
+                    // setScrollTop(scrollTop);
+                    if (initScrollPosition !== undefined) {
+                        setInitScrollPosition(undefined); 
+                    }
+                    // if (scrollTop === 0) {
+                    //     return;
+                    // }
+                    console.log(scrollTop);
+
+                    // localStorage.setItem(scrollKeyStore, scrollTop.toString());
+                    saveScrollPosition(scrollTop);
+                }}
+                    
+                  scrollTop={initScrollPosition}
                 />
               )}
             </AutoSizer></div>
