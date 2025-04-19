@@ -63,6 +63,9 @@ const {
                 <Route path="/:account" element={
                     <div key={"chat-account"}
                      className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
+                        {
+                            !isMobile &&
+                        
                         <div
                         className='hide-on-mobile'
                          style={{
@@ -87,7 +90,7 @@ const {
                                     navigate(`/chat/${chatId}`)
                                 }
                             }}
-                        /></div>
+                        /></div>}
                         <div style={{
                             height: "100%", 
                             display: "flex", 
@@ -130,6 +133,9 @@ const {
                                 }
                             }}
                         /></div>
+                        {
+                            !isMobile &&
+                        
                         <div
                         className='hide-on-mobile'
                          style={{
@@ -143,7 +149,7 @@ const {
                             }}>
 
                         <ChatRoom key={"chat-room"} onlineAccount={onlineAccount} />
-                        </div>
+                        </div>}
                     </div>} />
             </Routes>
         </>

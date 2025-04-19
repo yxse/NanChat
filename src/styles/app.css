@@ -402,13 +402,20 @@ html {
 }
 
 /*  animation keyboard ios native */
-.app {
+.app:not(:has(.chat-list)){
     padding-bottom: 0;
-    transition: padding-bottom 300ms;
+    transition: padding-bottom 0.25s cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  will-change: padding-bottom;
+  transform: translateZ(0.1);
+
 }
-.adm-popup-body {
+
+
+.adm-popup-body:not(:has(.chat-list)) {
   margin-bottom: 0;
-  transition: margin-bottom 300ms;
+  transition: margin-bottom 0.25s cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  will-change: margin-bottom;
+  transform: translateZ(0.1);
 }
 
 .swap-btn:hover {

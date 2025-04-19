@@ -40,6 +40,7 @@ import {
   } from 'react-virtualized'
 import { updateSharedKeys } from "../../../services/sharedkey";
 import { NoAvatar } from "./icons/NoAvatar";
+import { debounce } from 'lodash';
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -359,18 +360,12 @@ const ChatList: React.FC = ({ onChatSelect }) => {
         }
         }, [listRef]);
         // Simple debounce implementation without lodash
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-  }
+
       // Debounced function to save to localStorage
   const saveScrollPosition = useCallback(
     debounce((position) => {
       try {
-        localStorage.setItem(`scrollTop`, position.toString());
+        localStorage.setItem(`scrollTop-chat`, position.toString());
         console.log('Scroll position saved:', position);
       } catch (error) {
         console.error('Error saving scroll position to localStorage:', error);
@@ -378,6 +373,12 @@ function debounce(func, wait) {
     }, 200), // 200ms debounce time - adjust as needed
     []
   );
+    // Clean up the debounce on unmount
+    useEffect(() => {
+        return () => {
+          saveScrollPosition.cancel();
+        };
+      }, [saveScrollPosition]);
     return (
         <div
         // style={isMobile ? {} : { minWidth: 500 }}
@@ -422,7 +423,7 @@ function debounce(func, wait) {
                 onScroll={({ scrollTop }) => {
                     // setScrollTop(scrollTop);
                     if (initScrollPosition !== undefined) {
-                        setInitScrollPosition(undefined); 
+                        setInitScrollPosition(undefined);
                     }
                     // if (scrollTop === 0) {
                     //     return;
