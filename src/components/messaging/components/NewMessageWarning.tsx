@@ -18,7 +18,7 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
         Modal.show({
             closeOnMaskClick: true,
             closeOnAction: true,
-            title: <div>{chat?.type === "group" ? "Leave" : "Block"} <ChatName chat={chat} activeAccount={activeAccount} /></div>,
+            title: <div>{chat?.type === "group" ? "Leave" : "Block"} <ChatName chat={chat} activeAccount={activeAccount} /> ?</div>,
             actions: [
                 { 
                     text: <div style={{display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center'}}>
@@ -35,10 +35,14 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
                         try {
                             await blockChat(chat.id);
                             onSuccess();
+                            Toast.clear();
                         } catch (error) {
-                            console.error(error)
+                            Toast.show({
+                                icon: 'fail',
+                                content: error?.message,
+                            })
                         } finally {
-                            Toast.clear()
+                            // Toast.clear()
                         }
                     }
                 },

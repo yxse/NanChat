@@ -57,7 +57,7 @@ export const ChatAvatar = ({ chat }) => {
     const accountFrom = from?._id;
     if (chat.type === 'group') {
         return <GroupAvatar
-            chatId={chat.id}
+            chat={chat}
         />
     }
     return <AccountAvatar

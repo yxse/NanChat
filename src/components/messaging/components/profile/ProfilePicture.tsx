@@ -15,15 +15,18 @@ const ProfilePicture = ({ address, width=42, borderRadius=8, clickable }) => {
         icon = <NoAvatar width={width} height={width} />
     }
     else{
-        icon =  <img
+        icon =  <div style={{width: width, height: width}}>
+        <img
         onClick={() => {
             if (clickable){
                 ImageViewer.show({
                     image: src,
                 })
             }}}
-            style={{ borderRadius: borderRadius }}
-            src={src} width={width} alt="pfp"  />
+            style={{ borderRadius: borderRadius, objectFit: "cover", width: width, height: width }}
+            src={src} width={width} height={width}
+            alt="pfp" 
+             /></div>
     }
     if (isLoading) return null
     return (

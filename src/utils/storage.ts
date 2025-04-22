@@ -125,10 +125,11 @@ export async function getIsPasswordEncrypted(): Promise<boolean> {
 }
 export async function setSeed(seed: string, isPasswordEncrypted: boolean, pin: string = ""): Promise<void> {
   // localStorage.setItem("seed", seed);
-  let valueSeed = JSON.stringify({
+  const listSeeds = [{
     seed: seed,
     isPasswordEncrypted: isPasswordEncrypted
-  });
+  }] // to support multiple seeds eventually
+  let valueSeed = JSON.stringify(listSeeds);
   await saveInSecureStorage('seed', valueSeed);
 }
 
@@ -211,7 +212,11 @@ export async function setChatToken(account: string, token: string): Promise<void
 export async function getSeed(): Promise<string> {
   try {
     const seed = await getFromSecureStorage('seed');
-    return JSON.parse(seed);
+    const json = JSON.parse(seed)
+    if (Array.isArray(json) && json.length > 0) {
+      return json[0]
+    }
+    return json
   } catch (error) {
     console.error("Error getting seed: ", error);
     return null

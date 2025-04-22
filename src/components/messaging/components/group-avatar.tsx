@@ -5,9 +5,7 @@ import { fetcherMessages } from '../fetcher';
 import useSWR from 'swr';
 import { useChats } from '../hooks/use-chats';
 
-const GroupAvatar = ({ chatId }) => {
-  const {chats} = useChats(chatId);
-  const chat = chats?.find((chat) => chat.id === chatId);
+const GroupAvatar = ({ chat }) => {
   const participants = chat?.participants.slice(0, 9);
   // Extract initials from group name with null/undefined safety
   const getInitials = (name) => {

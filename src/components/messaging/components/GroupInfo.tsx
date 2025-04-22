@@ -61,6 +61,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
     });
     const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
     const {chat, mutateChats: mutate} = useChats(account);
+    const isAdmin = chat?.creator === account;
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [visibleRemove, setVisibleRemove] = useState(false);
     const {activeAccountPk, activeAccount} = useWallet()
@@ -102,6 +103,9 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     >
                         <AddOutline fontSize={24} />
                     </Button>
+                    {
+                        isAdmin &&
+                    
                     <Button
                     style={{width: '58px', height: '58px', display: 'flex', alignItems: 'center', justifyContent: 'center', '--border-style': 'dashed', '--border-width': '2px', borderRadius: 8}}
                     onClick={() => {
@@ -110,6 +114,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     >
                         <MinusOutline fontSize={24} />
                     </Button>
+                    }
                 </div>
                 <NewChatPopup 
                 alreadySelected={chat?.participants.map((participant) => participant._id)}
@@ -147,6 +152,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
 </div>
 <div style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
 <List mode="card">
+    {isAdmin && 
             <List.Item
             extra={chat?.name || 'Not Set'}
             onClick={() => {
@@ -196,7 +202,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
         }
             >
                 Group Name
-            </List.Item>
+            </List.Item>}
             <List.Item
             extra={<SystemQRcodeOutline />}
                 onClick={() => {
@@ -206,7 +212,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                         content: (
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
-                                    <GroupAvatar chatId={chat?.id} />
+                                    <GroupAvatar chat={chat} />
                                     {chat?.name || 'New group'}
                                 </div>
                                 <QRCode

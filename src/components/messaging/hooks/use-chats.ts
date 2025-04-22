@@ -109,10 +109,7 @@ export function useChats(chatId?: string): UseChatsReturn {
       )
   }
   else if (r.error) {
-      Toast.show({
-          content: r.error,
-          icon: 'fail'
-      })
+      throw new Error(r.error)
   }
   }
     

@@ -254,7 +254,7 @@ export const ImportContacts = ({showAdd = false}) => {
             closeOnMaskClick={true}
             >
             {importMethod === 'Nault' && <PopupContentNault /> }
-            {importMethod === 'Kalium' || importMethod === 'Natrium' && <PopupContentNatriumKalium /> }
+            {(importMethod === 'Kalium' || importMethod === 'Natrium') && <PopupContentNatriumKalium /> }
         </ResponsivePopup>
 
 </div>
