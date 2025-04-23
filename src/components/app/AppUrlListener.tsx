@@ -135,7 +135,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   // focus window
   // window.focus();
   let seed = await getSeed();
-  
+  seed = seed?.seed;
   
   
   let message = event.notification.data.message;
@@ -154,7 +154,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
   activeAddresses = JSON.parse(activeAddresses);
   const index = activeAddresses?.findIndex((address) => address === toAccount);
-  let accounts = seed?.length === 128 ? wallet.accounts(seed.seed, index, index) : wallet.legacyAccounts(seed.seed, index, index );
+  let accounts = seed?.length === 128 ? wallet.accounts(seed, index, index) : wallet.legacyAccounts(seed, index, index );
   let decryptionKey = accounts[0].privateKey;
   console.log("decryptionKey", decryptionKey);
   console.log("accounts", accounts);
