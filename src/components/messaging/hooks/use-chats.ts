@@ -33,7 +33,9 @@ export function useChats(chatId?: string): UseChatsReturn {
       fallbackData: [],
     }
   );
-  const chat = chats?.find(chat => chat.id === chatId);
+  // const chat = chats?.find(chat => chat.id === chatId);
+  const chat = Array.isArray(chats) ? chats.find(chat => chat.id === chatId) : undefined;
+
   const profilePictures = {}
   // if (typeof chat !== 'undefined') {
   //   for (const chat of chats) {

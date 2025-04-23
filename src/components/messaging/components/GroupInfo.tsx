@@ -59,7 +59,6 @@ const GroupInfo: React.FC<{}> = ({  }) => {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
-    const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
     const {chat, mutateChats: mutate} = useChats(account);
     const isAdmin = chat?.creator === account;
     const [visibleAdd, setVisibleAdd] = useState(false);

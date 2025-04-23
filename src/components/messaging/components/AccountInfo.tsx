@@ -54,7 +54,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
         address: ''
     });
     const {isMobile} = useWindowDimensions();
-    const inContacts = contacts.find((contact) => contact.addresses.find((address) => address.address === account));
+    const inContacts = contacts?.find((contact) => contact.addresses?.find((address) => address.address === account));
 
     const inOnNanchat = names?.find((name) => name._id === convertAddress(account, 'XNO'));
     const contact = getContact(account);
