@@ -11,6 +11,9 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: KeyboardResize.None,
     },
+    LocalNotifications: {
+      smallIcon: "nanchat_notif",
+    },
   },
 };
 

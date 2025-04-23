@@ -188,7 +188,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
               body: 
               isGroupMessage ? `${fromAccountName}: ${decrypted}` : decrypted,
               id: +idInt,
-              schedule: { at: new Date(Date.now() + 10) },
+              schedule: { at: new Date(Date.now() + 100) },
               extra: {
                 url: url,
               }

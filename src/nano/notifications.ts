@@ -17,6 +17,11 @@ import {
     requestPermission,
     sendNotification,
   } from '@tauri-apps/plugin-notification';
+
+import {
+    LocalNotifications,
+  } from "@capacitor/local-notifications";
+
 const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_BACKEND + "/notifications";
 
 export async function getToken() {
@@ -54,6 +59,9 @@ async function askPermission() {
             permissionGranted = permission === 'granted';
         }
     }
+    await LocalNotifications.requestPermissions().then((r) => {
+        console.log(r);
+    });
     const permission = await FirebaseMessaging.requestPermissions();
     // console.log({permission});
     permissionGranted = permission.receive === "granted";
