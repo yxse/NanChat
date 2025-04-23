@@ -104,7 +104,7 @@ const AddContacts: React.FC = ({defaultName, defaultAddress, defaultNetwork, set
             return;
         }
         // check if name already exists
-        const exists = contacts.find((contact) => contact.addresses[0].address === values.address);
+        const exists = contacts?.find((contact) => contact.addresses[0].address === values.address);
         if (exists) {
             Modal.alert({
                 title: 'Contact with same address already exists: ' + exists.name,

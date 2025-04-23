@@ -24,8 +24,8 @@ import useSWR from 'swr';
 export const useContact = () => {
     const [contacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const getContact = (address) => {
-        return contacts.find((contact) => {
-            return contact.addresses.find((a) => a.address === address);
+        return contacts?.find?.((contact) => {
+            return contact.addresses?.find?.((a) => a.address === address);
         });
     }
 
@@ -42,7 +42,7 @@ export const useContacts = () => {
         fetcherMessages);
      
     let contactsNotOnNanChat = contacts.filter((contact) => {
-        return !contactsOnNanChat?.find((c) => c._id === contact.addresses[0].address);
+        return !contactsOnNanChat?.find?.((c) => c._id === contact.addresses[0].address);
     });
     contactsNotOnNanChat = contactsNotOnNanChat.map((contact) => {
         return {
