@@ -13,7 +13,7 @@ import SetName from './SetName';
 import AccountInfo from './AccountInfo';
 import { askPermission } from '../../../nano/notifications';
 import useSWR, { useSWRConfig } from 'swr';
-import { WalletContext } from '../Popup';
+import { useWallet, WalletContext } from '../Popup';
 import { fetcherMessages } from './fetcher';
 import { convertAddress } from '../../utils/format';
 import { getChatToken } from '../../utils/storage';
@@ -24,14 +24,13 @@ import { getKey } from './hooks/useChat';
 const ChatSocket: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
-    const { wallet } = useContext(WalletContext)
-    const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
+    const {activeAccount, activeAccountPk, wallet} = useWallet()
     const {chats, mutateChats} = useChats();
     const {mutate: mutateInifinite} = useSWRConfig();
 
     const { account } = useParams();  // chatId
     useEffect(() => {
-        getChatToken().then((token) => {
+        getChatToken(activeAccountPk).then((token) => {
                     socket.auth = { token };
                     socket.connect();
                     console.log('socket connected');

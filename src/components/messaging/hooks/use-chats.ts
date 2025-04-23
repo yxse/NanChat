@@ -16,6 +16,7 @@ interface UseChatsReturn {
 }
 
 export function useChats(chatId?: string): UseChatsReturn {
+  const {activeAccount, activeAccountPk} = useWallet();
   // Fetch all chats
   const {
     data: chats, 
@@ -23,7 +24,7 @@ export function useChats(chatId?: string): UseChatsReturn {
     mutate: mutateChats
   } = useSWR<Chat[]>(
     '/chats', 
-    () => fetcherChats(chats || []), // Pass the chats data to the fetcher
+    () => fetcherChats(chats || [], activeAccount, activeAccountPk),
      {
       revalidateOnFocus: false,
       revalidateIfStale: false,
@@ -74,7 +75,7 @@ export function useChats(chatId?: string): UseChatsReturn {
   useEffect(() => {
     const isFirstLoad = !sessionStorage.getItem('app-initialized');
     // mutateChats() // to force refresh
-    if (isFirstLoad) { 
+    if (isFirstLoad) {
       mutateChats() // fetch all chats on first load, then chats should be updated by socket
       sessionStorage.setItem('app-initialized', 'true');
     }

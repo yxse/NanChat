@@ -9,7 +9,6 @@ import { inMemoryMap } from "../../services/database.service";
 export const getNewChatToken = async (account, privateKey) => {
     const message = "Login to nanwallet.com chat. Date:" + new Date().toISOString();
     const signature = signMessage(privateKey, message);
-
     return fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/token', {
         headers: {
             'Content-Type': 'application/json',
@@ -18,10 +17,10 @@ export const getNewChatToken = async (account, privateKey) => {
         body: JSON.stringify({ account, message, signature })
     }).then((res) => res.json()).then(async (data) => {
         if (data.token){
-            await setChatToken(account, data.token);
+            await setChatToken(account, data.token, data.expiresAt);
             return data.token;
         }
-        else if (data.error){
+        else if (data.error && !data.error == 'Invalid signature'){ // invalid signature can happen when switching accounts
             Toast.show({content: data.error, icon: 'fail'})
         }
         
@@ -31,10 +30,10 @@ export const getNewChatToken = async (account, privateKey) => {
 
 export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
-export const fetcherChats = async (oldChats) => {
+export const fetcherChats = async (oldChats, activeAccount, activeAccountPk) => {
     const lastSync = localStorage.getItem('lastSync');
     if (lastSync){
-        return fetcherMessages('/chats?ts=' + lastSync).then((res) => {
+        return fetcherMessages('/chats?ts=' + lastSync, activeAccount, activeAccountPk).then((res) => {
             if (res.error == null){
                 // merge chats, the res.chat overwrite the old chats
                 let uniqueChats = [];
@@ -58,7 +57,7 @@ export const fetcherChats = async (oldChats) => {
         })
     }
     else{
-        return fetcherMessages('/chats').then((res) => {
+        return fetcherMessages('/chats', activeAccountPk).then((res) => {
             if (res.error == null){
                 localStorage.setItem('lastSync', res.ts);
                 return res.chats;
@@ -66,7 +65,7 @@ export const fetcherChats = async (oldChats) => {
         })
     }
 }
-export const fetcherMessages = (url) => getChatToken().then(async (token) => {
+export const fetcherMessages = (url, activeAccountPk) => getChatToken(activeAccountPk).then(async (token) => {
     if (token == null){
         throw new Error('Chat token not available')
     }
@@ -169,7 +168,7 @@ export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BAC
 .then((res) => res.json()).then((data) => {
     return data
 })
-export const fetcherMessagesPost = (url, data) => getChatToken().then(async (token) => {
+export const fetcherMessagesPost = (url, data, activeAccountPk) => getChatToken(activeAccountPk).then(async (token) => {
     return fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
     method: 'POST',
     headers: { 

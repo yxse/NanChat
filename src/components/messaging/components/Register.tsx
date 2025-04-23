@@ -8,8 +8,8 @@ import { convertAddress } from '../../../utils/format';
 import { AccountIcon } from '../../app/Home';
 import { Button, Form, ImageUploader, Input, Modal, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
-import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from '../fetcher';
-import useSWR from 'swr';
+import { fetcherAccount, fetcherChat, fetcherMessages, fetcherMessagesPost, getNewChatToken } from '../fetcher';
+import useSWR, { preload } from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
 import { useHideNavbarOnMobile } from '../../../hooks/use-hide-navbar';
 import { useChats } from '../hooks/use-chats';
@@ -74,6 +74,7 @@ const register = async () => {
     if (skip){
         setWalletState("unlocked");
         onCreated({callback: "/wallet"});
+        preload('/services', fetcherChat);
         return
     }
     Toast.show({icon: 'loading'});
@@ -91,7 +92,7 @@ const register = async () => {
                 setWalletState("unlocked");
                 onCreated()
                 Toast.show({icon: 'success'})
-                
+                preload('/services', fetcherChat);
         }).catch((err) => {
             console.log(err);
             Toast.show({icon: 'fail', content: err.message});

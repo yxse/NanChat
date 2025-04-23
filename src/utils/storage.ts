@@ -2,6 +2,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import KeyringService from "../services/tauri-keyring-frontend";
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { mutate } from "swr";
+import { getNewChatToken } from "../components/messaging/fetcher";
 interface StorageArea {
   [key: string]: any;
 }
@@ -143,9 +144,20 @@ const getActiveAccount = () => {
   return activeAddress
 }
 
-export async function getChatToken(): Promise<string> {
+export async function getChatToken(activeAccountPk): Promise<string> {
   const tokens = await getChatTokens();
-  return tokens?.[getActiveAccount()];
+  const activeAccount = getActiveAccount();
+  let token = tokens?.[activeAccount]?.token;
+  let expiresAt = tokens?.[activeAccount]?.expiresAt;
+  if (!token){
+    console.log("No cached token, fetching new one");
+   return await getNewChatToken(activeAccount, activeAccountPk);
+  }
+  if (expiresAt && new Date(expiresAt) < new Date()) {
+    console.log("Token expired, fetching new one");
+    return await getNewChatToken(activeAccount, activeAccountPk);
+  }
+  return token;
 }
 
 const keyTokenChat = "chatTokens";
@@ -199,12 +211,15 @@ export async function getFromSecureStorage(key: string): Promise<string> {
     return value.value;
   }
 }
-export async function setChatToken(account: string, token: string): Promise<void> {
+export async function setChatToken(account: string, token: string, expiresAt: number): Promise<void> {
   let existingTokens = await getChatTokens();
   if (!existingTokens) {
     existingTokens = {};
   }
-  existingTokens[account] = token;
+  existingTokens[account] = {
+    token: token,
+    expiresAt: expiresAt
+  };
   await saveInSecureStorage(keyTokenChat, JSON.stringify(existingTokens));
 }
 

@@ -17,7 +17,7 @@ import {
     requestPermission,
     sendNotification,
   } from '@tauri-apps/plugin-notification';
-const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_SERVER_NOTIFICATIONS_URL;
+const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_BACKEND + "/notifications";
 
 export async function getToken() {
     const options: GetTokenOptions = {
