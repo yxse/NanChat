@@ -42,6 +42,7 @@ const ChatSocket: React.FC = () => {
     }, [activeAccount]);
     useEffect(() => {
         socket.io.on('reconnect', () => {
+            socket.emit('join', activeAccount);
             // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the chats on reconnect
             // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all chats
            mutateChats()
