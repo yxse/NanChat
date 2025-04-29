@@ -24,9 +24,10 @@ import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import ChatInputFile from "./ChatInputFile";
 import ChatInputAdd from "./ChatInputAdd";
 import { updateSharedKeys } from "../../../services/sharedkey";
-import { useEvent } from "./EventContext";
+import { useEmit, useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
 import { PiStickerFill, PiStickerLight } from "react-icons/pi";
+import MessageReply from "./MessageReply";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -82,6 +83,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
     const {chat, mutateChats} = useChats(account);
     const { mutate: mutateMessages} = useChat(account);
+    const [replyMessage, setReplyMessage] = useState<Message | null>(null);
+    const replyEvent = useEvent("reply-message");
+    const emit = useEmit();
 
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
@@ -101,6 +105,20 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         setInputAdditionVisible(true);
       }
     }, [welcomeButtonClick]);
+
+    useEffect(() => {
+      console.log("replyEvent", replyEvent)
+      if (replyEvent) {
+        setReplyMessage(replyEvent?.message);
+      }
+
+      // clear reply message when changing chat
+
+      if (replyEvent?.message?.chatId !== account) {
+        setReplyMessage(null);
+      }
+    }
+    , [replyEvent, account]);
     
     useEffect(() => {
         if (messagesHistory) {
@@ -188,7 +206,11 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       if (defaultNewMessage){
         message.nanoApp = new URL(defaultNewMessage).hostname; // for nano app sharing
       }
+      if (replyMessage) {
+        message.replyMessage = replyMessage;
+      }
       onSent(message);
+      
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
@@ -205,7 +227,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         console.error("Chat type not supported", chat.type);
         return;
       }
-
+      if (replyMessage) {
+        messageEncrypted['replyMessage'] = {_id: replyMessage._id}; 
+        setReplyMessage(null);
+      }
      socket.emit('message', messageEncrypted);
      setNewMessage('');
      if (!defaultNewMessage){ // defautlNewMessage is used to share from webiew popup, don't need to open keyboard by focus
@@ -300,6 +325,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     return (
         <div 
         style={{
+          borderTop: '1px solid var(--adm-color-border)',
           // position: 'relative',
           //  bottom: '0',
            width: '100%',
@@ -314,7 +340,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           display: defaultNewMessage ? 'none' : 'block', // hide input when sharing from webview
         }}
         onSubmit={sendMessage} className=" px-4">
-       
+          {replyMessage && <MessageReply message={replyMessage} onClose={() => setReplyMessage(null)} />}
             <EmitTyping 
             account={account}
             messageInputRef={messageInputRef}

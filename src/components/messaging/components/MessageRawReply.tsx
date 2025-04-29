@@ -4,7 +4,7 @@ import { WalletContext } from "../../Popup";
 import ProfileName from "./profile/ProfileName";
 import { CloseCircleFill } from "antd-mobile-icons";
 
-const MessageRaw = ({ message }) => {
+const MessageRawReply = ({ message }) => {
     const decrypted = useMessageDecryption({message})
         const { dispatch } = useContext(WalletContext);
     
@@ -19,10 +19,11 @@ const MessageRaw = ({ message }) => {
     return (
         <div 
         style={{ // much more faster than antd ellipsis
-            whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden',
-            containerType: 'inline-size',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
         }}>
         {(message?.type === "group" || message?.type === "reply") && <><ProfileName includeVerified={false} address={message.fromAccount} />{": "}</>}
         {decrypted ? decrypted : 
@@ -33,4 +34,4 @@ const MessageRaw = ({ message }) => {
     )
 }
 
-export default MessageRaw;
+export default MessageRawReply;
