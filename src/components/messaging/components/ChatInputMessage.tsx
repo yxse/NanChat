@@ -282,6 +282,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           }
         }
       };
+      if (chat?.type === "group") {
+        message.toAccount = chat.sharedAccount;
+      }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
       socket.emit('message', message);
