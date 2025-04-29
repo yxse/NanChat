@@ -52,7 +52,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
           newChat.lastMessageId = id;
           newChat.isLocal = true;
           newChat.lastMessageFrom = activeAccount;
-          newChat.height = newChat.height + 1;
+          newChat.height = message.height
           newChats.splice(chatIndex, 1);
           newChats.unshift(newChat);
       }

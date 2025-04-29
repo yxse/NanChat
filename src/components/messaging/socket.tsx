@@ -34,6 +34,7 @@ const ChatSocket: React.FC = () => {
                     socket.auth = { token };
                     socket.connect();
                     console.log('socket connected');
+                    mutateChats()
                 });
         return () => {
             socket.disconnect();
@@ -42,10 +43,11 @@ const ChatSocket: React.FC = () => {
     }, [activeAccount]);
     useEffect(() => {
         socket.io.on('reconnect', () => {
+            console.log('reconnect socket');
+            mutateChats()
             socket.emit('join', activeAccount);
             // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the chats on reconnect
             // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all chats
-           mutateChats()
         });
         socket.emit('join', activeAccount);
 
@@ -95,9 +97,10 @@ const ChatSocket: React.FC = () => {
                         // find message with message.height
                         const messageIndex = currentPages?.[0].findIndex(m => m.height === message.height);                           
                         //messageIndex can be undefined if new private chat
+                        // debugger
                         if (messageIndex !== -1 && messageIndex !== undefined) {
                             const newPages = [...(currentPages || [])];
-                            newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent"};
+                            newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: message._id}; // update with real message id
                             return newPages;
                         }
                     } 

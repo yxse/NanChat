@@ -75,12 +75,12 @@ export function useChats(chatId?: string): UseChatsReturn {
   // }, [chats])
 
   useEffect(() => {
-    const isFirstLoad = !sessionStorage.getItem('app-initialized');
+    // const isFirstLoad = !sessionStorage.getItem('app-initialized');
     // mutateChats() // to force refresh
-    if (isFirstLoad) {
-      mutateChats() // fetch all chats on first load, then chats should be updated by socket
-      sessionStorage.setItem('app-initialized', 'true');
-    }
+    // if (isFirstLoad) {
+      // mutateChats() // fetch all chats on first load, then chats should be updated by socket
+      // sessionStorage.setItem('app-initialized', 'true');
+    // }
   }, []);
   // {onError: async (error) => {
   //         console.log("aze error get chats", error)
