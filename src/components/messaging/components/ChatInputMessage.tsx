@@ -341,7 +341,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           display: defaultNewMessage ? 'none' : 'block', // hide input when sharing from webview
         }}
         onSubmit={sendMessage} className=" px-4">
-          {replyMessage && <MessageReply message={replyMessage} onClose={() => setReplyMessage(null)} />}
+          {replyMessage && <MessageReply message={replyMessage} onClose={() => {
+            messageInputRef.current?.focus();
+            setReplyMessage(null)
+          }} />}
             <EmitTyping 
             account={account}
             messageInputRef={messageInputRef}

@@ -4,7 +4,7 @@ import MessageRaw from './MessageRaw'
 import { CloseCircleFill, CloseCircleOutline } from 'antd-mobile-icons'
 import { useEmit } from './EventContext'
 
-function MessageReply({message}) {
+function MessageReply({message, onClose}) {
     const emit = useEmit()
     if (!message) return null
   return (
@@ -18,6 +18,7 @@ function MessageReply({message}) {
             style={{cursor: 'pointer'}} 
             onClick={() => {
                 emit('reply-message', null)
+                onClose?.()
             }}
             />
             </div>
