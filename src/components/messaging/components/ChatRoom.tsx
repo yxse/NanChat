@@ -503,6 +503,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                     style={{
                                         display: 'flex',
                                         flexDirection: 'column',
+                                        userSelect: 'none',
+                                        
                                         //  overflowAnchor: 'none',
                                     }} //To put endMessage and loader to the top.
                                     endMessage={
