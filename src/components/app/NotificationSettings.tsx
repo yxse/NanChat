@@ -147,11 +147,17 @@ function NotificationSettings() {
           keyNotification={"newMessage"}
         />
         <ItemNotication
+          title={"Message preview"}
+          description={"Decrypt message localy and show preview. Enable this can make notifications less reliably delivered."}
+          keyNotification={"messagePreview"}
+        />    
+        </List>
+        <List mode="card" className="mt-4">
+        <ItemNotication
           title={"Price alert"}
           description={"Get notified of large price changes"}
           keyNotification={"priceAlert"}
         />    
-              
         </List>
     </div>
   )
