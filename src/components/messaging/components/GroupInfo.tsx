@@ -60,10 +60,10 @@ const GroupInfo: React.FC<{}> = ({  }) => {
         defaultValue: []
     });
     const {chat, mutateChats: mutate} = useChats(account);
-    const isAdmin = chat?.creator === account;
+    const {activeAccountPk, activeAccount} = useWallet()
+    const isAdmin = chat?.creator === activeAccount;
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [visibleRemove, setVisibleRemove] = useState(false);
-    const {activeAccountPk, activeAccount} = useWallet()
     const sharedAccount = chat?.sharedAccount?.replace('nano_', 'group_') // replace nano_ prefix just in case to prevent confusion
     useHideNavbarOnMobile(true)
     return (
