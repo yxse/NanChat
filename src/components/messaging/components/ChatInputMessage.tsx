@@ -110,6 +110,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       console.log("replyEvent", replyEvent)
       if (replyEvent) {
         setReplyMessage(replyEvent?.message);
+        messageInputRef.current?.focus();
       }
 
       // clear reply message when changing chat
