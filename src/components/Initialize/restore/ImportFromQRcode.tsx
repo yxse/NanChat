@@ -37,7 +37,7 @@ export const ImportFromQRcode: React.FC<ImportFromFileProps> = ({
         className="w-full"
         size="large"
       >
-        Scan QR Code
+        Scan Export QR Code
       </Button>
       </Scanner>
     </>

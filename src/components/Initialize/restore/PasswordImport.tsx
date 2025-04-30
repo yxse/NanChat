@@ -43,8 +43,11 @@ export const PasswordImport: React.FC<PasswordImportProps> = ({
 
   if (mode === "import-qr") {
     return (
-      <ResponsivePopup visible={visible} onClose={onClose}>
-        <div className="p-4">
+      <ResponsivePopup 
+      forceRender={true}
+      bodyStyle={{}}
+      visible={visible} onClose={onClose}>
+        <div className="">
           <PasswordInputExportNewDevice
             onPasswordEntered={async (seed) => {
               try {

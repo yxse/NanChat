@@ -54,7 +54,7 @@ function EncryptedSeedQrCode() {
             value={seedEncrypted} size={256} />
             </div>
             <div className="p-2 text-center" style={{  }}>
-            On the other device: Select Import Account then scan QRCode and enter export password:
+            Select Import Account on the new device, then Scan QRCode and enter export password:
             </div>
             <div 
             onClick={() => {
@@ -135,11 +135,10 @@ function ExportSecretPhrase() {
                 </div>
             </ResponsivePopup>
             <List.Item
-            extra={<SeedVerifiedBadge />}
              prefix={ <UploadOutline fontSize={24} />} onClick={() => {
                 setPinVisible(true)
             }}>
-                Export to another device
+                Export To Another Device
             </List.Item>
           
            

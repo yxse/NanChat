@@ -11,6 +11,15 @@ const PasswordInputExportNewDevice = ({ onPasswordEntered }) => {
   const input2Ref = useRef(null);
   const input3Ref = useRef(null);
 
+  useEffect(() => {
+  // Add a small timeout to ensure the input is rendered
+  const timer = setTimeout(() => {
+    if (input1Ref.current) {
+      input1Ref.current.focus();
+    }
+  }, 10);
+  return () => clearTimeout(timer);
+}, []);
   // Handle complete password updates
   useEffect(() => {
     const fullPassword = `${section1}-${section2}-${section3}`;
@@ -111,8 +120,8 @@ const PasswordInputExportNewDevice = ({ onPasswordEntered }) => {
   };
 
   return (
-    <Card>
-      <div style={{ marginBottom: '16px', textAlign: 'center' }} className='text-xl'>
+    <div className='py-4'>
+      <div style={{ marginBottom: '16px', textAlign: 'center', marginTop: '16px' }} className='text-xl'>
         Enter Export Password
       </div>
 
@@ -126,6 +135,9 @@ const PasswordInputExportNewDevice = ({ onPasswordEntered }) => {
             onChange={(v) => handleChange(v, 1, input2Ref)}
             onPaste={(e) => handlePaste(e, 1)}
             placeholder="xxxxxx"
+            autoCapitalize='none'
+            autoCorrect='off'
+            autoFocus={true}
           />
           <span className="password-separator">-</span>
           <Input
@@ -136,6 +148,8 @@ const PasswordInputExportNewDevice = ({ onPasswordEntered }) => {
             onChange={(v) => handleChange(v, 2, input3Ref)}
             onPaste={(e) => handlePaste(e, 2)}
             placeholder="xxxxxx"
+            autoCapitalize='none'
+            autoCorrect='off'
           />
           <span className="password-separator">-</span>
           <Input
@@ -146,10 +160,12 @@ const PasswordInputExportNewDevice = ({ onPasswordEntered }) => {
             onChange={(v) => handleChange(v, 3, null)}
             onPaste={(e) => handlePaste(e, 3)}
             placeholder="xxxxxx"
+            autoCapitalize='none'
+            autoCorrect='off'
           />
         </Space>
       </Form>
-    </Card>
+    </div>
   );
 };
 
