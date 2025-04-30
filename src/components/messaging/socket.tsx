@@ -92,18 +92,21 @@ const ChatSocket: React.FC = () => {
                         mutateInifinite(unstable_serialize((index, prevPageData) => {
                             return getKey(index, prevPageData, message.chatId)
                         }), (currentPages) => {
-                    if (message.fromAccount == activeAccount){
-                        // mutate only status if message is from ourself
-                        // find message with message.height
-                        const messageIndex = currentPages?.[0].findIndex(m => m.height === message.height);                           
-                        //messageIndex can be undefined if new private chat
-                        // debugger
-                        if (messageIndex !== -1 && messageIndex !== undefined) {
-                            const newPages = [...(currentPages || [])];
-                            newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: message._id}; // update with real message id
-                            return newPages;
-                        }
-                    } 
+                            if (message.fromAccount === activeAccount &&
+                                currentPages?.[0].find(m => m._id === message._id) !== undefined) return currentPages; // don't mutate if message already exist, happens if we send the message, and still useful if chat opens on another device 
+                    // if (message.fromAccount == activeAccount){
+                    //     return currentPages;
+                    //     // // mutate only status if message is from ourself
+                    //     // // find message with message.height
+                    //     // const messageIndex = currentPages?.[0].findIndex(m => m.height === message.height);                           
+                    //     // //messageIndex can be undefined if new private chat
+                    //     // debugger
+                    //     // if (messageIndex !== -1 && messageIndex !== undefined) {
+                    //     //     const newPages = [...(currentPages || [])];
+                    //     //     newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: message._id}; // update with real message id
+                    //     //     return newPages;
+                    //     // }
+                    // } 
                     // if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
                     const newPages = [...(currentPages || [])];
                     newPages[0] = [{...message, status: 'sent'}, ...(newPages[0] || [])];

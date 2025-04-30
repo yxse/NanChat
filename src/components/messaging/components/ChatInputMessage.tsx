@@ -10,13 +10,13 @@ import { convertAddress, formatAddress } from "../../../utils/format";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, TextArea } from "antd-mobile";
-import useSWR from "swr";
+import { Button, DotLoading, Input, List, TextArea, Toast } from "antd-mobile";
+import useSWR, { useSWRConfig } from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import { SlArrowUpCircle } from "react-icons/sl";
 import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
-import { useChat } from "../hooks/useChat";
+import { getKey, useChat } from "../hooks/useChat";
 import ChatInputTip from "./ChatInputTip";
 import EmitTyping from "./EmitTyping";
 import ChatInputStickers from "./ChatInputStickers";
@@ -28,10 +28,11 @@ import { useEmit, useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
 import { PiStickerFill, PiStickerLight } from "react-icons/pi";
 import MessageReply from "./MessageReply";
+import { unstable_serialize } from 'swr/infinite';
 
 
-const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
-  const id = Math.random().toString();
+const mutateLocal = async (mutate, mutateChats, message, account, activeAccount, id) => {
+  
   await mutate(currentPages => {
       const newPages = [...(currentPages || [])];
       // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
@@ -80,12 +81,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const {wallet} = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
+    const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}&limit=1`, fetcherMessages);
     const {chat, mutateChats} = useChats(account);
     const { mutate: mutateMessages} = useChat(account);
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
     const replyEvent = useEvent("reply-message");
     const emit = useEmit();
+    const {mutate: mutateInifinite} = useSWRConfig();
 
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
@@ -121,11 +123,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     }
     , [replyEvent, account]);
     
-    useEffect(() => {
-        if (messagesHistory) {
-            // setMessages(messagesHistory);
-        }
-    }, [messagesHistory, messagesEndRef]);
 
     useEffect(() => {
         // socket.on('typing', (account: string) => {
@@ -180,6 +177,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
       let chatId = account;
+      // debugger
       let height = chat?.height + 1 // only used for the local mutate, it might be not always accurate
       if (!newMessage.trim()) return;
       if (messagesHistory?.length === 0 && account.startsWith('nano_')) {
@@ -211,8 +209,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         message.replyMessage = replyMessage;
       }
       onSent(message);
-      
-      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+      const id = Math.random().toString();
+      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount, id);
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
@@ -232,7 +230,37 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         messageEncrypted['replyMessage'] = {_id: replyMessage._id}; 
         setReplyMessage(null);
       }
-     socket.emit('message', messageEncrypted);
+     socket.emit('message', messageEncrypted, (response) => {
+        console.log("message sent", response);
+        if (response.success !== true) {
+          messageInputRef.current?.focus();
+          setNewMessage(newMessage);
+          Toast.show({
+            content: response.error,
+            icon: 'fail',
+          });
+        }
+        else{
+          const messageId = response.messageId
+          mutateInifinite(unstable_serialize((index, prevPageData) => {
+            return getKey(index, prevPageData, message.chatId)
+        }), (currentPages) => {
+    if (message.fromAccount == activeAccount){
+        // mutate only status if message is from ourself
+        // find message with message.height
+        const messageIndex = currentPages?.[0].findIndex(m => m._id === id);
+        //messageIndex can be undefined if new private chat
+        // debugger
+        if (messageIndex !== -1 && messageIndex !== undefined) {
+            const newPages = [...(currentPages || [])];
+            newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: messageId}; // update with real message id
+            return newPages;
+        }
+    } 
+}
+, false);
+        }
+     });
      setNewMessage('');
      if (!defaultNewMessage){ // defautlNewMessage is used to share from webiew popup, don't need to open keyboard by focus
          messageInputRef.current?.focus();
