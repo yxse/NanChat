@@ -33,6 +33,10 @@ const usePasswordStrength = (password: string) => {
   const deferredPassword = useDeferredValue(password)
 
   useEffect(() => {
+    if (!deferredPassword) {
+      setResult("")
+      return
+    }
     zxcvbnAsync(deferredPassword).then((response) => setResult(response))
   }, [deferredPassword])
 

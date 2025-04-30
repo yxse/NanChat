@@ -141,3 +141,50 @@ export const defaultContacts = [
             ]
         },
 ]
+
+
+export function generateSecurePassword() {
+  // based on iOS password generator
+  // Define character sets
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+
+  // Create array to hold all characters
+  let passwordArray = [];
+
+  // Helper function for secure random integer
+  function getSecureRandomInt(max) {
+      const randomBuffer = new Uint32Array(1);
+      window.crypto.getRandomValues(randomBuffer);
+      return randomBuffer[0] % max;
+  }
+
+  // Helper function for secure random character from a string
+  function getSecureRandomChar(charSet) {
+      return charSet[getSecureRandomInt(charSet.length)];
+  }
+
+  // Fill the array with lowercase letters initially
+  for (let i = 0; i < 18; i++) {
+      passwordArray.push(getSecureRandomChar(lowercase));
+  }
+
+  // Choose random positions for the uppercase letter and number
+  const uppercasePosition = getSecureRandomInt(18);
+  let numberPosition;
+  do {
+      numberPosition = getSecureRandomInt(18);
+  } while (numberPosition === uppercasePosition);
+
+  // Replace with the uppercase letter and number
+  passwordArray[uppercasePosition] = getSecureRandomChar(uppercase);
+  passwordArray[numberPosition] = getSecureRandomChar(numbers);
+
+  // Insert hyphens after each 6 characters
+  passwordArray.splice(6, 0, '-');
+  passwordArray.splice(13, 0, '-');
+
+  // Join array into string and return
+  return passwordArray.join('');
+}

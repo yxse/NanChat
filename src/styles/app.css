@@ -826,3 +826,29 @@ input[type=number]::-webkit-outer-spin-button {
 .form-mnemonic > .adm-list-card{
   margin: 0px 0px 0px 0px;
 }
+
+
+
+.ios-password-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.password-section {
+  text-align: center;
+  letter-spacing: 1px;
+  font-family: monospace;
+  width: 87px;
+}
+
+
+/* Adjust for different screen sizes */
+@media (max-width: 375px) {
+  .password-section {
+    font-size: 14px;
+  }
+}

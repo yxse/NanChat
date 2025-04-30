@@ -33,6 +33,8 @@ import { MnemonicInput } from "./MnemonicInput";
 import { PasswordImport } from "./PasswordImport";
 import { LedgerSelect } from "../Start";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { ImportFromQRcode } from "./ImportFromQRcode";
+import PasswordInputExportNewDevice from "../../app/backup/PasswordInputExportNewDevice";
 
 export default function ImportPhrase({
   setW,
@@ -51,6 +53,7 @@ export default function ImportPhrase({
   const [pinVisible, setPinVisible] = useState<boolean>(false);
   const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
   const [importFileVisible, setImportFileVisible] = useState<boolean>(false)
+  const [passwordMode, setPasswordMode] = useState<string>("import")
   const [encryptedSeed, setEncryptedSeed] = useState<string>("")
   const {isMobile} = useWindowDimensions()
 
@@ -117,6 +120,10 @@ export default function ImportPhrase({
             Or
           </Divider>
           <div className="flex flex-col gap-2">
+          <ImportFromQRcode onWalletSelected={(encryptedSeed) => {
+            handleWalletSelected(encryptedSeed)
+            setPasswordMode("import-qr")
+          }} />
           <ImportFromFile onWalletSelected={handleWalletSelected} />
           <ImportFromGoogleDrive onWalletSelected={handleWalletSelected} />
           <ImportFromICloud onWalletSelected={handleWalletSelected} />
@@ -132,6 +139,7 @@ export default function ImportPhrase({
            setWalletState={setWalletState} /> 
           
           <PasswordImport
+            mode={passwordMode}
             visible={importFileVisible}
             onClose={() => setImportFileVisible(false)}
             encryptedSeed={encryptedSeed}

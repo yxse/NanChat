@@ -3,13 +3,14 @@ import { Button, Form, Input, Toast } from "antd-mobile";
 import { toast } from "react-toastify";
 import { ResponsivePopup } from "../../Settings";
 import { decrypt } from "../../../worker/crypto";
+import PasswordInputExportNewDevice from "../../app/backup/PasswordInputExportNewDevice";
 
 interface PasswordImportProps {
   visible: boolean;
   onClose: () => void;
   encryptedSeed: string;
   onImportSuccess: (seed: string) => Promise<void>;
-  mode: "import" | "verify";
+  mode: "import" | "verify" | "import-qr";
 }
 
 export const PasswordImport: React.FC<PasswordImportProps> = ({
@@ -22,12 +23,17 @@ export const PasswordImport: React.FC<PasswordImportProps> = ({
   const [passwordImport, setPasswordImport] = useState<string>("");
 
   const handleImport = async () => {
+    if (!passwordImport) {
+      return
+    }
     try {
       const seed = await decrypt(encryptedSeed, passwordImport);
       await onImportSuccess(seed);
       onClose();
+      // debugger
     } catch (error) {
       console.log(error);
+      // debugger
       Toast.show({
         icon: 'fail',
         content: 'Invalid password.',
@@ -35,6 +41,32 @@ export const PasswordImport: React.FC<PasswordImportProps> = ({
     }
   };
 
+  if (mode === "import-qr") {
+    return (
+      <ResponsivePopup visible={visible} onClose={onClose}>
+        <div className="p-4">
+          <PasswordInputExportNewDevice
+            onPasswordEntered={async (seed) => {
+              try {
+                const decryptedSeed = await decrypt(encryptedSeed, seed);
+                await onImportSuccess(decryptedSeed);
+                Toast.show({
+                  icon: 'success',
+                });
+                onClose();
+              } catch (error) {
+                console.log(error);
+                Toast.show({
+                  icon: 'fail',
+                  content: 'Invalid password.',
+                });
+              }
+            }}
+          />
+        </div>
+      </ResponsivePopup>
+    );
+  }
   return (
     <ResponsivePopup visible={visible} onClose={onClose}>
       <div className="p-4">
@@ -45,6 +77,7 @@ export const PasswordImport: React.FC<PasswordImportProps> = ({
         >
           Enter the password that you used to backup your wallet.
         </div>
+       
         <Form className="form-list high-contrast" mode="card">
           <Form.Item
             className="form-list"

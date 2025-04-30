@@ -21,7 +21,7 @@ import { RiContactsFill } from "react-icons/ri";
 import BackupSecretPhrase from "./app/BackupSecretPhrase";
 import { decrypt, encrypt } from "../worker/crypto";
 import { BsCurrencyExchange } from "react-icons/bs";
-import { AddressBookFill, BellOutline, DeleteOutline, DownlandOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UserContactOutline } from "antd-mobile-icons";
+import { AddressBookFill, BellOutline, DeleteOutline, DownlandOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UploadOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
 import { LedgerContext } from "./Popup";
 import { BiHistory } from "react-icons/bi";
@@ -32,6 +32,7 @@ import { getSeed, removeSeed } from "../utils/storage";
 import { copyToClipboard } from "../utils/format";
 import { useWindowDimensions } from "../hooks/use-windows-dimensions";
 import { useHideNavbarOnMobile } from "../hooks/use-hide-navbar";
+import ExportSecretPhrase from "./app/ExportSecretPhrase";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -531,12 +532,15 @@ className="mb-24"
               !ledger &&
             <BackupSecretPhrase />
             }
+            {/*  */}
+            <ExportSecretPhrase />
 
-              <ChangeRep />
+              
             
            </List>
           <div className="my-4" />
           <List mode="card">
+          <ChangeRep />
             <List.Item prefix={<BiHistory size={24} />} onClick={() => navigate("/swap")}>
               Swap History
             </List.Item>
