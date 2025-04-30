@@ -1,29 +1,18 @@
-import { AddCircleOutline, MessageOutline, PhoneFill, SendOutline, SmileFill, SmileOutline } from "antd-mobile-icons";
-import { useContext, useEffect, useRef, useState } from "react";
-import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
-import { FiMoreHorizontal } from "react-icons/fi";
-import { IoSendOutline } from "react-icons/io5";
+import { AddCircleOutline } from "antd-mobile-icons";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
-import { WalletContext } from "../../Popup";
-import { convertAddress, formatAddress } from "../../../utils/format";
-import { CopyToClipboard } from "../../Settings";
-import SelectAccount from "../../app/SelectAccount";
-import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, TextArea, Toast } from "antd-mobile";
+import { useWallet } from "../../Popup";
+import { TextArea, Toast } from "antd-mobile";
 import useSWR, { useSWRConfig } from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
-import { SlArrowUpCircle } from "react-icons/sl";
-import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
+import { FaKeyboard } from "react-icons/fa6";
 import { getKey, useChat } from "../hooks/useChat";
-import ChatInputTip from "./ChatInputTip";
 import EmitTyping from "./EmitTyping";
 import ChatInputStickers from "./ChatInputStickers";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
-import ChatInputFile from "./ChatInputFile";
 import ChatInputAdd from "./ChatInputAdd";
-import { updateSharedKeys } from "../../../services/sharedkey";
 import { useEmit, useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
 import { PiStickerFill, PiStickerLight } from "react-icons/pi";
@@ -31,12 +20,10 @@ import MessageReply from "./MessageReply";
 import { unstable_serialize } from 'swr/infinite';
 
 
-const mutateLocal = async (mutate, mutateChats, message, account, activeAccount, id) => {
-  
+const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
+  const id = message._id;
   await mutate(currentPages => {
       const newPages = [...(currentPages || [])];
-      // newPages[0] = [...(newPages[0] || []), { ...message, isLocal: true }];
-      // newPages[0] = [{ ...message, isLocal: true, _id: Math.random().toString()
       newPages[0] = [{ ...message, isLocal: true, _id: id, status: "sent_local"}, ...(newPages[0] || [])];
       return newPages;
   }, false);
@@ -72,33 +59,24 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [stickerVisible, setStickerVisible] = useState(false);
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useWindowDimensions()
-    const [lastEmitTime, setLastEmitTime] = useState(0);
-    const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);
     const [newMessage, setNewMessage] = useState(defaultNewMessage || '');
-    const [dateNow, setDateNow] = useState(Date.now());
-    const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const {wallet} = useContext(WalletContext)
-    const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
-    const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
+    const {activeAccount, activeAccountPk} = useWallet()
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}&limit=1`, fetcherMessages);
     const {chat, mutateChats} = useChats(account);
     const { mutate: mutateMessages} = useChat(account);
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
     const replyEvent = useEvent("reply-message");
-    const emit = useEmit();
     const {mutate: mutateInifinite} = useSWRConfig();
-
+    const emit = useEmit()
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
-    let participant = names?.find(participant => participant._id !== activeAccount)
     if (account?.startsWith('nano_')) {
         address = account;
     }
     if (chat?.participants && chat?.participants[0]?._id === chat?.participants[1]?._id) { // chat with self
         address = chat?.participants[0]?._id;
     }
-    const nameOrAccount = participant?.name || formatAddress(address);
     const welcomeButtonClick = useEvent("open-input-plus");
 
     useEffect(() => {
@@ -108,6 +86,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
     }, [welcomeButtonClick]);
 
+    const resetReply = () => {
+      setReplyMessage(null);
+      emit("reply-message", null);
+    }
     useEffect(() => {
       console.log("replyEvent", replyEvent)
       if (replyEvent) {
@@ -124,55 +106,37 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     , [replyEvent, account]);
     
 
-    useEffect(() => {
-        // socket.on('typing', (account: string) => {
-        //     console.log('typing', account);
-        //     // setTimeout(() => {
-        //     //   window.scrollTo(0, document.body.scrollHeight);
-        //     // }
-        //     // , 10);
-        // });
-        socket.on('message', (message: Message) => {
-          setLastTypingTimeReceived(0);
+  const callbackSocket = (response: any, message) => {
+      console.log("message sent", response);
+      if (response.success !== true) {
+        messageInputRef.current?.focus();
+        setNewMessage(newMessage);
+        Toast.show({
+          content: response.error,
+          icon: 'fail', 
         });
-
-      // return () => {
-      //           socket.off('message');
-      // };
-    }, [address, chat]);
-
-   
-    // useEffect(() => {
-    //     if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
-    //       socket.emit('typing', address);
-    //       setLastEmitTime(Date.now());
-    //     }
-    // }
-    // , [newMessage]);
-    // , []);
-
-    useEffect(() => {
-        socket.on('typing', (account: string) => {
-            // console.log('typing', account, address);
-            // if (account !== address) return;
-            // setLastTypingTimeReceived(Date.now());
-            // messageInputRef.current?.blur();
-            // messageInputRef.current?.focus();
-        });
-
-        return () => {
-            socket.off('typing');
-        };
-    }, [address]);
-
-    const scrollToBottom = () => {
-      messagesEndRef.current?.
-      scroll({
-        top: messagesEndRef.current.scrollHeight,
-        behavior: 'instant',
-      })
-    };
-  
+      }
+      else{
+        const messageId = response.messageId
+        mutateInifinite(unstable_serialize((index, prevPageData) => {
+          return getKey(index, prevPageData, message.chatId)
+      }), (currentPages) => {
+  if (message.fromAccount == activeAccount){
+      // mutate only status if message is from ourself
+      // find message with message.height
+      const messageIndex = currentPages?.[0].findIndex(m => m._id === message._id);
+      //messageIndex can be undefined if new private chat
+      // debugger
+      if (messageIndex !== -1 && messageIndex !== undefined) {
+          const newPages = [...(currentPages || [])];
+          newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: messageId}; // update with real message id
+          return newPages;
+      }
+  } 
+}
+, false);
+      }
+   }
     // useEffect(scrollToBottom, [messages]);
     const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -201,16 +165,17 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         timestamp: new Date(),
         chatId: chatId,
         height: height,
+        _id: Math.random().toString(), // only local id
       };
       if (defaultNewMessage){
         message.nanoApp = new URL(defaultNewMessage).hostname; // for nano app sharing
       }
       if (replyMessage) {
         message.replyMessage = replyMessage;
+        resetReply();
       }
       onSent(message);
-      const id = Math.random().toString();
-      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount, id);
+      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
@@ -228,39 +193,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
       if (replyMessage) {
         messageEncrypted['replyMessage'] = {_id: replyMessage._id}; 
-        setReplyMessage(null);
       }
-     socket.emit('message', messageEncrypted, (response) => {
-        console.log("message sent", response);
-        if (response.success !== true) {
-          messageInputRef.current?.focus();
-          setNewMessage(newMessage);
-          Toast.show({
-            content: response.error,
-            icon: 'fail',
-          });
-        }
-        else{
-          const messageId = response.messageId
-          mutateInifinite(unstable_serialize((index, prevPageData) => {
-            return getKey(index, prevPageData, message.chatId)
-        }), (currentPages) => {
-    if (message.fromAccount == activeAccount){
-        // mutate only status if message is from ourself
-        // find message with message.height
-        const messageIndex = currentPages?.[0].findIndex(m => m._id === id);
-        //messageIndex can be undefined if new private chat
-        // debugger
-        if (messageIndex !== -1 && messageIndex !== undefined) {
-            const newPages = [...(currentPages || [])];
-            newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: messageId}; // update with real message id
-            return newPages;
-        }
-    } 
-}
-, false);
-        }
-     });
+     socket.emit('message', messageEncrypted, (response) => callbackSocket(response, message));
      setNewMessage('');
      if (!defaultNewMessage){ // defautlNewMessage is used to share from webiew popup, don't need to open keyboard by focus
          messageInputRef.current?.focus();
@@ -284,13 +218,18 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         timestamp: new Date(),
         chatId: chatId,
         height: chat?.height + 1,
-        tip: {ticker, hash}
+        tip: {ticker, hash},
+        _id: Math.random().toString()
       };
+      if (replyMessage) {
+        message.replyMessage = replyMessage;
+        resetReply();
+      }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
      messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
-     socket.emit('message', messageEncrypted);
+     socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
      messageInputRef.current?.focus();
     };
 
@@ -304,8 +243,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         timestamp: new Date(),
         chatId: chatId,
         height: chat?.height + 1,
-        stickerId: stickerId
+        stickerId: stickerId,
+        _id: Math.random().toString()
       };
+      if (replyMessage) {
+        message.replyMessage = replyMessage;
+        resetReply();
+      }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
@@ -315,7 +259,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       else {
         messageEncrypted['content'] = message.content;
       }
-     socket.emit('message', messageEncrypted);
+     socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
     }
     const sendFileMessage = async (file) => {
       let chatId = account;
@@ -327,6 +271,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         timestamp: new Date(),
         chatId: chatId,
         height: chat?.height + 1,
+        _id: Math.random().toString(),
         file: {
           url: file.url,
           meta: {
@@ -339,13 +284,15 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       if (chat?.type === "group") {
         message.toAccount = chat.sharedAccount;
       }
+      if (replyMessage) {
+        message.replyMessage = replyMessage;
+        resetReply();
+      }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
-      socket.emit('message', message);
+      socket.emit('message', message, (response) => callbackSocket(response, message));
     }
 
-    // const iconRisibank =  <img style={{filter: 'grayscale(0)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
-    // const iconRisibankGray =  <img style={{filter: 'grayscale(1)', width: '36px'}} src="https://risibank.fr/favicon.svg" alt="Stickers" className="w-5 h-5" />
     const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} />
     const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} />
 
@@ -355,14 +302,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         <div 
         style={{
           borderTop: '1px solid var(--adm-color-border)',
-          // position: 'relative',
-          //  bottom: '0',
            width: '100%',
-           // flexDirection: 'row',
-          //  alignItems: 'center',
-          //  touchAction: 'none',
-          //  display: 'flex',
-          //  gap: '1rem',
           paddingBottom: 8,
           paddingTop: 4,
           backgroundColor: 'var(--adm-color-background)',
