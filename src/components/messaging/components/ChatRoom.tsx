@@ -115,6 +115,20 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             }
         }
     }, [])
+     useEffect(() => {
+            socket.io.on('reconnect', () => {
+                console.log('reconnect socket mutate messages');
+                // refetch messages when reconnect
+            mutate();
+                // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the message on reconnect
+                 // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all messages
+
+            });
+            return () => {
+                socket.io.off('reconnect');
+            };
+        }, []);
+
     useEffect(() => {
         socket.emit('join', account); // join chat id
 //         socket.on('message', (message: Message) => {
@@ -504,7 +518,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                                         display: 'flex',
                                         flexDirection: 'column',
                                         userSelect: 'none',
-                                        
+
                                         //  overflowAnchor: 'none',
                                     }} //To put endMessage and loader to the top.
                                     endMessage={

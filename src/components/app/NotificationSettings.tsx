@@ -148,7 +148,7 @@ function NotificationSettings() {
         />
         <ItemNotication
           title={"Message preview"}
-          description={"Decrypt message localy and show preview. Enable this can make notifications less reliably delivered."}
+          description={"Decrypt messages locally and show a preview. Enabling this may reduce the reliability of notification delivery."}
           keyNotification={"messagePreview"}
         />    
         </List>

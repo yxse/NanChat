@@ -110,6 +110,10 @@ const ChatSocket: React.FC = () => {
                     // if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
                     const newPages = [...(currentPages || [])];
                     newPages[0] = [{...message, status: 'sent'}, ...(newPages[0] || [])];
+                    // deduplicate messages, can sometime happen on reconnect probably cause race condition socket & fetchMessages
+                    newPages[0] = newPages[0].filter((msg, index, self) =>
+                        index === self.findIndex((m) => m._id === msg._id)
+                    );
                     return newPages;
                 }
                 , false);

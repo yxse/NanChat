@@ -74,9 +74,9 @@ const AppUrlListener: React.FC<any> = () => {
 
       FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
         console.log("notificationActionPerformed: ", { event });
-        Toast.show({
-          content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
-        })
+        // Toast.show({
+        //   content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
+        // })
         navigate('/') // to prevent bug when navigating back
         navigate(event.notification.data.url);
       }
