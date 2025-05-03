@@ -415,9 +415,9 @@ export default function App({callback}) {
     console.log("index render")
     useEffect(() => {
       if (activeAccount){
-        getNewChatToken(activeAccount, activeAccountPk).then((r) => {
-          console.log("got new chat token", r);
-        })
+        // getNewChatToken(activeAccount, activeAccountPk).then((r) => {
+        //   console.log("got new chat token", r);
+        // })
       }
     }
     , [activeAccount, activeAccountPk]);
