@@ -12,11 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "NanWallet",
-        "width": 800,
-        "height": 600,
+        "title": "NanChat",
         "resizable": true,
-        "fullscreen": false
+        "maximized": true
       }
     ],
     "security": {

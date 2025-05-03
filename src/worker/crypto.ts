@@ -252,7 +252,9 @@ export async function encrypt(
   password: string, 
   version: CryptoVersion = CryptoVersion.V2
 ) {
+  console.time("encrypt");
   const encryptedResult = await CryptoHandler.encryptPair(seed, password, version);
+  console.timeEnd("encrypt");
   return Buffer.from(encryptedResult).toString("hex");
 }
 

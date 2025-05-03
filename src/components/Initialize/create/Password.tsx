@@ -43,7 +43,7 @@ const usePasswordStrength = (password: string) => {
   return result
 }
 
-export const PasswordForm = ({onFinish,  buttonText = "Create Wallet"}) => {
+export const PasswordForm = ({onFinish,  buttonText = "Next"}) => {
   const [form] = Form.useForm();
   const password = Form.useWatch('password', form);
   console.log(password)
@@ -233,7 +233,7 @@ export default function Password({
             </p>
           <p className="mb-2 mt-4" style={{color: "var(--adm-color-text-secondary)"}}>
            
-           Password will be used to encrypt your secret phrase and will be required to unlock your wallet.
+           Password will be used to encrypt your secret phrase and will be required to unlock NanChat.
           </p>
         </div>
         <div>
