@@ -49,6 +49,11 @@ const ChatSocket: React.FC = () => {
             // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the chats on reconnect
             // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all chats
         });
+        socket.io.on('open', () => {
+            console.log('socket open');
+            mutateChats()
+        })
+
         socket.emit('join', activeAccount);
 
         return () => {
