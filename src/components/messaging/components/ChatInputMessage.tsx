@@ -107,7 +107,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     
 
   const callbackSocket = (response: any, message) => {
-      console.log("message sent", response);
+      console.log("message sent", response, {"local Id": message._id}, message);
       if (response.success !== true) {
         messageInputRef.current?.focus();
         setNewMessage(newMessage);
@@ -117,24 +117,19 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         });
       }
       else{
-        const messageId = response.messageId
-        mutateInifinite(unstable_serialize((index, prevPageData) => {
-          return getKey(index, prevPageData, message.chatId)
-      }), (currentPages) => {
-  if (message.fromAccount == activeAccount){
-      // mutate only status if message is from ourself
-      // find message with message.height
-      const messageIndex = currentPages?.[0].findIndex(m => m._id === message._id);
-      //messageIndex can be undefined if new private chat
-      // debugger
-      if (messageIndex !== -1 && messageIndex !== undefined) {
+        mutateMessages(currentPages => {
           const newPages = [...(currentPages || [])];
-          newPages[0][messageIndex] = {...newPages[0][messageIndex], status: "sent", _id: messageId}; // update with real message id
+          // remove local message with id
+          const messageIndex = newPages[0].findIndex(m => m._id === message._id);
+          if (messageIndex !== -1) {
+              newPages[0].splice(messageIndex, 1);
+          }
+          newPages[0] = [{ ...message, status: "sent", _id: response.messageId, isLocal: true}, ...(newPages[0] || [])];
+          console.log(newPages)
           return newPages;
-      }
-  } 
-}
-, false);
+      }, false);
+
+        return
       }
    }
     // useEffect(scrollToBottom, [messages]);
