@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     FirebaseMessaging: {
-      presentationOptions: [],
+      presentationOptions: ["badge", "sound"],
     },
     Keyboard: {
       resize: KeyboardResize.None,
