@@ -107,7 +107,7 @@ function SecuritySettings() {
                   title: "Disable Password",
                   content: (
                     <div>
-                      <div>You will no longer need a password to open NanWallet.</div>
+                      <div>You will no longer need a password to open NanChat.</div>
                       <div>
                         Your secret phrase will be stored unencrypted on this device. <br/>Make sure your device cannot be accessed by unauthorized users.
                       </div>
@@ -152,7 +152,7 @@ function SecuritySettings() {
                         Disable Password
                       </Button>
                       {isPasswordMandatory && <div className="text-sm mt-4">
-                        <div>Password is mandatory on web version. <a href="https://nanwallet.com" target="_blank">Download NanWallet</a> to use secure storage without a password.</div>
+                        <div>Password is mandatory on web version. <a href="https://nanwallet.com" target="_blank">Download NanChat</a> to use secure storage without a password.</div>
                       </div>}
                     </div>
                   ),

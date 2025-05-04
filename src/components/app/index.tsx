@@ -407,7 +407,7 @@ export default function App({callback}) {
          networks[ticker] = newNetworksToAdd[ticker]
         }
         // Toast.show({
-        //   content: `Restart NanWallet to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
+        //   content: `Restart NanChat to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
         //   duration: 7000
         // })
       }

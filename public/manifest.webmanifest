@@ -1,6 +1,6 @@
 {
-  "name": "NanWallet",
-  "short_name": "NanWallet",
+  "name": "NanChat",
+  "short_name": "NanChat",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#000",

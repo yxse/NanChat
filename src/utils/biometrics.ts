@@ -62,7 +62,7 @@ export async function webauthnAuthIfAvailable(){
                             })
         }
         else{
-            let r = await webauthn.client.register("NanWallet", challenge, {
+            let r = await webauthn.client.register("NanChat", challenge, {
                                 // "authenticatorType": "auto",
                                 // "userVerification": "required",
                                 // "discoverable": "preferred",

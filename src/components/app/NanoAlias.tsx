@@ -112,7 +112,7 @@ function NanoAlias() {
                 Have a xno.link alias ?
             </p>
             <p className="text-slate-500 hover:text-slate-400 cursor-pointer transition-colors text-sm mt-1 justify-end mb-2">
-                Easily sync your NanWallet addresses with your xno.link alias.
+                Easily sync your NanChat addresses with your xno.link alias.
             </p>
             <a href={"http://localhost:3001/account?tab=alias&multiAddress=" + activeAccount} target="_blank">
             <Button

@@ -21,7 +21,7 @@
       </dict>
   </dict>
 	<key>CFBundleDisplayName</key>
-	<string>NanWallet</string>
+	<string>NanChat</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleGetInfoString</key>

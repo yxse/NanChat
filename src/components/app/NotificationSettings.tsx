@@ -108,11 +108,11 @@ function NotificationSettings() {
             {
               Capacitor.getPlatform() === "web" ? (
                   <p>
-                    You need to enable notifications for NanWallet in your browser settings.
+                    You need to enable notifications for NanChat in your browser settings.
                   </p>
               ) : (
                   <p>
-                    You need to enable notifications for NanWallet in your device settings.
+                    You need to enable notifications for NanChat in your device settings.
                     <div>
                       <Button onClick={() => {
                         // setInterval(() => {
