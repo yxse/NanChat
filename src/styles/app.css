@@ -304,7 +304,7 @@ html {
 :root:root {
   /* --adm-button-border-radius: 12px; */
   --adm-color-background: #0e0e0e;
-  --adm-color-border: #1e1e1e;
+  --adm-color-border: rgb(30, 30, 30);
 }
 
 .checkListContainer {
@@ -398,10 +398,10 @@ textarea::placeholder, input::placeholder {
 .light-theme {
   /* --adm-color-primary: #4090ff; */
   --adm-color-background: rgb(255, 255, 255);
-  --main-background-color: #efefef;
+  --main-background-color: rgb(246, 246, 246);
   /* --adm-color-text: #dbdbdb; */
   /* --text-color-primary: white; */
-  --adm-color-border: #e0e0e0;
+  --adm-color-border: rgb(224, 224, 224);
 }
 
 /*  animation keyboard ios native */
