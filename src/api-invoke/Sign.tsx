@@ -14,7 +14,7 @@ import { WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
 // import { InAppBrowser } from '@capgo/inappbrowser'
 
 
-export const SignPopup = ({visible, setVisible, uri}) => {
+export const SignPopup = ({visible, setVisible, uri, setUri}) => {
 
   return (
     <ResponsivePopup
@@ -24,7 +24,10 @@ export const SignPopup = ({visible, setVisible, uri}) => {
     setVisible={setVisible}
     title="Sign Message"
     >
-      <Sign uri={uri} onClose={() => setVisible(false)} />
+      <Sign uri={uri} onClose={() => {
+        setVisible(false)
+        setUri("")
+      }} />
     </ResponsivePopup>
   )
 }
@@ -39,6 +42,7 @@ export default function Sign({uri, onClose}) {
   const [message, setMessage] = useState("")
   const [callback, setCallback] = useState(false)
   const [hostname, setHostname] = useState("")
+  const [hostnameCallback, setHostnameCallback] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState("")
   const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex);
@@ -56,6 +60,7 @@ export default function Sign({uri, onClose}) {
         setCallback(searchParams.get("callback"))
         setSubmitURL(searchParams.get("url"))
         setHostname(new URL(searchParams.get("url")).hostname)
+        setHostnameCallback(new URL(searchParams.get("callback")).hostname)
       } catch (error) {
         console.log(error)
         Toast.show({content: error, icon: 'fail'})
@@ -77,7 +82,7 @@ export default function Sign({uri, onClose}) {
   }, [])
   return (
     <div className="flex flex-col   w-full h-full">
-      <nav className="flex select-none w-full shadow-md items-center rounded-b-lg justify-start p-2 bg-slate-800 text-center">
+      {/* <nav className="flex select-none w-full shadow-md items-center rounded-b-lg justify-start p-2 bg-slate-800 text-center">
         <div className="w-full flex flex-row items-center">
           <div className="justify-center flex w-full">
             <p className="text-blue-400">
@@ -85,10 +90,10 @@ export default function Sign({uri, onClose}) {
               </p>
           </div>
         </div>
-      </nav>
-<div style={{maxWidth: "550px", marginRight: "auto", marginLeft: "auto"}} className={result ? "hidden" : ""}>
+      </nav> */}
+<div style={{maxWidth: "550px"}} className={result ? "hidden" : ""}>
       <div className="flex justify-center h-full p-4">
-        <div className="flex flex-col justify-between h-full w-full">
+        <div className="flex flex-col justify-between h-full w-full text-sm">
           <div className="flex flex-col w-full justify-start mt-0 items-center mb-4">
             <div className="flex flex-col space-y-1  justify-center text-center w-full">
               <div className="flex mb-2 items-center justify-center">
@@ -99,7 +104,7 @@ export default function Sign({uri, onClose}) {
               Signature request
               </p>
                 <p className="text-slate-500 hover:text-slate-400 cursor-pointer transition-colors text-sm mt-1 justify-end">
-                Only confirm this message if you approve the content and trust the requesting site.
+                Only confirm this message if you approve the content.
                 </p>
             </div>
           </div>
@@ -113,17 +118,19 @@ export default function Sign({uri, onClose}) {
           {
             callback && <><p>Callback:</p>
           <div className="p-3 bg-slate-800/70 rounded-md ">
-          {callback.replace("https://", "")}
+          {hostnameCallback}
           </div>
             </>
           }
           <p>Message:</p>
-          <TextArea
-          autoSize={{ minRows: 3}}
-            value={message}
-            onChange={(e) => setMessage(e)}
+          <div
+          // autoSize={{ minRows: 3}}
+            // value={message}
+            // onChange={(e) => setMessage(e)}
             className="p-3 bg-slate-800/70 rounded-md "
-          />
+          >
+            {message}
+          </div>
         </div>
       </div>
 
@@ -131,7 +138,12 @@ export default function Sign({uri, onClose}) {
         {/** buttons */}
         <div className="flex flex-row items-center justify-center space-x-5 p-3">
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              if (Capacitor.isNativePlatform()) {
+                WebviewOverlay.toggleSnapshot(false);
+              }
+              if (onClose) onClose()
+            }}
             className="w-full"
             shape="rounded"
             color="default"
@@ -185,7 +197,7 @@ export default function Sign({uri, onClose}) {
             shape="rounded"
             color="primary"
           >
-            Confirm
+            Sign
           </Button>
         </div>
       </div>
