@@ -37,7 +37,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     } = useParams();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const {blockChat} = useChats();
+    const {chats} = useChats();
+    const chat =  chats?.find((chat) => chat.type === "private" && chat?.participants?.find((participant) => participant._id === account));
     const { data: names } = useSWR<Chat[]>(`/names?accounts=nano_${account?.split('_')[1]}`, fetcherMessages);
     const name = names?.[0];
     const nameOrAccount = name?.name || formatAddress(account);
@@ -222,9 +223,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     
                             <BlockChatButton 
                             mode="list"
-                            chat={{
-                                id: account
-                            }} onSuccess={() => {
+                            chat={chat} onSuccess={() => {
                                 navigate('/chat');
                             }} />
                                         </div>

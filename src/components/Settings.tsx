@@ -477,7 +477,7 @@ className="mb-24"
                             }
                           }}
                         >
-                          System
+                          Auto Dark/Light
                         </CheckList.Item>
                         <CheckList.Item
                           value="natrium"

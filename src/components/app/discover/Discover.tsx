@@ -28,7 +28,7 @@ export const ChatName = ({ chat, activeAccount }) => {
         const { activeAccount: activeAccountWallet} = useWallet();
         activeAccount = activeAccountWallet
     }
-    return chat?.type === "group" ? (chat?.name || "Group Chat") : (chat?.participants?.find(participant => participant._id !== activeAccount)?.name || <ProfileName address={chat.id} />)
+    return chat?.type === "group" ? (chat?.name || "Group Chat") : (chat?.participants?.find(participant => participant._id !== activeAccount)?.name)
 }
 
 export const ItemChat = ({ chat, onClick }) => {
