@@ -407,7 +407,7 @@ export default function App({callback}) {
          networks[ticker] = newNetworksToAdd[ticker]
         }
         // Toast.show({
-        //   content: `Restart NanWallet to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
+        //   content: `Restart NanChat to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
         //   duration: 7000
         // })
       }
@@ -415,9 +415,9 @@ export default function App({callback}) {
     console.log("index render")
     useEffect(() => {
       if (activeAccount){
-        getNewChatToken(activeAccount, activeAccountPk).then((r) => {
-          console.log("got new chat token", r);
-        })
+        // getNewChatToken(activeAccount, activeAccountPk).then((r) => {
+        //   console.log("got new chat token", r);
+        // })
       }
     }
     , [activeAccount, activeAccountPk]);

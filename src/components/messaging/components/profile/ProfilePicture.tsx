@@ -4,7 +4,7 @@ import { DotLoading, Image, ImageViewer } from "antd-mobile";
 import { accountIconUrl } from "../../../app/Home";
 import { NoAvatar } from "../icons/NoAvatar";
 
-const ProfilePicture = ({ address, width=42, borderRadius=8, clickable }) => {
+const ProfilePicture = ({ address, width=40, borderRadius=8, clickable }) => {
     const { data, isLoading } = useSWR(address, fetcherAccount, {
             revalidateIfStale: false,
             revalidateOnFocus: false,

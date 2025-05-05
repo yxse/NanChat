@@ -18,6 +18,7 @@ import { useChats } from "../hooks/use-chats";
 import { PiStickerFill, PiStickerLight } from "react-icons/pi";
 import MessageReply from "./MessageReply";
 import { unstable_serialize } from 'swr/infinite';
+import { Capacitor } from "@capacitor/core";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -91,6 +92,11 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       emit("reply-message", null);
     }
     useEffect(() => {
+
+      if (! (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'android')) {
+        messageInputRef.current?.focus();
+      }
+
       console.log("replyEvent", replyEvent)
       if (replyEvent) {
         setReplyMessage(replyEvent?.message);
@@ -347,7 +353,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             enterKeyHint="send"
             onFocus={() => {
               if (isMobile){
-                // setStickerVisible(false) // close sticker when keyboard open on mobile
+                setStickerVisible(false) // close sticker when keyboard open on mobile
               }
             }}
             onKeyDown={(e) => {

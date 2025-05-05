@@ -1,4 +1,4 @@
-import { LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline } from "antd-mobile-icons";
+import { LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -312,7 +312,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                 }}
                 right={
                     <span style={{float: "right", cursor: "pointer"}}>
-                    <MoreOutline 
+                    <UserOutline 
                     onClick={() => {
                         navigate(`/chat/${address}/info`);
                     }}

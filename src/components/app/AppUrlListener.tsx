@@ -79,6 +79,13 @@ const AppUrlListener: React.FC<any> = () => {
         // })
         navigate('/') // to prevent bug when navigating back
         navigate(event.notification.data.url);
+        
+        FirebaseMessaging.getDeliveredNotifications().then((notifications) => {
+          // remove notification of the chat
+          const notificationsChat = notifications.notifications.filter((notification) => notification.data?.url === event.notification.data.url);
+          console.log("notification filtered", notificationsChat);
+          FirebaseMessaging.removeDeliveredNotifications({notifications: notificationsChat});
+        });
       }
       );
       FirebaseMessaging.addListener("notificationReceived", (event) => {

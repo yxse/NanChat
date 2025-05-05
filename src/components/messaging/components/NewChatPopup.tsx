@@ -144,7 +144,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                     style={{float: 'left', color: 'var(--adm-color-primary)', position: 'absolute', cursor: 'pointer'}}
                      onClick={() => {
                                 navigator.share({
-                                    title: `Hey, I'm using NanWallet for end-to-end encrypted messaging. Install NanWallet and message me at ${activeAccount}`,
+                                    title: `Hey, I'm using NanChat for end-to-end encrypted messaging. Install NanChat and message me at ${activeAccount}`,
                                     url: window.location.href + `/${activeAccount}`
                                 })  
                             }}

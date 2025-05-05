@@ -198,7 +198,7 @@ const saveScrollPosition = useCallback(
                           onChatSelect(address);
                         }
                         else{
-                          Toast.show({content: "Invalid QR Code. Please scan a valid NanWallet chat QR code or a Nano address", duration: 4000});
+                          Toast.show({content: "Invalid QR Code. Please scan a valid NanChat chat QR code or a Nano address", duration: 4000});
                         }
                     }
                   }}
@@ -245,7 +245,7 @@ const saveScrollPosition = useCallback(
               onChatSelect(address);
             }
             else{
-              Toast.show({content: "Invalid QR Code. Please scan a valid NanWallet chat QR code or a Nano address"});
+              Toast.show({content: "Invalid QR Code. Please scan a valid NanChat chat QR code or a Nano address"});
             }
         }
       }}

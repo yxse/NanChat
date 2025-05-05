@@ -30,6 +30,15 @@ fn get_secret(service: String, username: String) -> Result<String, AppError> {
     let password = entry.get_password()?;
     Ok(password)
 }
+// delete keyring entry
+
+#[tauri::command]
+fn delete_secret(service: String, username: String) -> Result<(), AppError> {
+    let entry = KeyringEntry::new(&service, &username)?;
+    entry.delete_credential()?;
+    Ok(())
+}
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -50,7 +59,7 @@ pub fn run() {
             app.deep_link().register("xdg")?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![save_secret, get_secret])
+        .invoke_handler(tauri::generate_handler![save_secret, get_secret, delete_secret])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

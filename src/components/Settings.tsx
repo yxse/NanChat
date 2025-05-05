@@ -477,7 +477,7 @@ className="mb-24"
                             }
                           }}
                         >
-                          System
+                          Auto Dark/Light
                         </CheckList.Item>
                         <CheckList.Item
                           value="natrium"
@@ -544,7 +544,7 @@ className="mb-24"
             <List.Item prefix={<BiHistory size={24} />} onClick={() => navigate("/swap")}>
               Swap History
             </List.Item>
-            <List.Item
+            {/* <List.Item
              prefix={<FiAtSign size={24} />}
               onClick={() => {
                 navigate("/settings/alias");
@@ -556,7 +556,7 @@ className="mb-24"
             Nano Alias
             </div>
             </div>
-            </List.Item>
+            </List.Item> */}
           </List>
         
           {/* <div className="my-4" /> */}

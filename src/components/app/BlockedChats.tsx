@@ -55,6 +55,11 @@ function BlockedChats() {
         backArrow={true}>
           <span className="">Blocked Chats</span>
         </NavBar>
+        {
+          chats?.length === 0 && <div className="text-center mt-4 mb-4">
+            No blocked chats
+          </div>
+        }
             <List
                           //  value={selectedAccounts}
                             >

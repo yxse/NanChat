@@ -224,7 +224,12 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                          }}
                         style={{display: 'flex', flexDirection: 'row', cursor: 'pointer', alignItems: 'center', justifyContent: 'space-between', gap: 8}}>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <b>{fileName}</b>
+                            <b
+                            style={{
+                                fontSize: 16,
+                                color: 'var(--adm-color-text)',
+                            }}
+                            >{fileName}</b>
                             <div style={{color: 'var(--adm-color-text-secondary)'}}>
                                 {formatSize(fileSize)}
                             </div>
@@ -232,7 +237,9 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                         <a 
                        
                         target="_blank">
-                            <DownlandOutline fontSize={24} />
+                            <DownlandOutline
+                            color="var(--adm-color-text)"
+                             fontSize={24} />
                         </a>
                         </div>
                     </Card>

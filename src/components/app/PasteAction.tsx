@@ -25,7 +25,9 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
 
   function executeURI(uri: string) {
     try {
-      if (uri.startsWith("nanauth://sign?")) {
+      if (uri.startsWith("nanauth://sign?") 
+        || uri.startsWith("nanauth://sign/?") // for tauri
+      ) { 
         // navigate(uri.replace("nanauth://sign?", "/sign?"));
         setVisibleSign(true);
         return;
@@ -130,6 +132,7 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         visible={visibleSign}
         setVisible={setVisibleSign}
         uri={uri}
+        setUri={setUri}
         onSign={(result) => {
           WebviewOverlay.toggleSnapshot(false);
           setVisibleSign(false);

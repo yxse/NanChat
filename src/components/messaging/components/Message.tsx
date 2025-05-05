@@ -161,7 +161,7 @@ const Message = memo(({
         {...onLongPress}
         onContextMenu={handleRightClick}
         key={message._id}
-        style={{ alignItems: "center" }}
+        style={{ alignItems: "start" }}
         className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mb-2 mx-2`}
       >
         {!isFromCurrentUser && <ProfilePictureLink address={message.fromAccount} />}
@@ -382,6 +382,65 @@ const ProfilePictureLink = ({ address }) => (
   </div>
 );
 
+// Safer message renderer component
+const MessageContentLink = ({ message }) => {
+  // Decrypt message here if needed
+  const decrypted = message; // Replace with your decryption logic
+  
+  // Extract URLs from the message
+  const urls = extractUrls(decrypted);
+  
+  if (urls.length === 0) {
+    // If no URLs, just return the text
+    return <div>{decrypted}</div>;
+  }
+  
+  // Split the message by URLs and create an array of text and link elements
+  let parts = [];
+  let lastIndex = 0;
+  
+  urls.forEach(url => {
+    const urlIndex = decrypted.indexOf(url, lastIndex);
+    
+    // Add text before the URL
+    if (urlIndex > lastIndex) {
+      parts.push(decrypted.substring(lastIndex, urlIndex));
+    }
+    
+    // Add the URL as a link
+    parts.push(
+      <a 
+        key={urlIndex}
+        style={{ textDecoration: 'underline' }}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {url}
+      </a>
+    );
+    
+    lastIndex = urlIndex + url.length;
+  });
+  
+  // Add any remaining text after the last URL
+  if (lastIndex < decrypted.length) {
+    parts.push(decrypted.substring(lastIndex));
+  }
+  
+  // Render all parts together
+  return <div>{parts}</div>;
+};
+
+
+function extractUrls(message) {
+  // More comprehensive URL regex pattern
+  const urlPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
+  
+  // Find all matches in the message
+  const urls = message.match(urlPattern) || [];
+  return urls;
+}
 
 const MessageContent = ({
   message,
@@ -392,12 +451,14 @@ const MessageContent = ({
   activeAccount
 }) => {
   const borderRadiusClass = isFromCurrentUser
-    ? isPreviousMessageFromSameAccount ? '' : 'rounded-br-none'
-    : isPreviousMessageFromSameAccount ? '' : 'rounded-bl-none';
+    ? isPreviousMessageFromSameAccount ? '' : 'rounded-br-sm'
+    : isPreviousMessageFromSameAccount ? '' : 'rounded-bl-sm';
+  // const borderRadiusClass = ''
 
   return (
     <div
-      className={`chat-message max-w-[70%] p-2 rounded-md ${borderRadiusClass} ${isFromCurrentUser ? 'to' : 'from'}`}
+    style={{borderRadius: 8}}
+      className={`chat-message max-w-[70%] p-2 ${borderRadiusClass} ${isFromCurrentUser ? 'to' : 'from'}`}
     >
       {type === 'group' && !isFromCurrentUser && (
         <span style={{ color: 'var(--adm-color-text-secondary)' }} className="text-sm">
@@ -408,7 +469,7 @@ const MessageContent = ({
         {!decrypted && !message.isLocal && (
           <span className="text-xs opacity-70">(clear) </span>
         )}
-        {decrypted}
+        <MessageContentLink message={decrypted} />
       </p>
     </div>
   );

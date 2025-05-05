@@ -5,7 +5,7 @@ export const socket = io(import.meta.env.VITE_PUBLIC_BACKEND, {
 });
 
 import React, { useContext, useEffect } from 'react';
-import { BrowserRouter as Router, Route, useNavigate, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Route, useNavigate, Routes, useParams, useLocation } from 'react-router-dom';
 import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { WalletCondress } from '../../../utils/format';
@@ -20,6 +20,9 @@ import { getChatToken } from '../../utils/storage';
 import { useChats } from './hooks/use-chats';
 import { unstable_serialize } from 'swr/infinite';
 import { getKey } from './hooks/useChat';
+import { sendNotificationTauri } from '../../nano/notifications';
+import { isTauri } from '@tauri-apps/api/core';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 const ChatSocket: React.FC = () => {
     const navigate = useNavigate();
@@ -27,7 +30,7 @@ const ChatSocket: React.FC = () => {
     const {activeAccount, activeAccountPk, wallet} = useWallet()
     const {chats, mutateChats} = useChats();
     const {mutate: mutateInifinite} = useSWRConfig();
-
+    const location = useLocation();
     const { account } = useParams();  // chatId
     useEffect(() => {
         getChatToken(activeAccountPk).then((token) => {
@@ -137,6 +140,16 @@ const ChatSocket: React.FC = () => {
             }
             finally {
                 console.log('finally');
+            }
+
+            if (isTauri()) {
+                const appWindow = getCurrentWindow();
+                const isFocused = await appWindow.isFocused();
+                console.log('isFocused', isFocused);
+                if (isFocused) return; // don't show notification if app is focused
+                if (location.pathname !== `/chat/${message.chatId}`) {
+                    sendNotificationTauri(message.fromAccountName, "New message");
+                }
             }
         });
         return () => {
