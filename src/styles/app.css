@@ -361,7 +361,10 @@ html {
   background-color: #00b578;
   transition: background-color 0.1s ease-in-out;
 }
-
+textarea::placeholder, input::placeholder {
+  color: var(--adm-color-text-secondary) !important;
+  opacity: 0.5 !important;
+}
 .natrium-theme {
   /* --adm-color-primary: #A3CDFF; */
   --adm-color-background: #2A3A4D;
@@ -369,7 +372,7 @@ html {
   --adm-button-border-color: #5b7697;
   --text-color-primary: #1E2C3D;
   --main-background-color: #1E2C3D;
-  --adm-color-border: #1E2C3D;
+  --adm-color-border: rgb(49, 69, 94);
 }
 .banano-theme {
   --adm-color-primary: #FBDD11;
@@ -377,7 +380,7 @@ html {
   --adm-color-background: #2A2A2E;
   --main-background-color: #212124;
   --text-color-primary: #212124;
-  --adm-color-border: #212124;
+  --adm-color-border: rgb(50, 50, 50)
 }
 /* #292A2D */
 /* #212124 */
@@ -435,6 +438,9 @@ body.light-theme .message.justify-end {
 body.banano-theme .message.justify-end {
   color: var(--adm-color-background); 
   /* text dark for from message on banano theme */
+}
+body.banano-theme .adm-button-fill-none {
+  color: var(--adm-color-primary) !important;
 }
 body.banano-theme .adm-button-primary {
   /* make the text color white on light theme for better contrast on hover */
@@ -819,7 +825,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .chat-message.from{
-  background-color: var(--adm-color-background);
+  background-color: var(--adm-color-border);
   /* background-color: #1e1e1e; */
 }
 
