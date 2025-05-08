@@ -116,7 +116,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
 
   const handleInputChange = (e) => {
     const value = e
-    form.setFieldValue(formItemName, value);
+    if (isNaN(value)) return;
     updateOtherAmountField(value);
   };
 
