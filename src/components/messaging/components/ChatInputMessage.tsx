@@ -357,11 +357,14 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
               }
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && (e.shiftKey && Capacitor.getPlatform() === "web")) {
+                return; // allow new line on shift + enter, for web/desktop only
+              }
+              else if (e.key === 'Enter') {
                 e.preventDefault();
                 sendMessage(e);
-              }}
-            }
+              }
+            }}
             ref={messageInputRef}
               autoSize={{ minRows: 1, maxRows:5 }}
               rows={1}
