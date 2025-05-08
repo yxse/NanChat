@@ -56,7 +56,6 @@ import ProfileName from "../messaging/components/profile/ProfileName";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
-
   const { data: fiatRates, isLoading, error } = useSWR('fiat', fetchFiatRates);
   const { data: balance, isLoading: balanceLoading } = useSWR(
     "balance-" + ticker + "-" + activeAccount,
@@ -131,6 +130,13 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
   if (type === "send") {
     rules.push({
       validateTrigger: "onConfirm",
+      required: true,
+      message: `Please enter an amount`,
+      type: "number",
+      transform: (value) => parseFloat(value),
+    });
+    rules.push({
+      validateTrigger: "onConfirm",
       validator: async (rule, value) => {
         if (value <= 0) {
           throw new Error("Amount must be greater than 0");
@@ -150,6 +156,11 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
 
   return (
     <Form.Item
+    normalize={(value, prevValue) => {
+      value = value?.replace(/,/g, ".") // fix issue with comma in input, like netherlands region with english language on iOS
+      if (isNaN(value)) return prevValue;
+      return value;
+    }}
     className="form-list"
       name={formItemName}
       label={""}
@@ -179,12 +190,11 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       <Input
       id="amount"
       className="form-list"
-      type="number"
       step={"any"}
       autoComplete="off"
       autoFocus={type === "receive"}
         clearable
-        // type="number"
+        type="text"
         inputMode="decimal"
         onChange={handleInputChange}
         placeholder={`Enter Amount`}
