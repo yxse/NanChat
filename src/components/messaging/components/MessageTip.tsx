@@ -15,6 +15,7 @@ const MessageTip = ({ message, side, hash, ticker }) => {
     const amountMega = data?.amount && rawToMega(ticker, data.amount);
     return (
         <div
+        style={{color: 'var(--adm-color-text)'}}
         // style={{marginLeft: '10px', marginRight: '10px'}}
         key={message._id}
         // className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
