@@ -2,29 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	 <key>NSUbiquitousContainers</key>
-  <dict>
-      <key>iCloud.com.nanwallet.app</key>
-      <dict>
-          <key>NSUbiquitousContainerIsDocumentScopePublic</key>
-          <true/>
-          <key>NSUbiquitousContainerName</key>
-          <string>Wallet Backup NanChat</string>
-          <key>NSUbiquitousContainerSupportedFolderLevels</key>
-          <string>Any</string>
-      </dict>
-  </dict>
 	<key>CFBundleDisplayName</key>
 	<string>NanChat</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
@@ -117,10 +109,14 @@
 	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Uses Bluetooth to connect and interact with Ledger devices</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan qrcode</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Allow contacts to send invitation with ease. Contacts are stored locally only.</string>
 	<key>NSExtensionAttributes</key>
 	<dict>
 		<key>NSExtensionActivationRule</key>
@@ -151,12 +147,26 @@
 	<string>Authenticate</string>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.com.nanwallet.app</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Wallet Backup NanChat</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>Any</string>
+		</dict>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 		<string>processing</string>
 		<string>fetch</string>
 	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -1,7 +1,7 @@
-# Cesium Browser Extension
-You can find the latest version of Cesium [**here**](https://github.com/WriteNaN/Cesium/releases) or on our official [**webiste**](https://nano.gift/cesium).
-For help using the extension, please check this [documentation](https://github.com/WriteNaN/Cesium/blob/main/docs/USAGE.md).
-
-To build with the Cesium wallet API, you can refer our [Developer Docs](https://github.com/WriteNaN/Cesium/blob/main/docs/DEVELOPER.md).
-
-If you wish to contribute to the development of this wallet, visit our [Contributor's guide](https://github.com/WriteNaN/Cesium/blob/main/docs/CONTRIBUTING.md).
+<p align="center">
+    <img src="https://bucket.nanwallet.com/profile-pictures/1741881296649-7a165a89a4834b15.svg" alt="NanChat_logo" width="64">
+</p>
+<h1 align="center"><a href="https://nanchat.com/">NanChat</a> - Nano Wallet & Chat</h1>
+<p align="center">
+This is the complete source code for NanChat iOS, Android and desktop clients. 
+</p>
