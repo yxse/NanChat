@@ -577,17 +577,17 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
           onClick={() => {
             if (Capacitor.isNativePlatform()) {
               InAppBrowser.openInSystemBrowser({
-                url: `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}&r=nanchat`,
+                url: `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`,
                 options: DefaultSystemBrowserOptions
               })
             }
             else {
               window.open(
-                `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}&r=nanchat`
+                `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`
               )
             }
           }}
-          style={{marginBottom: 32, color: "var(--adm-color-primary)", cursor: "pointer"}}
+          style={{marginBottom: 64, color: "var(--adm-color-primary)", cursor: "pointer"}}
            className="mt-4">
             Free {networks[ticker]?.name} faucet
           </div>

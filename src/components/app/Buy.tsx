@@ -42,8 +42,8 @@ import { convertAddress, MIN_USD_SWAP } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { Capacitor } from "@capacitor/core";
 // import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
-import {InAppBrowser } from '@capgo/inappbrowser';
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
+import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 
 export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo = "XNO", onSuccess, setAction}) {
   const feeless = {};
@@ -188,7 +188,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
       else{
         const link = "https://payments.guardarian.com/checkout?tid=" + exchange.orderId;
         if (Capacitor.isNativePlatform()) {
-            await InAppBrowser.open({url: link})
+            await InAppBrowser.openInExternalBrowser({url: link})
         }
         else {
           window.open(link, "_blank");

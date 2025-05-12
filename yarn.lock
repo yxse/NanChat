@@ -1077,11 +1077,6 @@
   dependencies:
     localforage "^1.10.0"
 
-"@capgo/inappbrowser@6":
-  version "6.10.1"
-  resolved "https://registry.yarnpkg.com/@capgo/inappbrowser/-/inappbrowser-6.10.1.tgz#91a5c5ad42c480f3f14d68305f445aecdd618be7"
-  integrity sha512-7oKb5SkDhIYQ80Ko0cgBvz0sa7IwVaWMQnj60JPKhqTOckIU0l45Ns5UWUEtmnaMekQ3SEJmOuKTo3gPgo3VsQ==
-
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
@@ -2585,9 +2580,9 @@
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
-"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#38959cf3b2c5b1cc7e5a92e497fe9a58b6b244f9":
+"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a":
   version "3.1.1"
-  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#38959cf3b2c5b1cc7e5a92e497fe9a58b6b244f9"
+  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a"
   dependencies:
     resize-observer-polyfill "^1.5.1"
 

@@ -7,7 +7,6 @@ import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { Capacitor } from '@capacitor/core';
 import { isTauri } from '@tauri-apps/api/core';
-import { InAppBrowser } from '@capgo/inappbrowser';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { Filesystem } from '@capacitor/filesystem';
 import useLocalStorageState from 'use-local-storage-state';

@@ -11,7 +11,6 @@ import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrows
 import { useEmit, useEvent } from "../components/messaging/components/EventContext";
 import { ResponsivePopup } from "../components/Settings";
 import { WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
-// import { InAppBrowser } from '@capgo/inappbrowser'
 
 
 export const SignPopup = ({visible, setVisible, uri, setUri}) => {

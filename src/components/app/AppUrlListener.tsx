@@ -6,7 +6,6 @@ import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { Capacitor } from '@capacitor/core';
 import { isTauri } from '@tauri-apps/api/core';
-import { InAppBrowser } from '@capgo/inappbrowser';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { getSharedKey } from '../../services/sharedkey';
@@ -56,7 +55,6 @@ const AppUrlListener: React.FC<any> = () => {
             navigate(event.url.replace("https://nanwallet.com/", "/"));
             return; 
           }
-          InAppBrowser.hideWebView();
           setUri(event.url);
           try {
             // InAppBrowser.close()
