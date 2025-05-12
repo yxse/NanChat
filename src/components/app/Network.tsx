@@ -1,7 +1,7 @@
 import { BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
-import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineCreditCard, AiOutlineSwap, AiOutlineSync } from "react-icons/ai";
+import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineCreditCard, AiOutlineRetweet, AiOutlineSwap, AiOutlineSync } from "react-icons/ai";
 import {
   Button,
   CapsuleTabs,
@@ -441,7 +441,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
           <ButtonActionCircle
           title="Swap"
-          icon={<AiOutlineSwap size={22} />}
+          icon={<AiOutlineRetweet size={22} />}
           onClick={() => {
             setAction('swap');
             setModalVisible(true);

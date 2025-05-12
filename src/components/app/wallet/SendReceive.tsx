@@ -6,6 +6,7 @@ import {
   AiOutlineArrowDown,
   AiOutlineArrowUp,
     AiOutlineHome,
+    AiOutlineRetweet,
     AiOutlineSwap
 } from "react-icons/ai";
 
@@ -102,7 +103,7 @@ export const SendReceive = () => {
                     {(Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
                     <ButtonActionCircle
                     title="Swap"
-                    icon={<AiOutlineSwap size={22} />}
+                    icon={<AiOutlineRetweet size={22} />}
                     onClick={() => {
                       setAction('swap');
                       setVisible(true);
@@ -159,7 +160,10 @@ export const SendReceive = () => {
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>
           <NetworkList 
           hideZeroBalance={action === "send"}
-          hidePrice={true} onClick={(ticker) => {
+          hidePrice={true} onClick={(ticker, action) => {
+            if (action === 'buy') {
+              setAction(action);
+            }
             // navigate(ticker + "/" + action);
             setVisible(false);
             setActiveTicker(ticker);

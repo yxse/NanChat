@@ -44,6 +44,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const nameOrAccount = name?.name || formatAddress(account);
     const {getContact} = useContact();
     const [visible, setVisible] = useState(false);
+    const messageInputRef = useRef(null);
+
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
@@ -165,9 +167,25 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     : []
                 } 
                 mode={"list"}
-                toAddress={account} onTipSent={() => {
-                }} />
+                toAddress={account} onTipSent={(ticker, hash) => {
+                    if (inOnNanchat){ // send the tip message only if in nanchat
+                        messageInputRef?.sendTip(ticker, hash);
+                    }
+                    }} />
                 </List>
+                <ChatInputMessage 
+                hideInput
+                    onSent={async () => {
+                        // Toast.show({
+                        //     icon: "success",
+                        //     content: "Sent",
+                        //     duration: 1000
+                        // })
+                    }}
+                        defaultNewMessage={undefined}
+                        defaultChatId={chat?.id}
+                        messageInputRef={messageInputRef}
+                    />
                 {
                     inOnNanchat && 
                 
@@ -176,6 +194,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     extra={formatAddress(account)}
                     onClick={() => {
                         Modal.show({
+                            showCloseButton: true,
                             closeOnMaskClick: true,
                             closeOnAction: true,
                             title: `${nameOrAccount}'s account:`,
@@ -192,11 +211,11 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             actions: [
                                 {
                                     key: 'copy',
-                                    text: 'Copy',
+                                    text: 'Copy address',
                                 },
                                 {
                                     key: 'cancel',
-                                    text: 'Ok',
+                                    text: 'Cancel',
                                 },
                             ],
                             onAction: (action) => {
@@ -214,7 +233,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             //     setVisible(true);
                             // }}
                             >
-                                🔒 Address 
+                                <LockOutline style={{display: 'inline-block', marginRight: 8}} />
+                                 Address 
                     </List.Item></List>
                     }
                     {

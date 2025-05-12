@@ -25,22 +25,43 @@ export async function decryptGroupMessage(content, chatId, sharedAccount, sender
     return box.decrypt(content, senderAccount, sharedKey);
   }
 
+// Create a map to track in-progress requests
+const pendingRequests = new Map<string, Promise<any>>();
+
 export async function getSharedKey(chatId: string, sharedAccount: string, activeAccountPk: string) {
     if (sharedAccount == null){
         console.error("sharedAccount is null", chatId);
         return null;
     }
     const url = `/sharedKey/?chatId=${chatId}&sharedAccount=${sharedAccount}`;
-    let sharedKey
-    await initSqlStore();
-    let cache = await restoreData(url);
-    if (cache) {
-        sharedKey = cache;
+    // Check if there's already a pending request for this URL
+    if (pendingRequests.has(url)) {
+        // If there is, wait for that request to complete
+        return pendingRequests.get(url);
     }
-    else {
-        let sharedKeyEnc = await fetcherMessages(url);
-        sharedKey = box.decrypt(sharedKeyEnc?.encryptedKey, sharedKeyEnc?.fromAccount, activeAccountPk);
-        await setData(url, sharedKey);
+    try {
+        // Create a new promise for this request and store it in the map
+        const requestPromise = (async () => {
+            await initSqlStore();
+            let cache = await restoreData(url);
+            if (cache) {
+                return cache;
+            } else {
+                let sharedKeyEnc = await fetcherMessages(url);
+                let sharedKey = box.decrypt(sharedKeyEnc?.encryptedKey, sharedKeyEnc?.fromAccount, activeAccountPk);
+                await setData(url, sharedKey);
+                return sharedKey;
+            }
+        })();
+        
+        // Store the promise in the map
+        pendingRequests.set(url, requestPromise);
+        
+        // Wait for the request to complete
+        const result = await requestPromise;
+        return result;
+    } finally {
+        // Clean up by removing the promise from the map when done
+        pendingRequests.delete(url);
     }
-    return sharedKey;
 }

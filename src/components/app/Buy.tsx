@@ -1,7 +1,7 @@
 import { BiReceipt } from "react-icons/bi";
 import { networks } from "../../utils/networks";
 import { SlArrowDownCircle, SlArrowUp, SlArrowUpCircle } from "react-icons/sl";
-import { AiOutlineHistory, AiOutlineSwap } from "react-icons/ai";
+import { AiOutlineHistory, AiOutlineRetweet, AiOutlineSwap } from "react-icons/ai";
 import {
   Button,
   Card,
@@ -290,7 +290,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
               <Button
               onClick={() => setAction("swap")}
               size="small">
-              <div className="flex text-xs items-center -mr-0"><AiOutlineSwap size={18} className="mr-2" /> Swap </div>
+              <div className="flex text-xs items-center -mr-0"><AiOutlineRetweet size={18} className="mr-2" /> Swap </div>
               </Button>
             }
               backArrow={hideHistory ? false : true}

@@ -49,7 +49,7 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
           onClick();
         }}>
         <div style={{fontSize: 34}}>
-        💸
+        <AiOutlineSwap />
         </div>
         </Button>
         <div className='mt-2'>
@@ -64,7 +64,8 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
         }}
         >
           <div className="">
-          💸 Transfer
+          <AiOutlineSwap style={{display: "inline", marginRight: 8}} />
+           Transfer
           </div>
         </List.Item>
     }

@@ -313,6 +313,7 @@ className="text-xl  text-center p-2">
                         <MetadataCard message={openService?.link} />
                     </div>
                     <ChatInputMessage 
+                    hideInput
                     onSent={async () => {
                         Toast.show({
                             icon: "success",

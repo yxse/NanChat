@@ -299,7 +299,8 @@ export const MessageButton = ({ addresses }) => {
         }}
         size='large'
     >
-        💬 Messages
+        <MessageOutline style={{display: 'inline', marginRight: 8}} />
+         Messages
     </List.Item>
     }
     return null

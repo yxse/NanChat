@@ -50,7 +50,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
   }, false);
 }
 
-const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined }) => {
+const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined, hideInput = false }) => {
     let {
         account
     } = useParams();
@@ -233,6 +233,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
      socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
      messageInputRef.current?.focus();
     };
+    messageInputRef.sendTip = sendTipMessage;
 
     const sendStickerMessage = async (stickerId: string) => {
       let chatId = account;
@@ -307,7 +308,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           paddingBottom: 8,
           paddingTop: 4,
           backgroundColor: 'var(--adm-color-background)',
-          display: defaultNewMessage ? 'none' : 'block', // hide input when sharing from webview
+          display: hideInput ? 'none' : 'block', // hide input when sharing from webview and for tranfer from account info
         }}
         onSubmit={sendMessage} className=" px-4">
           {replyMessage && <MessageReply message={replyMessage} onClose={() => {

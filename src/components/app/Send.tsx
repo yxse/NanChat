@@ -245,6 +245,9 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
       form.setFieldsValue({ amount: searchParams.get("amount") });
     }
   }, [searchParams]);
+  useEffect(() => {
+    wallet.wallets[ticker].receiveAllActiveAccount(); // force receive all 
+  }, []);
 
   let dataPrepareSend = null;
   return (

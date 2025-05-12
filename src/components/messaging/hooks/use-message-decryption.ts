@@ -80,7 +80,7 @@ const useMessageDecryption = ({ message }) => {
       } catch (error) {
         console.error('Message decryption failed:', error);
         // setDecryptedContent(message.content);
-        setDecryptedContent("🔒");
+        setDecryptedContent(false);
       }
     };
 

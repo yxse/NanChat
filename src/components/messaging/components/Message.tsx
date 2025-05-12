@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AddCircleOutline, CompassOutline, DeleteOutline, LockFill, UserAddOutline } from "antd-mobile-icons";
+import { AddCircleOutline, CompassOutline, DeleteOutline, KeyOutline, LockFill, LockOutline, UserAddOutline } from "antd-mobile-icons";
 import { WalletContext } from "../../Popup";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfilePicture from "./profile/ProfilePicture";
@@ -86,9 +86,9 @@ const Message = memo(({
       }
     }, 2000)
   }, [message]);
-  if (!decrypted) {
-    return null;
-  }
+  // if (!decrypted) {
+  //   return null;
+  // }
 
   // Determine message layout properties
   const isPreviousMessageFromSameAccount = prevMessage && prevMessage.fromAccount === message.fromAccount;
@@ -387,6 +387,9 @@ const MessageContentLink = ({ message }) => {
   // Decrypt message here if needed
   const decrypted = message; // Replace with your decryption logic
   
+  if (!decrypted) {
+    return <b></b>;
+  }
   // Extract URLs from the message
   const urls = extractUrls(decrypted);
   
@@ -467,7 +470,7 @@ const MessageContent = ({
       )}
       <p>
         {!decrypted && !message.isLocal && (
-          <span className="text-xs opacity-70">(clear) </span>
+          <LockOutline />
         )}
         <MessageContentLink message={decrypted} />
       </p>

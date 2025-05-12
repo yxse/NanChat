@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { ImageUploader, Toast, Button, Avatar, Divider, Modal, ImageViewer } from 'antd-mobile';
-import { FileOutline, FolderOutline, LockOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
+import { CameraOutline, FileOutline, FolderOutline, LockOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
 import useSWR from 'swr';
 import { fetcherAccount } from '../fetcher';
 import { useWallet, WalletContext } from '../../Popup';
@@ -309,12 +309,12 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                       {loading ? 'Uploading...' : 
                         type === 'file' ?
                         <div style={{fontSize: 34}}>
-                        📁
+                        <FolderOutline />
             </div>
                         // <FolderOutline fontSize={32}/>
                         :
                         <div style={{fontSize: 34}}>
-                        📷  
+                        <CameraOutline />  
                       </div>
                         // <PictureOutline fontSize={32}/>
                       }

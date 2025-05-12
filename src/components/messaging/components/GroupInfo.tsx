@@ -272,6 +272,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     });
                 }}
             >
+                <LockOutline style={{display: 'inline', marginRight: 8}} />
                 Shared Key 
             </List.Item>
             </List>

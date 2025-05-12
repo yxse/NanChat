@@ -408,6 +408,18 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
     return 0
   });
   
+  if (filteredActiveMainNetworks.length === 0 && filteredActiveCustomNetworks.length === 0) {
+    return <div>
+      <div className="text-center text-base" style={{color: "var(--adm-color-text-secondary)", marginTop: 32}}>
+      No funds available
+    </div>
+    <div className="text-center text-lg" style={{color: "var(--adm-color-primary)", cursor: "pointer", marginTop: 32, marginBottom: 48}} onClick={() => {
+      onClick('XNO', 'buy')
+    }}> 
+        Buy crypto 
+    </div>
+    </div>
+  }
   return (<>
     <List >
 
