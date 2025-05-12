@@ -456,10 +456,6 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
             }
           </Form>
         </div>
-        {
-          !hideHistory &&
-        <SwapHistory />
-        }
       </div>
     </div >
   );

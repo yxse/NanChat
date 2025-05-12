@@ -88,6 +88,7 @@ import { ShareExtension } from 'capacitor-share-extension';
 import { getSharedKey } from "../../services/sharedkey";
 import { SeedVerifiedBadge } from "../messaging/utils";
 import BlockedChats from "./BlockedChats";
+import SwapHistory from "./SwapHistory";
 
 // reduceMotion()
 
@@ -459,7 +460,7 @@ export default function App({callback}) {
             <Route path="/settings/security/developer" element={<DeveloperSettings />} />
             <Route path="/settings/security/blocked" element={<BlockedChats />} />
             <Route path="/buy" element={<Buy />} />
-            <Route path="/swap" element={<Swap />} />
+            <Route path="/swap" element={<SwapHistory />} />
             <Route path="/swap/:id" element={<SwapTransaction />} />
             <Route path="/history" element={<History />} />
             <Route path="/contacts" element={<Contacts />} />

@@ -83,11 +83,18 @@ const OrderInfo = ({ id, createdAt }) => {
 }
 
 export default function SwapHistory() {
+  const navigate = useNavigate();
   const history = JSON.parse(localStorage.getItem('history_exchanges') || '[]').slice(0, 10); // get last 10 exchanges only, todo: virtualized list and cache order info request in localstorage
   return (
     <div className="overflow-scroll h-screen scroll-smooth pb-96 ">
-      <div className="text-2xl m-2 mt-5">
-      </div>
+       <NavBar
+          className=" app-navbar "
+          onBack={() => {
+            navigate("/me/settings");
+          }}
+          backArrow={true}>
+          <span className="">Swap History</span>
+        </NavBar>
       <List
         style={{ marginBottom: 64 }}
         header={
@@ -101,13 +108,16 @@ export default function SwapHistory() {
         {
           history.map((exchange, idx) => {
             return <Link key={idx} to={`/swap/${exchange?.id}`}>
-
               <OrderInfo id={exchange?.id} createdAt={exchange?.createdAt} />
             </Link>
-
           })
         }
       </List>
+      {
+        history.length === 0 && <div className="text-center mt-4">
+          No swap history
+        </div>
+      }
     </div>
   );
 }

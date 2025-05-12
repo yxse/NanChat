@@ -120,15 +120,6 @@ export default function SwapTransaction() {
               :
               <Completed />
           }
-          <div>
-            <a
-              href={``}
-              target="_blank"
-              className="text-blue-500 underline text-sm"
-            >
-              View on Nanswap.com
-            </a>
-          </div>
         </div>
       </div>
     </div >
