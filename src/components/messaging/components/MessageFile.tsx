@@ -153,7 +153,11 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                     };
             }
             decryptFile()
-            }, [isAccepted])
+
+            return () => {
+                ImageViewer.clear() // close the image viewer on unmount
+            }
+        }, [isAccepted])
         
 
         const fileType = fileMeta?.type
