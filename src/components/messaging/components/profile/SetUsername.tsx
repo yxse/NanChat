@@ -86,7 +86,8 @@ visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
                                 Toast.show({
                                     icon: 'success',
                                 });
-                                modal1.close();
+                                Modal.clear();
+                                setVisible(false);
                             }
                         }),
                         });
