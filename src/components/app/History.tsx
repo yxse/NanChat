@@ -573,17 +573,24 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         {/* <Button color="primary" className="mt-4" onClick={() => navigate("/swap?to=" + ticker)}>
           Buy {ticker}
         </Button> */}
-        {/* <a
-          target="_blank"
-          href={`https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`}>
-          <Button
-          shape="rounded"
-          size="middle"
-           color="default" className="mt-4 w-full">
-            Get some {
-              networks[ticker]?.name} for free
-          </Button>
-        </a> */}
+          <div
+          onClick={() => {
+            if (Capacitor.isNativePlatform()) {
+              InAppBrowser.openInSystemBrowser({
+                url: `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}&r=nanchat`,
+                options: DefaultSystemBrowserOptions
+              })
+            }
+            else {
+              window.open(
+                `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}&r=nanchat`
+              )
+            }
+          }}
+          style={{marginBottom: 32, color: "var(--adm-color-primary)", cursor: "pointer"}}
+           className="mt-4">
+            Free {networks[ticker]?.name} faucet
+          </div>
       </div>
     </div >
     <AddContacts
