@@ -18,11 +18,15 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
         Modal.show({
             closeOnMaskClick: true,
             closeOnAction: true,
-            title: <div>{chat?.type === "group" ? "Leave" : "Block"} <ChatName chat={chat} activeAccount={activeAccount} /> ?</div>,
+            title: <div>
+                {chat?.type === "group" ? "Leave" : "Block"} <ChatName chat={chat} activeAccount={activeAccount} /> ?
+                <div style={{color: 'var(--adm-color-text-secondary)', fontSize: 16}}>
+                    {chat?.type === "group" ? "" : "Messages and payments to this account will be blocked."}
+                    </div>
+                </div>,
             actions: [
                 { 
                     text: <div style={{display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center'}}>
-                            <ChatWrongOutline />
                             {chat?.type === "group" ? "Leave" : "Block"}
                         </div>
                     ,

@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { socket } from "../socket";
 import { WalletContext } from "../../Popup";
 import { convertAddress, copyToClipboard, formatAddress } from "../../../utils/format";
@@ -35,11 +35,18 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {
         account
     } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const ticker = searchParams.get('ticker');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+ 
     const {chats} = useChats();
     const chat =  chats?.find((chat) => chat.type === "private" && chat?.participants?.find((participant) => participant._id === account));
+    const chatsInCommon = chats?.filter(
+        (chat) => chat.type === "group" && chat?.participants?.find((participant) => participant._id === account) && chat?.accepted === true && chat?.blocked === false)
+    const chatsInCommonLength = chatsInCommon?.length || 0;
     const { data: names } = useSWR<Chat[]>(`/names?accounts=nano_${account?.split('_')[1]}`, fetcherMessages);
+    const {data: isBlocked} = useSWR(`/is-blocked?address=${account}`, fetcherMessages, {fallback: false});
     const name = names?.[0];
     const nameOrAccount = name?.name || formatAddress(account);
     const {getContact} = useContact();
@@ -99,32 +106,44 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
                     NanChat ID: {name?.username}
                 </div>
+                {
+                    chatsInCommonLength > 0 ?
+                <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
+                    {chatsInCommonLength} group{chatsInCommonLength > 1 ? 's' : ''} in common
+                </div>
+                :
+                <div style={{color: 'var(--adm-color-warning)'}} className="text-base">
+                No group in common
+                </div>
+                }
                 </div>
                 </div>
-                
                 </div>
                 : 
-                <div style={{display: "flex", alignItems: "center", gap: 8, flexDirection: "column"}} className="text-2xl">
-                    <div>
-
-                    {contact?.name}
-                    </div>
-                <div 
-                className="text-base text-center"
-                onClick={() => {
-                    copyToClipboard(account);
-                    Toast.show({
-                        icon: 'success',
-                        content: 'Address copied to clipboard',
-                    });
-                }}
-                style={{ wordBreak: 'break-all'}} >
-                        {account}
-                    </div>
-                    </div>
+                <div>
+                <div style={{display: "flex", alignItems: "center", gap: 8}} className="text-2xl">
+            <ProfilePicture address={convertAddress(account, 'XNO')} width={72} clickable/>
+            <div style={{display: "flex", flexDirection: "column", gap: 4}}>
+            {contact ? contact.name : "Unknown"}
+            <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
+                Not on NanChat
+            </div>
+            </div>
+            </div>
+            </div>
                 }
                 </Card>
                 </div>
+                {
+                    isBlocked?.blocked ? <div className="text-center "><div className="mt-4 mb-4" style={{wordBreak: 'break-all', padding: 16}}>
+                        You have blocked this account ({account})
+                        </div>
+                        <div className="text-sm" style={{color: 'var(--adm-color-text-secondary)'}}>
+                        You can unblock the account in Me {'>'} Settings {'>'} Security {'>'} Blocked Chats
+                        </div>
+                        </div>
+                        : 
+                
                 <div style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
                     {
                         !inContacts &&
@@ -137,8 +156,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         onClick={() => {
                             setNewContactVisible(true);
                             setNewContactDefaultValues({
-                                name: nameOrAccount,
-                                network: 'ALL',
+                                name: inOnNanchat ? nameOrAccount : "",
+                                network: inOnNanchat ? 'ALL': (ticker || 'XNO'),
                                 address: account
                             });
                             // navigate(`/contacts/?address=${account}&name=${nameOrAccount}&add=true&network=XNO`);
@@ -164,7 +183,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 <ChatInputTip
                 filterTickers={
                     inContacts ? contact?.addresses[0].network === 'ALL' ? [] : [contact?.addresses[0].network]
-                    : []
+                    : (inOnNanchat ? [] : [ticker || 'XNO'])
                 } 
                 mode={"list"}
                 toAddress={account} onTipSent={(ticker, hash) => {
@@ -186,9 +205,6 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         defaultChatId={chat?.id}
                         messageInputRef={messageInputRef}
                     />
-                {
-                    inOnNanchat && 
-                
                     <List mode="card" style={{marginTop: 16}}>
                 <List.Item
                     extra={formatAddress(account)}
@@ -236,19 +252,20 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                 <LockOutline style={{display: 'inline-block', marginRight: 8}} />
                                  Address 
                     </List.Item></List>
-                    }
-                    {
-                        inOnNanchat &&
+                   
               <div style={{marginTop: 16, marginBottom: 16}}>
                     
                             <BlockChatButton 
                             mode="list"
-                            chat={chat} onSuccess={() => {
-                                navigate('/chat');
+                            chat={
+                            inOnNanchat ? chat :
+                             {id: account} // if not on nanchat, can still block the account (chatId = account)
+                            } onSuccess={() => {
+                                navigate(-1);
                             }} />
                                         </div>
-                        }
                 </div>
+                }
 
                 <AddContacts
                 defaultName={newContactDefaultValues.name}

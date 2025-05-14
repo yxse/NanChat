@@ -40,7 +40,7 @@ export const ItemChat = ({ chat, onClick }) => {
                 <ChatAvatar chat={chat} />
             }
         >
-            <div className="flex items-center gap-2">
+            <div style={{wordBreak: "break-all"}} className="flex items-center gap-2">
 
             <ChatName chat={chat} />
             </div>

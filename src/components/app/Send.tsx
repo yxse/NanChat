@@ -53,6 +53,7 @@ import { PinAuthPopup } from "../Lock/PinLock";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
 import ProfileName from "../messaging/components/profile/ProfileName";
+import { fetcherMessages } from "../messaging/fetcher";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -226,6 +227,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
   const [confirmPopupOpen, setConfirmPopupOpen] = useState<boolean>(false);
   const [successPopupOpen, setSuccessPopupOpen] = useState<boolean>(false);
   const [dataSend, setDataSend] = useState<any>(false);
+  const [dataBlockedAccount, setDataBlockedAccount] = useState<any>(false);
   const [sentAmount, setSentAmount] = useState<number>(0); // for success popup
   const [sentTo, setSentTo] = useState<string>(""); // for success popup
   const [result, setResult] = useState({hash: ""}); // for success popup
@@ -320,6 +322,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 amount: megaToRaw(ticker, amount),
               })
               setDataSend(dataPrepareSend)
+              setDataBlockedAccount(fetcherMessages('/is-blocked?address=' + toAddress))
               console.log(dataPrepareSend)
             }}
             className="mt-4 form-list"
@@ -497,6 +500,16 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     const toAddress = form.getFieldValue("address");
                     const amount = form.getFieldValue("amount");
                     console.log(fromAddress, toAddress, amount);
+                    console.log(dataBlockedAccount)
+                    let isBlocked = await dataBlockedAccount;
+                    if (isBlocked?.blocked) {
+                      console.error("Error sending:", isBlocked);
+                      Toast.show({
+                        icon: "fail",
+                        content: `Canceled. This account is in your blocklist`,
+                      });
+                      return;
+                    }
                     console.log(dataSend)
                     let data = await dataSend;
                     if (
