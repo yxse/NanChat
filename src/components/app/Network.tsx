@@ -39,7 +39,7 @@ import { useLongPress } from "../../hooks/use-long-press";
 import { SiExpertsexchange } from "react-icons/si";
 import { RiTokenSwapLine } from "react-icons/ri";
 import SetAmountModal from "./SetAmountModal";
-import { ArrowDownCircleOutline, CloseCircleFill } from "antd-mobile-icons";
+import { ArrowDownCircleOutline, CloseCircleFill, SetOutline } from "antd-mobile-icons";
 import { convertAddress, formatAmountMega, getURI, MIN_USD_SWAP, ShareModal } from "../../utils/format";
 import { CopyButton } from "./Icons";
 import { LedgerContext, WalletContext } from "../Popup";
@@ -58,6 +58,7 @@ import { Capacitor, registerPlugin } from "@capacitor/core";
 import { IWebviewOverlayPlugin, WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
 import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
 import { ButtonActionCircle } from "./wallet/SendReceive";
+import { fetcherMessages } from "../messaging/fetcher";
 // const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const fetchBalance = async (ticker: string, account: string) => {
@@ -112,6 +113,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   // console.log("wallets", wallet);
   const address = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
   const {isMobile} = useWindowDimensions()
+  const {data: minReceive, isLoading: isLoadingMinReceive} = useSWR("/min-receive", fetcherMessages)
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   if (ticker == null) ticker = "XNO";
   return (
@@ -280,6 +282,14 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           Set Amount
         </Button>
         </div>
+        {
+          !isLoadingMinReceive && minReceive > 0 && 
+        <div className="text-left text-sm mt-2" style={{color: "var(--adm-color-text-secondary)", cursor: "pointer"}} onClick={() => {
+          navigate('/settings/security')
+        }}>
+          <SetOutline className="mr-1" style={{display: "inline"}} /> Min. Receive: {minReceive} USD
+        </div>
+      }
         </div></>
   }
   { (action === 'swap' || action === 'buy') && <Swap 
@@ -416,8 +426,8 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
               formatAmountMega(balance, ticker) + " " + ticker
             )} <RefreshButton onRefresh={onRefresh} />
           </div>
-          <div className="text-sm text-gray-400">
-            ~ <ConvertToBaseCurrency amount={balance} ticker={ticker} /> 
+          <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
+          ≈ <ConvertToBaseCurrency amount={balance} ticker={ticker} /> 
           </div>
         </Card>
         <div className="flex justify-center mt-4" style={{gap: 24}}>

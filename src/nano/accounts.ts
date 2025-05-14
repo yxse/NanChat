@@ -26,7 +26,7 @@ export function convertToMulti(accounts: Account[], prefixes: string[]) {
     };
   });
 }
-export function initWallet(ticker, seed, mutate, dispatch) {
+export function initWallet(ticker, seed, mutate, dispatch, minAmountMega) {
   // const seed = await storage.get<string>("masterSeed", "session");
   let walletKey = ticker;
   let wallet = new Wallet({
@@ -48,7 +48,8 @@ export function initWallet(ticker, seed, mutate, dispatch) {
       decimal: networks[ticker].decimals,
       prefix: networks[ticker].prefix + "_",
       mutate: mutate,
-      dispatch: dispatch
+      dispatch: dispatch, 
+      minAmountMega: minAmountMega,
     });
     console.log("init wallet", ticker)
     wallet.receiveAllActiveAccount();

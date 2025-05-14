@@ -1,5 +1,5 @@
 
-import { Button, Toast, CheckList, Modal, List, Input, Form, NavBar, Divider, Switch } from "antd-mobile";
+import { Button, Toast, CheckList, Modal, List, Input, Form, NavBar, Divider, Switch, DotLoading } from "antd-mobile";
 import { MdOutlineFingerprint, MdOutlinePassword, MdOutlineTimer } from "react-icons/md";
 import * as webauthn from '@passwordless-id/webauthn';
 import { decrypt, encrypt } from "../../worker/crypto";
@@ -15,6 +15,9 @@ import { PinAuthPopup } from "../Lock/PinLock";
 import { PasswordForm } from "../Initialize/create/Password";
 import { WalletContext } from "../Popup";
 import PrivacySettings from "./BlockedChats";
+import { ChatWrongOutline, LeftOutline } from "antd-mobile-icons";
+import { fetcherMessages, setMinReceive } from "../messaging/fetcher";
+import useSWR from "swr";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [seed, setSeedLocal] = useState(undefined);
@@ -28,6 +31,7 @@ function SecuritySettings() {
     const [createPinVisible, setCreatePinVisible] = useState(false);
     const [pinVisible, setPinVisible] = useState(false);
     const {wallet} = useContext(WalletContext);
+    const {data: minReceive, isLoading, mutate} = useSWR("/min-receive", fetcherMessages);
     const isPasswordMandatory = Capacitor.getPlatform() === "web" ? true : false; // Password is only mandatory on web version
       const valuesLock = [
         { value: "-1", label: "Disabled" },
@@ -419,11 +423,75 @@ function SecuritySettings() {
         <Divider />
         <List mode="card">
             <List.Item
+            prefix={<ChatWrongOutline fontSize={24} />}
             onClick={() => {
                 navigate("/settings/security/blocked")
             }}
             >
-                Blocked Chats
+                Blocked Accounts
+            </List.Item>
+            <List.Item
+            extra={
+              isLoading ? <DotLoading /> : minReceive + " USD"}
+            prefix={<div style={{fontSize: 24}}>≥</div>}
+            onClick={() => {
+                Modal.show({
+                    closeOnMaskClick: true,
+                    showCloseButton: true,
+                    content: <div>
+                        <Form
+                        initialValues={{
+                            minReceiveAmount: minReceive
+                        }}
+                        layout="horizontal"
+                        footer={
+                          <div>
+                            
+                            <Button block type="submit" color="primary" size="large">
+                                Save
+                            </Button>
+                          </div>
+                        }
+                        onFinish={async (values) => {
+                            let r = await setMinReceive(values.minReceiveAmount)
+                            if (r.error) {
+                                Toast.show({
+                                    icon: "fail",
+                                    content: r.error
+                                })
+                                return
+                            }
+                            mutate(r, false)
+                            Toast.show({
+                                icon: "success",
+                            })
+                            Modal.clear()
+                        }}
+                        >
+                            <Form.Item
+                            layout="vertical"
+                            name="minReceiveAmount"
+                            label="Min. Receive Amount (USD)"
+                            rules={[]}
+                            >
+                                <Input
+                                autoFocus
+                                type="number"
+                                placeholder=""
+                                defaultValue={minReceive}
+                                />
+                            </Form.Item>
+                        </Form>
+                        <div className="text-sm mt-2">
+                            <div>Filter out low value transactions, this can protect your account from dust transactions spam and make address poisoning more expensive.</div>
+                            <div className="mt-2">You can set it to 0 to disable this feature.</div>
+                            </div>
+                            </div>
+                })
+            }
+            }
+            >
+                Min. Receive Amount
             </List.Item>
         </List>
         <Divider />

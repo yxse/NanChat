@@ -39,7 +39,8 @@ export class Wallet {
     wsSubAll = false,
     ticker = "XNO",
     mutate,
-    dispatch
+    dispatch,
+    minAmountMega = 0,
   }) {
     this.allAccounts = [];
     this.mapAccounts = new Map();
@@ -56,7 +57,9 @@ export class Wallet {
     this.dispatch = dispatch;
     this.activeIndex = +localStorage.getItem('activeIndex') || 0;
     this.hiddenIndexes = JSON.parse(localStorage.getItem("hiddenIndexes")) || [];
-    
+    this.minAmountRaw = this.megaToRaw(minAmountMega);
+
+    console.log(ticker, 'minAmountRaw', this.minAmountRaw )
     let accountsToCreate = +localStorage.getItem("lastAccountIndex") || 1;
     this.createAccounts(0, accountsToCreate, true);
     if (WS_URL !== undefined) {
@@ -574,7 +577,7 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
   }
   receiveAll = async (account) => {
     console.log("Receiving all pending transactions for: " + account);
-    let hashes = await this.rpc.receivable(account);
+    let hashes = await this.rpc.receivable(account, this.minAmountRaw);
     for (const hash in hashes) {
       const pendingTx = {
         hash: hash,
@@ -648,6 +651,10 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       data_json.message !== undefined &&
       data_json.message.block.subtype === "send"
     ) {
+      if (BigInt(data_json.message.amount) < BigInt(this.minAmountRaw)) {
+        console.log("Ignoring send below min amount: " + data_json.message.amount, " < " + this.minAmountRaw);
+        return;
+      }
       if (this.cacheSendHash.has(data_json.message.hash)) { // prevent receiving the same send twice (eg: if multiple websocket event for same block)
         console.log("Already received this send: " + data_json.message.hash);
         return;

@@ -13,7 +13,7 @@ import { ConfigProvider, Modal, Toast } from "antd-mobile";
 import { Wallet } from "../nano/wallet";
 import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
-import { useSWRConfig } from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { getSeed } from "../utils/storage";
 import { Capacitor, PluginListenerHandle } from "@capacitor/core";
@@ -24,6 +24,8 @@ import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-s
 import { showLogoutSheet } from "./Settings";
 import enUS from 'antd-mobile/es/locales/en-US'
 import { defaultContacts } from "./messaging/utils";
+import { fetchPrices } from "../nanswap/swap/service";
+import { fetcherMessages } from "./messaging/fetcher";
 
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
@@ -100,6 +102,8 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", { defaultValue: [0] });
   const [authVisible, setAuthVisible] = useState(true);
   const [hasWallet, setHasWallet] = useState(localStorage.getItem('hasWallet') === 'true');
+  const { data: pricesUSD, mutate: mutatePrice } = useSWR("prices", fetchPrices);
+  const {data: minReceive, mutate: mutateMinReceive} = useSWR("/min-receive", fetcherMessages);
   useEffect(() => {
     function updateBiometryInfo(info: CheckBiometryResult): void {
       if (info.isAvailable) {
@@ -197,10 +201,37 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
           // setWalletState("unlocked");
           // setSeed(localStorage.getItem('seed'));
           // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
+          let [prices, minReceive] = 
+          await Promise.all([
+            mutatePrice(),
+            mutateMinReceive()
+          ]);
+          console.log({prices})
+          console.log({minReceive})
           for (let ticker of Object.keys(networks)) {
             if (wallet.wallets[ticker]) continue;
             // let newWallet = initWallet("XNO", "0", mutate, dispatch)
-            dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed.seed, mutate, dispatch) } });
+            // console.log({})
+            let minAmountMega = 0;
+            if (minReceive > 0) {
+              if (!prices[ticker]?.usd) {
+                console.log("no price for ticker", ticker);
+                Toast.show({
+                  icon: "fail",
+                  content: <div className="text-center">
+                    Cannot initialize wallet for {ticker}.
+                    <br />
+                    No price for {ticker} found but minimum receive is set.
+                  </div>,
+                  duration: 3000,
+                })
+                return;
+              }
+              minAmountMega = minReceive / prices[ticker]?.usd;
+              console.log("minAmountMega", minAmountMega, ticker)
+            }
+            
+            dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed.seed, mutate, dispatch, minAmountMega) } });
             // dispatch({ type: "ADD_WALLET", payload: { ticker: ticker, seed: localStorage.getItem('seed'), mutate: mutate } });
           }
         }} />}

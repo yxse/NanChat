@@ -124,11 +124,11 @@ export default class RPC {
     saveWorkCache(hash, r.work);
     return r.work;
   };
-  receivable = async (account) => {
+  receivable = async (account, minAmountRaw) => {
     let params = {
       action: "pending",
       account: account,
-      threshold: "1",
+      threshold: minAmountRaw,
     };
 
     // console.log(params);
