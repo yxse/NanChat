@@ -271,7 +271,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                   {!isLoadingPrices && (
                     <div className="text-sm" style={{ color: "var(--adm-color-text-secondary)" }}>
                       {
-                        hasPrice ? <>~<ConvertToBaseCurrency amount={data} ticker={ticker} /></> : null
+                        hasPrice ? <><ConvertToBaseCurrency amount={data} ticker={ticker} /></> : null
                       }
                     </div>
                   )}

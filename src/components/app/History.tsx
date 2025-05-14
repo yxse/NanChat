@@ -22,10 +22,10 @@ import useSWR, { useSWRConfig } from "swr";
 import { BiSend, BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { Action } from "antd-mobile/es/components/action-sheet";
-import { MinusCircleOutline, AddCircleOutline, UserOutline } from "antd-mobile-icons";
+import { MinusCircleOutline, AddCircleOutline, UserOutline, ArrowDownCircleOutline } from "antd-mobile-icons";
 import useSWRInfinite from "swr/infinite";
 import { MdHowToVote, MdOutlineAlternateEmail } from "react-icons/md";
-import { AiOutlineContacts, AiOutlineTag, AiOutlineWallet } from "react-icons/ai";
+import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineContacts, AiOutlineTag, AiOutlineWallet } from "react-icons/ai";
 import { fetchAlias, fetchAliasInternet } from "../../nanswap/swap/service";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 import useLocalStorageState from "use-local-storage-state";
@@ -41,6 +41,7 @@ import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrows
 import ProfileName from "../messaging/components/profile/ProfileName";
 import { HapticsImpact } from "../../utils/haptic";
 import AddContacts from "./AddContacts";
+import { ConvertToBaseCurrency } from "./Home";
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -136,8 +137,9 @@ export const DateHeader = ({ timestamp, timestampPrev, timestampNext, reverse = 
   </>
 }
 export const Alias = ({ account }) => {
-  const { data, isLoading } = useSWR('alias-' + account, () => fetchAlias(account), {
-    dedupingInterval: 1000 * 60 * 60 * 24 // 1 day
+  const { data, isLoading, isValidating } = useSWR('alias-' + account, () => fetchAlias(account), {
+    // dedupingInterval: 1000 * 60 * 60 * 24 // 1 day
+    keepPreviousData: true,
   })
   const {wallet} = useContext(WalletContext)
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })
@@ -161,8 +163,8 @@ export const Alias = ({ account }) => {
       </div>
     )
   }
-  if (isLoading) return null
-  if (data == null) return null
+  if (isLoading && !isValidating) return null
+  if (data == null) return account?.slice(0, 10) + "..." + account?.slice(-6)
   return (
     <div className="flex items-center ">
       <AiOutlineTag className="inline mr-1" />
@@ -209,21 +211,14 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
   })
   const actions = [
     {
-      text: "Copy address",
-      key: "copy-address",
+      text: "View Account",
+      key: "view-account",
       onClick: () => {
-        copyToClipboard(activeTx.account).then(
-          () => {
-            Toast.show({
-              content: "Copied!",
-              duration: 1000,
-            });
-          },
-        );
+        navigate(`/${activeTx.account || activeTx.representative}/info?ticker=${ticker}`)
       },
     },
     {
-      text: "View Details",
+      text: "View on Explorer",
       key: "view-details",
       onClick: () => {
         if (Capacitor.isNativePlatform()) {
@@ -239,23 +234,23 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         }
       }
     },
-    {
-      text: "Create new contact",
-      key: "add-to-contacts",
-      onClick: () => {
-        // navigate("/contacts/?address=" + activeTx.account + "&network=" + ticker + "&add=true");
-        setNewContactDefaultValues({
-          name: "",
-          network: ticker,
-          address: activeTx.account
-        });
-        setNewContactVisible(true);
-      }
-    },
+    // {
+    //   text: "Create new contact",
+    //   key: "add-to-contacts",
+    //   onClick: () => {
+    //     // navigate("/contacts/?address=" + activeTx.account + "&network=" + ticker + "&add=true");
+    //     setNewContactDefaultValues({
+    //       name: "",
+    //       network: ticker,
+    //       address: activeTx.account
+    //     });
+    //     setNewContactVisible(true);
+    //   }
+    // },
   ];
-  if (contacts.find((c) => c?.addresses?.find((a) => a?.address == activeTx?.account))) {
-    delete actions[2]
-  }
+  // if (contacts.find((c) => c?.addresses?.find((a) => a?.address == activeTx?.account))) {
+  //   delete actions[2]
+  // }
   if (!isMobile){
     actions.push({
       text: "Send Again",
@@ -468,9 +463,9 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                   {/* {tx.height} */}
                   <div className="flex items-center space-x-4">
                     <div className="">
-                      {tx.subtype === "send" && <MinusCircleOutline fontSize={20} />}
+                      {tx.subtype === "send" && <AiOutlineArrowUp fontSize={20} />}
                       {tx.subtype === "receive" && (
-                        <AddCircleOutline fontSize={20} />
+                        <AiOutlineArrowDown fontSize={20} />
                       )}
                       {tx.subtype === "change" && (
                         <MdHowToVote fontSize={20} />
@@ -480,28 +475,33 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                       {tx.subtype === "send" && "Sent"}
                       {tx.subtype === "receive" && "Received"}
                       {tx.subtype === "change" && "Represenative Change"}
-                      <div className="text-gray-400">
-                        {
-                          tx.subtype === "send" || tx.subtype === "receive" ? <>
-                            {formatAmountMega((+rawToMega(ticker, tx.amount)), ticker)} {ticker}
-                          </> : null
-                        }
-
-                      </div>
+                      {
+                        (tx.subtype === "receive" || tx.subtype === "send") && (
+                          <div className="" style={{color: "var(--adm-color-text-secondary)", display: "flex"}}>
+                      <Alias account={tx.account} />
+                      </div>)
+                    }
                     </div>
                   </div>
-                  <div className="text-gray-400 text-sm text-right font-mono" style={{userSelect: "none"}}>
+                  <div className="text-sm text-right " style={{userSelect: "none"}}>
                     {
-                      tx.subtype === "send" || tx.subtype === "receive" ? <div>
-                        <div>
+                      tx.subtype === "send" || tx.subtype === "receive" ? <div><div className="text-base">
+                        {/* <div>
                           {tx.account?.slice(0, 10)}...{tx.account?.slice(-6)}
-                        </div>
-                        <Alias account={tx.account} />
-                      </div> : null
+                        </div> */}
+                        {/* <Alias account={tx.account} /> */}
+                        {
+                          tx.subtype === "send" || tx.subtype === "receive" ? <>
+                          {                            tx.subtype === "send" ? "-" : "+"}
+                            {formatAmountMega((+rawToMega(ticker, tx.amount)), ticker)} {ticker}
+                          </> : null
+                        }</div><div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
+                        ≈ <ConvertToBaseCurrency amount={+rawToMega(ticker, tx.amount)} ticker={ticker} />
+                      </div></div> : null
                     }
                     {
                       tx.subtype === "change" ? <>
-                        {tx.representative?.slice(0, 10)}...{tx.representative?.slice(-6)}
+                        {/* {tx.representative?.slice(0, 10)}...{tx.representative?.slice(-6)} */}
                         <Alias account={tx.representative} />
                       </> : null
                     }

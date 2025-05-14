@@ -6,7 +6,7 @@ import { AccountAvatar } from "./components/ChatList";
 import { useState } from "react";
 
 export const hasLink = (message: string) => {
-    return message.match(/(https?:\/\/[^\s]+)/g)
+    return message?.match(/(https?:\/\/[^\s]+)/g)
 }
 
 export const isNanoAppMessage = (message: string) => {
