@@ -10,6 +10,7 @@ import { saveFileInCache } from '../../../services/database.service';
 import { AiOutlineSwap } from 'react-icons/ai';
 import { writeUint8ArrayToFile } from '../../../services/capacitor-chunked-file-writer';
 import { getChatToken } from '../../../utils/storage';
+import { Capacitor } from '@capacitor/core';
 
 const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
@@ -267,6 +268,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         >
             {/* Upload Button */}
             <ImageUploader
+            capture={type === 'media' ? true : false}
             accept={
               type === 'media' ? 'image/*' : '*'
             }
@@ -314,14 +316,21 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                         // <FolderOutline fontSize={32}/>
                         :
                         <div style={{fontSize: 34}}>
-                        <CameraOutline />  
+                            {
+                            Capacitor.isNativePlatform() ?
+                            <CameraOutline />
+                            : 
+                            <PictureOutline />
+                            }
+                        
                       </div>
                         // <PictureOutline fontSize={32}/>
                       }
                   </Button>
                               <div className='mt-2'
                               >
-                                  {type === 'file' ? 'File' : 'Media'}
+                                  {type === 'file' ? 'File' : 
+                                  Capacitor.isNativePlatform() ? 'Camera' : 'Image'}
                               </div>
                               </div>
                   }
