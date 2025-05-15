@@ -29,7 +29,6 @@ dependencies {
     implementation project(':capacitor-status-bar')
     implementation project(':capawesome-capacitor-badge')
     implementation project(':capgo-capacitor-data-storage-sqlite')
-    implementation project(':capgo-inappbrowser')
     implementation project(':teamhive-capacitor-webview-overlay')
     implementation project(':capacitor-icloud-drive')
     implementation project(':capacitor-native-settings')
