@@ -354,7 +354,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             enterKeyHint="send"
             onFocus={() => {
               if (isMobile){
-                setStickerVisible(false) // close sticker when keyboard open on mobile
+                setStickerVisible(false); // close sticker when keyboard open on mobile
+                setInputAdditionVisible(false);
               }
             }}
             onKeyDown={(e) => {

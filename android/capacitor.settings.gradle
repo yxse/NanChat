@@ -62,9 +62,6 @@ project(':capawesome-capacitor-badge').projectDir = new File('../node_modules/@c
 include ':capgo-capacitor-data-storage-sqlite'
 project(':capgo-capacitor-data-storage-sqlite').projectDir = new File('../node_modules/@capgo/capacitor-data-storage-sqlite/android')
 
-include ':capgo-inappbrowser'
-project(':capgo-inappbrowser').projectDir = new File('../node_modules/@capgo/inappbrowser/android')
-
 include ':teamhive-capacitor-webview-overlay'
 project(':teamhive-capacitor-webview-overlay').projectDir = new File('../node_modules/@teamhive/capacitor-webview-overlay/android')
 

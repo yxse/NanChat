@@ -16,3 +16,7 @@ android/.idea/deploymentTargetSelector.xml
 .DS_Store
 *.keystore
 yarn-error.log
+
+paket-lock.json
+yarn.lock
+package-log
