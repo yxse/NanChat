@@ -233,7 +233,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       {
         !colorCopy && 
     <CopyButton 
-    textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy}
+    textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy ? colorCopy : "warning"}
     onCopy={() => {
       setCopied(true)
       if (!warningShown){
