@@ -10,7 +10,7 @@ import { convertAddress, formatAddress } from "../../../utils/format";
 import { CopyToClipboard, ResponsivePopup } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Modal, Popup, TextArea } from "antd-mobile";
+import { Button, DotLoading, Input, List, Modal, Popup, TextArea, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -22,9 +22,14 @@ import { AiOutlineDollar, AiOutlineDollarCircle, AiOutlineSwap } from "react-ico
 import NetworkList from "../../app/NetworksList";
 import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
+import NewChatPopup, { SelectParticipant } from "./NewChatPopup";
+import Swap from "../../app/Swap";
 
-const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onTipSent, mode="button", filterTickers =[] }) => {
+const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onTipSent, mode="button", filterTickers =[], type="transfer", chat }) => {
     const [visible, setVisible] = useState(false);
+    const [visibleSelectAccount, setVisibleSelectAccount] = useState(false);
+    const [visibleSend, setVisibleSend] = useState(false);
+    const [destinationAddress, setDestinationAddress] = useState(toAddress);
     const [activeTicker, setActiveTicker] = useState<string>(null);
     const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
     const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
@@ -34,6 +39,12 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
       if (activeMainNetworks.length + activeCustomNetworks.length === 1) {  // directly show the action if only one active network
         let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
         setActiveTicker(ticker);
+        if (toAddress === undefined){
+          setVisibleSelectAccount(true);
+        }
+        else{
+          setVisibleSend(true);
+        }
         }
         else{
         setVisible(true);
@@ -57,6 +68,24 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
         </div>
         </div>
     }
+    const ButtonAirdrop = () => {
+      return <div
+      style={{textAlign: 'center'}}>
+        <Button
+        style={{borderRadius: 12}}
+        size='large'
+        onClick={() => {
+          onClick();
+        }}>
+        <div style={{fontSize: 34}}>
+        <GiftOutline />
+        </div>
+        </Button>
+        <div className='mt-2'>
+        Airdrop
+        </div>
+        </div>
+    }
     const ButtonListTransfer = () => {
       return <List.Item
         onClick={() => {
@@ -74,33 +103,35 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
         <>
        {
         mode === "button" ? 
-        <ButtonTransfer />
+        type === "transfer" ? <ButtonTransfer /> : type === "airdrop" ? <ButtonAirdrop /> : null
         :
         <ButtonListTransfer />
        }
         <ResponsivePopup
         bodyClassName="disable-keyboard-resize"
         destroyOnClose={true}
-        visible={activeTicker}
+        visible={visibleSend && destinationAddress}
         onClose={() => {
-            setVisible(false)
+            setVisibleSend(false)
             setActiveTicker(null)
+            setDestinationAddress(undefined)
         }}
         closeOnMaskClick={true}
         showCloseButton={true}
         >
             {
-                activeTicker && 
+                activeTicker && destinationAddress && 
             <Send 
             hideAddress={true}
             onClose={() => {
                 setVisible(false)
                 setActiveTicker(null)
+                setVisibleSend(false)
             }}
             ticker={activeTicker} defaultAddress={
-              convertAddress(toAddress, activeTicker)
+              convertAddress(destinationAddress, activeTicker)
             } onSent={(ticker, hash) => {
-                onTipSent(ticker, hash)
+                onTipSent(ticker, hash, destinationAddress);
                 setVisible(false)
             }} />
         }
@@ -123,14 +154,39 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>
           <NetworkList
+          hideZeroBalance
           filterTickers={filterTickers}
-           hidePrice={true} onClick={(ticker) => {
+           hidePrice={true} onClick={(ticker, action) => {
+            if (action === 'buy') {
+              return
+            }
             // navigate(ticker + "/" + action);
-            setVisible(false);
             setActiveTicker(ticker);
+            setVisible(false);
+            if (toAddress === undefined){
+              setVisibleSelectAccount(true);
+            }
+            else{
+              setVisibleSend(true);
+            }
           }} /></div>
           </div>
         </ResponsivePopup>
+      
+          <SelectParticipant
+          onClose={() => {
+            setVisibleSelectAccount(false);
+            setDestinationAddress(undefined);
+          }}
+          participants={chat?.participants}
+          setVisible={setVisibleSelectAccount}
+          visible={visibleSelectAccount}
+          onAccountSelect={(account) => {
+            setDestinationAddress(account);
+            setVisibleSend(true);
+            setVisibleSelectAccount(false);
+          }} />
+
         </>
     );
   };

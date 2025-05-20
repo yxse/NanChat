@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { BiPlus } from "react-icons/bi";
 import { fetchPrices, fetcher } from "../../nanswap/swap/service";
-import { CopyToClipboard } from "../Settings";
+import { CopyToClipboard, ResponsivePopup } from "../Settings";
 import { getRepresentative } from "../getRepresentative";
 import { convertAddress, formatAddress, formatAmountMega } from "../../utils/format";
 import { FaExchangeAlt, FaSortAmountDown } from "react-icons/fa";
@@ -24,6 +24,7 @@ import { CopyIcon } from "./Icons";
 import { WalletContext } from "../Popup";
 import { fetcherChat } from "../messaging/fetcher";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
+import Swap from "./Swap";
 
 
 
@@ -377,7 +378,7 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
-  
+  const [action, setAction] = useState("");
   const {balances} = useWalletBalance()
   const hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data === 0) : []
   
@@ -408,16 +409,40 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
     return 0
   });
   
-  if (filteredActiveMainNetworks.length === 0 && filteredActiveCustomNetworks.length === 0) {
+  if (hideZeroBalance && filteredActiveMainNetworks.length === 0 && filteredActiveCustomNetworks.length === 0) {
     return <div>
       <div className="text-center text-base" style={{color: "var(--adm-color-text-secondary)", marginTop: 32}}>
       No funds available
     </div>
     <div className="text-center text-lg" style={{color: "var(--adm-color-primary)", cursor: "pointer", marginTop: 32, marginBottom: 48}} onClick={() => {
+      setAction('buy')
       onClick('XNO', 'buy')
     }}> 
         Buy crypto 
     </div>
+     <ResponsivePopup
+            position={"bottom"}
+            // closeOnSwipe
+              visible={action === "buy"}
+              onClose={() => {
+                setAction("");
+              }}
+              // onClick={() => setVisible(false)}
+              closeOnMaskClick={true}
+            >{action === "buy" && 
+                 <Swap 
+               defaultAction={"buy"}
+               onSuccess={() => {
+                 Toast.show({icon: 'success'})
+                  setAction("");
+                 console.log("success swap")
+                 window.scrollTo(0, 0);
+               }}
+               hideHistory={true} 
+               fiatDefaultTo={"XNO"}
+               defaultTo={"XNO"}
+               defaultFrom={"XNO"} />}
+            </ResponsivePopup>
     </div>
   }
   return (<>

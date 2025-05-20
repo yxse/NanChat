@@ -23,14 +23,13 @@ import { ResponsivePopup } from '../../Settings';
 
 
 
-const CheckListItemAccount = ({ account, disabled }) => {
-  
+const CheckListItemAccount = ({ account, disabled, onClick }) => {
     return <CheckList.Item
                     disabled={disabled}
                     value={account._id}
-                        // onClick={() => {
-                        //     onClick && onClick(account)
-                        // }}
+                        onClick={() => {
+                            onClick && onClick()
+                        }}
                         key={account._id}
                         
                         prefix={
@@ -215,6 +214,87 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                             } }
                         />
                 </div>
+            </ResponsivePopup>
+        </>
+    )
+}
+export function SelectParticipant({visible, setVisible, participants, onAccountSelect, onClose}) {
+    const { isMobile } = useWindowDimensions()
+    const ResponsivePopup = isMobile ? Popup : CenterPopup;
+    // const [visible, setVisible] = useState(false);
+    const [searchText, setSearchText] = useState('')
+    
+    
+    const participantsFiltered = participants?.filter(account => {
+        if (searchText) {
+            if (searchText?.length >= 64 && searchText?.includes('_')) {
+                // we assume this is an address
+                return account._id.split('_')[1].toLowerCase().includes(searchText?.split('_')[1].toLowerCase())
+            }
+            return account?.name.toLowerCase().includes(searchText.toLowerCase()) || account?.username?.toLowerCase().includes(searchText.toLowerCase())
+        }
+        return true
+    }
+    )
+    return (
+        <>
+            <ResponsivePopup
+            destroyOnClose
+            bodyClassName="disable-keyboard-resize"
+            key={"newChatPopup"}
+                // showCloseButton
+                visible={visible}
+                onClose={() => {
+                    setVisible(false)
+                    onClose && onClose()
+                }}
+                closeOnMaskClick={true}
+                closeOnSwipe={false}
+                bodyStyle={{height: '90vh'}}
+            >
+                <div className=" ">
+                            <div>
+
+                    <div 
+                style={isMobile ? {} : { minWidth: 500 }}
+                className="text-xl  text-center p-2">
+                     <div 
+                 style={{float: 'left', marginTop: 4, marginLeft: 4, cursor: 'pointer'}}
+                 onClick={() => {
+                    setVisible(false)
+                    onClose && onClose()
+                 }}
+                 className='text-base' color='default'>
+                    Cancel
+                </div>
+                    Select a participant
+                </div>
+               
+                    
+                </div>
+                </div>
+                <div className={"searchBarContainer"}>
+                    <SearchBar
+                        placeholder='Search NanChat ID / Name / Address'
+                        value={searchText}
+                        onChange={v => {
+                            setSearchText(v)
+                        }}
+                    />
+                </div>
+
+                <CheckList>
+                        {
+                            participantsFiltered?.map(account => (
+                                <CheckListItemAccount
+                                account={account} key={account._id} onClick={() => {
+                                    onAccountSelect && onAccountSelect(account._id)
+                                    setVisible(false);
+                                }} />
+                            ))
+                        }
+                        
+                        </CheckList>
             </ResponsivePopup>
         </>
     )

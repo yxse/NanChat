@@ -188,7 +188,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 mode={"list"}
                 toAddress={account} onTipSent={(ticker, hash) => {
                     if (inOnNanchat){ // send the tip message only if in nanchat
-                        messageInputRef?.sendTip(ticker, hash);
+                        messageInputRef?.sendTip(ticker, hash, account);
                     }
                     }} />
                 </List>

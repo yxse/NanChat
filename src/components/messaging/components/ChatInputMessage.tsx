@@ -211,7 +211,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     };
     messageInputRef.send = sendMessage;
 
-    const sendTipMessage = async (ticker: string, hash: string) => {
+    const sendTipMessage = async (ticker: string, hash: string, destinationAddress: string) => {
       let chatId = account;
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
@@ -221,7 +221,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         timestamp: new Date(),
         chatId: chatId,
         height: chat?.height + 1,
-        tip: {ticker, hash},
+        tip: {ticker, hash, toAccount: destinationAddress},
         _id: Math.random().toString()
       };
       if (replyMessage) {
@@ -441,11 +441,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           chat?.sharedAccount :
           undefined 
         }
+        chat={chat}
         onUploadSuccess={(file) => {
           sendFileMessage(file);
         }}
-        onTipSent={(ticker, hash) => {
-          sendTipMessage(ticker, hash);
+        onTipSent={(ticker, hash, destinationAddress) => {
+          sendTipMessage(ticker, hash, destinationAddress);
         }} />
 
           

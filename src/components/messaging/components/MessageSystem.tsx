@@ -37,6 +37,9 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
   if (message.content.includes('created')) {
     action = 'created the group';
   }
+  if (message.content.includes('transferred')) {
+    action = `transferred ${message.content.split(' ')[2]} ${message.content.split(' ')[3]} to`;
+  }
   
   // const { data, isLoading } = useSWR(`/names?accounts=${addresses?.join(',')}`, fetcherMessages, {
   //   dedupingInterval: 60000,

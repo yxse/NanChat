@@ -9,7 +9,7 @@ import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrows
 import { networks } from "../../utils/networks";
 
 export const hasLink = (message: string) => {
-    return message?.match(/(https?:\/\/[^\s]+)/g)
+    return String(message)?.match(/(https?:\/\/[^\s]+)/g)
 }
 
 export const isNanoAppMessage = (message: string) => {
