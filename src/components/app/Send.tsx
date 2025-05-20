@@ -248,7 +248,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
     }
   }, [searchParams]);
   useEffect(() => {
-    wallet.wallets[ticker].receiveAllActiveAccount(); // force receive all 
+    wallet.wallets[ticker]?.receiveAllActiveAccount(); // force receive all 
   }, []);
 
   let dataPrepareSend = null;

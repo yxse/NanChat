@@ -50,7 +50,7 @@ const ChatSocket: React.FC = () => {
             mutateChats()
             socket.emit('join', activeAccount);
             for (let ticker of Object.keys(wallet.wallets)) {
-                wallet.wallets[ticker].receiveAllActiveAccount();
+                wallet.wallets[ticker]?.receiveAllActiveAccount();
               }
             // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the chats on reconnect
             // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all chats
