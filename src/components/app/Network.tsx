@@ -282,12 +282,17 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           Set Amount
         </Button>
         </div>
-        {
+         {
           !isLoadingMinReceive && minReceive > 0 && 
-        <div className="text-left text-sm mt-2" style={{color: "var(--adm-color-text-secondary)", cursor: "pointer"}} onClick={() => {
+        <div className="text-left text-xs mt-2" style={{color: "var(--adm-color-text-secondary)", cursor: "pointer",
+          textDecorationStyle: "dashed",
+          textDecorationLine: "underline", textDecorationColor: "var(--adm-color-text-secondary)",
+          textUnderlineOffset: 4,
+
+        }} onClick={() => {
           navigate('/settings/security')
         }}>
-          <SetOutline className="mr-1" style={{display: "inline"}} /> Min. Receive: {minReceive} USD
+          ≥ Min. Receive: {minReceive} USD
         </div>
       }
         </div></>
