@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useContext } from "react";
 
 import { FaExchangeAlt } from "react-icons/fa";
-import { FaAddressBook, FaCheck, FaCopy } from "react-icons/fa6";
+import { FaAddressBook, FaArrowUp, FaCheck, FaCopy, FaKeyboard } from "react-icons/fa6";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { networks } from "../utils/networks";
-import { Button, NavBar, Popup, Toast, CheckList, SearchBar, Space, DotLoading, Image, Modal, List, Input, Form, NoticeBar, Badge, Divider, CenterPopup } from "antd-mobile";
+import { Button, NavBar, Popup, Toast, CheckList, SearchBar, Space, DotLoading, Image, Modal, List, Input, Form, NoticeBar, Badge, Divider, CenterPopup, Switch } from "antd-mobile";
 import { LedgerService } from "../ledger.service";
 import { ConnectLedger, connectLedger, LedgerSelect } from "./Initialize/Start";
 import NetworkList from "./app/NetworksList";
@@ -222,6 +222,8 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
   const [isVisible, setIsVisible] = useState(true);
   const [address, setAddress] = useState<string | null>(null);
   const navigate = useNavigate();
+const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
+
   const [option, setSelectedOption] = useState({
     value: "XNO",
     label: "XNO",
@@ -576,6 +578,18 @@ className="mb-24"
             prefix={<DownlandOutline fontSize={24} />}
             onClick={() => navigate('/files')}>
               Downloaded files
+            </List.Item>
+          </List>
+          <div className="my-4" />
+          <List mode="card">
+            <List.Item 
+            prefix={<FaKeyboard fontSize={24} />}
+            extra={
+              <Switch onChange={setEnterToSend} checked={enterToSend} />
+            }
+            // description='When enabled, the "Send" button on the keyboard will be replaced by the "Enter" key'
+            >
+               Press "Enter" to send message
             </List.Item>
           </List>
           <div className="my-4" />

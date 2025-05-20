@@ -19,6 +19,7 @@ import { PiStickerFill, PiStickerLight } from "react-icons/pi";
 import MessageReply from "./MessageReply";
 import { unstable_serialize } from 'swr/infinite';
 import { Capacitor } from "@capacitor/core";
+import useLocalStorageState from "use-local-storage-state";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -58,6 +59,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       account = defaultChatId;
     }
     const [stickerVisible, setStickerVisible] = useState(false);
+    const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useWindowDimensions()
     const [newMessage, setNewMessage] = useState(defaultNewMessage || '');
@@ -366,7 +368,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           }}
           className="flex items-center gap-2 border border-solid input-message">
             <TextArea 
-            // enterKeyHint="send"
+            enterKeyHint={enterToSend ? "send" : "enter"}
             onFocus={() => {
               if (isMobile){
                 setStickerVisible(false) // close sticker when keyboard open on mobile
@@ -374,14 +376,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
               }
             }}
             onKeyDown={(e) => {
-              if (Capacitor.isNativePlatform()){
-                return; 
+              
+              if (
+                !e.ctrlKey && e.key === 'Enter' && e.shiftKey && Capacitor.getPlatform() === 'web') {
+                return;  // On web/desktop, allow new line on shift + enter 
               }
-              // On web/desktop, allow new line on shift + enter and send on enter
-              if (e.key === 'Enter' && e.shiftKey) {
-                return; 
-              }
-              else if (e.key === 'Enter') {
+              else if (e.key === 'Enter' && (enterToSend || e.ctrlKey)) { // on desktop, still send message if enterToSend is disabled but ctrl is pressed
                 e.preventDefault();
                 sendMessage(e);
               }
@@ -398,7 +398,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           
           </div>    
           {
-            !newMessage.trim() && 
+            (enterToSend || !newMessage.trim()) && 
           <div 
         onClick={() => {
           if (!inputAdditionVisible && stickerVisible) {
@@ -411,17 +411,19 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           style={ {width: 32, height: 32, cursor: 'pointer'}}
           className="hoverable" />
         </div> }
+        {
+          (!enterToSend && newMessage.trim()) &&
        <Button
             shape="rounded"
             // size="small"
             color="primary"
               onClick={sendMessage}
               // className="rounded-full"
-              disabled={!newMessage.trim()}
-              style={ !newMessage.trim() ? {display: 'none'} : {height: 32, width: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+              style={{height: 32, width: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
             >
                             <FaArrowUp className="w-5 h-5" />
             </Button>
+        }
           </div>
           
           {
