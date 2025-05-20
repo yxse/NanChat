@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { useWallet } from "../../Popup";
-import { TextArea, Toast } from "antd-mobile";
+import { Button, TextArea, Toast } from "antd-mobile";
 import useSWR, { useSWRConfig } from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
-import { FaKeyboard } from "react-icons/fa6";
+import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
 import { getKey, useChat } from "../hooks/useChat";
 import EmitTyping from "./EmitTyping";
 import ChatInputStickers from "./ChatInputStickers";
@@ -295,10 +295,35 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       socket.emit('message', message, (response) => callbackSocket(response, message));
     }
 
-    const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} />
-    const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} />
+    const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} className="hoverable"  />
+    const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} className="hoverable" />
 
 
+    const StickerButton = () => <div
+          onClick={() => {
+            if (!stickerVisible && inputAdditionVisible) {
+              setInputAdditionVisible(false);
+            }
+            if (stickerVisible){
+              setStickerVisible(false);
+              messageInputRef.current?.focus();
+            }
+            else {
+              setStickerVisible(true);
+              messageInputRef.current?.blur();
+            }
+          }}
+          className="hoverable"
+          style={{}}
+          >
+          {
+            stickerVisible ? 
+              (isMobile ? <FaKeyboard className="w-5 h-5" 
+                 /> : iconRisibank)
+            :
+            iconRisibankGray
+        }
+        </div>
     // console.log("message input render")
     return (
         <div 
@@ -331,17 +356,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             {/* <ChatInputTip toAddress={address} onTipSent={(ticker, hash) => {
               sendTipMessage(ticker, hash);
             }} /> */}
-               <div 
-        onClick={() => {
-          if (!inputAdditionVisible && stickerVisible) {
-            setStickerVisible(false);
-          }
-          setInputAdditionVisible(!inputAdditionVisible)
-        }}
-        >
-          <AddCircleOutline 
-          style={{width: 32, height: 32, cursor: 'pointer'}} className="hoverable" />
-        </div>
+              <StickerButton />
           <div 
           style={{
             borderRadius: 6, width: '100%',
@@ -351,15 +366,20 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           }}
           className="flex items-center gap-2 border border-solid input-message">
             <TextArea 
-            enterKeyHint="send"
+            // enterKeyHint="send"
             onFocus={() => {
               if (isMobile){
                 setStickerVisible(false) // close sticker when keyboard open on mobile
+                setInputAdditionVisible(false);
               }
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && (e.shiftKey && Capacitor.getPlatform() === "web")) {
-                return; // allow new line on shift + enter, for web/desktop only
+              if (Capacitor.isNativePlatform()){
+                return; 
+              }
+              // On web/desktop, allow new line on shift + enter and send on enter
+              if (e.key === 'Enter' && e.shiftKey) {
+                return; 
               }
               else if (e.key === 'Enter') {
                 e.preventDefault();
@@ -375,47 +395,41 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
               value={newMessage}
               onChange={(e) => setNewMessage(e)}
             />
-            {/* <Button
+          
+          </div>    
+          {
+            !newMessage.trim() && 
+          <div 
+        onClick={() => {
+          if (!inputAdditionVisible && stickerVisible) {
+            setStickerVisible(false);
+          }
+          setInputAdditionVisible(!inputAdditionVisible)
+        }}
+        >
+          <AddCircleOutline 
+          style={ {width: 32, height: 32, cursor: 'pointer'}}
+          className="hoverable" />
+        </div> }
+       <Button
+            shape="rounded"
+            // size="small"
+            color="primary"
               onClick={sendMessage}
-              className="p-1 rounded-full bg-blue-500 text-white mr-1"
+              // className="rounded-full"
               disabled={!newMessage.trim()}
-              style={ !newMessage.trim() ? {display: 'none'} : {}}
+              style={ !newMessage.trim() ? {display: 'none'} : {height: 32, width: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
             >
-              <FaArrowUp className="w-5 h-5" />
-            </Button> */}
+                            <FaArrowUp className="w-5 h-5" />
+            </Button>
           </div>
-          <div
-          style={{}}
-          onClick={() => {
-            if (!stickerVisible && inputAdditionVisible) {
-              setInputAdditionVisible(false);
-            }
-            if (stickerVisible){
-              setStickerVisible(false);
-              messageInputRef.current?.focus();
-            }
-            else {
-              setStickerVisible(true);
-              messageInputRef.current?.blur();
-            }
-          }}
-          className="hoverable"
-          >
+          
           {
-            stickerVisible ? 
-              (isMobile ? <FaKeyboard className="w-5 h-5" /> : iconRisibank)
-            :
-            iconRisibankGray
-        }
-        </div>
-     
-          </div>
-          {
-            stickerVisible && <ChatInputStickers onStickerSelect={(stickerId) => {
+            stickerVisible && <ChatInputStickers // showing stickers list
+            onStickerSelect={(stickerId) => {
               sendStickerMessage(stickerId);
             }} />
           }
-          
         <ChatInputAdd 
         visible={inputAdditionVisible}
         toAddress={
