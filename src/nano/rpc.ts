@@ -125,6 +125,9 @@ export default class RPC {
     return r.work;
   };
   receivable = async (account, minAmountRaw) => {
+    if (minAmountRaw == 0){
+      minAmountRaw = 1; // ensure threshold at least 1 raw or it will not return the amount in the response
+    }
     let params = {
       action: "pending",
       account: account,
