@@ -23,9 +23,9 @@ import { useChats } from "../hooks/use-chats";
 const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
     const download = async () => {
         if (Capacitor.isNativePlatform()) {
+            Toast.show({icon: 'loading'})
+            let filePath = await Filesystem.getUri({directory: Directory.Data, path: fileId})
             try {
-              Toast.show({icon: 'loading'})
-              let filePath = await Filesystem.getUri({directory: Directory.Data, path: fileId})
               const fileOpenerOptions: FileOpenerOptions = {
                   filePath: filePath.uri,
                   contentType: fileType,
@@ -36,6 +36,15 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
               
             } catch (error) {
               console.error('Error saving file:', error);
+              if (error.code == 8){ // for certain extensions, we need to use the file opener without default
+                await FileOpener.open({
+                    filePath: filePath.uri,
+                    contentType: fileType,
+                    openWithDefault: false
+                });
+                Toast.clear()
+                return
+              }
               Toast.show({content: error.message, icon: 'error'})
             }
           } else {
@@ -126,7 +135,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                       } else {
                         // Handle error
                         console.error("Decryption failed:", e.data.error);
-                        Toast.show({content: 'Decryption failed', icon: 'error'});
+                        Toast.show({content: 'Decryption failed', icon: 'fail'});
                       }
                       
                       // Terminate the worker when done

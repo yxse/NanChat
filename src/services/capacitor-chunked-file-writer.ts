@@ -389,7 +389,8 @@ export async function listFilesWithSize(directory: Directory = Directory.Data, p
         fileSizes = fileSizes.concat(nestedFiles);
       } else {
         const stat = await Filesystem.stat({ directory, path: filePath });
-        fileSizes.push({ size: stat.size, meta: await restoreData(filePath), name: filePath });
+        const meta = await restoreData(filePath.substring(1)); // remove the first / to get the correct path
+        fileSizes.push({ size: stat.size, meta: meta, name: filePath });
       }
     }
 

@@ -128,11 +128,10 @@ const FileManagement = () => {
             <div 
               style={{cursor: 'pointer'}}
             >
-              {/* {file.meta?.name}  */}
-              {formatSize(file.size)}
+             {formatSize(file.size)}
             </div>
             </Checkbox>
-            <div style={{width: 128}}>
+            <div style={{width: "100%"}}>
               <MessageFile 
               deleteMode
                 message={{
