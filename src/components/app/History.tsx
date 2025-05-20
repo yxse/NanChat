@@ -42,6 +42,7 @@ import ProfileName from "../messaging/components/profile/ProfileName";
 import { HapticsImpact } from "../../utils/haptic";
 import AddContacts from "./AddContacts";
 import { ConvertToBaseCurrency } from "./Home";
+import { openHashInExplorer, openInBrowser } from "../messaging/utils";
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -221,17 +222,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
       text: "View on Explorer",
       key: "view-details",
       onClick: () => {
-        if (Capacitor.isNativePlatform()) {
-          InAppBrowser.openInSystemBrowser({
-            url: `https://nanexplorer.com/${networks[ticker].id}/block/${activeTx.hash}`,
-            options: DefaultSystemBrowserOptions
-          })
-        }
-        else {          
-          window.open(
-            `https://nanexplorer.com/${networks[ticker].id}/block/${activeTx.hash}`
-          )
-        }
+        openHashInExplorer(activeTx.hash, ticker)
       }
     },
     // {
@@ -575,17 +566,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         </Button> */}
           <div
           onClick={() => {
-            if (Capacitor.isNativePlatform()) {
-              InAppBrowser.openInSystemBrowser({
-                url: `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`,
-                options: DefaultSystemBrowserOptions
-              })
-            }
-            else {
-              window.open(
-                `https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`
-              )
-            }
+            openInBrowser(`https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`)
           }}
           style={{marginBottom: 64, color: "var(--adm-color-primary)", cursor: "pointer"}}
            className="mt-4">

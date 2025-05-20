@@ -4,9 +4,12 @@ import icon from "../../../public/icons/nanchat.svg";
 import useLocalStorageState from "use-local-storage-state";
 import { AccountAvatar } from "./components/ChatList";
 import { useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import { networks } from "../../utils/networks";
 
 export const hasLink = (message: string) => {
-    return message?.match(/(https?:\/\/[^\s]+)/g)
+    return message.match(/(https?:\/\/[^\s]+)/g)
 }
 
 export const isNanoAppMessage = (message: string) => {
@@ -187,4 +190,21 @@ export function generateSecurePassword() {
 
   // Join array into string and return
   return passwordArray.join('');
+}
+
+
+export const openInBrowser = (url: string) => {
+  if (Capacitor.isNativePlatform()) {
+    InAppBrowser.openInSystemBrowser({
+      url,
+      options: DefaultSystemBrowserOptions
+    })
+  }
+  else {
+    window.open(url)
+  }
+} 
+
+export const openHashInExplorer = (hash: string, ticker: string) => {
+  openInBrowser(`https://nanexplorer.com/${networks[ticker].id}/block/${hash}`)
 }
