@@ -446,7 +446,7 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
     </div>
   }
   return (<>
-    <List >
+    <List style={{paddingBottom: "env(safe-area-inset-bottom)"}}>
 
       {sortedActiveMainNetworks.map((ticker) => (
         <List.Item

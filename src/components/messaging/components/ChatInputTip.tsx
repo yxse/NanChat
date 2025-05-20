@@ -112,9 +112,10 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
         destroyOnClose={true}
         visible={visibleSend && destinationAddress}
         onClose={() => {
-            setVisibleSend(false)
-            setActiveTicker(null)
-            setDestinationAddress(undefined)
+                setVisible(false)
+                setActiveTicker(null)
+                setVisibleSend(false)
+
         }}
         closeOnMaskClick={true}
         showCloseButton={true}
