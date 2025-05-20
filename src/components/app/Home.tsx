@@ -299,6 +299,7 @@ export default function Home({ }) {
       <div className="pb-10" style={{ height: "calc(100vh - 211px + 46px - env(safe-area-inset-bottom) - env(safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
         <NetworkList
+        noPadding
         hideActions={false}
         selectedTicker={selectedTicker}
           // onClick={(ticker) => navigate(`/${ticker}`)}
