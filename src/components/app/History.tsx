@@ -465,7 +465,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                     <div>
                       {tx.subtype === "send" && "Sent"}
                       {tx.subtype === "receive" && "Received"}
-                      {tx.subtype === "change" && "Represenative Change"}
+                      {tx.subtype === "change" && "Representative Change"}
                       {
                         (tx.subtype === "receive" || tx.subtype === "send") && (
                           <div className="" style={{color: "var(--adm-color-text-secondary)", display: "flex"}}>
