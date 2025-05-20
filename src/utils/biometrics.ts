@@ -52,7 +52,7 @@ export async function webauthnAuthIfAvailable(){
     let isAvailable = webauthn.client.isAvailable()
     if (isAvailable && Capacitor.isNativePlatform() === false){
         const challenge = crypto.randomUUID()
-        Toast.show({content: localStorage.getItem("webauthn-credential-id")})
+        // Toast.show({content: localStorage.getItem("webauthn-credential-id")})
         if (localStorage.getItem("webauthn-credential-id") && localStorage.getItem("webauthn-credential-id") !== "undefined") { 
             let r = await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
                                 // "authenticatorType": "auto",

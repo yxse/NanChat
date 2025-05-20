@@ -125,10 +125,10 @@ function BackupContacts() {
         <br/> {contactsBackupLength} contacts backed up.
         {contacts.length > 0 && <div className="mt-2">You have {contacts.length} contacts</div>}
 
-        contacts local: 
+        {/* contacts local: 
         {JSON.stringify(contacts).length}
         contacts backup:
-        {contactsBackupLength}
+        {contactsBackupLength} */}
 </div>
     )
 }
