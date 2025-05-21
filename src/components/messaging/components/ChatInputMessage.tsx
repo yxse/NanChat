@@ -233,7 +233,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
      const messageEncrypted = { ...message };
      messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
      socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
-     messageInputRef.current?.focus();
+    //  messageInputRef.current?.focus();
     };
     messageInputRef.sendTip = sendTipMessage;
 
