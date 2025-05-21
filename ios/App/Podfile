@@ -31,7 +31,6 @@ def capacitor_pods
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
   pod 'CapawesomeCapacitorBadge', :path => '../../node_modules/@capawesome/capacitor-badge'
   pod 'CapgoCapacitorDataStorageSqlite', :path => '../../node_modules/@capgo/capacitor-data-storage-sqlite'
-  pod 'CapgoInappbrowser', :path => '../../node_modules/@capgo/inappbrowser'
   pod 'TeamhiveCapacitorWebviewOverlay', :path => '../../node_modules/@teamhive/capacitor-webview-overlay'
   pod 'CapacitorIcloudDrive', :path => '../../node_modules/capacitor-icloud-drive'
   pod 'CapacitorNativeSettings', :path => '../../node_modules/capacitor-native-settings'
