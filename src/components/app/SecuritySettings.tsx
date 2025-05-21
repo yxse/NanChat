@@ -18,6 +18,8 @@ import PrivacySettings from "./BlockedChats";
 import { ChatWrongOutline, LeftOutline } from "antd-mobile-icons";
 import { fetcherMessages, setMinReceive } from "../messaging/fetcher";
 import useSWR from "swr";
+import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
+import { isTauri } from "@tauri-apps/api/core";
 function SecuritySettings() {
     const navigate = useNavigate();
     const [seed, setSeedLocal] = useState(undefined);
@@ -43,6 +45,7 @@ function SecuritySettings() {
         { value: "21600", label: "6 hours" },
       ]
 
+      useHideNavbarOnMobile(true)
     useEffect(() => { 
         getSeed().then((seed) => {  
           setSeedLocal(seed)
@@ -112,9 +115,14 @@ function SecuritySettings() {
                   content: (
                     <div>
                       <div>You will no longer need a password to open NanChat.</div>
+                      {
+                        (Capacitor.getPlatform() === "web" && !isTauri()) && // only stored unencrypted if no password using the web version, else secure storage is used
                       <div>
                         Your secret phrase will be stored unencrypted on this device. <br/>Make sure your device cannot be accessed by unauthorized users.
                       </div>
+                      }
+                      <Form className="form-list high-contrast" mode="card">
+                      <Form.Item className="form-list">
                       <Input
                         id="verify-password"
                         type="password"
@@ -122,8 +130,13 @@ function SecuritySettings() {
                         placeholder="Enter your password"
                         className="mt-2"
                       />
+                      </Form.Item></Form>
                       <Button
-                        className="mt-2"
+                      color="primary"
+                      shape="rounded"
+                      size="large"
+                      style={{width: "100%"}}
+                        className="mt-4"
                         onClick={async () => {
                           let password = document.getElementById("verify-password") as HTMLInputElement;
                           let isValid = false
@@ -166,6 +179,9 @@ function SecuritySettings() {
               Disable Password
             </List.Item>
             }
+            {
+              seed?.isPasswordEncrypted && 
+            
             <List.Item 
             prefix={<MdOutlinePassword size={24} />}
             onClick={() => {
@@ -191,7 +207,7 @@ function SecuritySettings() {
             }}
             >
               Change Password
-            </List.Item>
+            </List.Item>}
             {
               !seed?.isPasswordEncrypted &&
             
