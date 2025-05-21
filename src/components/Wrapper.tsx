@@ -72,15 +72,16 @@ const firebaseConfig = {
 };
 
 
-if (Capacitor.getPlatform() === "ios"){
+if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") {
   Keyboard.setResizeMode({mode: KeyboardResize.None});
   Keyboard.addListener('keyboardWillShow', info => {
     console.log('keyboard will show with height:', info.keyboardHeight);
     // const app: HTMLElement = document.querySelector('.app');
     // app.style.paddingBottom = info.keyboardHeight - 30 + 'px';
+    const minusPadding = Capacitor.getPlatform() === "ios" ? 30 : 0; // idk why but ios needs a bit less padding to be aligned
     try {
       const wrapper: HTMLElement = document.querySelector('.app');
-      wrapper.style.paddingBottom = info.keyboardHeight - 30 + 'px';
+      wrapper.style.paddingBottom = info.keyboardHeight - minusPadding + 'px';
     } 
     catch (e) {
       console.log(e);
@@ -89,6 +90,18 @@ if (Capacitor.getPlatform() === "ios"){
 
       // const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
       const popup: HTMLElement = document.querySelectorAll('.adm-popup-body:not(.disable-keyboard-resize)');
+      console.log("popup", popup);
+      popup.forEach((element) => {
+        element.style.marginBottom = `${info.keyboardHeight}px`;
+        // element.style.paddingTop = info.keyboardHeight < 360 ? (360 - info.keyboardHeight) + 'px' : '0px';
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    try {
+
+      // const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
+      const popup: HTMLElement = document.querySelectorAll('.adm-modal-body:not(.disable-keyboard-resize)');
       console.log("popup", popup);
       popup.forEach((element) => {
         element.style.marginBottom = `${info.keyboardHeight}px`;
@@ -132,6 +145,18 @@ if (Capacitor.getPlatform() === "ios"){
 
       // const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
       const popup: HTMLElement = document.querySelectorAll('.adm-popup-body:not(.disable-keyboard-resize)');
+      console.log("popup", popup);
+      popup.forEach((element) => {
+        element.style.marginBottom = `0px`;
+        // element.style.paddingTop = `360px`;
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    try {
+
+      // const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
+      const popup: HTMLElement = document.querySelectorAll('.adm-modal-body:not(.disable-keyboard-resize)');
       console.log("popup", popup);
       popup.forEach((element) => {
         element.style.marginBottom = `0px`;

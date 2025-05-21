@@ -54,6 +54,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
 import ProfileName from "../messaging/components/profile/ProfileName";
 import { fetcherMessages } from "../messaging/fetcher";
+import { Keyboard } from "@capacitor/keyboard";
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -324,6 +325,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               setDataSend(dataPrepareSend)
               setDataBlockedAccount(fetcherMessages('/is-blocked?address=' + toAddress))
               console.log(dataPrepareSend)
+              Keyboard.hide()
             }}
             className="mt-4 form-list"
             layout="horizontal"
