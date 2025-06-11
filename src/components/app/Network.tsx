@@ -308,7 +308,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
     window.scrollTo(0, 0);
   }}
   hideHistory={true} 
-  fiatDefaultTo={ticker}
+  fiatDefaultTo={"XNO"}
   defaultTo={ticker === "XNO" ? "BAN" : ticker}
   defaultFrom={"XNO"} />}
   </div>

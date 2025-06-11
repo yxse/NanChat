@@ -136,7 +136,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
       {
         (isLoadingFiatCurrencies) ? <DotLoading /> :
           <SelectTickerAll
-            allCurrencies={side === "from" ? fiatCurrenciesEnabled : feeless}
+            allCurrencies={side === "from" ? fiatCurrenciesEnabled : {'XNO': feeless['XNO']}} // Only allow XNO buy
             isLoadingCurrencies={false}
             onClick={(ticker) => {
               console.log(ticker, side);

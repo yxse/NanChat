@@ -25,6 +25,7 @@ import { WalletContext } from "../Popup";
 import { fetcherChat } from "../messaging/fetcher";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Swap from "./Swap";
+import { Capacitor } from "@capacitor/core";
 
 
 
@@ -284,7 +285,10 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                 <div className="flex space-x-4 ml-6 mr-1 justify-end hide-on-lg">
                   <ButtonAction action="receive" ticker={ticker} />
                   <ButtonAction action="send" ticker={ticker} />
+                  {
+                    Capacitor.getPlatform() !== "ios" && 
                   <ButtonAction action="swap" ticker={ticker} /> 
+                  }
                 </div>
                 }
               </div>

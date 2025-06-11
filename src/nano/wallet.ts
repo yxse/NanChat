@@ -4,7 +4,7 @@ import { BigNumber } from "bignumber.js";
 import AsyncLock from "async-lock";
 import { Modal, Toast } from "antd-mobile";
 import { rawToMega } from "./accounts";
-import { setRepresentative } from "../components/getRepresentative";
+import { getRepresentative, setRepresentative } from "../components/getRepresentative";
 import { convertAddress } from "../utils/format";
 import { sendNotificationTauri } from "./notifications";
 
@@ -419,7 +419,7 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       if (isOpenBlock) {
         // open block
         data["walletBalanceRaw"] = "0";
-        data["representativeAddress"] = this.defaultRep; // default rep
+        data["representativeAddress"] = await getRepresentative(this.ticker); // default rep
         data["frontier"] =
           "0000000000000000000000000000000000000000000000000000000000000000";
         data["work"] = await this.rpc.work_generate(this.getPublicKey(account));
