@@ -67,6 +67,7 @@ export const networks = {
   XRO: {
     name: "RaiblocksOne",
     id: "raiblocksone",
+    faucetId: 'raiblocks1', // because nanswap xro faucet different for a mysterious reason
     decimals: 30,
     decimalsToShow: 1,
     prefix: "xro",
