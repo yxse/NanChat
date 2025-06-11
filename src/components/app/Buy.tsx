@@ -180,9 +180,17 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
         }
       }).then(res => res.json())
       if (exchange.error) {
+        if (exchange.error === "Currency XNO-NANO is not supported for payouts") {
+        Toast.show({
+          content: "Not available, please try again later",
+        });
+      }
+      else{
+
         Toast.show({
           content: exchange.error,
         });
+      }
         return;
       }
       else{
