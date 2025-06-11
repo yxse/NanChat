@@ -463,6 +463,8 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           }}
           />
             }
+            {
+              ticker === "XNO" &&
           <ButtonActionCircle
           title="Buy"
           icon={<GoCreditCard size={22} className="" />}
@@ -471,6 +473,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
             setModalVisible(true);
           }}
           />
+        }
 
         </div>
         {/* <Divider /> */}

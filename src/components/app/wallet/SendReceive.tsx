@@ -109,8 +109,6 @@ export const SendReceive = () => {
                       setVisible(true);
                     }}
                     />}
-                    {
-                      ticker === "XNO" && 
                     <ButtonActionCircle
                     title="Buy"
                     icon={<GoCreditCard size={22} />}
@@ -119,7 +117,6 @@ export const SendReceive = () => {
                       setVisible(true);
                     }}
                     />
-                  }
                     </div>
       </>
         }

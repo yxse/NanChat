@@ -566,7 +566,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         </Button> */}
           <div
           onClick={() => {
-            openInBrowser(`https://nanswap.com/${networks[ticker].id}-faucet?address=${account}`)
+            openInBrowser(`https://nanswap.com/${networks[ticker].faucetId || networks[ticker].id}-faucet?address=${account}`)
           }}
           style={{marginBottom: 64, color: "var(--adm-color-primary)", cursor: "pointer"}}
            className="mt-4">
