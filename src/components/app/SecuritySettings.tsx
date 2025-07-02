@@ -15,8 +15,8 @@ import { PinAuthPopup } from "../Lock/PinLock";
 import { PasswordForm } from "../Initialize/create/Password";
 import { WalletContext } from "../Popup";
 import PrivacySettings from "./BlockedChats";
-import { ChatWrongOutline, LeftOutline } from "antd-mobile-icons";
-import { fetcherMessages, setMinReceive } from "../messaging/fetcher";
+import { ChatWrongOutline, DeleteOutline, LeftOutline } from "antd-mobile-icons";
+import { deleteAccount, fetcherMessages, setMinReceive } from "../messaging/fetcher";
 import useSWR from "swr";
 import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
 import { isTauri } from "@tauri-apps/api/core";
@@ -519,6 +519,43 @@ function SecuritySettings() {
             }}
             >
                 Developer Mode
+            </List.Item>
+        </List>
+        <Divider />
+        <List mode="card">
+            <List.Item
+            prefix={<DeleteOutline fontSize={24} color="red"/>}
+            onClick={() => {
+                Modal.show({
+                  title: "Delete Account",
+                  content: "Are you sure you want to delete your account? Your messages and contacts will be permanently deleted.",
+                  closeOnMaskClick: true,
+                  actions: [
+                    { key: "confirm", text: "Delete", style: { color: "var(--adm-color-danger)" }, onClick: async () => {
+                      Modal.confirm({
+                        title: "Confirm Account Deletion",
+                        closeOnMaskClick: true,
+                        confirmText: "Delete",
+                        cancelText: "Cancel",
+                        onConfirm: async () => {
+                          await deleteAccount()
+                          Modal.clear()
+                          Toast.show({
+                        icon: "success",
+                        content: "Account deleted"
+                      })
+                      navigate('/me')
+                    }
+                      })}},
+                    { key: "cancel", text: "Cancel" , onClick: () => {
+                        Modal.clear()
+                    }}
+                  ],
+
+                })
+            }}
+            >
+                Delete Account
             </List.Item>
         </List>
     </div>
