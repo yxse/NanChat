@@ -65,6 +65,10 @@ const useMessageDecryption = ({ message }) => {
         if (isGroupMessage) {
           decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
         }
+        if (decryptionKey == null) { // could happen if clicking on the notification New message, when loading directly the chat and wallet not ready yet
+          console.error('Decryption key not yet ready');
+          return
+        }
         let decrypted = box.decrypt(message.content, targetAccount, decryptionKey);
         // message decryption could be done in a worker but need to make sure typing is only hiden after message is shown
         // but message decryption should be already fast enough
@@ -85,7 +89,7 @@ const useMessageDecryption = ({ message }) => {
     };
 
     decryptMessage();
-  }, []);
+  }, [activeAccountPk]);
 
   return decryptedContent;
 };

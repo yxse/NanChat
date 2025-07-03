@@ -86,9 +86,9 @@ const Message = memo(({
       }
     }, 2000)
   }, [message]);
-  // if (!decrypted) {
-  //   return null;
-  // }
+  if (!decrypted) { // only showing the message when decrypted
+    return null;
+  }
 
   // Determine message layout properties
   const isPreviousMessageFromSameAccount = prevMessage && prevMessage.fromAccount === message.fromAccount;
@@ -458,6 +458,7 @@ const MessageContent = ({
     : isPreviousMessageFromSameAccount ? '' : 'rounded-bl-sm';
   // const borderRadiusClass = ''
 
+  // if (!decrypted) return null
   return (
     <div
     style={{borderRadius: 8}}
