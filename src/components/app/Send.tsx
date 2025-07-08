@@ -502,16 +502,18 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     const toAddress = form.getFieldValue("address");
                     const amount = form.getFieldValue("amount");
                     console.log(fromAddress, toAddress, amount);
-                    console.log(dataBlockedAccount)
-                    let isBlocked = await dataBlockedAccount;
-                    if (isBlocked?.blocked) {
-                      console.error("Error sending:", isBlocked);
-                      Toast.show({
+                    if (!global.ledger){ // block chats not available on ledger
+                      console.log(dataBlockedAccount)
+                      let isBlocked = await dataBlockedAccount;
+                      if (isBlocked?.blocked) {
+                        console.error("Error sending:", isBlocked);
+                        Toast.show({
                         icon: "fail",
                         content: `Canceled. This account is in your blocklist`,
                       });
                       return;
                     }
+                  }
                     console.log(dataSend)
                     let data = await dataSend;
                     if (
