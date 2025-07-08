@@ -109,6 +109,7 @@ export const SendReceive = () => {
                       setVisible(true);
                     }}
                     />}
+                    {(Capacitor.getPlatform() !== "ios") && 
                     <ButtonActionCircle
                     title="Buy"
                     icon={<GoCreditCard size={22} />}
@@ -116,7 +117,7 @@ export const SendReceive = () => {
                       setAction('buy');
                       setVisible(true);
                     }}
-                    />
+                    />}
                     </div>
       </>
         }
