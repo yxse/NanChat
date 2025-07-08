@@ -378,22 +378,14 @@ export default function Start({
 
         </div>
           </div>
-      </div>
-          {/* <div className="text-center mt-4">
-          <div className="flex flex-col">
-                  <span className="text-sm" style={{ color: "var(--adm-color-text-secondary)", marginTop: 128}}>
-                    Created with 💙 by{" "}
-                    <a
-                      href="https://github.com/YXSE"
-                      className="text-blue-500 hover:underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      YXSE
-                    </a>
+          <div 
+          style={{textAlign: "center", position: "absolute", bottom: 0, width: "100%", padding: 16, left: 0, right: 0}}
+          className="">
+                  <span className="text-sm" style={{ color: "var(--adm-color-text-secondary)", }}>
+                      YXSE © 2025
                   </span>
-                </div>
-          </div> */}
+              </div>
+      </div>
     </div>
   );
 }
