@@ -18,13 +18,15 @@ export const ImportFromQRcode: React.FC<ImportFromFileProps> = ({
     <>
     <Scanner
     onScan={(result) => {
-      console.log(result);
-      if (result) {
+      // console.log(result);
+      if (result && 
+        !result.includes('_') // export qrocde should not contain underscores (could be a address qrcode)
+      ) {
         onWalletSelected(result);
       } else {
         Toast.show({
-          content: "Invalid QR code",
-          duration: 1000,
+          content: "Please scan a valid Export to another device QR code",
+          duration: 5000,
         });
       }
     }}>
