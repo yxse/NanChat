@@ -98,7 +98,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         "XNO"
     );
     
-    const { data: services, isLoading } = useSWR('/services', fetcherMessagesNoAuth);
+    const { data: services, isLoading } = useSWR('/services?platform=' + Capacitor.getPlatform(), fetcherMessagesNoAuth);
     
 
         
