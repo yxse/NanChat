@@ -216,7 +216,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                                 </div>
                                 <QRCode
                                 includeMargin
-                                value={"https://nanchat.com/chat/" + chat?.id}
+                                value={"https://nanchat.com/chat/" + chat?.id + "?join"}
                                 size={256}
                                 />
                                 <div style={{color: 'var(--adm-color-text-secondary)', marginTop: 16, textAlign: 'center', maxWidth: 256}}>
