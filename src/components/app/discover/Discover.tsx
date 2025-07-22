@@ -147,6 +147,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
             setOpenService(service);
             const element = document.getElementById('webview-overlay') as HTMLElement;
             element.style.zIndex = "1000";
+            element.style.backgroundColor = "white"
             // WebviewOverlay.toggleFullscreen();
             await WebviewOverlay.open({
                 url: service.link,
@@ -240,6 +241,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
                 const element = document.getElementById('webview-overlay') as HTMLElement;
                 element.style.zIndex = "-1";
                 element.style.backgroundImage = "none";
+                element.style.backgroundColor = "transparent"
                 WebviewOverlay.close();
                 if (onClose) {
                     onClose();
