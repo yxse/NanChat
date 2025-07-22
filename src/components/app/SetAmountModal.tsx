@@ -7,6 +7,7 @@ function SetAmountModal({ticker, visible, setVisible, onOk}) {
   const [amountType, setAmountType] = useState("crypto");
   return (
     <Modal
+    bodyClassName='disable-keyboard-resize'
     actions={[
       {
         key: "ok",
