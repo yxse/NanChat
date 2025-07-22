@@ -85,7 +85,8 @@ export const showAccountQRCode = (me) => {
         <div className="flex justify-start items-center flex-col">
           <div className="text-xl mb-4 flex justify-start gap-2" style={{width: '200px'}}>
           <AccountAvatar
-          url={me?.profilePicture?.url}
+          account={me?._id}
+          // url={me?.profilePicture?.url}
           width={42}
           />
           {me?.name}

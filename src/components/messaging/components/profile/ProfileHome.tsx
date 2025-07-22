@@ -39,7 +39,7 @@ const ProfileHome: React.FC = () => {
                     navigate('/profile/pfp')
                 }}
                 extra={
-                    <AccountAvatar  width={64} url={me?.profilePicture?.url} />
+                    <AccountAvatar  width={64} account={me?._id} />
                 }
                 >
                     Profile Picture

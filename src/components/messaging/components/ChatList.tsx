@@ -42,6 +42,7 @@ import { updateSharedKeys } from "../../../services/sharedkey";
 import { NoAvatar } from "./icons/NoAvatar";
 import { debounce } from 'lodash';
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
+import ProfilePicture from "./profile/ProfilePicture";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -61,9 +62,7 @@ export const ChatAvatar = ({ chat }) => {
         />
     }
     return <AccountAvatar
-        url={from?.profilePicture?.url}
         account={accountFrom}
-        badgeColor={'gray'}
     />
 }
 
@@ -322,11 +321,9 @@ const saveScrollPosition = useCallback(
                         >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
                             {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
                             <div>
-                                <span 
-                                style={{backgroundColor: 'var(--adm-color-primary)', color: 'var(--adm-color-text' }}
-                                className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
-                                    {chat.unreadCount}
-                                </span>
+                              <Button
+                              className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1"
+                               size="mini" color="primary" shape="rounded">{chat.unreadCount}</Button>
                             </div>
                         )
                         : // empty div to keep the same height
@@ -477,14 +474,15 @@ const saveScrollPosition = useCallback(
     );
 };
 
-export const AccountAvatar = ({ url, width=48}) => {
+export const AccountAvatar = ({ width=48, account}) => {
     let icon
-    if (url == null) {
+    if (account == null) {
         // url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account + "%26outline%3Dtrue"
         icon = <NoAvatar height={width} width={width} />
     }
     else{
-        icon = <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={width} />
+        icon = <ProfilePicture address={account} width={width}/>
+        //  <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={width} />
     }
     return icon
 }
