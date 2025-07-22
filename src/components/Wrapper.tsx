@@ -78,10 +78,11 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
     console.log('keyboard will show with height:', info.keyboardHeight);
     // const app: HTMLElement = document.querySelector('.app');
     // app.style.paddingBottom = info.keyboardHeight - 30 + 'px';
-    const minusPadding = Capacitor.getPlatform() === "ios" ? 30 : 0; // idk why but ios needs a bit less padding to be aligned
+    // const minusPadding = Capacitor.getPlatform() === "ios" ? 30 : 0; // idk why but ios needs a bit less padding to be aligned
+
     try {
       const wrapper: HTMLElement = document.querySelector('.app');
-      wrapper.style.paddingBottom = info.keyboardHeight - minusPadding + 'px';
+      wrapper.style.paddingBottom = 'calc(' + info.keyboardHeight + 'px - env(safe-area-inset-bottom))';
     } 
     catch (e) {
       console.log(e);
