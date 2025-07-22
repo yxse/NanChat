@@ -231,7 +231,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       }
     <div className="mt-4">
       {
-        !colorCopy && 
+        colorCopy && 
     <CopyButton 
     textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy}
     onCopy={() => {

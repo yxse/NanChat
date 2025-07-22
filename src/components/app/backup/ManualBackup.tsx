@@ -65,7 +65,7 @@ function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose
                         mnemonic={mnemonic} 
                         defaultIsRevealed={false} 
                         showHideButton 
-                        colorCopy={false} 
+                        colorCopy={"default"} 
                     />
                     <div>
                         {
