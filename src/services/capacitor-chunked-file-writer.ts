@@ -23,12 +23,12 @@ const optionGoogleAuth = {
   android: {
     appId: import.meta.env.VITE_PUBLIC_GOOGLE_ANDROID_APP_ID,
     responseType: "code", // if you configured a android app in google dev console the value must be "code"
-    redirectUrl: "com.nanwallet.app:/", 
+    redirectUrl: "com.nanchat.app:/", 
   },
   ios: {
     appId: import.meta.env.VITE_PUBLIC_GOOGLE_ANDROID_APP_ID,
     responseType: "code", // if you configured a ios app in google dev console the value must be "code"
-    redirectUrl: "com.nanwallet.app:/", 
+    redirectUrl: "com.nanchat.app:/", 
   },
 }
 const DIRECTORY_WALLET_BACKUP = "nanchat-wallet-backups";

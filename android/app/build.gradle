@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.nanwallet.app"
+    namespace "com.nanchat.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.nanwallet.app"
+        applicationId "com.nanchat.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 18
@@ -15,7 +15,7 @@ android {
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
-        manifestPlaceholders = [appAuthRedirectScheme: "com.nanwallet.app"]
+        manifestPlaceholders = [appAuthRedirectScheme: "com.nanchat.app"]
     }
     buildTypes {
         release {

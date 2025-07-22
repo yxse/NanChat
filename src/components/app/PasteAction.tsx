@@ -32,8 +32,13 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
         setVisibleSign(true);
         return;
       }
-      if (uri.startsWith("https://nanwallet.com/?uri=")) { // handle universal link
-        uri = uri.replace("https://nanwallet.com/?uri=", "");
+      if (uri.startsWith("https://nanchat.com/chat/")) { // handle chat group/my qrcode join
+        uri = uri.replace("https://nanchat.com", "");
+        navigate(uri)
+        return
+      }
+      if (uri.startsWith("https://nanchat.com/?uri=")) { // handle universal link
+        uri = uri.replace("https://nanchat.com/?uri=", "");
         uri = decodeURIComponent(uri);
       }
         

@@ -1,4 +1,4 @@
-package com.nanwallet.app;
+package com.nanchat.app;
 
 import com.getcapacitor.BridgeActivity;
 

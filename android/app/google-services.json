@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:137198054925:android:1b1a5228828147232aaf44",
+        "android_client_info": {
+          "package_name": "com.nanchat.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDynjLsduu9pvKSAW4xQRo0wJSIMyaGvNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:137198054925:android:19c6f2f1025f5a792aaf44",
         "android_client_info": {
           "package_name": "com.nanwallet.app"
