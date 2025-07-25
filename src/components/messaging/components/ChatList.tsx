@@ -43,6 +43,7 @@ import { NoAvatar } from "./icons/NoAvatar";
 import { debounce } from 'lodash';
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import ProfilePicture from "./profile/ProfilePicture";
+import PasteAction from "../../app/PasteAction";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -125,7 +126,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const filteredChats = chats
     const {isMobile, width} = useWindowDimensions()
     const {inviteFriends} = useInviteFriends()
-   
+     const [scanOpen, setScanOpen] = useState(false)
     const listRef = useRef(null);
     const scrollKeyStore = `scrollTop-chat`;
     const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
@@ -179,29 +180,7 @@ const saveScrollPosition = useCallback(
             { key: 'new_chat', icon: <MessageFill />, text: 'New Chat' },
             { key: 'invite', icon: <MailOutline />, text: 'Invite Friends' },
             { key: 'my_qr', icon: <SystemQRcodeOutline />, text: 'My QR Code' },
-            { key: 'scan_qr', icon: <ScanCodeOutline />, text: <Scanner
-                onScan={(result) => {
-                    if (result){
-                      let address = false
-                        if (result.includes('https://nanwallet.com/chat/')) {
-                            address = result.split('https://nanwallet.com/chat/')[1];
-                        }
-                        else if (result.startsWith('nano_') && isValid(result)){
-                            address = result;
-                        }
-                        else if (result.startsWith('nano:') && isValid(result.split('nano:')[1])){
-                            address = result.split('nano:')[1];
-                        }
-                        if (address){
-                          Modal.clear();
-                          onChatSelect(address);
-                        }
-                        else{
-                          Toast.show({content: "Invalid QR Code. Please scan a valid NanChat chat QR code or a Nano address", duration: 4000});
-                        }
-                    }
-                  }}
-            >Scan QR Code</Scanner> },
+            { key: 'scan_qr', icon: <ScanCodeOutline />, text: "Scan QR Code" },
           ]}
         //   placement='left'
           onAction={(node) => {
@@ -217,7 +196,8 @@ const saveScrollPosition = useCallback(
               showAccountQRCode(me);
             }
             if (node.key === 'scan_qr') {
-                return
+              setScanOpen(true)
+                return 
               Modal.show({
                 showCloseButton: false,
                 closeOnMaskClick: true,
@@ -260,6 +240,7 @@ const saveScrollPosition = useCallback(
             {/* <AiOutlinePlusCircle  onClick={() => setIsNewChatVisible(true)} style={{cursor: "pointer"}} /> */}
           </Space>
         </Popover.Menu>
+        <PasteAction mode="scan" text={" "} scanOpen={scanOpen} setScanOpen={setScanOpen}/>
         </div>
       )
 

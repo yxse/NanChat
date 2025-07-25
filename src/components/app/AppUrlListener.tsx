@@ -50,9 +50,9 @@ const AppUrlListener: React.FC<any> = () => {
             navigate("/contacts?import_url=" + contactsFile);
             return;
           }
-          if (event.url.startsWith("https://nanwallet.com/") && !event.url.includes("?uri=")){
+          if (event.url.startsWith("https://nanchat.com/") && !event.url.includes("?uri=")){
             // no valid action detected, we just open the app and redirect to the correct page
-            navigate(event.url.replace("https://nanwallet.com/", "/"));
+            navigate(event.url.replace("https://nanchat.com/", "/"));
             return; 
           }
           setUri(event.url);

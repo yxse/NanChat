@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BiPaste } from 'react-icons/bi';
 import { parseURI, pasteFromClipboard } from '../../utils/format';
 import { Modal, Toast } from 'antd-mobile';
@@ -11,7 +11,7 @@ import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { SignPopup } from '../../api-invoke/Sign';
 // import { Scanner } from '@yudiel/react-qr-scanner';
 
-function PasteAction({mode = "paste", uri = "", setUri}) {
+function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanOpen}) {
   const [visible, setVisible] = React.useState(false);
   const [visibleSign, setVisibleSign] = React.useState(false);
   const [activeTicker, setActiveTicker] = React.useState<string | null>(null);
@@ -70,7 +70,7 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
 
   const Paste = () => {
     return <PasteIcon fontSize={24}
-    className="cursor-pointer mr-4 mt-4"
+    className="cursor-pointer"
     onClick={() => {
       pasteFromClipboard().then((text) => {
         executeURI(text);
@@ -81,14 +81,19 @@ function PasteAction({mode = "paste", uri = "", setUri}) {
 
   const Scan = () => {
     return <Scanner
+    onClose={() => {if (setScanOpen) setScanOpen(false)}}
+    defaultOpen={scanOpen}
       onScan={(result) => {
         executeURI(result);
       }}
     >
+      {
+        text ? text : 
     <ScanCodeOutline
     fontSize={24}
-    className="cursor-pointer mr-4 mt-4"
+    className="cursor-pointer"
     />
+  }
     </Scanner>
     // onClick={() => {
     //   Modal.show({

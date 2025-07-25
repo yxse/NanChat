@@ -290,8 +290,12 @@ export default function Home({ }) {
         <div className="flex items-center justify-center">
           { ledger && <DisconnectLedger icon={true} /> }
           <CopyAddressPopup />
-          <PasteAction mode="paste"/>
-          <PasteAction mode="scan" />
+          <span className="mt-4 mr-4">
+            <PasteAction mode="paste"/>
+          </span>
+          <span className="mt-4 mr-4">
+            <PasteAction mode="scan"/>
+          </span>
        
         </div>
       </div>
