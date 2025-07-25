@@ -208,7 +208,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
         {isDisabledIosWeb && (
     <div className="text-center mb-2 text-yellow-300">
       Ledger on iOS is only supported on NanChat native app.
-        <a href="https://nanwallet.com/download" target="_blank" rel="noopener noreferrer">
+        <a href="https://nanchat.com" target="_blank" rel="noopener noreferrer">
       <Button color="primary"  size="large" shape="rounded" className="mt-2 w-full">
           Download NanChat
       </Button>
