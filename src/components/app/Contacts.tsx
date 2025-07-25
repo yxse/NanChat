@@ -205,7 +205,9 @@ export const ImportContacts = ({showAdd = false}) => {
         </List.Item>
         </List>
     <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
-        <List mode='default'>
+        <List 
+        style={{paddingBottom: 'env(safe-area-inset-bottom)'}}
+        mode='default'>
         <List.Item
         clickable
         // description="Nault, Natrium and Kalium export file supported"
@@ -467,7 +469,9 @@ export const SelectContact = ({ ticker, onSelect }) => {
             <div className='text-xl p-2 text-center'>
                 Contacts for {networks[ticker].name}
             </div>
-            <List>
+            <List
+            style={{paddingBottom: 'env(safe-area-inset-bottom)'}}
+            >
             {
                     wallet?.accounts?.map((account, index) => (
                         <List.Item
