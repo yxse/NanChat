@@ -38,9 +38,7 @@ const ProfileHome: React.FC = () => {
                 onClick={() => {
                     navigate('/profile/pfp')
                 }}
-                extra={
-                    <AccountAvatar  width={64} account={me?._id} />
-                }
+                extra={<div style={{padding: 8}}><AccountAvatar  width={48} account={me?._id} /></div>}
                 >
                     Profile Picture
                 </List.Item>
