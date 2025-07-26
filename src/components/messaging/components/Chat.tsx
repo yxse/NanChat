@@ -81,7 +81,7 @@ const {
                         <ChatList
                             onlineAccount={onlineAccount}
                             onChatSelect={(chatId) => {
-                                if (isMobile) {
+                                if (isMobile && document.startViewTransition) {
                                     document.startViewTransition(() => {
                                         navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
                                     })
@@ -123,7 +123,7 @@ const {
                         <ChatList
                             onlineAccount={onlineAccount}
                             onChatSelect={(chatId) => {
-                                if (isMobile) {
+                                if (isMobile && document.startViewTransition) {
                                     document.startViewTransition(() => {
                                         navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
                                     })
