@@ -50,8 +50,9 @@ export const fetcherChats = async (oldChats, activeAccount, activeAccountPk) => 
                         uniqueChats.push(chat);
                     }
                 });
-                // debugger
-                localStorage.setItem('lastSync', res.ts);
+                setTimeout(() => {
+                    localStorage.setItem('lastSync', res.ts); // prevent bug race condition loading chats on start causing missing updates
+                }, 5000);
                 return uniqueChats;
             }
         })

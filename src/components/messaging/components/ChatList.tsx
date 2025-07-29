@@ -123,7 +123,6 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     //     chat.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     // );
     // const accountData = accounts?.find(name => name._id === activeAccount)
-    const filteredChats = chats
     const {isMobile, width} = useWindowDimensions()
     const {inviteFriends} = useInviteFriends()
      const [scanOpen, setScanOpen] = useState(false)
@@ -263,7 +262,7 @@ const saveScrollPosition = useCallback(
 
             ><Footer /></List.Item>
         }
-        const chat = filteredChats[index]
+        const chat = chats[index]
         if (!chat) return
     
         let accountTo = activeAccount;
