@@ -83,7 +83,7 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
             setVisible(false)
           }}
           closeIcon={<CloseCircleOutline fontSize={24} />}
-          bodyStyle={{ height: 'calc(100vh - env(safe-area-inset-top))' }}
+          bodyStyle={{ height: 'calc(100vh - var(--safe-area-inset-top))' }}
         >
 <div className=''>
                 <div className="square">

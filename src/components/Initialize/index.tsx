@@ -24,11 +24,16 @@ export default function InitializeScreen({
   const [wizardI, setWizardI] = useState<number>(0);
   return (
     <div className="app">
-       <SafeArea position="top" 
+       <div 
+            style={{
+                "paddingTop": "var(--safe-area-inset-top)",
+                backgroundColor: "var(--adm-color-background)"
+            }}></div>
+       {/* <SafeArea position="top" 
             style={{
               backgroundColor: "var(--main-background-color)"
             }}
-            />
+            /> */}
       {wizardI == 6 && <Register setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated}/>}
       {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}

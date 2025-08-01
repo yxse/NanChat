@@ -115,7 +115,7 @@ function BackupSecretPhrase() {
                     }}
                 />
             <ResponsivePopup
-                bodyStyle={{ maxHeight: '100dvh', overflowY: 'auto' }}
+                bodyStyle={{ maxHeight: '100vh', overflowY: 'auto' }}
                 destroyOnClose
                 visible={visible}
                 onClose={() => {
@@ -184,7 +184,7 @@ function BackupSecretPhrase() {
                     setBackupVisible(false)
                     setVisible(true)
                 }}
-                bodyStyle={{ maxHeight: '100dvh', overflowY: 'auto' }}
+                bodyStyle={{ maxHeight: '100vh', overflowY: 'auto' }}
             >
 
                 {

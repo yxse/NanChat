@@ -300,7 +300,7 @@ export default function Home({ }) {
         </div>
       </div>
       {/* 211px is the height of navbar + wallet summary + menu bar */}
-      <div className="pb-10" style={{ height: "calc(100vh - 211px + 46px - env(safe-area-inset-bottom) - env(safe-area-inset-top))", overflowY: "auto" }}>
+      <div className="pb-10" style={{ height: "calc(100vh - 211px + 46px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
         <NetworkList
         noPadding

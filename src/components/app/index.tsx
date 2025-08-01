@@ -210,13 +210,15 @@ export const MenuBar = () => {
   return (
     <>
       <TabBar
-      safeArea={true}
+      safeArea={false} // we use the custom var(--safe-area-inset-bottom) injected in MainActivity.java to fix --safe-area-inset-bottom bug from android webview in edge to edge mode
+      // safeArea={true}
       // style={style}
       style={{
         userSelect: "none",
         "WebkitUserSelect": "none",
         "MozUserSelect": "none",
         "msUserSelect": "none",
+        "marginBottom": "var(--safe-area-inset-bottom)"
       }}
         className={"bottom"}
         activeKey={location.pathname.split("/")[1] || "chat"}
@@ -322,14 +324,16 @@ function SafeAreaWrapper({ children, callback }) {
   , [callback]);
   return (
     <>
-      <SafeArea position="top" 
+      <div
       style={{
+        "paddingTop": "var(--safe-area-inset-top)",
         backgroundColor: 
           location.pathname.startsWith("/wallet") ?
           "var(--main-background-color)" :
           "var(--adm-color-background)" 
       }}
-      />
+      >
+    </div>
       {children}
     </>
   );

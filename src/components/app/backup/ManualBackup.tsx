@@ -45,7 +45,7 @@ function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose
         <>
             
             <ResponsivePopup
-                bodyStyle={{maxHeight: '100dvh', overflowY: 'auto', zIndex: 1000}}
+                bodyStyle={{maxHeight: '100vh', overflowY: 'auto', zIndex: 1000}}
                 destroyOnClose
                 showCloseButton
                 visible={visible}

@@ -191,7 +191,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         
         <div  style={{
                 position: 'fixed',
-                top: 'env(safe-area-inset-top)',
+                top: 'var(--safe-area-inset-top)',
                 left: 0,
                 right: 0,
                 zIndex: 100000,
@@ -205,7 +205,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
                {openService?.name || " "}
         <div  style={{
                 position: 'fixed',
-                top: 'env(safe-area-inset-top)',
+                top: 'var(--safe-area-inset-top)',
                 right: 8,
                 padding: 8,
                 height: 40,
@@ -260,7 +260,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
             }}
             style={{
                 width: '100%',
-                height: 'calc(100vh - 40px - env(safe-area-inset-top))',
+                height: 'calc(100vh - 40px - var(--safe-area-inset-top))',
                 // height: '400px',
                 position: 'fixed',
                 zIndex: -1,

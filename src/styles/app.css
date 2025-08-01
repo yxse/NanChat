@@ -29,7 +29,7 @@
 @media (max-width: 1200px) {
   .aapp-navbar {
     position: fixed;
-    top: env(safe-area-inset-top);
+    top: var(--safe-area-inset-top);
     width: 100vw; 
     /* width 100vw fix bug with popover new chat */
   }
@@ -76,6 +76,8 @@
   display: inline-flex;
 }
 .app {
+  /* fallback height if dvh not available */
+  height: 100vh; 
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -83,6 +85,7 @@
 .body {
   flex: 1;
   position: relative;
+ 
 }
 @keyframes fadeInAnimation {
   0% {
@@ -97,6 +100,10 @@ body {
   touch-action: none;
   /* position: fixed ; */
   width: 100%;
+
+  /* we use the custom var(--safe-area-inset-bottom) injected in MainActivity.java to fix --safe-area-inset-bottom bug from android webview in edge to edge mode */
+ --safe-area-inset-top:  var(--android-safe-area-top, env(safe-area-inset-top));
+ --safe-area-inset-bottom:  var(--android-safe-area-bottom, env(safe-area-inset-bottom));
 
   /* animation: fadeInAnimation ease 4s; */
   /* animation-iteration-count: 1; */
@@ -702,6 +709,7 @@ body.barcode-scanner-active {
 
 body.barcode-scanner-active .adm-center-popup-wrap {
   height: 100dvh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;

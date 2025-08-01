@@ -206,7 +206,7 @@ export const ImportContacts = ({showAdd = false}) => {
         </List>
     <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
         <List 
-        style={{paddingBottom: 'env(safe-area-inset-bottom)'}}
+        style={{paddingBottom: 'var(--safe-area-inset-bottom)'}}
         mode='default'>
         <List.Item
         clickable
@@ -356,7 +356,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 Contacts
             </NavBar>
              <div ref={ref} style={{ height:
-                isMobile ? "calc(100dvh - 45px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 45px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
+                isMobile ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
                 // 47px for the header, 58px for the menu
                 , overflow: "auto" }}>
             {
@@ -470,7 +470,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
                 Contacts for {networks[ticker].name}
             </div>
             <List
-            style={{paddingBottom: 'env(safe-area-inset-bottom)'}}
+            style={{paddingBottom: 'var(--safe-area-inset-bottom)'}}
             >
             {
                     wallet?.accounts?.map((account, index) => (
