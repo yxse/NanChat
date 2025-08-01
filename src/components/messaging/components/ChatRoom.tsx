@@ -642,9 +642,16 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     )
                 }
             </div>
-           <SafeArea style={{
+            <div 
+            style={{
+                "paddingBottom": "var(--safe-area-inset-bottom)",
+                "backgroundColor": "var(--adm-color-background)"
+            }}></div>
+           {/* <SafeArea
+           
+            style={{
                      backgroundColor: "var(--adm-color-background)"
-                   }} position="bottom" />
+                   }} position="bottom" /> */}
         </div>
     );
 };

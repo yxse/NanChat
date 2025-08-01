@@ -379,8 +379,8 @@ const saveScrollPosition = useCallback(
           <List 
             className="chat-list"          
           >
-          <div style={{ height:
-          isMobile ? "calc(100dvh - 45px - 58px - env(safe-area-inset-bottom) - env(safe-area-inset-top))" : "calc(100dvh - 45px - env(safe-area-inset-bottom) - env(safe-area-inset-top))"
+          <div style={{ 
+            height: isMobile ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
           // 47px for the header, 58px for the menu
           , overflow: "hidden" }}>
             <AutoSizer>

@@ -115,7 +115,7 @@ function ExportSecretPhrase() {
                 />
             <ResponsivePopup
             showCloseButton={true}
-                bodyStyle={{ maxHeight: '100dvh', overflowY: 'auto' }}
+                bodyStyle={{ maxHeight: '100vh', overflowY: 'auto' }}
                 destroyOnClose
                 visible={visible}
                 onClose={() => {

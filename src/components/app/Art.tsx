@@ -116,7 +116,7 @@ export function ArtImages({onImageClick}) {
         </div>
     }
     return (
-        <div className="p-4" style={{ height: "100dvh" }}>
+        <div className="p-4" style={{ height: "100vh" }}>
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                 {
                     allData.map((nanft) => {

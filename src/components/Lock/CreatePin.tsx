@@ -22,7 +22,7 @@ export const CreatePin = ({visible, setVisible, onAuthenticated}) => {
 
     return (
         <Popup
-        bodyStyle={{height: 'calc(100dvh - env(safe-area-inset-top))'}}
+        bodyStyle={{height: 'calc(100vh - var(--safe-area-inset-top))'}}
             visible={visible}
             onClose={() => setVisible(false)}
             closeOnMaskClick

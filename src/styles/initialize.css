@@ -263,8 +263,8 @@
 
 .step-p-nav {
   background-color: rgb(16, 16, 24);
-  margin-top: env(safe-area-inset-top);
-  /* padding-bottom: env(safe-area-inset-bottom); */
+  margin-top: var(--safe-area-inset-top);
+  /* padding-bottom: var(--safe-area-inset-bottom); */
  padding-left: 16px;
  padding-right: 16px;  
   /* padding: 10px 16px; */

@@ -17,7 +17,7 @@ export function useHideNavbarOnMobile(hide) {
         // Cleanup function when component unmounts
         return () => {
           if (admTabBar) {
-            admTabBar.setAttribute('style', 'display: block');
+            admTabBar.setAttribute('style', 'display: block; margin-bottom: var(--safe-area-inset-bottom)')
           }
         };
       }

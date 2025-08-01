@@ -161,7 +161,9 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
                 setReceiveAmount(amount);
               }}
               />
-        <div className="flex flex-col items-center mb-2 space-y-3 mx-4 mb-6">
+        <div 
+        style={{paddingBottom: "calc(var(--safe-area-inset-bottom) + 1rem)"}}
+        className="flex flex-col items-center space-y-3 mx-4">
             <QRCodeSVG 
             onClick={() => {
               if (sizeQR === "small") {
