@@ -31,7 +31,7 @@ import { useWalletMultiBalance } from "../../hooks/use-wallet-multi-balance";
 import { isTouchDevice } from "../../utils/isTouchDevice";
 import { useChats } from "../messaging/hooks/use-chats";
 
-const MAX_ACCOUNTS = 5;
+const MAX_ACCOUNTS = 10;
 function SelectAccount({ }) {
   const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
   const {wallet, dispatch} = useContext(WalletContext);
