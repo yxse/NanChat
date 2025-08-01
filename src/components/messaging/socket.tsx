@@ -64,6 +64,7 @@ const ChatSocket: React.FC = () => {
 
         return () => {
             socket.io.off('reconnect');
+            socket.io.off('open');
         };
     }, [activeAccount, onlineAccount]);
 

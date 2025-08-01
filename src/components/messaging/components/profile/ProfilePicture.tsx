@@ -8,6 +8,7 @@ const ProfilePicture = ({ address, width=40, borderRadius=8, clickable }) => {
     const { data, isLoading } = useSWR(address, fetcherAccount, {
             revalidateIfStale: false,
             revalidateOnFocus: false,
+            revalidateOnReconnect: false,
     });
     let src = data?.profilePicture?.url
     let icon
