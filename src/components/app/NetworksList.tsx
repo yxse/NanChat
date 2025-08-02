@@ -423,12 +423,19 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
       <div className="text-center text-base" style={{color: "var(--adm-color-text-secondary)", marginTop: 32}}>
       {t('noFundsAvailable')}
     </div>
+     
+     {
+Capacitor.getPlatform() !== "ios" ?
     <div className="text-center text-lg" style={{color: "var(--adm-color-primary)", cursor: "pointer", marginTop: 32, marginBottom: 48}} onClick={() => {
       setAction('buy')
       onClick('XNO', 'buy')
     }}> 
         {t('buyCrypto')} 
     </div>
+    : 
+    // disabled on ios, blank space div instead
+    <div style={{height: 80, width: "100%"}}></div>
+  }
      <ResponsivePopup
             position={"bottom"}
             // closeOnSwipe
