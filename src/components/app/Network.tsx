@@ -59,6 +59,7 @@ import { IWebviewOverlayPlugin, WebviewOverlay } from "@teamhive/capacitor-webvi
 import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
 import { ButtonActionCircle } from "./wallet/SendReceive";
 import { fetcherMessages } from "../messaging/fetcher";
+import { useTranslation } from 'react-i18next';
 // const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const fetchBalance = async (ticker: string, account: string) => {
@@ -116,6 +117,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   const {data: minReceive, isLoading: isLoadingMinReceive} = useSWR("/min-receive", fetcherMessages)
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   if (ticker == null) ticker = "XNO";
+  const { t } = useTranslation();
   return (
 
     <ResponsivePopup
@@ -151,7 +153,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   }} defaultScannerOpen={defaultScannerOpen}/>}
   { action === 'receive' && <>
   <div className="text-center text-xl m-4">
-        Receive {networks[ticker].name}
+        {t('receive')} {networks[ticker].name}
   </div>
               <SetAmountModal
               visible={enterAmountVisible}
@@ -205,7 +207,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           <div style={{ maxWidth: "200px" }} >
             <CopyToClipboard text={address} hideCopyIcon />
           </div>
-        <CopyButton textToCopy={address} copyText="Copy Address" copiedText="Address Copied!" />
+        <CopyButton textToCopy={address} copyText={t('copyAddress')} copiedText={t('addressCopied')} />
         {
           ledger && <Button
           style={{width: "100%"}}
@@ -261,7 +263,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           }}
           className="w-1/2"
         >
-          Share Address
+          {t('shareAddress')}
         </Button>
       
         <Button
@@ -281,7 +283,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
           }}
           className="w-1/2"
         >
-          Set Amount
+          {t('setAmount')}
         </Button>
         </div>
          {
@@ -294,7 +296,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
         }} onClick={() => {
           navigate('/settings/security')
         }}>
-          ≥ Min. Receive: {minReceive} USD
+          ≥ {t('minReceive', { amount: minReceive })}
         </div>
       }
         </div></>
@@ -384,6 +386,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
     await wallet.wallets[ticker].receiveAll(account); // fallback to receive new block if ws is not working
   }
   const {lowBalanceUsd} = useWalletBalance();
+  const { t } = useTranslation();
   return (
     <div className="transition-opacity">
       <NavBar
@@ -439,7 +442,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         </Card>
         <div className="flex justify-center mt-4" style={{gap: 24}}>
           <ButtonActionCircle
-          title="Receive"
+          title={t('receive')}
           icon={<AiOutlineArrowDown size={22} />}
           onClick={() => {
             setAction('receive');
@@ -447,7 +450,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           }}
           />
           <ButtonActionCircle
-          title="Send"
+          title={t('send')}
           icon={<AiOutlineArrowUp size={22} />}
           onClick={() => {
             setAction('send');
@@ -457,7 +460,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
         {
           (Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
           <ButtonActionCircle
-          title="Swap"
+          title={t('swap')}
           icon={<AiOutlineRetweet size={22} />}
           onClick={() => {
             setAction('swap');
@@ -468,7 +471,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
             {
               (ticker === "XNO" && Capacitor.getPlatform() !== "ios") &&
           <ButtonActionCircle
-          title="Buy"
+          title={t('buy')}
           icon={<GoCreditCard size={22} className="" />}
           onClick={() => {
             setAction('buy');

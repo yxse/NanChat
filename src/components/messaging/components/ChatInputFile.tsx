@@ -11,11 +11,12 @@ import { AiOutlineSwap } from 'react-icons/ai';
 import { writeUint8ArrayToFile } from '../../../services/capacitor-chunked-file-writer';
 import { getChatToken } from '../../../utils/storage';
 import { Capacitor } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
 
 const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
     const pasteAreaRef = useRef(null);
-    
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [fileList, setFileList] = useState([]);
     
@@ -329,8 +330,8 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                   </Button>
                               <div className='mt-2'
                               >
-                                  {type === 'file' ? 'File' : 
-                                  Capacitor.isNativePlatform() ? 'Camera' : 'Image'}
+                                  {type === 'file' ? t('file') : 
+                                  Capacitor.isNativePlatform() ? t('camera') : t('image')}
                               </div>
                               </div>
                   }

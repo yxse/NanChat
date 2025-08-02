@@ -16,6 +16,7 @@ import useSWR from "swr";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../messaging/fetcher";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
+import { useTranslation } from 'react-i18next';
 
 function NotificationSettings() {
     const navigate = useNavigate();
@@ -31,6 +32,7 @@ function NotificationSettings() {
     // });
     const {data: notificationSettings, mutate, isLoading } = useSWR("/config-notification", fetcherMessages);
     const [isGranted, setIsGranted] = useState(true);
+    const { t } = useTranslation();
 
 
     async function updateNotificationSettings(key, value) {
@@ -95,24 +97,24 @@ function NotificationSettings() {
           navigate("/me/settings");
         }}
         backArrow={true}>
-          <span className="">Notification Settings</span>
+          <span className="">{t('notificationSettings')}</span>
         </NavBar>
 
       {
         !isGranted && (
           <div>
             <div className="text-center text-lg mt-4">
-                Notifications are disabled.
+                {t('notificationsDisabled')}
             </div>
             <div className="text-center text-sm mb-4">
             {
               Capacitor.getPlatform() === "web" ? (
                   <p>
-                    You need to enable notifications for NanChat in your browser settings.
+                    {t('enableNotificationsBrowser')}
                   </p>
               ) : (
                   <p>
-                    You need to enable notifications for NanChat in your device settings.
+                    {t('enableNotificationsDevice')}
                     <div>
                       <Button onClick={() => {
                         // setInterval(() => {
@@ -126,7 +128,7 @@ function NotificationSettings() {
                         //   optionAndroid: AndroidSettings.AppNotification,
                         //   optionIOS: IOSSettings.AppNotification
                         // })
-                      }}>Enable Notifications</Button>
+                      }}>{t('enableNotifications')}</Button>
                     </div>
                   </p>
               )
@@ -137,25 +139,25 @@ function NotificationSettings() {
       }
         <List mode="card">
         <ItemNotication
-          title={"New receive"}
-          description={"Get notified when you receive a new transaction"}
+          title={t('newReceive')}
+          description={t('newReceiveDesc')}
           keyNotification={"newReceive"}
         />
         <ItemNotication
-          title={"New message"}
-          description={"Get notified when you receive a new end-to-end encrypted message"}
+          title={t('newMessage')}
+          description={t('newMessageDesc')}
           keyNotification={"newMessage"}
         />
         <ItemNotication
-          title={"Message preview"}
-          description={"Decrypt messages locally and show a preview. Enabling this may reduce the reliability of notification delivery."}
+          title={t('messagePreview')}
+          description={t('messagePreviewDesc')}
           keyNotification={"messagePreview"}
         />    
         </List>
         <List mode="card" className="mt-4">
         <ItemNotication
-          title={"Price alert"}
-          description={"Get notified of large price changes"}
+          title={t('priceAlert')}
+          description={t('priceAlertDesc')}
           keyNotification={"priceAlert"}
         />    
         </List>

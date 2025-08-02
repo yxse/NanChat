@@ -29,6 +29,7 @@ import { AiOutlineCrown } from "react-icons/ai";
 import ProfileName from "./profile/ProfileName";
 import { BlockChatButton } from "./NewMessageWarning";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
+import { useTranslation } from 'react-i18next';
 
 export const AccountCard = ({ account }) => {
 const navigate = useNavigate();
@@ -48,6 +49,7 @@ className="" style={{ display: 'flex', flexDirection: 'column', gap: 2, cursor: 
 }
 
 const GroupInfo: React.FC<{}> = ({  }) => {
+    const { t } = useTranslation();
     const {
         account
     } = useParams();
@@ -78,8 +80,8 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             }}
             >
             <div className="flex-1 text-center">
-                        {chat?.name || 'Group '} Info ({chat?.participants.length})
-                    </div>
+                {chat?.name || t('group')} {t('info')} ({chat?.participants.length})
+            </div>
             </NavBar>
             <div style={{marginRight: 12, marginLeft: 12, marginTop: 16}}>
             <Card style={{maxWidth: 576, margin: 'auto'}}>
@@ -129,7 +131,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     mutate()
                     setVisibleAdd(false)
                 }}
-                visible={visibleAdd} setVisible={setVisibleAdd} title="Add Participant" />
+                visible={visibleAdd} setVisible={setVisibleAdd} title={t('addParticipant')} />
                 <NewChatPopup 
                 hideImportContacts
                 accounts={chat?.participants}
@@ -146,25 +148,25 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     setVisibleRemove(false)
 
                 }}
-                visible={visibleRemove} setVisible={setVisibleRemove} title="Remove Participant" />
+                visible={visibleRemove} setVisible={setVisibleRemove} title={t('removeParticipant')} />
 </Card>
 </div>
 <div style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
 <List mode="card">
     {isAdmin && 
             <List.Item
-            extra={chat?.name || 'Not Set'}
+            extra={chat?.name || t('notSet')}
             onClick={() => {
                 let modal = Modal.show({
                     closeOnMaskClick: true,
-                    title: 'Update Group Name',
+                    title: t('updateGroupName'),
                     content: (
                         <div>
                             <Input
                             maxLength={32}
                                 id="group-name"
                                 type="text"
-                                placeholder="New Group Name"
+                                placeholder={t('newGroupName')}
                                 className="w-full mt-2 p-2 rounded-lg"
                             />
                         </div>
@@ -172,12 +174,12 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     actions: [
                         {
                             key: 'cancel',
-                            text: 'Cancel',
+                            text: t('cancel'),
                             onClick: () => modal.close()
                         },
                         {
                             key: 'update',
-                            text: 'Done',
+                            text: t('done'),
                             primary: true,
                             onClick: async () => {
                                 let r = await fetcherMessagesPost('/update-group-name', {
@@ -197,11 +199,10 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                         }
                     ]
                 });
-            }
-        }
-            >
-                Group Name
-            </List.Item>}
+            }}
+        >
+            {t('groupName')}
+        </List.Item>}
             <List.Item
             extra={<SystemQRcodeOutline />}
                 onClick={() => {
@@ -212,7 +213,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <GroupAvatar chat={chat} />
-                                    {chat?.name || 'New group'}
+                                    {chat?.name || t('newGroup')}
                                 </div>
                                 <QRCode
                                 includeMargin
@@ -220,15 +221,14 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                                 size={256}
                                 />
                                 <div style={{color: 'var(--adm-color-text-secondary)', marginTop: 16, textAlign: 'center', maxWidth: 256}}>
-                                    Valid until group has 100 members. Approval by a member is required to join.
+                                    {t('validUntil100Members')}
                                 </div>
-
                             </div>
                         ),
                     });
                 }}
             >
-                Group QR Code  
+                {t('groupQrCode')}
             </List.Item>
            
             </List>
@@ -242,7 +242,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                     navigate(`/chat/${chat?.creator}/info`)
                 }}
             >
-                Admin
+                {t('admin')}
             </List.Item>
             <List.Item
             extra={formatAddress(sharedAccount)}
@@ -252,28 +252,26 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                         content: (
                             <div>
                                 <div 
-                                                        style={{wordBreak: 'break-all', textAlign: 'center', maxWidth: "200px", margin: "auto"}}
-                                                        onClick={() => {
-                                                            Toast.show({
-                                                                content: 'Copied',
-                                                                duration: 2000
-                                                            });
-                                                            copyToClipboard(sharedAccount);
-                                                        }}>
-                                                           {sharedAccount}
-                                                        </div>
-                                
+                                    style={{wordBreak: 'break-all', textAlign: 'center', maxWidth: "200px", margin: "auto"}}
+                                    onClick={() => {
+                                        Toast.show({
+                                            content: t('copied'),
+                                            duration: 2000
+                                        });
+                                        copyToClipboard(sharedAccount);
+                                    }}>
+                                        {sharedAccount}
+                                    </div>
                                 <div style={{color: 'var(--adm-color-text-secondary)', marginTop: 16, maxWidth: 256}}>
-                                Public account used for end-to-end encryption. Verify it with the group by a secure mean for a guaranteed end-to-end encryption. A new account is generated each time a participant join or leave the group.  
+                                    {t('publicAccountE2EInfo')}
                                 </div>
-
                             </div>
                         ),
                     });
                 }}
             >
                 <LockOutline style={{display: 'inline', marginRight: 8}} />
-                Shared Key 
+                {t('sharedKey')}
             </List.Item>
             </List>
                 <BlockChatButton

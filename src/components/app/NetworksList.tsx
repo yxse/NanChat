@@ -26,6 +26,7 @@ import { fetcherChat } from "../messaging/fetcher";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Swap from "./Swap";
 import { Capacitor } from "@capacitor/core";
+import { useTranslation } from 'react-i18next'
 
 
 
@@ -64,6 +65,7 @@ export const Representative = ({ ticker, condensed = false, newLocalRep = null }
   const isOnline = representativeOnline?.rep.find((rep) => rep.account === currentRep);
   const alias = representativeOnline?.rep.find((rep) => rep.account === currentRep)?.account_alias;
   const weightPercent = representativeOnline?.rep.find((rep) => rep.account === currentRep)?.percent;
+  const { t } = useTranslation()
   useEffect(() => {
     if (localRepresentative === null) {
       getRepresentative(ticker).then((rep) => {
@@ -87,7 +89,7 @@ export const Representative = ({ ticker, condensed = false, newLocalRep = null }
           {isLoadingRepresentativeOnline ? (
             <DotLoading />
           ) : (
-            isOnline ? <div className="text-green-600">Voting</div> : <div className="text-orange-400">Not Voting</div> // "Voting/Not Voting" rather than "onine/offline" as node can appear offline during low traffic
+            isOnline ? <div className="text-green-600">{t('voting')}</div> : <div className="text-orange-400">{t('notVoting')}</div> // "Voting/Not Voting" rather than "onine/offline" as node can appear offline during low traffic
           )}
           {isLoading ? <DotLoading /> : <div className="text-sm text-gray-400">
             {
@@ -101,7 +103,7 @@ export const Representative = ({ ticker, condensed = false, newLocalRep = null }
   }
   else {
     return <div className="text-base m-2 ">
-      Currently Represented by {isOnline ? (alias ? `${alias}` : "Unknown Address") : "" // todo: resolve alias even if offline
+      {t('currentlyRepresentedBy')} {isOnline ? (alias ? `${alias}` : t('unknownAddress')) : "" // todo: resolve alias even if offline
       }:
       {
         isLoading ? <DotLoading /> : <CopyToClipboard text={currentRep} />
@@ -109,11 +111,11 @@ export const Representative = ({ ticker, condensed = false, newLocalRep = null }
       {
         isLoadingRepresentativeOnline ? <DotLoading /> : <div className="text-sm">
           {
-            isOnline ? <div className="text-green-400 mt-2 mb-2">Your Representative is Voting</div> : <div className="text-orange-400 mt-2 mb-2">Your Representative is not Voting</div>
+            isOnline ? <div className="text-green-400 mt-2 mb-2">{t('yourRepresentativeIsVoting')}</div> : <div className="text-orange-400 mt-2 mb-2">{t('yourRepresentativeIsNotVoting')}</div>
           }
 
           {
-            isOnline ? <> ({(+weightPercent).toFixed(2)}% voting weight)</> : ""
+            isOnline ? <> ({(+weightPercent).toFixed(2)}% {t('votingWeight')})</> : ""
           }
         </div>
       }
@@ -126,11 +128,12 @@ export const RepresentativeList = ({ ticker, onClick }) => {
   const [searchText, setSearchText] = useState("")
   const [sort, setSort] = useState("desc") // "asc" or "desc"
   const { data: representativeOnline, isLoading: isLoadingRepresentativeOnline } = useSWR('https://api.nanexplorer.com/representatives_online?network=' + networks[ticker].id, fetcher);
+  const { t } = useTranslation()
   if (isLoadingRepresentativeOnline) return <DotLoading />
   return <>
     <div className={"searchBarContainer sticky top-0 z-50"} style={{ backgroundColor: "rgba(26, 26, 26)" }}>
       <SearchBar
-        placeholder='Search'
+        placeholder={t('searchPlaceholder')}
         value={searchText}
         onChange={v => {
           setSearchText(v)
@@ -140,12 +143,12 @@ export const RepresentativeList = ({ ticker, onClick }) => {
     <div className="flex justify-between ">
       <div>
         <div className="text-sm text-gray-400 appearance-none m-2 ">
-          Alias/Address
+          {t('aliasAddress')}
         </div>
       </div>
       <div>
         <div className="text-sm text-gray-400 m-2 cursor-pointer flex items-center space-x-1" onClick={() => setSort(sort === "asc" ? "desc" : "asc")}>
-          Voting Weight
+          {t('votingWeightLabel')}
           {
             sort === "asc" ? <TiArrowSortedDown onClick={() => setSort("desc")} /> : <TiArrowSortedUp onClick={() => setSort("asc")} />
           }
@@ -156,7 +159,7 @@ export const RepresentativeList = ({ ticker, onClick }) => {
       <List.Item onClick={() => onClick(networks[ticker].defaultRep)}>
         <div className="flex items-center justify-between cursor-pointer text-sm text-left">
           <div>
-            Nanswap (Default)
+            {t('nanswapDefault')}
           </div>
           <div>
           </div>
@@ -185,6 +188,8 @@ export const RepresentativeList = ({ ticker, onClick }) => {
 }
 
 export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showRepresentative, hideBalance = false, hideActions = true }) => {
+  const { t } = useTranslation()
+
   const { data: prices, isLoading: isLoadingPrices } = useSWR(
     "prices",
     fetchPrices,
@@ -200,7 +205,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
   const [activeTicker, setActiveTicker] = useState(null);
   const [action, setAction] = useState("");
   const hasPrice = prices?.[ticker]?.usd;
-  const ButtonAction = ({ action, ticker }) => { 
+  const ButtonAction = ({ action, text, ticker }) => { 
     return <Button 
     shape="rounded"
     onClick={(e) => {
@@ -208,7 +213,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
       setAction(action)
       setActiveTicker(ticker)
       setVisible(true)
-    }} size="middle">{action.charAt(0).toUpperCase() + action.slice(1)}</Button>
+    }} size="middle">{text}</Button>
   }
   return <div>
     <div
@@ -283,11 +288,11 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                   !hideActions &&
                 
                 <div className="flex space-x-4 ml-6 mr-1 justify-end hide-on-lg">
-                  <ButtonAction action="receive" ticker={ticker} />
-                  <ButtonAction action="send" ticker={ticker} />
+                  <ButtonAction action={"receive"} text={t('receive')} ticker={ticker} />
+                  <ButtonAction action={"send"} text={t('send')} ticker={ticker} /> 
                   {
                     Capacitor.getPlatform() !== "ios" && 
-                  <ButtonAction action="swap" ticker={ticker} /> 
+                  <ButtonAction action={"swap"} text={t('swap')} ticker={ticker} /> 
                   }
                 </div>
                 }
@@ -416,7 +421,7 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   if (hideZeroBalance && filteredActiveMainNetworks.length === 0 && filteredActiveCustomNetworks.length === 0) {
     return <div>
       <div className="text-center text-base" style={{color: "var(--adm-color-text-secondary)", marginTop: 32}}>
-      No funds available
+      {t('noFundsAvailable')}
     </div>
      
      {
@@ -425,7 +430,7 @@ Capacitor.getPlatform() !== "ios" ?
       setAction('buy')
       onClick('XNO', 'buy')
     }}> 
-        Buy crypto 
+        {t('buyCrypto')} 
     </div>
     : 
     // disabled on ios, blank space div instead

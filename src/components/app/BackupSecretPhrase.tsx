@@ -24,6 +24,7 @@ import { ImportFromGoogleDrive } from '../Initialize/restore/ImportFromGoogleDri
 import { ImportFromICloud } from '../Initialize/restore/ImportFromICloud';
 import { SeedVerifiedBadge } from '../messaging/utils';
 import { convertAddress } from '../../utils/format';
+import { useTranslation } from 'react-i18next';
 
 function getTimestampFilename() {
     const now = new Date();
@@ -42,6 +43,7 @@ function getTimestampFilename() {
 }
 
 function BackupSecretPhrase() {
+    const { t } = useTranslation();
     const [backupActive, setBackupActive] = useLocalStorageState('backupActive', {
         defaultValue: {
             manual: false,
@@ -77,24 +79,24 @@ function BackupSecretPhrase() {
 
 
     let iconDownloadBackup = <DownlandOutline />
-    let textList = "File"
-    let textSave = "Download"
-    const BackupNow = <div style={{ color: 'var(--adm-color-primary)' }}>Backup now</div>
-    let description = backupActive.encryptedFile ? 'Active' : BackupNow
+    let textList = t('backupFile');
+    let textSave = t('download');
+    const BackupNow = <div style={{ color: 'var(--adm-color-primary)' }}>{t('backupNow')}</div>;
+    let description = backupActive.encryptedFile ? t('active') : BackupNow;
     let passwordBackupActive = backupActive.encryptedFile
     if (Capacitor.getPlatform() === 'ios') {
         iconDownloadBackup = <AiFillApple />
-        textList = 'iCloud'
-        textSave = 'Save to iCloud'
-        description = backupActive.icloud ? 'Active' : BackupNow
-        passwordBackupActive = backupActive.icloud
+        textList = t('icloud');
+        textSave = t('saveToICloud');
+        description = backupActive.icloud ? t('active') : BackupNow;
+        passwordBackupActive = backupActive.icloud;
     }
     else if (Capacitor.getPlatform() === 'android') {
         iconDownloadBackup = <AiFillAndroid />
-        textList = 'Google Drive'
-        textSave = 'Save to Google Drive'
-        description = backupActive.googleDrive ? 'Active' : BackupNow
-        passwordBackupActive = backupActive.googleDrive
+        textList = t('googleDrive');
+        textSave = t('saveToGoogleDrive');
+        description = backupActive.googleDrive ? t('active') : BackupNow;
+        passwordBackupActive = backupActive.googleDrive;
     }
 
 
@@ -107,7 +109,7 @@ function BackupSecretPhrase() {
         <>
  <PinAuthPopup
                     location={"backup-secret-phrase"}
-                    description={"Backup secret phrase"}
+                    description={t('backupSecretPhrase')}
                     visible={pinVisible}
                     setVisible={setPinVisible}
                     onAuthenticated={() => {
@@ -127,7 +129,7 @@ function BackupSecretPhrase() {
             >
                 <PinAuthPopup
                     location={"backup-secret-phrase"}
-                    description={"Backup secret phrase"}
+                    description={t('backupSecretPhrase')}
                     visible={pinVisible}
                     setVisible={setPinVisible}
                     onAuthenticated={() => {
@@ -135,7 +137,7 @@ function BackupSecretPhrase() {
                     }}
                 />
                 <div className="p-2 mt-2">
-                    Backup Secret Recovery Phrase
+                    {t('backupSecretRecoveryPhrase')}
                 </div>
                 <List style={{ marginTop: 16, marginBottom: 16 }}>
 
@@ -153,16 +155,16 @@ function BackupSecretPhrase() {
                     </List.Item>
 
                     <List.Item
-                        description={backupActive.manual ? 'Active' : BackupNow}
+                        description={backupActive.manual ? t('active') : BackupNow}
                         prefix={<FingerdownOutline />} onClick={() => {
                             setBackupType('manual')
                             setBackupVisible(true)
                         }}>
-                        Manual
+                        {t('manual')}
                     </List.Item>
                 </List>
                 <div className="text-sm p-2" style={{ color: 'var(--adm-color-text-secondary)', marginBottom: 32 }}>
-                    Secret recovery phrase is the only way to recover your account. It is recommended to complete both backup options to help prevent loss of funds.
+                    {t('secretRecoveryPhraseWarning')}
                 </div>
 
 
@@ -172,7 +174,7 @@ function BackupSecretPhrase() {
              prefix={ <MdOutlineSettingsBackupRestore size={24} />} onClick={() => {
                 setPinVisible(true)
             }}>
-                Backup Recovery Phrase
+                {t('backupRecoveryPhrase')}
             </List.Item>
             <ResponsivePopup
                 visible={backupVisible && backupType === 'encrypted-file'}
@@ -203,7 +205,7 @@ function BackupSecretPhrase() {
                                             })
                                         }
                                         }>
-                                            Download
+                                            {textSave}
                                         </Button>
                                         <ImportFromFile onWalletSelected={handleVerifyWallet} mode="verify" />
                                     </div>
@@ -292,6 +294,7 @@ function BackupSecretPhrase() {
 const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text, wallet, activeAccount }: { setBackupVisible: any, setBackupType: any, setVisible: any }) => {
     // const { activeAccount } = useWallet() // this is not workig in the modal for some reason
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
+    const { t } = useTranslation();
     let seed = wallet?.wallets['XNO']?.seed
     let slicedAccount = activeAccount?.replace('nano_', '').slice(0, 8)
     if (seed == null) {
@@ -309,14 +312,14 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
     return (
         <div className="">
             <div className="text-2xl text-center p-2">
-                Create Password
+                {t('createPassword')}
             </div>
             <div className='p-2 mb-2 text-center' style={{
                 // marginBottom: 350
                 }}>
-                This password will encrypt your secret phrase file.
+                {t('thisPasswordWillEncryptYourSecretPhraseFile')}
                 <div style={{ color: 'var(--adm-color-warning)' }}>
-                    Do not lose your password or your backup will be unrecoverable.
+                    {t('doNotLoseYourPasswordOrYourBackupWillBeUnrecoverable')}
                 </div>
                 <PasswordForm
                     onFinish={async (values) => {

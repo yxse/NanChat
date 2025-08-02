@@ -25,6 +25,7 @@ import { initWallet } from '../../../nano/accounts';
 import { networks } from '../../../utils/networks';
 import { ProfilePictureUploadButton } from './icons/ProfilePictureUploadButton';
 import ReusableImageUploader from './profile/reusable-image-uploader';
+import { useTranslation } from 'react-i18next';
 
 const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     // const navigate = useNavigate();
@@ -38,6 +39,7 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     const [currentAvatar, setCurrentAvatar] = useState(null);
     const [skip, setSkip] = useState(false);
     useHideNavbarOnMobile(true);
+    const { t } = useTranslation();
     useEffect(() => {
         const generatedWallet = walletLib.generateLegacy()
         for (let ticker of Object.keys(networks)) {
@@ -50,18 +52,18 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
 
       const authRegisterCanceled = ({}) => {
         let modal = Modal.show({
-            title: "Biometrics authentication canceled",
+            title: t('biometricsAuthCanceledTitle'),
             closeOnMaskClick: false,
             closeOnAction: false,
-            content: 'You canceled the biometrics authentication. Do you want to try again or create a PIN Code?',
+            content: t('biometricsAuthCanceledContent'),
             actions: [
               {
-                key: "settings", text: "Try again", onClick: async () => {
+                key: "settings", text: t('tryAgain'), onClick: async () => {
                     modal.close()
                 }
               },
               {
-                key: "cancel", text: "Create PIN Code", onClick: async () => {
+                key: "cancel", text: t('createPinCode'), onClick: async () => {
                     modal.close()
                     setPinVisible(false)
                     setCreatePinVisible(true)
@@ -131,7 +133,7 @@ const register = async () => {
                             // onBack={() => navigate('/me')}
                     className="app-navbar "
                     backArrow={true}>
-                      Create an account
+                      {t('createAccountTitle')}
                     </NavBar>
         <div className="flex flex-col items-center justify-center h-full">
             <div style={{margin: 16}}>
@@ -141,8 +143,8 @@ const register = async () => {
         endpoint="/upload/upload-profile-picture"
         additionalFormData={{ account: activeAccount }}
         onUploadSuccess={handleProfilePictureSuccess}
-        buttonText="Upload Profile Picture"
-        loadingText="Uploading..."
+        buttonText={t('uploadProfilePicture')}
+        loadingText={t('uploading')}
       />
         </div>
             <Form 
@@ -162,7 +164,7 @@ const register = async () => {
                 className='w-full'
                 // style={{width: 128}}
                 type='submit' color='primary' size='large'>
-                   Next
+                   {t('next')}
                 </Button>
                 <div 
                 onClick={() => {
@@ -170,20 +172,20 @@ const register = async () => {
                     setSkip(true)
                 }}
                 style={{marginTop: 48, color: "var(--adm-color-primary)", cursor: "pointer"}}>
-                    Skip to wallet
+                    {t('skipToWallet')}
                     </div>
                 </div>
                     </>
             }>
                 
                 <Form.Item
-                rules={[{required: true, min: 1, max: 24, message: 'Name must be between 1 and 24 characters'}]}
+                rules={[{required: true, min: 1, max: 24, message: t('nameValidationMsg')}]} 
                  extra='' name={'name'}>
                     <Input
                     enterKeyHint='next'
                     clearable
                     autoFocus
-                        placeholder="Name"
+                        placeholder={t('namePlaceholder')}
                     />
                 </Form.Item>
             </Form>

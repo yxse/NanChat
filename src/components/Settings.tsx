@@ -33,6 +33,8 @@ import { copyToClipboard } from "../utils/format";
 import { useWindowDimensions } from "../hooks/use-windows-dimensions";
 import { useHideNavbarOnMobile } from "../hooks/use-hide-navbar";
 import ExportSecretPhrase from "./app/ExportSecretPhrase";
+import { useTranslation } from 'react-i18next';
+import ChangeLanguage from "./settings/ChangeLanguage";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -51,6 +53,7 @@ export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick 
 
 export const ManageNetworks = ({}) => {
   const [networksSwitchVisible, setNetworksSwitchVisible] = useState(false)
+  const { t } = useTranslation()
   return  <>
   {/* <List.Item
     prefix={<GlobalOutline fontSize={24} />}
@@ -61,7 +64,7 @@ export const ManageNetworks = ({}) => {
     Networks
   </List.Item> */}
   <div className="text-center mt-8 text-sm text-gray-400 cursor-pointer" onClick={() => setNetworksSwitchVisible(true)}>
-          Manage networks
+          {t('manageNetworks')}
   </div>
   <ResponsivePopup
   visible={networksSwitchVisible}
@@ -223,6 +226,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
   const [address, setAddress] = useState<string | null>(null);
   const navigate = useNavigate();
 const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
+  const { t } = useTranslation();
 
   const [option, setSelectedOption] = useState({
     value: "XNO",
@@ -311,7 +315,7 @@ const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defa
       <div className="" >
         <div className="flex flex-row justify-between ">
           <div>
-            Base Currency
+            {t('baseCurrency')}
           </div>
           <div className="flex items-center space-x-2">
             <div>
@@ -378,6 +382,7 @@ const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defa
   const ChangeRep = () => {
     const [visible, setVisible] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
     return <>
       <ResponsivePopup
         visible={visible}
@@ -389,7 +394,7 @@ const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defa
       >
         <div>
           <div className="text-2xl  text-center p-2">
-            Change Representative
+            {t('changeRep')}
           </div>
         </div>
         <NetworkList showRepresentative={true} hidePrice={true} onClick={(ticker) => {
@@ -402,7 +407,7 @@ const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defa
               prefix={<MdHowToVote size={24} />}
               clickable>
       <div className="w-full">
-        Change Representative
+        {t('changeRep')}
       </div>
             </List.Item>
     </>
@@ -419,7 +424,7 @@ className="mb-24"
             navigate("/me");
           }}
           backArrow={true}>
-          <span className="">Settings</span>
+          <span className="">{t('settings')}</span>
         </NavBar>
         <div
           className={``}
@@ -427,13 +432,14 @@ className="mb-24"
           <List mode="card">
           
               <SelectBaseCurrency />
+            <ChangeLanguage />
             
             <List.Item
               prefix={<AiOutlineFormatPainter size={24} />}
               onClick={() => {
                 Modal.show({
                   closeOnMaskClick: true,
-                  title: "Theme",
+                  title: t('theme'),
                   content: (
                     <div>
                       <CheckList
@@ -452,7 +458,7 @@ className="mb-24"
                             // setTheme("dark");
                           }}
                         >
-                          Dark
+                          {t('themeDark')}
                         </CheckList.Item>
                         <CheckList.Item
                           value="light"
@@ -463,7 +469,7 @@ className="mb-24"
                             // setTheme("light");
                           }}
                         >
-                          Light
+                          {t('themeLight')}
                         </CheckList.Item>
                         <CheckList.Item
                           value="system"
@@ -479,7 +485,7 @@ className="mb-24"
                             }
                           }}
                         >
-                          Auto Dark/Light
+                          {t('themeAuto')}
                         </CheckList.Item>
                         <CheckList.Item
                           value="natrium"
@@ -510,15 +516,14 @@ className="mb-24"
                 });
 
               }}>
-              Theme
+              {t('theme')}
             </List.Item>
-            
             <List.Item
             onClick={() => {
               navigate("/settings/notification")
             }}
               prefix={<BellOutline fontSize={24} />}
-            >Notifications</List.Item>
+            >{t('notifications')}</List.Item>
           </List>
   <div className="my-4" />
 
@@ -529,7 +534,7 @@ className="mb-24"
               onClick={() => {
                 navigate("/settings/security")
               }}
-            >Security</List.Item>
+            >{t('security')}</List.Item>
             {
               !ledger &&
             <BackupSecretPhrase />
@@ -542,9 +547,9 @@ className="mb-24"
            </List>
           <div className="my-4" />
           <List mode="card">
-          <ChangeRep />
+          <ChangeRep t={t} />
             <List.Item prefix={<BiHistory size={24} />} onClick={() => navigate("/swap")}>
-              Swap History
+              {t('swapHistory')}
             </List.Item>
             {/* <List.Item
              prefix={<FiAtSign size={24} />}
@@ -577,7 +582,7 @@ className="mb-24"
             <List.Item 
             prefix={<DownlandOutline fontSize={24} />}
             onClick={() => navigate('/files')}>
-              Downloaded files
+              {t('downloadedFiles')}
             </List.Item>
           </List>
           <div className="my-4" />
@@ -589,7 +594,7 @@ className="mb-24"
             }
             // description='When enabled, the "Send" button on the keyboard will be replaced by the "Enter" key'
             >
-               Press "Enter" to send message
+              {t('pressEnterToSend')}
             </List.Item>
           </List>
           <div className="my-4" />
@@ -622,7 +627,7 @@ className="mb-24"
                 })
               }}
             >
-              Clear Cache
+              {t('clearCache')}
             </List.Item>
             {/* <List.Item
               prefix={<DeleteOutline fontSize={24} color="red" />}
@@ -636,7 +641,7 @@ className="mb-24"
                 await showLogoutSheet()
               }}
             >
-              Log Out
+              {t('logout')}
             </List.Item>
           </List>
           <div className="m-2 space-y-3 mb-4">
@@ -652,7 +657,7 @@ className="mb-24"
               >
                 <Space className="flex items-center justify-center">
                   <LockOutline />
-                Lock Wallet
+                  {t('lockWallet')}
                 </Space>
               </Button>
             }

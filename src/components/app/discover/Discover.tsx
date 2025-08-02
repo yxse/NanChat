@@ -21,6 +21,7 @@ import { FaRegCircleDot } from "react-icons/fa6";
 import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-card";
 import { useChats } from "../../messaging/hooks/use-chats";
 import ProfileName from "../../messaging/components/profile/ProfileName";
+import { useTranslation } from "react-i18next";
 const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const ChatName = ({ chat, activeAccount }) => {
@@ -74,6 +75,7 @@ export const ChatListItems = ({ chats, onClick, viewTransition = true, selectedA
 
 
 export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
+    const { t } = useTranslation();
     const { wallet } = useContext(WalletContext);
     const {chats} = useChats();
     const accounts = chats?.map((chat) => chat.participants).flat()
@@ -166,7 +168,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
             <NavBar
                 className="app-navbar"
                 backArrow={false}>
-                Discover
+                {t('discover')}
             </NavBar>
             
             

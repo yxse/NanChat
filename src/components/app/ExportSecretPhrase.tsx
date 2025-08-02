@@ -26,7 +26,7 @@ import { generateSecurePassword, SeedVerifiedBadge } from '../messaging/utils';
 import { convertAddress } from '../../utils/format';
 import { QRCodeSVG } from 'qrcode.react';
 import IOSPasswordInput from './backup/PasswordInputExportNewDevice';
-
+import { useTranslation } from 'react-i18next';
 
 
 function EncryptedSeedQrCode() {
@@ -42,6 +42,8 @@ function EncryptedSeedQrCode() {
         })
     }, [])
 
+    const { t } = useTranslation();
+
     if (!seedEncrypted) {
         return <DotLoading />
     }
@@ -54,7 +56,7 @@ function EncryptedSeedQrCode() {
             value={seedEncrypted} size={256} />
             </div>
             <div className="p-2 text-center" style={{  }}>
-            Select Import Account on the new device, then Scan QRCode and enter export password:
+                {t('selectImportAccountInstruction')}
             </div>
             <div 
             onClick={() => {
@@ -73,12 +75,12 @@ function EncryptedSeedQrCode() {
                     {isRevealed ? 
                     <div className="flex items-center gap-2 justify-center">
                       <EyeInvisibleFill /> 
-                      Click to hide
+                      {t('clickToHide')}
                     </div>
                     :
                     <div className="flex items-center gap-2 justify-center">
                       <EyeFill /> 
-                      Click to reveal
+                      {t('clickToReveal')}
                     </div>
                     }
                      
@@ -99,6 +101,8 @@ function ExportSecretPhrase() {
     const [backupTypeVisible, setBackupTypeVisible] = useState(false);
     const [passwordImportVisible, setPasswordImportVisible] = useState(false);
     const [encryptedSeed, setEncryptedSeed] = useState<string | null>(null);
+
+    const { t } = useTranslation();
 
 
     return (
@@ -126,19 +130,19 @@ function ExportSecretPhrase() {
                 }}
             >
                 <div className="p-2 mt-2 text-xl text-center">
-                 Export Account to another device
+                 {t('exportAccountToAnotherDevice')}
                 </div>
                
                 <EncryptedSeedQrCode />
                 <div className="p-2" style={{ color: 'var(--adm-color-warning)', marginBottom: 32 }}>
-                    Do not share QRCode and password with anyone. Anyone with access to it can access to your wallet and funds.
+                    {t('doNotShareQrCodeWarning')}
                 </div>
             </ResponsivePopup>
             <List.Item
              prefix={ <UploadOutline fontSize={24} />} onClick={() => {
                 setPinVisible(true)
             }}>
-                Export To Another Device
+                {t('exportToAnotherDevice')}
             </List.Item>
           
            

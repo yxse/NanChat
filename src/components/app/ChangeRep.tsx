@@ -30,8 +30,10 @@ import { WalletContext } from "../Popup";
 import { convertAddress, pasteFromClipboard } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { PasteIcon } from "./Icons";
+import { useTranslation } from 'react-i18next';
 
 export default function ChangeRep() {
+  const { t } = useTranslation();
   // const [result, setResult] = useState<string>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,7 +60,7 @@ export default function ChangeRep() {
           <NavBar 
           className="app-navbar "
           onBack={() => navigate(`/me/settings`)}>
-            Change {networks[ticker].name} Representative
+            {t('changeRepresentative', { network: networks[ticker].name })}
           </NavBar>
           <Card style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
           <div className="flex justify-center m-2">
@@ -72,7 +74,7 @@ export default function ChangeRep() {
           <Modal
             visible={open}
             onClose={() => setOpen(false)}
-            title="Online Representatives"
+            title={t('onlineRepresentatives')}
             closeOnMaskClick
             content={
               <RepresentativeList ticker={ticker} onClick={async (address) => {
@@ -99,7 +101,7 @@ export default function ChangeRep() {
                 setOpen(true);
               }}
             >
-              Pick from a List
+              {t('pickFromAList')}
             </Button>
             <Button
             size="large"
@@ -110,7 +112,7 @@ export default function ChangeRep() {
               onClick={() => {
                 let modal = Modal.show({
                   closeOnMaskClick: true,
-                  title: "Set Representative",
+                  title: t('setRepresentative'),
                   content: (
                     <>
                       <Form
@@ -135,13 +137,13 @@ export default function ChangeRep() {
                       >
                         <div className="flex justify-between">
                           <Form.Item
-                            label="Address"
+                            label={t('address')}
                             name={"address"}
                             style={{ width: "100%" }}
                           >
                             <TextArea
                               autoSize={{ minRows: 2, maxRows: 4 }}
-                              placeholder="New Representative Address"
+                              placeholder={t('newRepresentativeAddress')}
                               rows={2}
                             />
                           </Form.Item>
@@ -164,7 +166,7 @@ export default function ChangeRep() {
                               catch (error) {
                                 console.error("Error pasting:", error);
                                 Toast.show({
-                                  content: "Error pasting",
+                                  content: t('errorPasting'),
                                 });
                               }
                             }
@@ -174,7 +176,7 @@ export default function ChangeRep() {
                         <Button type="submit" color="primary" block onClick={async () => {
                           modal.close();
                         }}>
-                          Change Representative
+                          {t('changeRepresentative')}
                         </Button>
                       </Form>
                     </>
@@ -182,7 +184,7 @@ export default function ChangeRep() {
                 });
               }}
             >
-              Manual Entry
+              {t('manualEntry')}
             </Button>
           </div>
 
@@ -192,18 +194,18 @@ export default function ChangeRep() {
               onClick={() => {
                 Modal.show({
                   closeOnMaskClick: true,
-                  title: "What is a Representative?",
+                  title: t('whatIsARepresentative'),
                   content: (
                     <ul className="list-disc list-inside">
-                      <li>A Representative is a node that vote on your behalf for network consensus.</li>
-                      <li>Representative does not have access to your funds.</li>
-                      <li>For network health, choose a trusted and online representative.</li>
-                      <li>You can change your representative at any time.</li>
+                      <li>{t('representativeExplanation1')}</li>
+                      <li>{t('representativeExplanation2')}</li>
+                      <li>{t('representativeExplanation3')}</li>
+                      <li>{t('representativeExplanation4')}</li>
                     </ul>
                   ),
                 });
               }}
-            >What is a Representative?</span>
+            >{t('whatIsARepresentative')}</span>
 
           </div>
       </Card>

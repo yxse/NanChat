@@ -30,8 +30,10 @@ import { useContact } from "./contacts/ImportContactsFromShare";
 import { CardAddNewContact } from "./contacts/AddNewContact";
 import AddContacts from "../../app/AddContacts";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
+import { useTranslation } from 'react-i18next';
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
+    const { t } = useTranslation();
     const {
         account
     } = useParams();
@@ -81,7 +83,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 }}
             className="">
                 {
-                    inContacts && "Edit"
+                    inContacts && t('edit')
                 }
             </div>}
             onBack={() => {
@@ -91,7 +93,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     navigate('/chat', { replace: true });
                  }
             }}
-            >Contact
+            >{t('contacts')}
             </NavBar>
                 <div style={{marginRight: 12, marginLeft: 12, marginTop: 16}}>
             <Card style={{maxWidth: 576, margin: 'auto'}}>
@@ -104,16 +106,16 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 <div style={{display: "flex", flexDirection: "column", gap: 4}}>
                 <ProfileName address={convertAddress(account, 'XNO')} />
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
-                    NanChat ID: {name?.username}
+                    {t('nanChatId')}: {name?.username}
                 </div>
                 {
                     chatsInCommonLength > 0 ?
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
-                    {chatsInCommonLength} group{chatsInCommonLength > 1 ? 's' : ''} in common
+                    {chatsInCommonLength} {t('group')}{chatsInCommonLength > 1 ? 's' : ''} {t('inCommon')}
                 </div>
                 :
                 <div style={{color: 'var(--adm-color-warning)'}} className="text-base">
-                No group in common
+                    {t('noGroupInCommon')}
                 </div>
                 }
                 </div>
@@ -126,7 +128,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
             <div style={{display: "flex", flexDirection: "column", gap: 4}}>
             {contact ? contact.name : "Unknown"}
             <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
-                Not on NanChat
+                {t('notOnNanChat')}
             </div>
             </div>
             </div>
@@ -136,10 +138,10 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 </div>
                 {
                     isBlocked?.blocked ? <div className="text-center "><div className="mt-4 mb-4" style={{wordBreak: 'break-all', padding: 16}}>
-                        You have blocked this account ({account})
+                        {t('blockedAccount', { account })}
                         </div>
                         <div className="text-sm" style={{color: 'var(--adm-color-text-secondary)'}}>
-                        You can unblock the account in Me {'>'} Settings {'>'} Security {'>'} Blocked Chats
+                        {t('unblockAccount', { account })}
                         </div>
                         </div>
                         : 
@@ -162,7 +164,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             });
                             // navigate(`/contacts/?address=${account}&name=${nameOrAccount}&add=true&network=XNO`);
                         }}>
-                                    Create new contact
+                            {t('createNewContact')}
                                     </List.Item>
                                     </List>
                                 }
@@ -220,18 +222,18 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                         {account}
                                     </p>
                                     <p style={{color: 'var(--adm-color-text-secondary)'}} className="text-sm">
-                                        Verify it with {nameOrAccount} and save it in your contacts for a guaranteed end-to-end encryption.
+                                        {t('verifyWithAndSave', { nameOrAccount })}
                                     </p>
                                 </div>
                             ),
                             actions: [
                                 {
                                     key: 'copy',
-                                    text: 'Copy address',
+                                    text: t('copyAddress'),
                                 },
                                 {
                                     key: 'cancel',
-                                    text: 'Cancel',
+                                    text: t('cancel'),
                                 },
                             ],
                             onAction: (action) => {
@@ -239,7 +241,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                     copyToClipboard(account);
                                     Toast.show({
                                         icon: 'success',
-                                        content: 'Address copied to clipboard',
+                                        content: t('addressCopiedToClipboard'),
                                     });
                                 }
                             },
@@ -250,7 +252,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             // }}
                             >
                                 <LockOutline style={{display: 'inline-block', marginRight: 8}} />
-                                 Address 
+                                {t('address')}
                     </List.Item></List>
                    
               <div style={{marginTop: 16, marginBottom: 16}}>

@@ -6,7 +6,7 @@ import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { EventProvider } from "./messaging/components/EventContext";
-
+import '../i18n';
 function saveCache(map) {
   // clear cache 
   // localStorage.removeItem('app-cache')

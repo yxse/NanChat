@@ -44,6 +44,7 @@ import { debounce } from 'lodash';
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import ProfilePicture from "./profile/ProfilePicture";
 import PasteAction from "../../app/PasteAction";
+import { useTranslation } from "react-i18next";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -81,8 +82,9 @@ export const LedgerNotCompatible = () => {
 
 const Footer = () => {
     const {inviteFriends} = useInviteFriends()
+    const { t } = useTranslation();
     return <div><div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-    <LockFill className="mr-2 inline" />Your chats are end-to-end encrypted using nano.
+    <LockFill className="mr-2 inline" />{t('chatsE2EEncrypted')}
 </div>
 <div className="text-center mb-6 pb-6">
     <Button 
@@ -96,7 +98,7 @@ const Footer = () => {
         >
             <Space align="center">
             {/* <MailOutline /> */}
-            Invite Friends to Chat
+            {t('inviteFriendsToChat')}
             </Space>
         </Button>
 </div></div>
@@ -111,7 +113,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-
+    const { t } = useTranslation();
     const [isNewChatVisible, setIsNewChatVisible] = useState(false);
     const {ledger, setLedger} = useContext(LedgerContext);
     const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
@@ -176,10 +178,10 @@ const saveScrollPosition = useCallback(
             <Popover.Menu
           mode='dark'
           actions={[
-            { key: 'new_chat', icon: <MessageFill />, text: 'New Chat' },
-            { key: 'invite', icon: <MailOutline />, text: 'Invite Friends' },
-            { key: 'my_qr', icon: <SystemQRcodeOutline />, text: 'My QR Code' },
-            { key: 'scan_qr', icon: <ScanCodeOutline />, text: "Scan QR Code" },
+            { key: 'new_chat', icon: <MessageFill />, text: t('newChat') },
+            { key: 'invite', icon: <MailOutline />, text: t('inviteFriends') },
+            { key: 'my_qr', icon: <SystemQRcodeOutline />, text: t('myQrCode') },
+            { key: 'scan_qr', icon: <ScanCodeOutline />, text: t('scanQrCode') },
           ]}
         //   placement='left'
           onAction={(node) => {

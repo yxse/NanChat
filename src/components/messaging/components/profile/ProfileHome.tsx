@@ -18,6 +18,7 @@ import SelectAccount from '../../../app/SelectAccount';
 import Settings, { CopyToClipboard } from '../../../Settings';
 import { SeedVerifiedBadge, showAccountQRCode } from '../../utils';
 import { AccountAvatar } from '../ChatList';
+import { useTranslation } from 'react-i18next';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ const ProfileHome: React.FC = () => {
     const {wallet} = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
+    const { t } = useTranslation();
     return (
         <div className="">
                 <NavBar
@@ -40,7 +42,7 @@ const ProfileHome: React.FC = () => {
                 }}
                 extra={<div style={{padding: 8}}><AccountAvatar  width={48} account={me?._id} /></div>}
                 >
-                    Profile Picture
+                    {t('profilePicture')}
                 </List.Item>
                 <List.Item
                 extra={me?.name}
@@ -48,7 +50,7 @@ const ProfileHome: React.FC = () => {
                     navigate('/profile/name')
                 }}
                 >
-                    Name
+                    {t('name')}
                 </List.Item>
                 
               
@@ -58,14 +60,14 @@ const ProfileHome: React.FC = () => {
                     Modal.show({
                         closeOnMaskClick: true,
                         showCloseButton: true,
-                        title: 'Linked Account',
+                        title: t('linkedAccount'),
                         content: 
                         <div>
                         <div 
                         style={{wordBreak: 'break-all', textAlign: 'center', maxWidth: "200px", margin: "auto"}}
                         onClick={() => {
                             Toast.show({
-                                content: 'Copied',
+                                content: t('copied'),
                                 duration: 2000
                             });
                             copyToClipboard(me?._id);
@@ -77,7 +79,7 @@ const ProfileHome: React.FC = () => {
                 }
                 }
                 >
-                    Account
+                    {t('account')}
                 </List.Item>
                 <List.Item
                 extra={me?.username}
@@ -86,7 +88,7 @@ const ProfileHome: React.FC = () => {
                 }
                 }
                 >
-                    NanChat ID
+                    {t('nanChatId')}
                 </List.Item>
                 <List.Item
                 extra={<SystemQRcodeOutline />}
@@ -94,7 +96,7 @@ const ProfileHome: React.FC = () => {
                     showAccountQRCode(me);
                 }}
                 >
-                    My QR Code
+                    {t('myQrCode')}
                 </List.Item>
                 
                 </List>
@@ -103,7 +105,7 @@ const ProfileHome: React.FC = () => {
                     prefix={<UserContactOutline fontSize={24} />}
                     onClick={() => navigate('/contacts')}
                     >
-                        Contacts
+                        {t('contacts')}
                     </List.Item>
             </List>
             
@@ -113,7 +115,7 @@ const ProfileHome: React.FC = () => {
                     onClick={() => navigate('/me/settings')}
                     extra={<SeedVerifiedBadge/>}
                     >
-                            Settings
+                            {t('settings')}
                     </List.Item>
             </List>
             {/* <Settings /> */}

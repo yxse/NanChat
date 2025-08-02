@@ -22,6 +22,7 @@ import { IoArrowBack } from "react-icons/io5";
 // }
 import { wallet as walletLib } from "multi-nano-web";
 import { setSeed } from "../../utils/storage";
+import { useTranslation } from 'react-i18next';
 
 export function DisconnectLedger({ icon = false }) {
   const { ledger, setLedger, setWalletState } = useContext(LedgerContext);
@@ -180,6 +181,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
   const [visible, setVisible] = useState(false);
   const { ledger, setLedger } = useContext(LedgerContext);
   const isDisabledIosWeb = getMobileOperatingSystem() === 'iOS' && Capacitor.getPlatform() === "web"
+  const { t } = useTranslation();
 
   if (ledger) {
     return <DisconnectLedger />
@@ -194,7 +196,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
             <MdOutlineUsb />
           )
         }
-      Use Ledger
+      {t('useLedger')}
       </Space>
     </Button>
     <Modal
@@ -288,6 +290,7 @@ export default function Start({
        
   // }, []);
   // const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div className="min-h-[554px]">
       {/* <div
@@ -327,7 +330,7 @@ export default function Start({
                 className={"text-3xl text-center mt-4 select-none"}
                 style={{  marginBottom: 64, marginTop: 64 }}
               >
-                Welcome to NanChat
+                {t('welcomeToNanChat')}
               </p>
             </div>
           </div>
@@ -348,7 +351,7 @@ export default function Start({
             className="w-full mt-4"
             size="large"
             color="primary">
-            Create account
+            {t('createAccount')}
           </Button>
           <Button
             shape="rounded"
@@ -361,7 +364,7 @@ export default function Start({
             className="w-full mt-4 mb-2"
             size="large"
             color="default">
-            Import account
+            {t('importAccount')}
           </Button>
           {/* <div
               className={`${theme == "light" &&

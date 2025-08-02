@@ -14,6 +14,7 @@ import useSWR from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
 import { useHideNavbarOnMobile } from '../../../hooks/use-hide-navbar';
 import { useChats } from '../hooks/use-chats';
+import { useTranslation } from 'react-i18next';
 
 const SetName: React.FC = () => {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ const SetName: React.FC = () => {
     const {ledger} = useContext(LedgerContext);
     useHideNavbarOnMobile(ledger ? false : true);
     const isRegistered = me?.name;
+    const { t } = useTranslation();
     if (ledger) {
         return <LedgerNotCompatible />
     }
@@ -34,13 +36,13 @@ const SetName: React.FC = () => {
                             onBack={() => navigate('/me')}
                     className="app-navbar "
                     backArrow={true}>
-                      Name
+                      {t('name')}
                     </NavBar>
         <div className="flex flex-col items-center justify-center h-full">
             {
                 isRegistered ? 
                 <div className='text-2xl mb-4'>
-                    {/* Update your name */}
+                    {/* {t('updateYourName')} */}
                 </div>
                 :
                 null
@@ -85,24 +87,24 @@ const SetName: React.FC = () => {
                 <Button 
                 className='w-full'
                 type='submit' color='primary' size='large'>
-                    {isRegistered ? 'Done' : 'Done'}
+                    {t('done')}
                 </Button>
                     </>
             }>
                 {
                     !isRegistered &&
                 <Form.Header>
-                    Enter your name to get started. You can change it later.
+                    {t('enterYourNameToGetStarted')}
                 </Form.Header>
                 }
                 <Form.Item
-                rules={[{required: true, min: 1, max: 24, message: 'Name must be between 1 and 24 characters'}]}
+                rules={[{required: true, min: 1, max: 24, message: t('nameMustBeBetween', {min: 1, max: 24})}]}
                  extra='' name={'name'}>
                     <Input
                     enterKeyHint='done'
                     clearable
                     autoFocus
-                        placeholder="Enter your name"
+                        placeholder={t('enterYourName')}
                     />
                 </Form.Item>
             </Form>
