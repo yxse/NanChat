@@ -43,6 +43,7 @@ import { HapticsImpact } from "../../utils/haptic";
 import AddContacts from "./AddContacts";
 import { ConvertToBaseCurrency } from "./Home";
 import { openHashInExplorer, openInBrowser } from "../messaging/utils";
+import { useTranslation } from 'react-i18next';
 
 export function askForReview(delay = 500) {
   // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
@@ -94,6 +95,7 @@ export const IdentifierOrKnownAlias = ({ account }) => {
 }
 
 export const DateHeader = ({ timestamp, timestampPrev, timestampNext, reverse = false }) => {
+  const { t } = useTranslation();
   const FormatDate = ({ timestamp }) => {
     return (
       <>
@@ -116,7 +118,7 @@ export const DateHeader = ({ timestamp, timestampPrev, timestampNext, reverse = 
         ).toLocaleDateString() && (
           <div className="">
             {
-              new Date(timestampPrev).toLocaleDateString() === new Date().toLocaleDateString() ? "Today" :
+              new Date(timestampPrev).toLocaleDateString() === new Date().toLocaleDateString() ? t('today') :
                 <FormatDate timestamp={timestampPrev} />
           }
           </div>
@@ -130,7 +132,7 @@ export const DateHeader = ({ timestamp, timestampPrev, timestampNext, reverse = 
       ).toLocaleDateString() && (
         <div className="">
           {
-            new Date(timestamp).toLocaleDateString() === new Date().toLocaleDateString() ? "Today" : 
+            new Date(timestamp).toLocaleDateString() === new Date().toLocaleDateString() ? t('today') : 
            <FormatDate timestamp={timestamp} />
         }
         </div>
@@ -210,16 +212,17 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
     network: ticker,
     address: account
   })
+  const { t } = useTranslation();
   const actions = [
     {
-      text: "View Account",
+      text: t('viewAccount'),
       key: "view-account",
       onClick: () => {
         navigate(`/${activeTx.account || activeTx.representative}/info?ticker=${ticker}`)
       },
     },
     {
-      text: "View on Explorer",
+      text: t('viewOnExplorer'),
       key: "view-details",
       onClick: () => {
         openHashInExplorer(activeTx.hash, ticker)
@@ -244,7 +247,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
   // }
   if (!isMobile){
     actions.push({
-      text: "Send Again",
+      text: t('sendAgain'),
       key: "send-again",
       onClick: () => {
         navigate(
@@ -387,7 +390,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
               marginTop: 8,
             }}
             status="empty"
-            title={`${networks[ticker].name} transactions will appear here`}
+            title={t('transactionsAppearHere', { network: networks[ticker].name })}
             description=""
           />
         )}
@@ -463,9 +466,9 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                       )}
                     </div>
                     <div>
-                      {tx.subtype === "send" && "Sent"}
-                      {tx.subtype === "receive" && "Received"}
-                      {tx.subtype === "change" && "Representative Change"}
+                      {tx.subtype === "send" && t('sent')}
+                      {tx.subtype === "receive" && t('received')}
+                      {tx.subtype === "change" && t('representativeChange')}
                       {
                         (tx.subtype === "receive" || tx.subtype === "send") && (
                           <div className="" style={{color: "var(--adm-color-text-secondary)", display: "flex"}}>
@@ -509,8 +512,8 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         <InfiniteScroll
           children={(hasMore, failed) => {
             if (hasMore) return <div className="text-center"><DotLoading /></div>
-            if (!hasMore) return `No more transactions`
-            if (failed) return 'Failed to load transactions'
+            if (!hasMore) return t('noMoreTransactions')
+            if (failed) return t('failedToLoadTransactions')
           }}
           threshold={600}
           loadMore={
@@ -563,18 +566,18 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
         {
           Capacitor.getPlatform() !== "ios" && 
       <div className="text-center mt-4 flex flex-col m-4">
-        {/* <Button color="primary" className="mt-4" onClick={() => navigate("/swap?to=" + ticker)}>
-          Buy {ticker}
-          </Button> */}
-          <div
-          onClick={() => {
-            openInBrowser(`https://nanswap.com/${networks[ticker].faucetId || networks[ticker].id}-faucet?address=${account}`)
-          }}
-          style={{marginBottom: 64, color: "var(--adm-color-primary)", cursor: "pointer"}}
-          className="mt-4">
-            Free {networks[ticker]?.name} faucet
-          </div>
-      </div>
+          {/* <Button color="primary" className="mt-4" onClick={() => navigate("/swap?to=" + ticker)}>
+            Buy {ticker}
+            </Button> */}
+            <div
+            onClick={() => {
+              openInBrowser(`https://nanswap.com/${networks[ticker].faucetId || networks[ticker].id}-faucet?address=${account}`)
+            }}
+            style={{marginBottom: 64, color: "var(--adm-color-primary)", cursor: "pointer"}}
+            className="mt-4">
+              {t('freeFaucet', { network: networks[ticker]?.name })}
+            </div>
+        </div>
         }
     </div >
     <AddContacts

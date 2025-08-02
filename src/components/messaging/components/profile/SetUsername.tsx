@@ -13,6 +13,7 @@ import { fetcherAccount, fetcherMessagesPost } from '../../fetcher';
 import useSWR from 'swr';
 import { useHideNavbarOnMobile } from '../../../../hooks/use-hide-navbar';
 import { ResponsivePopup } from '../../../Settings';
+import { useTranslation } from 'react-i18next';
 
 const SetUsername: React.FC = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const SetUsername: React.FC = () => {
     const [visible, setVisible] = React.useState(false);
     const {data: me, isLoading, mutate} = useSWR(activeAccountNano, fetcherAccount);
     useHideNavbarOnMobile(true);
+    const { t } = useTranslation();
     return (
         <div>
               <NavBar
@@ -34,16 +36,16 @@ const SetUsername: React.FC = () => {
 
         <div className="flex flex-col items-center justify-center" style={{height: '50dvh', margin: 32}}>
             {/* <span className='text-lg mx-2'>
-                To get started, set your display name:
+                {t('toGetStartedSetYourDisplayName')}
             </span> */}
             <div className='text-2xl mb-4'>
-                    NanChat ID: {me?.username}
+                    {t('nanChatId')}: {me?.username}
             </div>
             {/* <div className='text-2xl mb-4'>
-                    Change NanChat ID
+                    {t('changeNanChatId')}
             </div> */}
             <div className='mb-4 text-center'>
-                  NanChat ID is your short unique identifier. Your friends can use it to add you on NanChat. It can only be changed once per year.
+                  {t('nanChatIdDescription')}
             </div>
             
 <ResponsivePopup 
@@ -51,10 +53,10 @@ bodyStyle={{height: 400}}
 visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
 <div className='m-4 text-center'>
     <div className='text-xl mb-4'>
-    Enter New NanChat ID
+    {t('enterNewNanChatId')}
     </div>
     <div className=''>
-                        Must be 6-20 characters.
+                        {t('mustBe6to20Chars')}
     </div>
                         <Form 
                         style={{width: '100%'}}
@@ -63,13 +65,13 @@ visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
                     onFinish={(values) => {
                         console.log(values);
                         Modal.confirm({
-                            confirmText: 'Confirm NanChat ID',
-                            cancelText: 'Cancel',
-                            title: 'Confirm NanChat ID',
+                            confirmText: t('confirmNanChatId'),
+                            cancelText: t('cancel'),
+                            title: t('confirmNanChatId'),
                             content: <div>
-                                Are you sure you want to change your NanChat ID to <b>{values.username}</b>?
+                                {t('areYouSureChangeNanChatId', {username: values.username})}
                                 <div style={{color: "var(--adm-color-warning)"}}>
-                                    You can only change your NanChat ID once per year.
+                                    {t('canOnlyChangeNanChatIdOncePerYear')}
                                 </div>
                                 </div>,
                             onConfirm: () => fetcherMessagesPost('/update-profile', {
@@ -98,12 +100,12 @@ visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
                         <Button 
                         className='w-full'
                         type='submit' color='primary' size='large'>
-                            Change NanChat ID
+                            {t('changeNanChatId')}
                         </Button>
                             </>
                     }>
                         {/* <Form.Header>
-                            Set a Name to get started
+                            {t('setANameToGetStarted')}
                         </Form.Header> */}
                         <Form.Item
                         required={false}
@@ -111,12 +113,12 @@ visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
                         validateFirst
                         rules={[
                             {
-                            required: true, message: 'NanChat ID is required'
+                            required: true, message: t('nanChatIdIsRequired')
                             },
                             {
-                            min: 6, max: 20, message: 'NanChat ID must be between 6 and 20 characters'
+                            min: 6, max: 20, message: t('nanChatIdMustBeBetween', {min: 6, max: 20})
                         }]}
-                        label={'NanChat ID'}
+                        label={t('nanChatId')}
                          name={'username'}>
                             <Input
                             clearable
@@ -133,7 +135,7 @@ visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
                 setVisible(true);
             }}
                 type='submit' color='default' size='middle' style={{marginTop: 128}}>
-                    Change NanChat ID
+                    {t('changeNanChatId')}
                 </Button>
             </div>
             </div>

@@ -15,32 +15,58 @@ import ProfileName from "./profile/ProfileName";
 import { ChatName } from "../../app/discover/Discover";
 import ProfilePicture from "./profile/ProfilePicture";
 import { AiOutlineSwap } from "react-icons/ai";
-import { useTranslation } from "react-i18next";
 
-const MessageTip = ({ message, side, hash, ticker }) => {
+const MessageGift = ({ message, side, hash, ticker }) => {
     const {data, isLoading} = useSWR("block-" + hash, () => fetchBlock(ticker, hash), {revalidateOnFocus: false});
     const amountMega = data?.amount && rawToMega(ticker, data.amount);
-    const { t } = useTranslation();
-
+    const isClaimed = data?.pending !== "1";
+    const [modalVisible, setModalVisible] = useState(false);
     console.log("messatip", message);
+   
+    const modalSuccessContent =   <div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                            <ProfilePicture address={message.fromAccount} size={32} /> Cash Gift from <ProfileName address={message.fromAccount} />
+                            </div>
     return (
         <div
         onClick={() => {
-            openHashInExplorer(hash, ticker);
+            // openHashInExplorer(hash, ticker);
+            setModalVisible(true);
+
         }}
         style={{color: 'var(--adm-color-text)', cursor: 'pointer'}}
         // style={{marginLeft: '10px', marginRight: '10px'}}
         key={message._id}
         // className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} mb-1 mx-2`}
     >
-        
+        <Modal
+        actions={[
+            {
+                key: 'confirm',
+                text: 'Open Gift',
+                primary: true,
+                
+            },
+            {
+                key: 'cancel',
+                text: 'Cancel',
+                onClick: () => {
+                    setModalVisible(false);
+                }
+            }
+        ]}
+        visible={modalVisible}
+        onClose={() => {
+            setModalVisible(false);
+        }}
+        title={<div><img src={networks[ticker]?.logo} style={{width: '32px', height: '32px', display: "inline-block"}} /> </div> }
+        />
         <Card>
             <div className="flex items-center gap-2 ">
                 <div>
                     <img src={networks[ticker]?.logo} style={{width: '32px', height: '32px'}} />
                 </div>
                 <div className="flex flex-col">
-                    <div>
+                    {/* <div>
                     {
                         isLoading ? <DotLoading /> : 
                             <ConvertToBaseCurrency amount={amountMega} ticker={ticker} />
@@ -53,17 +79,23 @@ const MessageTip = ({ message, side, hash, ticker }) => {
                                 {+amountMega} {ticker}
                             </>
                         }
-                    </div>
+                    </div> */}
+                    <div className='' style={{
+                }}> {isClaimed ? "Opened" : "Open"}</div>
                 </div>
             </div>
                <div className="text-sm" style={{color: 'var(--adm-color-text-secondary)'}}>
               <Divider style={{margin: '8px 0'}}/>
-              <AiOutlineSwap style={{display: "inline", marginRight: 4}}/>
-              {t('transfer')}
+              <GiftOutline style={{display: "inline", marginRight: 4}}/>
+              Gift <br/>
+              {/* <AiOutlineSwap style={{display: "inline", marginRight: 4}}/>
+              Transfer */}
             </div>
+            {/* {amountMega} */}
+            
         </Card>
     </div>
     )
 }
 
-export default MessageTip;
+export default MessageGift;

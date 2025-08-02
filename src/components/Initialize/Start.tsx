@@ -22,6 +22,7 @@ import { IoArrowBack } from "react-icons/io5";
 // }
 import { wallet as walletLib } from "multi-nano-web";
 import { setSeed } from "../../utils/storage";
+import { useTranslation } from 'react-i18next';
 
 export function DisconnectLedger({ icon = false }) {
   const { ledger, setLedger, setWalletState } = useContext(LedgerContext);
@@ -180,6 +181,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
   const [visible, setVisible] = useState(false);
   const { ledger, setLedger } = useContext(LedgerContext);
   const isDisabledIosWeb = getMobileOperatingSystem() === 'iOS' && Capacitor.getPlatform() === "web"
+  const { t } = useTranslation();
 
   if (ledger) {
     return <DisconnectLedger />
@@ -194,7 +196,7 @@ export const LedgerSelect = ({ onConnect, onDisconnect, setWalletState }) => {
             <MdOutlineUsb />
           )
         }
-      Use Ledger
+      {t('useLedger')}
       </Space>
     </Button>
     <Modal

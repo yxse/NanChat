@@ -7,9 +7,11 @@ import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
 import { useUnreadCount } from "../../messaging/hooks/useChat";
 import { SeedVerifiedBadge } from "../../messaging/utils";
+import { useTranslation } from 'react-i18next';
 
 
 export const SideBarMenu = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const {ticker}= useParams();
     const location = useLocation();
@@ -27,27 +29,27 @@ export const SideBarMenu = () => {
     const tabs = [
       {
         key: "chat",
-        title: "Chats",
+        title: t('chats'),
         icon: <Badge content={unreadCount}><MessageFill size={btnSize} /></Badge>,
       },
       {
         key: "wallet",
-        title: "Wallets",
+        title: t('wallets'),
         icon: <AiOutlineWallet size={btnSize} />,
       },
       {
         key: "discover",
-        title: "Discover",
+        title: t('discover'),
         icon: <CompassOutline size={btnSize} />,
       },
       // {
       //   key: "settings",
-      //   title: "Settings",
+      //   title: t('settings'),
       //   icon: <SetOutline size={btnSize} />
       // }
       {
         key: "me",
-        title: <>Me<SeedVerifiedBadge size={btnSize} count={1} icon={false}/></>,
+        title: <>{t('me')}<SeedVerifiedBadge size={btnSize} count={1} icon={false}/></>,
         icon: <UserOutline size={btnSize} />
       }
     ];

@@ -20,6 +20,7 @@ import MessageReply from "./MessageReply";
 import { unstable_serialize } from 'swr/infinite';
 import { Capacitor } from "@capacitor/core";
 import useLocalStorageState from "use-local-storage-state";
+import { useTranslation } from "react-i18next";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -52,6 +53,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
 }
 
 const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined, hideInput = false }) => {
+    const { t } = useTranslation();
     let {
         account
     } = useParams();
@@ -391,7 +393,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
               rows={1}
               // style={{focus}}
               className="m-2  "
-              placeholder="Message"
+              placeholder={t('message')}
               value={newMessage}
               onChange={(e) => setNewMessage(e)}
             />

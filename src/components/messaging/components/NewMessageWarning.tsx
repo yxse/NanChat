@@ -9,8 +9,10 @@ import { useChats } from '../hooks/use-chats';
 import { ChatCheckOutline, ChatWrongOutline } from 'antd-mobile-icons';
 import { useWallet } from '../../Popup';
 import { ChatName } from '../../app/discover/Discover';
+import { useTranslation } from 'react-i18next';
 
 export function BlockChatButton({chat, onSuccess, mode='button'}) {
+    const { t } = useTranslation();
     const {blockChat} = useChats();
     const {activeAccount} = useWallet();
 
@@ -19,15 +21,15 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
             closeOnMaskClick: true,
             closeOnAction: true,
             title: <div>
-                {chat?.type === "group" ? "Leave" : "Block"} <ChatName chat={chat} activeAccount={activeAccount} /> ?
+                {chat?.type === "group" ? t('leave') : t('block')} <ChatName chat={chat} activeAccount={activeAccount} /> ?
                 <div style={{color: 'var(--adm-color-text-secondary)', fontSize: 16}}>
-                    {chat?.type === "group" ? "" : "Messages and payments to this account will be blocked."}
+                    {chat?.type === "group" ? '' : t('messagesAndPaymentsBlocked')}
                     </div>
                 </div>,
             actions: [
                 { 
                     text: <div style={{display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center'}}>
-                            {chat?.type === "group" ? "Leave" : "Block"}
+                            {chat?.type === "group" ? t('leave') : t('block')}
                         </div>
                     ,
                     key: 'block',
@@ -50,7 +52,7 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
                         }
                     }
                 },
-                { text: 'Cancel', key: 'cancel' }
+                { text: t('cancel'), key: 'cancel' }
             ]
         })
     }
@@ -63,7 +65,7 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
             style={{cursor: 'pointer'}}
             >
                 <div style={{color: 'var(--adm-color-danger)', textAlign: 'start'}}>
-                {chat?.type === "group" ? "Leave" : "Block"}
+                {chat?.type === "group" ? t('leave') : t('block')}
                 </div>
         </List.Item>
         </List>
@@ -76,12 +78,13 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
             style={{cursor: 'pointer'}}
             >
                 <div style={{color: 'var(--adm-color-danger)', textAlign: 'center'}}>
-                Block
+                {t('block')}
                 </div>
         </div>
 }
 
 function NewMessageWarning({fromAddress, account, chat}) {
+    const { t } = useTranslation();
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
@@ -101,11 +104,11 @@ function NewMessageWarning({fromAddress, account, chat}) {
                 {
                     inContacts ? (
                         <div>
-                            In your contacts as {inContacts.name}
+                            {t('inContactsAs', { name: inContacts.name })}
                         </div>
                     ) : (
                         <div>
-                            Not a contact
+                            {t('notAContact')}
                         </div>
                     )
                 }
@@ -133,7 +136,7 @@ function NewMessageWarning({fromAddress, account, chat}) {
             color='primary'
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4}}>
-                Accept chat
+                {t('acceptChat')}
                 </div>
             </Button>
             <BlockChatButton 

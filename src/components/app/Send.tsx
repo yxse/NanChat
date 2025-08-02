@@ -55,7 +55,9 @@ import { HapticsImpact } from "../../utils/haptic";
 import ProfileName from "../messaging/components/profile/ProfileName";
 import { fetcherMessages } from "../messaging/fetcher";
 import { Keyboard } from "@capacitor/keyboard";
+import { useTranslation } from 'react-i18next';
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
+  const { t } = useTranslation();
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
   const { data: fiatRates, isLoading, error } = useSWR('fiat', fetchFiatRates);
@@ -71,7 +73,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
 
   const isAmountFiat = amountType === "fiat";
   const formItemName = isAmountFiat ? "amountFiat" : "amount";
-  const label = isAmountFiat ? `Amount (${selected})` : "Amount";
+  const label = isAmountFiat ? t('amountFiat', { currency: selected }) : t('amount');
   const currency = isAmountFiat ? selected : ticker;
 
   const getFiatRate = () => {
@@ -122,8 +124,8 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
     updateOtherAmountField(value);
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading fiat rates</div>;
+  if (isLoading) return <div>{t('loading', 'Loading...')}</div>;
+  if (error) return <div>{t('errorLoadingFiatRates', 'Error loading fiat rates')}</div>;
 
   const rules = [
     
@@ -133,7 +135,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
     rules.push({
       validateTrigger: "onConfirm",
       required: true,
-      message: `Please enter an amount`,
+      message: t('pleaseEnterAmount'),
       type: "number",
       transform: (value) => parseFloat(value),
     });
@@ -141,14 +143,14 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       validateTrigger: "onConfirm",
       validator: async (rule, value) => {
         if (value <= 0) {
-          throw new Error("Amount must be greater than 0");
+          throw new Error(t('amountMustBeGreaterThanZero'));
         }
       },
     });
     rules.push( {
       validateTrigger: "onConfirm", // allow to not show error while typing amount, only on submit
       required: true,
-      message: `Available: ${getAvailableAmount()}`,
+      message: t('availableAmount', { amount: getAvailableAmount() }),
       type: "number",
       transform: (value) => parseFloat(value),
       min: 0,
@@ -182,7 +184,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
           <span 
           style={{ borderBottom: "1px dashed", cursor: "pointer" }}
            onClick={setMaxAmount}>
-            Max
+            {t('max')}
           </span>
           }
         </div>
@@ -199,7 +201,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
         type="text"
         inputMode="decimal"
         onChange={handleInputChange}
-        placeholder={`Enter Amount`}
+        placeholder={t('enterAmount')}
       />
     </Form.Item>
   );
@@ -212,6 +214,7 @@ const useFocus = () => {
   return [ htmlElRef, setFocus ] 
 }
 export default function Send({ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null, hideAddress = false}) {
+  const { t } = useTranslation();
   // const [result, setResult] = useState<string>(null);
   const {wallet} = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
@@ -260,7 +263,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
       <div className="container  relative mx-auto">
         <div className="text-center text-xl p-2">
           {/* <NavBar onBack={() => navigate(`/${ticker}`)}> */}
-            Send {networks[ticker].name}
+            {t('sendTitle', { name: networks[ticker].name })}
           {/* </NavBar> */}
           {/* <div className="flex justify-center m-2">
             <img
@@ -273,10 +276,10 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
 {
   amountType === "fiat" ?
   <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
-    Available: ~<ConvertToBaseCurrency amount={balance} ticker={ticker} />
+    {t('availableFiat', { amount: <ConvertToBaseCurrency amount={balance} ticker={ticker} /> })}
   </div> :
   <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
-    Available: {balanceLoading ? <DotLoading /> : balance} {ticker}
+    {t('availableCrypto', { amount: balanceLoading ? <DotLoading /> : balance, ticker })}
   </div>
 }
 
@@ -298,7 +301,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 if (resolved == null) {
                   Toast.show({
                     icon: "fail",
-                    content: "Alias not found",
+                    content: t('aliasNotFound'),
                   });
                   setConfirmPopupOpen(false);
                   return;
@@ -306,7 +309,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 else if (!isValid(resolved, networks[ticker].prefix)) {
                   Toast.show({
                     icon: "fail",
-                    content: "Invalid address",
+                    content: t('invalidAddress'),
                   });
                   setConfirmPopupOpen(false);
                   return;
@@ -342,7 +345,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 size="large"
                 shape="rounded"
                 >
-                Next
+                {t('next')}
               </Button>
               {/* <Button
                 block
@@ -367,14 +370,14 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 rules={[
                   {
                     required: true,
-                    message: `Please enter a valid ${networks[ticker].name} address`,
+                    message: t('pleaseEnterValidAddress', { name: networks[ticker].name }),
                     validator: async (rule, value) => {
                       if (!value) {
-                        throw new Error("Please enter an address");
+                        throw new Error(t('pleaseEnterAddress'));
                       }
                       if (!value.includes('@') && // if not an alias
                         !isValid(value, networks[ticker].prefix)) {
-                        throw new Error("Invalid address");
+                        throw new Error(t('invalidAddress'));
                       }
                     },
                   }
@@ -389,7 +392,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 }}
                 enterKeyHint="next"
                   autoSize={{ minRows: 3, maxRows: 4 }}
-                  placeholder="Enter Address"
+                  placeholder={t('pleaseEnterAddress')}
                   rows={2}
                 />
               </Form.Item>
@@ -403,7 +406,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   catch (error) {
                     console.error("Error pasting:", error);
                     Toast.show({
-                      content: "Error pasting",
+                      content: t('errorPasting'),
                     });
                   }
                 }
@@ -450,7 +453,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
           >
             <div style={{minWidth: 350, overflow: "auto"}}>
               <Card >
-              <div className="text-xl  text-center p-2 mb-2">Sending</div>
+              <div className="text-xl  text-center p-2 mb-2">{t('sending')}</div>
                 <div className="text-center">
                   <div className="text-2xl">
                      {form.getFieldValue("amount")} {ticker}
@@ -462,7 +465,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 <Divider />
                 <div className="space-y-3 mt-6 mb-5">
                 <div className="flex justify-between text-base mt-6">
-                  <div style={{color: "var(--adm-color-text-secondary)"}}>Asset</div>
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>{t('asset')}</div>
                   <div className="flex items-center">
                   <img
                   className="mr-2"
@@ -474,14 +477,14 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   </div>
                 </div>
                 <div className="flex justify-between text-base">
-                  <div style={{color: "var(--adm-color-text-secondary)"}}>From</div>
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>{t('from')}</div>
                   <div>
                     <ProfileName address={activeAccount} fallback={`Account ${wallet.activeIndex + 1}`} /> ({formatAddress(activeAccount, 11, 7)})
                     {/* <AliasInternetIdentifier email={} /> */}
                     </div>
                 </div>
                 <div className="flex justify-between text-base">
-                  <div style={{color: "var(--adm-color-text-secondary)"}}>To</div>
+                  <div style={{color: "var(--adm-color-text-secondary)"}}>{t('to')}</div>
                   <div>
                   <ProfileName address={form.getFieldValue("address")} fallback={``} /> ({formatAddress(form.getFieldValue("address"), 11, 7)})
                     <Alias account={form.getFieldValue("address")} />
@@ -491,7 +494,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 </div>
                 <PinAuthPopup
                 location={"send"}
-                description={`Send ${form.getFieldValue("amount")} ${ticker}`}
+                description={t('sendButton') + ` ${form.getFieldValue("amount")} ${ticker}`}
                 visible={pinVisible}
                 setVisible={setPinVisible}
                 onAuthenticated={async () => {
@@ -509,7 +512,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                         console.error("Error sending:", isBlocked);
                         Toast.show({
                         icon: "fail",
-                        content: `Canceled. This account is in your blocklist`,
+                        content: t('canceledBlocked'),
                       });
                       return;
                     }
@@ -523,7 +526,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                       console.error("Error sending:", data.existingFrontier.error);
                       Toast.show({
                         icon: "fail",
-                        content: `Canceled. Malicious network detected, tried to send ${data.existingFrontier.ticker} instead of ${ticker}`,
+                        content: t('canceledMalicious', { wrongTicker: data.existingFrontier.ticker, ticker }),
                       });
                       return;
                     }
@@ -535,7 +538,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                       console.error("Error sending:", result.error);
                       Toast.show({
                         icon: "fail",
-                        content: `Error sending: ${result.error}`,
+                        content: t('errorSending', { error: result.error }),
                       });
 
                       return;
@@ -561,7 +564,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   } catch (error) {
                     console.error("Error sending:", error);
                     Toast.show({
-                      content: `Error sending: ${error}`,
+                      content: t('errorSending', { error: error.toString() }),
                     });
                   } finally {
                     setIsLoading(false);
@@ -603,14 +606,14 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 }}
                 className="w-full mt-4"
                 >
-                  Send
+                  {t('sendButton')}
                 </Button>
                 <Button 
                 shape="rounded"
                 size="large"
                 className="w-full mt-4 mb-4"
                 color="default" onClick={() => setConfirmPopupOpen(false)}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 </div>
               </Card>
@@ -632,10 +635,10 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 status="success"
                 title={<div 
                   style={{}}
-                  className="text-2xl">Success</div>}
+                  className="text-2xl">{t('success')}</div>}
                 description={<>
                   <div className="text-lg">
-                    {sentAmount} {ticker} sent to{" "} {formatAddress(sentTo)}
+                    {t('sentTo', { amount: sentAmount, ticker, address: formatAddress(sentTo) })}
                   </div>
                   {/* <div className="text-sm mt-4 " style={{}}>
                     <a 
@@ -662,7 +665,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   askForReview(0)
                 }}
                 >
-                Close
+                {t('close')}
               </Button>
                 </Card>
           </ResponsivePopup>

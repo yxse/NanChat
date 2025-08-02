@@ -20,8 +20,10 @@ import { deleteAccount, fetcherMessages, setMinReceive } from "../messaging/fetc
 import useSWR from "swr";
 import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
 import { isTauri } from "@tauri-apps/api/core";
+import { useTranslation } from 'react-i18next';
 function SecuritySettings() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [seed, setSeedLocal] = useState(undefined);
     const [hasPassword, setHasPassword] = useState(localStorage.getItem('seed') ? false : true);
     const [lockTimeSeconds, setLockTimeSeconds] = useLocalStorageState("lock-after-inactivity", {defaultValue: 
@@ -66,7 +68,7 @@ function SecuritySettings() {
               else if (whenToAuthenticate.length === 1) {
                 Toast.show({
                   icon: "fail",
-                  content: "At least one option must be enabled",
+                  content: t('atLeastOneOption'),
                   position: "top"
                 })
               }
@@ -86,8 +88,8 @@ function SecuritySettings() {
         visible={pinVisible}
         setVisible={setPinVisible}
         onAuthenticated={() => setWhenToAuthenticate(whenToAuthenticate.filter((v) => v !== actionToRemove))} />
-        {!seed?.isPasswordEncrypted && <WhenToAuthenticateItem value={"launch"}>Authenticate on launch</WhenToAuthenticateItem>}
-          <WhenToAuthenticateItem value={"send"}>Authenticate on send</WhenToAuthenticateItem>
+        {!seed?.isPasswordEncrypted && <WhenToAuthenticateItem value={"launch"}>{t('authenticateOnLaunch')}</WhenToAuthenticateItem>}
+          <WhenToAuthenticateItem value={"send"}>{t('authenticateOnSend')}</WhenToAuthenticateItem>
           </List>
   }
 
@@ -100,7 +102,7 @@ function SecuritySettings() {
           navigate("/me/settings");
         }}
         backArrow={true}>
-          <span className="">Security Settings</span>
+          <span className="">{t('securitySettings')}</span>
         </NavBar>
         <List mode="card">
             {
@@ -111,14 +113,14 @@ function SecuritySettings() {
                 let modal = Modal.show({
                   bodyStyle: {maxWidth: 400},
                   closeOnMaskClick: true,
-                  title: "Disable Password",
+                  title: t('disablePassword'),
                   content: (
                     <div>
-                      <div>You will no longer need a password to open NanChat.</div>
+                      <div>{t('disablePasswordDesc')}</div>
                       {
                         (Capacitor.getPlatform() === "web" && !isTauri()) && // only stored unencrypted if no password using the web version, else secure storage is used
                       <div>
-                        Your secret phrase will be stored unencrypted on this device. <br/>Make sure your device cannot be accessed by unauthorized users.
+                        {t('disablePasswordWarning')}
                       </div>
                       }
                       <Form className="form-list high-contrast" mode="card">
@@ -127,7 +129,7 @@ function SecuritySettings() {
                         id="verify-password"
                         type="password"
                         autoComplete="current-password"
-                        placeholder="Enter your password"
+                        placeholder={t('enterPassword')}
                         className="mt-2"
                       />
                       </Form.Item></Form>
@@ -154,29 +156,29 @@ function SecuritySettings() {
                             setSeedLocal({seed: result, isPasswordEncrypted: false})
                             Toast.show({
                               icon: "success",
-                              content: "Password disabled"
+                              content: t('passwordDisabled')
                             })
                             setHasPassword(false)
                             modal.close()
                           } else {
                             Toast.show({
                               icon: "fail",
-                              content: "Invalid password"
+                              content: t('invalidPassword')
                             })
                           }
                         }}
                       >
-                        Disable Password
+                        {t('disablePassword')}
                       </Button>
                       {isPasswordMandatory && <div className="text-sm mt-4">
-                        <div>Password is mandatory on web version. <a href="https://nanchat.com" target="_blank">Download NanChat</a> to use secure storage without a password.</div>
+                        <div dangerouslySetInnerHTML={{__html: t('passwordMandatoryWeb')}} />
                       </div>}
                     </div>
                   ),
                 });
               }}
             >
-              Disable Password
+              {t('disablePassword')}
             </List.Item>
             }
             {
@@ -187,18 +189,18 @@ function SecuritySettings() {
             onClick={() => {
               let modal = Modal.show({
                 closeOnMaskClick: true,
-                title: "Change Password",
+                title: t('changePassword'),
                 content: (
                   <div>
                     <PasswordForm 
-                    buttonText={"Change Password"}
+                    buttonText={t('changePassword')}
                     onFinish={async (values) => {
                         let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, values.password)
                         await setSeed(encryptedSeed, true)
                         modal.close()
                         Toast.show({
                           icon: "success",
-                          content: "Password updated"
+                          content: t('passwordUpdated')
                         })
                     }} />
                   </div>
@@ -206,7 +208,7 @@ function SecuritySettings() {
               });
             }}
             >
-              Change Password
+              {t('changePassword')}
             </List.Item>}
             {
               !seed?.isPasswordEncrypted &&
@@ -217,12 +219,13 @@ function SecuritySettings() {
                 let modal = Modal.show({
                   showCloseButton: true,
                   closeOnMaskClick: true,
-                  title: "Require a password to open NanChat ?",
+                  title: t('requirePasswordTitle'),
                   content: (
                     <div>
-                      <div className="mb-2 ">Password will be used to encrypt your secret phrase.</div>
+                      <div className="mb-2 ">{t('requirePasswordDesc')}</div>
                       <div style={{color: "var(--adm-color-warning)"}}>
-                      Your password cannot be recovered if you forget it! </div>
+                        {t('passwordWarning')}
+                      </div>
                        <PasswordForm
                                           onFinish={async (values) => {
                                             const password = values.password
@@ -232,12 +235,12 @@ function SecuritySettings() {
                                             
                                             Toast.show({
                                               icon: "success",
-                                              content: "Password enabled"
+                                              content: t('passwordEnabled')
                                             })
                                           setHasPassword(true)
                                             modal.close()
                                           }}
-                                          buttonText={"Enable Password"}
+                                          buttonText={t('enablePassword')}
                                       />
                                   
                     </div>
@@ -245,7 +248,7 @@ function SecuritySettings() {
                 });
               }}
             >
-              Set a Password
+              {t('setPassword')}
             </List.Item>
             }
             <PinAuthPopup 
@@ -265,7 +268,7 @@ function SecuritySettings() {
               else if (confirmationMethodToSet === "none") {
                 setConfirmationMethod(confirmationMethodToSet)
               }
-            }} description={"Change confirmation method"} />
+            }} description={t('changeConfirmationMethod')} />
             <CreatePin
              visible={createPinVisible} 
              setVisible={setCreatePinVisible} 
@@ -281,7 +284,7 @@ function SecuritySettings() {
               
               let modal = Modal.show({
                 closeOnMaskClick: true,
-                title: "Lock After Inactivity",
+                title: t('lockAfterInactivity'),
                 content: (
                   <div>
                     <CheckList
@@ -302,19 +305,19 @@ function SecuritySettings() {
                               setLockTimeSeconds(parseInt(v.value))
                             }}
                           >
-                            {v.label}
+                            {t(v.label.toLowerCase().replace(/ /g, '')) || v.label}
                           </CheckList.Item>
                         ))
                       }
                     </CheckList>
                     <div className="text-gray-300 text-sm mt-4">
-                      <div>If enabled, password will be required after a period of inactivity.</div>
+                      <div>{t('lockAfterInactivityDesc')}</div>
                     </div>
                   </div>
                 ),
               });
             }}
-            prefix={<MdOutlineTimer size={24} />}>Lock After Inactivity</List.Item>
+            prefix={<MdOutlineTimer size={24} />}>{t('lockAfterInactivity')}</List.Item>
             }
         </List>
        
@@ -327,7 +330,7 @@ function SecuritySettings() {
               onClick={() => {
                 let modal = Modal.show({
                   closeOnMaskClick: true,
-                  title: "Authentication",
+                  title: t('authentication'),
                   content: <div>
                     <CheckList
                     value={[confirmationMethod]}
@@ -372,13 +375,13 @@ function SecuritySettings() {
                           console.error(error)
                           Toast.show({
                             icon: "fail",
-                            content: "Failed to authenticate. This method may be not supported on your device.",
+                            content: t('authenticationFailed') || "Failed to authenticate. This method may be not supported on your device.",
                             duration: 5000
                           })
                         }
                       }}}
                       >
-                        Face ID/Fingerprint/Key
+                        {t('faceIdFingerprintKey')}
                       </CheckList.Item>
                       <CheckList.Item
                       value={"pin"}
@@ -386,7 +389,7 @@ function SecuritySettings() {
                         setPinVisible(true)
                         setConfirmationMethodToSet("pin")
                         }}>
-                        PIN
+                        {t('pin')}
                       </CheckList.Item>
                       <CheckList.Item 
                       value={"none"}
@@ -408,32 +411,32 @@ function SecuritySettings() {
                             
                         // }
                         }}>
-                        None
+                        {t('none')}
                         </CheckList.Item>
                         </CheckList>
                         <div className="text-gray-300 text-sm mt-4">
                       <div>
-                      If enabled, confirmation will be required to send transactions.
+                      {t('authenticationRequiredDesc')}
                       </div>
                       <div className="mt-2">
-                      Please note that this does not encrypt your secret key. To encrypt your secret key, always use a password.
+                      {t('authenticationNote')}
                       </div>
                     </div>
                     </div>
               })}}
             >
-              Authentication
+              {t('authentication')}
             </List.Item>
             </List>
             {
           confirmationMethod !== "none" && 
-          <WhenToAuthenticateSettings />
+          <WhenToAuthenticateSettings t={t} />
       }
         </>
         {
           confirmationMethod !== "none" && 
         <div className="text-sm px-4" style={{color: "var(--adm-color-text-secondary)"}}>
-          At least one option must be enabled.
+          {t('atLeastOneOption')}
         </div> 
         }
         <Divider />
@@ -444,7 +447,7 @@ function SecuritySettings() {
                 navigate("/settings/security/blocked")
             }}
             >
-                Blocked Accounts
+                {t('blockedAccounts')}
             </List.Item>
             <List.Item
             extra={
@@ -464,7 +467,7 @@ function SecuritySettings() {
                           <div>
                             
                             <Button block type="submit" color="primary" size="large">
-                                Save
+                                {t('save')}
                             </Button>
                           </div>
                         }
@@ -487,7 +490,7 @@ function SecuritySettings() {
                             <Form.Item
                             layout="vertical"
                             name="minReceiveAmount"
-                            label="Min. Receive Amount (USD)"
+                            label={t('minReceiveAmount')}
                             rules={[]}
                             >
                                 <Input
@@ -499,26 +502,26 @@ function SecuritySettings() {
                             </Form.Item>
                         </Form>
                         <div className="text-sm mt-2">
-                            <div>Filter out low value transactions, this can protect your account from dust transactions spam and make address poisoning more expensive.</div>
-                            <div className="mt-2">You can set it to 0 to disable this feature.</div>
+                            <div>{t('filterLowValueDesc')}</div>
+                            <div className="mt-2">{t('setToZeroToDisable')}</div>
                             </div>
                             </div>
                 })
             }
             }
             >
-                Min. Receive Amount
+                {t('minReceiveAmount')}
             </List.Item>
         </List>
         <Divider />
         <List mode="card">
             <List.Item
-            extra={developerMode ? "Enabled" : "Disabled"}
+            extra={developerMode ? t('enabled') : t('disabled')}
             onClick={() => {
                 navigate("/settings/security/developer")
             }}
             >
-                Developer Mode
+                {t('developerMode')}
             </List.Item>
         </List>
         <Divider />
@@ -527,27 +530,27 @@ function SecuritySettings() {
             prefix={<DeleteOutline fontSize={24} color="red"/>}
             onClick={() => {
                 Modal.show({
-                  title: "Delete Account",
-                  content: "Are you sure you want to delete your account? Your messages and contacts will be permanently deleted.",
+                  title: t('deleteAccount'),
+                  content: t('deleteAccountConfirm'),
                   closeOnMaskClick: true,
                   actions: [
-                    { key: "confirm", text: "Delete", style: { color: "var(--adm-color-danger)" }, onClick: async () => {
+                    { key: "confirm", text: t('deleteAccount'), style: { color: "var(--adm-color-danger)" }, onClick: async () => {
                       Modal.confirm({
-                        title: "Confirm Account Deletion",
+                        title: t('confirmAccountDeletion'),
                         closeOnMaskClick: true,
-                        confirmText: "Delete",
-                        cancelText: "Cancel",
+                        confirmText: t('deleteAccount'),
+                        cancelText: t('cancel'),
                         onConfirm: async () => {
                           await deleteAccount()
                           Modal.clear()
                           Toast.show({
                         icon: "success",
-                        content: "Account deleted"
+                        content: t('accountDeleted')
                       })
                       navigate('/me')
                     }
                       })}},
-                    { key: "cancel", text: "Cancel" , onClick: () => {
+                    { key: "cancel", text: t('cancel') , onClick: () => {
                         Modal.clear()
                     }}
                   ],
@@ -555,7 +558,7 @@ function SecuritySettings() {
                 })
             }}
             >
-                Delete Account
+                {t('deleteAccount')}
             </List.Item>
         </List>
     </div>

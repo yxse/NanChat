@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 
 const isYesterday = (date) => {
   const yesterday = new Date();
@@ -9,12 +10,13 @@ const isToday = (date) => {
   return new Date(date).toLocaleDateString() === new Date().toLocaleDateString();
 }
 export const DateHeader = ({ timestamp, timestampPrev, timestampNext }) => {
+  const { t } = useTranslation();
   const FormatDate = ({ timestamp }) => {
     return (
       <>
         {
           isToday(timestamp) ? "" :
-            isYesterday(timestamp) ? "Yesterday" :
+            isYesterday(timestamp) ? t('yesterday') :
         new Date(timestamp).toLocaleDateString(undefined, {
           // weekday: "short",
           year: "numeric",

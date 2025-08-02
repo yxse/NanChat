@@ -23,6 +23,7 @@ import { HapticsImpact } from "../../../utils/haptic";
 import { Capacitor } from "@capacitor/core";
 import { GoCreditCard } from "react-icons/go";
 import { useWalletBalance } from "../../../hooks/use-wallet-balance";
+import { useTranslation } from 'react-i18next';
 
 
 export const ButtonActionCircle = ({title, icon, onClick}) => {
@@ -62,6 +63,7 @@ export const SendReceive = () => {
     const [visible, setVisible] = useState<boolean>(false);
     const [action, setAction] = useState<"receive" | "send" | "swap">("receive");
     const {isMobile} = useWindowDimensions()
+    const { t } = useTranslation();
 
     const [activeTicker, setActiveTicker] = useState<string>(null);
   
@@ -87,14 +89,14 @@ export const SendReceive = () => {
           isMobile && <>
           <div className="flex justify-center mb-4" style={{gap: 24}}>
                     <ButtonActionCircle
-                    title="Receive"
+                    title={t('receive')}
                     icon={<AiOutlineArrowDown size={22} />}
                     onClick={() => {
                       showAction('receive');
                     }}
                     />
                     <ButtonActionCircle
-                    title="Send"
+                    title={t('send')}
                     icon={<AiOutlineArrowUp size={22} />}
                     onClick={() => {
                       showAction('send');
@@ -102,7 +104,7 @@ export const SendReceive = () => {
                     />
                     {(Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
                     <ButtonActionCircle
-                    title="Swap"
+                    title={t('swap')}
                     icon={<AiOutlineRetweet size={22} />}
                     onClick={() => {
                       setAction('swap');
@@ -111,7 +113,7 @@ export const SendReceive = () => {
                     />}
                     {(Capacitor.getPlatform() !== "ios") && 
                     <ButtonActionCircle
-                    title="Buy"
+                    title={t('buy')}
                     icon={<GoCreditCard size={22} />}
                     onClick={() => {
                       setAction('buy');
@@ -155,7 +157,7 @@ export const SendReceive = () => {
           <div           >
           <div>
             <div className="text-2xl  text-center p-2">{
-              action === "receive" ? "Receive" : "Send"
+              action === "receive" ? t('receive') : t('send')
             }</div>
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>

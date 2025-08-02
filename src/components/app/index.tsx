@@ -89,6 +89,7 @@ import { getSharedKey } from "../../services/sharedkey";
 import { SeedVerifiedBadge } from "../messaging/utils";
 import BlockedChats from "./BlockedChats";
 import SwapHistory from "./SwapHistory";
+import { useTranslation } from 'react-i18next';
 
 // reduceMotion()
 
@@ -130,6 +131,7 @@ async function checkIntent() {
 
 
 export const MenuBar = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {ticker}= useParams();
   const location = useLocation();
@@ -175,12 +177,12 @@ export const MenuBar = () => {
   const tabs = [
     {
       key: "chat",
-      title: "Chats",
+      title: t('chats'),
       icon: <Badge content={unreadCount}><MessageOutline size={btnSize} /></Badge>,
     },
     {
       key: "wallet",
-      title: "Wallets",
+      title: t('wallets'),
       icon: <AiOutlineWallet size={btnSize} />,
     },
     // {
@@ -190,17 +192,17 @@ export const MenuBar = () => {
     // },
     {
       key: "discover",
-      title: "Discover",
+      title: t('discover'),
       icon: <CompassOutline size={btnSize} />,
     },
     {
       key: "me",
-      title: "Me",
+      title: t('me'),
       icon: <SeedVerifiedBadge count={1} icon={true}><UserOutline size={btnSize} /></SeedVerifiedBadge>
     },
     // {
     //   key: "settings",
-    //   title: "Settings",
+    //   title: t('settings'),
     //   icon: <SetOutline size={btnSize} />
     // },
   ];

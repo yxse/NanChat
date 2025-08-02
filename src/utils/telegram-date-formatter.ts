@@ -1,3 +1,6 @@
+import i18next from "i18next";
+
+
 function formatTelegramDate(date) {
     const now = new Date();
     const messageDate = new Date(date);
@@ -11,7 +14,7 @@ function formatTelegramDate(date) {
     
     // Format time as HH:mm
     const formatTime = (date) => {
-        return date.toLocaleTimeString('en-US', {
+        return date.toLocaleTimeString(i18next.language, {
             hour12: false,
             hour: '2-digit',
             minute: '2-digit'
@@ -27,7 +30,7 @@ function formatTelegramDate(date) {
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     if (isSameDay(messageDate, yesterday)) {
-        return 'Yesterday';
+        return i18next.t('yesterday');
     }
     
     // Check if message is from this week
@@ -36,21 +39,23 @@ function formatTelegramDate(date) {
     
     
     if (messageDate >= lastWeek) {
-        return messageDate.toLocaleDateString(
-            'en-US'
-            , { weekday: 'long' });
+        return capitalizeFirstLetter(messageDate.toLocaleDateString(
+            i18next.language
+            , { weekday: 'long' }));
     }
     
     // For older messages, return date in DD/MM/YYYY format
-    return messageDate.toLocaleDateString(
-        'en-US'
+    return capitalizeFirstLetter(messageDate.toLocaleDateString(
+        i18next.language
         , {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
-    });
+    }));
 }
-
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 function formatOnlineStatus(date) {
     return null
     if (!date) {
