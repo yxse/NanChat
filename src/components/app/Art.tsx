@@ -154,7 +154,7 @@ export default function Art() {
     return <>
     <NavBar
             className="app-navbar "
-            onBack={() => navigate("/")}>
+            onBack={() => navigate("/wallet")}>
               NaNFT
             </NavBar>
         <ArtImages />

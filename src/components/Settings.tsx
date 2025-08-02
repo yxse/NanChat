@@ -516,7 +516,7 @@ className="mb-24"
                 });
 
               }}>
-              Theme
+              {t('theme')}
             </List.Item>
             <List.Item
             onClick={() => {

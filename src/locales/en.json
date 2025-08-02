@@ -187,5 +187,21 @@
   "publicAccountE2EInfo": "Public account used for end-to-end encryption. Verify it with the group by a secure mean for a guaranteed end-to-end encryption. A new account is generated each time a participant join or leave the group.",
   "sharedKey": "Shared Key",
   "newMessageWarning": "New message warning",
-  "blockChatButton": "Block Chat"
+  "blockChatButton": "Block Chat",
+  "welcomeToNanChat": "Welcome to NanChat",
+  "createAccount": "Create account",
+  "importAccount": "Import account",
+  "createAccountTitle": "Create an account",
+  "uploadProfilePicture": "Upload Profile Picture",
+  "uploading": "Uploading...",
+  "skipToWallet": "Skip to wallet",
+  "nameValidationMsg": "Name must be between 1 and 24 characters",
+  "namePlaceholder": "Name",
+  "biometricsAuthCanceledTitle": "Biometrics authentication canceled",
+  "biometricsAuthCanceledContent": "You canceled the biometrics authentication. Do you want to try again or create a PIN Code?",
+  "tryAgain": "Try again",
+  "createPinCode": "Create PIN Code",
+  "importAccountTitle": "Import an account",
+  "invalidMnemonic": "Invalid Mnemonic!",
+  "or": "Or"
 }

@@ -290,6 +290,7 @@ export default function Start({
        
   // }, []);
   // const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div className="min-h-[554px]">
       {/* <div
@@ -329,7 +330,7 @@ export default function Start({
                 className={"text-3xl text-center mt-4 select-none"}
                 style={{  marginBottom: 64, marginTop: 64 }}
               >
-                Welcome to NanChat
+                {t('welcomeToNanChat')}
               </p>
             </div>
           </div>
@@ -350,7 +351,7 @@ export default function Start({
             className="w-full mt-4"
             size="large"
             color="primary">
-            Create account
+            {t('createAccount')}
           </Button>
           <Button
             shape="rounded"
@@ -363,7 +364,7 @@ export default function Start({
             className="w-full mt-4 mb-2"
             size="large"
             color="default">
-            Import account
+            {t('importAccount')}
           </Button>
           {/* <div
               className={`${theme == "light" &&

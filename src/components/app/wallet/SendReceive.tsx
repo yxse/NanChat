@@ -27,7 +27,11 @@ import { useTranslation } from 'react-i18next';
 
 
 export const ButtonActionCircle = ({title, icon, onClick}) => {
-  return <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+  return <div 
+  style={{
+    width: 60,
+  }}
+  className="flex flex-col items-center cursor-pointer" onClick={() => {
     // navigate("/swap?from=" + ticker);
   }}
   ><Button 
@@ -52,7 +56,17 @@ export const ButtonActionCircle = ({title, icon, onClick}) => {
                       </Button>
 
 
-  <span className="mt-1 text-sm">{title}</span>
+  <span 
+  style={{
+    minWidth: 60,
+    maxWidth: 70,
+    textAlign: "center",
+    wordBreak: "break-word",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  }}
+  className="mt-1 text-sm">{title}</span>
 </div>
 }
 
@@ -87,7 +101,13 @@ export const SendReceive = () => {
       <>
          {
           isMobile && <>
-          <div className="flex justify-center mb-4" style={{gap: 24}}>
+          <div className="mb-4" style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            maxWidth: "325px",
+            marginRight: "auto",
+            marginLeft: "auto",
+          }}>
                     <ButtonActionCircle
                     title={t('receive')}
                     icon={<AiOutlineArrowDown size={22} />}

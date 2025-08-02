@@ -8,45 +8,53 @@ function ChangeLanguage() {
     const { t } = useTranslation();
     const languages = [
       {
+        key: 'ar',
+        label: 'العربية',
+      },
+      {
+        key: 'de',
+        label: 'Deutsch',
+      },
+      {
         key: 'en',
         label: "English",
+      },
+      {
+        key: 'es',
+        label: 'Español',
       },
       {
         key: 'fr',
         label: 'Français',
       },
-    //   {
-    //     key: 'es',
-    //     label: 'Español',
-    //   },
-    //   {
-    //     key: 'zh',
-    //     label: '中文',
-    //   },
-    //   {
-    //     key: 'ar',
-    //     label: 'العربية',
-    //   },
-    //   {
-    //     key: 'ru',
-    //     label: 'Русский',
-    //   },
-    //   {
-    //     key: 'ja',
-    //     label: '日本語',
-    //   },
-    //   {
-    //     key: 'de',
-    //     label: 'Deutsch',
-    //   },
-    //   {
-    //     key: 'tr',
-    //     label: 'Türkçe',
-    //   },
-    //   {
-    //     key: 'it',
-    //     label: 'Italiano',
-    //   }
+      {
+        key: 'it',
+        label: 'Italiano',
+      },
+      {
+        key: 'ja',
+        label: '日本語',
+      },
+      {
+        key: 'nl',
+        label: 'Nederlands',
+      },
+      {
+        key: 'pt',
+        label: 'Português',
+      },
+      {
+        key: 'ru',
+        label: 'Русский',
+      },
+      {
+        key: 'tr',
+        label: 'Türkçe',
+      },
+      {
+        key: 'zh',
+        label: '中文',
+      },
     ]
   return (
         <List.Item 

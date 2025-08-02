@@ -35,6 +35,7 @@ import { LedgerSelect } from "../Start";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { ImportFromQRcode } from "./ImportFromQRcode";
 import PasswordInputExportNewDevice from "../../app/backup/PasswordInputExportNewDevice";
+import { useTranslation } from 'react-i18next';
 
 export default function ImportPhrase({
   setW,
@@ -49,6 +50,7 @@ export default function ImportPhrase({
   const { mutate } = useSWRConfig()
   // @ts-ignore - Ignoring TypeScript errors as requested
   const { wallet, dispatch } = useContext(WalletContext);
+  const { t } = useTranslation();
 
   const [pinVisible, setPinVisible] = useState<boolean>(false);
   const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
@@ -90,7 +92,7 @@ export default function ImportPhrase({
                                   // onBack={() => navigate('/me')}
                           className="app-navbar "
                           backArrow={true}>
-                            Import an account
+                            {t('importAccountTitle')}
                           </NavBar>
 <div
       style={{width: isMobile ? "100%" : 500, margin: "auto", borderRadius: 10, marginTop: 20, overflow: "auto"}}
@@ -109,7 +111,7 @@ export default function ImportPhrase({
                   } else if (tools.validateMnemonic(mnemonicInputs.join(" "))) {
                     seed = walletLib.fromLegacyMnemonic(mnemonicInputs.join(" ")).seed;
                   } else {
-                    toast.error("Invalid Mnemonic!");
+                    toast.error(t('invalidMnemonic'));
                     return;
                   }
     
@@ -117,7 +119,7 @@ export default function ImportPhrase({
                 }}
               />
           <Divider>
-            Or
+            {t('or')}
           </Divider>
           <div className="flex flex-col gap-2">
           <ImportFromQRcode onWalletSelected={(encryptedSeed) => {
@@ -129,7 +131,7 @@ export default function ImportPhrase({
           <ImportFromICloud onWalletSelected={handleWalletSelected} />
           </div>
           <Divider>
-            Or
+            {t('or')}
           </Divider>
           <LedgerSelect
           onConnect={() => {
