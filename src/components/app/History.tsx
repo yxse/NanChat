@@ -139,7 +139,7 @@ export const DateHeader = ({ timestamp, timestampPrev, timestampNext, reverse = 
       )}
   </>
 }
-export const Alias = ({ account }) => {
+export const Alias = ({ account, hideNull }) => {
   const { data, isLoading, isValidating } = useSWR('alias-' + account, () => fetchAlias(account), {
     // dedupingInterval: 1000 * 60 * 60 * 24 // 1 day
     keepPreviousData: true,
@@ -167,6 +167,7 @@ export const Alias = ({ account }) => {
     )
   }
   if (isLoading && !isValidating) return null
+  if (data == null && hideNull) return null
   if (data == null) return account?.slice(0, 10) + "..." + account?.slice(-6)
   return (
     <div className="flex items-center ">
