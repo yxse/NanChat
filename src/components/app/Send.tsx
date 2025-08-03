@@ -276,10 +276,10 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
 {
   amountType === "fiat" ?
   <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
-    {t('availableFiat', { amount: <ConvertToBaseCurrency amount={balance} ticker={ticker} /> })}
+    {t('availableFiat')} ~<ConvertToBaseCurrency amount={balance} ticker={ticker} />
   </div> :
   <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
-    {t('availableCrypto', { amount: balanceLoading ? <DotLoading /> : balance, ticker })}
+    {t('availableCrypto')} {balanceLoading ? <DotLoading /> : balance} {ticker }
   </div>
 }
 
@@ -487,7 +487,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                   <div style={{color: "var(--adm-color-text-secondary)"}}>{t('to')}</div>
                   <div>
                   <ProfileName address={form.getFieldValue("address")} fallback={``} /> ({formatAddress(form.getFieldValue("address"), 11, 7)})
-                    <Alias account={form.getFieldValue("address")} />
+                    <Alias hideNull account={form.getFieldValue("address")} />
                     {/* <AliasInternetIdentifier email={} /> */}
                     </div>
                 </div>
