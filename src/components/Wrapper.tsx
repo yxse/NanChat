@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { SWRConfig } from "swr";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -45,6 +45,11 @@ function localStorageProvider() {
   
   App.addListener('pause', () => {
     saveCache(map)
+  })
+  App.addListener('resume', () => {
+    if (Capacitor.getPlatform() == "android" && window.AndroidSafeArea) {
+      window.AndroidSafeArea.refreshSafeArea();
+    }
   })
   // window.addEventListener('unload', () => {
   //   // console.log('unload')
@@ -195,6 +200,12 @@ export default function PopupWrapper({
     const app = initializeApp(firebaseConfig);
     // const analytics = getAnalytics(app);
   }
+  useEffect(() => {
+    if (Capacitor.getPlatform() == "android" && window.AndroidSafeArea){
+      window.AndroidSafeArea.refreshSafeArea();
+    }
+  }, [])
+  
   return (
     <EventProvider>
     <SWRConfig value={{ provider: localStorageProvider }}>

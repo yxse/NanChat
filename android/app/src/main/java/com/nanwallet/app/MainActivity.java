@@ -22,6 +22,35 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "onCreate: Initializing edge-to-edge handler");
         // Call the edge-to-edge handler after the bridge is initialized
         edgeToEdgeHandler();
+        bridge.getWebView().addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public void refreshSafeArea() {
+                runOnUiThread(() -> {
+                    Log.d(TAG, "JavaScript interface: Refreshing safe area");
+                    refreshSafeArea1();
+                });
+            }
+        }, "AndroidSafeArea");
+    }
+
+
+    /**
+     * Public method to force refresh the safe area insets.
+     * https://github.com/ionic-team/capacitor/issues/7951#issuecomment-3082814965
+     */
+    public void refreshSafeArea1() {
+        Log.d(TAG, "refreshSafeArea: Force refreshing safe area insets");
+
+        // Run on UI thread to ensure we're on the main thread
+        runOnUiThread(() -> {
+            if (bridge != null && bridge.getWebView() != null) {
+                // Trigger a new window insets calculation
+                ViewCompat.requestApplyInsets(bridge.getWebView());
+                Log.d(TAG, "refreshSafeArea: Window insets refresh requested");
+            } else {
+                Log.w(TAG, "refreshSafeArea: Bridge or WebView is null, cannot refresh");
+            }
+        });
     }
 
     private void edgeToEdgeHandler() {
