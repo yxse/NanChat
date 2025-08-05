@@ -203,5 +203,11 @@
   "createPinCode": "Create PIN Code",
   "importAccountTitle": "Import an account",
   "invalidMnemonic": "Invalid Mnemonic!",
-  "or": "Or"
+  "or": "Or",
+  "inContactsAs": "In contacts as {{name}}",
+  "notAContact": "Not a contact",
+  "acceptChat": "Accept chat",
+  "block": "Block",
+  "leave": "Leave",
+  "messagesAndPaymentsBlocked": "Messages and payments to this account will be blocked."
 }

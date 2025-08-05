@@ -203,5 +203,11 @@
   "createPinCode": "PIN Kodu Oluştur",
   "importAccountTitle": "Hesap içe aktar",
   "invalidMnemonic": "Geçersiz Mnemonic!",
-  "or": "Veya"
+  "or": "Veya",
+  "inContactsAs": "Kişilerinizde {{name}} olarak kayıtlı",
+  "notAContact": "Bir kişi değil",
+  "acceptChat": "Sohbeti kabul et",
+  "block": "Engelle",
+  "leave": "Ayrıl",
+  "messagesAndPaymentsBlocked": "Bu hesaba gönderilen mesajlar ve ödemeler engellenecek."
 } 

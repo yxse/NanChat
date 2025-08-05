@@ -203,5 +203,11 @@
   "createPinCode": "Crear código PIN",
   "importAccountTitle": "Importar una cuenta",
   "invalidMnemonic": "¡Mnemonic inválido!",
-  "or": "O"
+  "or": "O",
+  "inContactsAs": "En tus contactos como {{name}}",
+  "notAContact": "No es un contacto",
+  "acceptChat": "Aceptar chat",
+  "block": "Bloquear",
+  "leave": "Salir",
+  "messagesAndPaymentsBlocked": "Los mensajes y pagos a esta cuenta serán bloqueados."
 } 

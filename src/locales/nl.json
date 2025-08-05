@@ -203,5 +203,11 @@
   "createPinCode": "Pincode aanmaken",
   "importAccountTitle": "Account importeren",
   "invalidMnemonic": "Ongeldige mnemonic!",
-  "or": "Of"
+  "or": "Of",
+  "inContactsAs": "In je contacten als {{name}}",
+  "notAContact": "Geen contactpersoon",
+  "acceptChat": "Chat accepteren",
+  "block": "Blokkeren",
+  "leave": "Verlaten",
+  "messagesAndPaymentsBlocked": "Berichten en betalingen naar dit account worden geblokkeerd."
 } 

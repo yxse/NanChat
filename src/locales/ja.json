@@ -203,5 +203,11 @@
   "createPinCode": "PINコードを作成",
   "importAccountTitle": "アカウントをインポート",
   "invalidMnemonic": "無効なニーモニック！",
-  "or": "または"
+  "or": "または",
+  "inContactsAs": "連絡先に {{name}} として登録されています",
+  "notAContact": "連絡先ではありません",
+  "acceptChat": "チャットを承認",
+  "block": "ブロック",
+  "leave": "退出",
+  "messagesAndPaymentsBlocked": "このアカウントへのメッセージと支払いはブロックされます。"
 } 

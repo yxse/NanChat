@@ -203,5 +203,11 @@
   "createPinCode": "创建PIN码",
   "importAccountTitle": "导入账户",
   "invalidMnemonic": "无效的助记词！",
-  "or": "或"
+  "or": "或",
+  "inContactsAs": "在联系人中为 {{name}}",
+  "notAContact": "不是联系人",
+  "acceptChat": "接受聊天",
+  "block": "屏蔽",
+  "leave": "离开",
+  "messagesAndPaymentsBlocked": "发送到此账户的消息和付款将被屏蔽。"
 } 

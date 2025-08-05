@@ -203,5 +203,11 @@
   "createPinCode": "Создать PIN-код",
   "importAccountTitle": "Импортировать аккаунт",
   "invalidMnemonic": "Неверная мнемоника!",
-  "or": "Или"
+  "or": "Или",
+  "inContactsAs": "В ваших контактах как {{name}}",
+  "notAContact": "Не контакт",
+  "acceptChat": "Принять чат",
+  "block": "Заблокировать",
+  "leave": "Покинуть",
+  "messagesAndPaymentsBlocked": "Сообщения и платежи на этот аккаунт будут заблокированы."
 } 

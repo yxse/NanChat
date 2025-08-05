@@ -203,5 +203,11 @@
   "createPinCode": "Create PIN Code",
   "importAccountTitle": "Import an account",
   "invalidMnemonic": "Invalid Mnemonic!",
-  "or": "Or"
+  "or": "Or",
+  "inContactsAs": "في جهات الاتصال باسم {{name}}",
+  "notAContact": "ليست جهة اتصال",
+  "acceptChat": "قبول الدردشة",
+  "block": "حظر",
+  "leave": "مغادرة",
+  "messagesAndPaymentsBlocked": "سيتم حظر الرسائل والمدفوعات إلى هذا الحساب."
 } 

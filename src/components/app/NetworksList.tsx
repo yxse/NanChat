@@ -394,7 +394,8 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   const [action, setAction] = useState("");
   const {balances} = useWalletBalance()
   const hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data === 0) : []
-  
+  const { t } = useTranslation()
+
   const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker)).filter((ticker) => {
     if (filterTickers.length > 0) {
       return filterTickers.includes(ticker);
