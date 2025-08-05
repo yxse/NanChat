@@ -1,6 +1,6 @@
 // You know the rules and so do I
 
-import React, { Dispatch, useState, useEffect, useContext, useDeferredValue} from "react";
+import React, { Dispatch, useState, useEffect, useContext, useDeferredValue, useRef, useCallback} from "react";
 import { IoArrowBack } from "react-icons/io5";
 
 import storage, { setSeed } from "../../../utils/storage";
@@ -27,18 +27,43 @@ const options = {
   translations: zxcvbnEnPackage.translations,
 }
 zxcvbnOptions.setOptions(options)
+
 const usePasswordStrength = (password: string) => {
   const [result, setResult] = useState("")
-  // NOTE: useDeferredValue is React v18 only, for v17 or lower use debouncing
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const deferredPassword = useDeferredValue(password)
+
+  const debouncedZxcvbn = useCallback((password: string) => {
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    
+    // Set new timeout for 500ms
+    timeoutRef.current = setTimeout(() => {
+      zxcvbnAsync(password).then((response) => setResult(response))
+    }, 300)
+  }, [])
 
   useEffect(() => {
     if (!deferredPassword) {
       setResult("")
+      // Clear timeout if password is empty
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
       return
     }
-    zxcvbnAsync(deferredPassword).then((response) => setResult(response))
-  }, [deferredPassword])
+    
+    debouncedZxcvbn(deferredPassword)
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [deferredPassword, debouncedZxcvbn])
 
   return result
 }
