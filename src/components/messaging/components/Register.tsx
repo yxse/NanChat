@@ -27,6 +27,29 @@ import { ProfilePictureUploadButton } from './icons/ProfilePictureUploadButton';
 import ReusableImageUploader from './profile/reusable-image-uploader';
 import { useTranslation } from 'react-i18next';
 
+export const authRegisterCanceled = ({t, setPinVisible, setCreatePinVisible}) => {
+  let modal = Modal.show({
+      title: t('biometricsAuthCanceledTitle'),
+      closeOnMaskClick: false,
+      closeOnAction: false,
+      content: t('biometricsAuthCanceledContent'),
+      actions: [
+        {
+          key: "settings", text: t('tryAgain'), onClick: async () => {
+              modal.close()
+          }
+        },
+        {
+          key: "cancel", text: t('createPinCode'), onClick: async () => {
+              modal.close()
+              setPinVisible(false)
+              setCreatePinVisible(true)
+              localStorage.setItem('confirmation-method', '"pin"')
+          }
+}]
+})
+}
+
 const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     // const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
@@ -50,28 +73,7 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
         getNewChatToken(generatedWallet.accounts[0].address, generatedWallet.accounts[0].privateKey)
       }, []);
 
-      const authRegisterCanceled = ({}) => {
-        let modal = Modal.show({
-            title: t('biometricsAuthCanceledTitle'),
-            closeOnMaskClick: false,
-            closeOnAction: false,
-            content: t('biometricsAuthCanceledContent'),
-            actions: [
-              {
-                key: "settings", text: t('tryAgain'), onClick: async () => {
-                    modal.close()
-                }
-              },
-              {
-                key: "cancel", text: t('createPinCode'), onClick: async () => {
-                    modal.close()
-                    setPinVisible(false)
-                    setCreatePinVisible(true)
-                    localStorage.setItem('confirmation-method', '"pin"')
-                }
-    }]
-})
-}
+
 const register = async () => {
     if (skip){
         setWalletState("unlocked");
@@ -192,7 +194,7 @@ const register = async () => {
             </div>
              <PinAuthPopup
              onCancel={() => {
-                authRegisterCanceled({})
+                authRegisterCanceled({t, setCreatePinVisible, setPinVisible})
              }}
                   location={"create-wallet"}
                   visible={pinVisible}
