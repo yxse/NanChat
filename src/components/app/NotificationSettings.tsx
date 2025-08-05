@@ -124,10 +124,10 @@ function NotificationSettings() {
                         //   }
                         //   );
                         //   }, 5000); // refresh every 5 seconds to check if the user has enabled notifications in the settings
-                        // NativeSettings.open({
-                        //   optionAndroid: AndroidSettings.AppNotification,
-                        //   optionIOS: IOSSettings.AppNotification
-                        // })
+                        NativeSettings.open({
+                          optionAndroid: AndroidSettings.AppNotification,
+                          optionIOS: IOSSettings.AppNotification
+                        })
                       }}>{t('enableNotifications')}</Button>
                     </div>
                   </p>
