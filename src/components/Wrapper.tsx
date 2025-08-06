@@ -7,6 +7,7 @@ import { App } from "@capacitor/app";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { EventProvider } from "./messaging/components/EventContext";
 import '../i18n';
+import { getWindowDimensions } from "../hooks/use-windows-dimensions";
 function saveCache(map) {
   // clear cache 
   // localStorage.removeItem('app-cache')
@@ -46,11 +47,12 @@ function localStorageProvider() {
   App.addListener('pause', () => {
     saveCache(map)
   })
-  App.addListener('resume', () => {
-    if (Capacitor.getPlatform() == "android" && window.AndroidSafeArea) {
-      window.AndroidSafeArea.refreshSafeArea();
-    }
-  })
+  // App.addListener('resume', () => {
+  //   if (Capacitor.getPlatform() == "android" && window?.AndroidSafeArea) {
+  //     //fix https://github.com/ionic-team/capacitor/issues/7951#issuecomment-3082814965
+  //     window.AndroidSafeArea.refreshSafeArea();
+  //   }
+  // })
   // window.addEventListener('unload', () => {
   //   // console.log('unload')
   //   let appCache = JSON.stringify(Array.from(map.entries()).filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
@@ -87,7 +89,7 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
 
     try {
       const wrapper: HTMLElement = document.querySelector('.app');
-      wrapper.style.paddingBottom = 'calc(' + info.keyboardHeight + 'px - env(safe-area-inset-bottom))';
+      wrapper.style.paddingBottom = 'calc(' + info.keyboardHeight + 'px - var(--safe-area-inset-bottom) - var(--android-inset-bottom, 0px) - var(--android-inset-bottom-buttons, 0px) )';
     } 
     catch (e) {
       console.log(e);
@@ -98,8 +100,8 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
       const popup: HTMLElement = document.querySelectorAll('.adm-popup-body:not(.disable-keyboard-resize)');
       console.log("popup", popup);
       popup.forEach((element) => {
-        element.style.marginBottom = `${info.keyboardHeight}px`;
-        // element.style.paddingTop = info.keyboardHeight < 360 ? (360 - info.keyboardHeight) + 'px' : '0px';
+        element.style.marginBottom = `calc(${info.keyboardHeight}px - var(--android-inset-bottom, 0px) - var(--android-inset-bottom-buttons, 0px)`;
+        // element.style.paddingTop = info.keyboardHeight < 400 ? (400 - info.keyboardHeight) + 'px' : '0px';
       });
     } catch (e) {
       console.log(e);
@@ -110,8 +112,8 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
       const popup: HTMLElement = document.querySelectorAll('.adm-modal-body:not(.disable-keyboard-resize)');
       console.log("popup", popup);
       popup.forEach((element) => {
-        element.style.marginBottom = `${info.keyboardHeight}px`;
-        // element.style.paddingTop = info.keyboardHeight < 360 ? (360 - info.keyboardHeight) + 'px' : '0px';
+        element.style.marginBottom = `calc(${info.keyboardHeight}px - var(--android-inset-bottom, 0px) - var(--android-inset-bottom-buttons, 0px)`;
+        // element.style.paddingTop = info.keyboardHeight < 400 ? (400 - info.keyboardHeight) + 'px' : '0px';
       });
     } catch (e) {
       console.log(e);
@@ -122,8 +124,10 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
       const popup: HTMLElement = document.querySelectorAll('.popup-primary-button');
       console.log("popup", popup);
       popup.forEach((element) => {
-        element.style.marginBottom = `${info.keyboardHeight}px`;
-        element.style.paddingTop = info.keyboardHeight < 360 ? (360 - info.keyboardHeight) + 'px' : '0px';
+        element.style.marginBottom = `calc(${info.keyboardHeight}px - var(--safe-area-inset-bottom))`;
+        element.style.paddingTop = info.keyboardHeight < 360 ? 
+        `calc(360px - ${info.keyboardHeight}px + var(--safe-area-inset-bottom))` :
+        '0px';
       });
     } catch (e) {
       console.log(e);
@@ -137,6 +141,7 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
   });
   
   Keyboard.addListener('keyboardWillHide', () => {
+    const {height, isMobile} = getWindowDimensions()
     console.log('keyboard will hide');
     // const app: HTMLElement = document.querySelector('.app');
     // app.style.paddingBottom = '0px';
@@ -177,11 +182,12 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
       console.log("popup", popup);
       popup.forEach((element) => {
         element.style.marginBottom = `0px`;
-        element.style.paddingTop = `360px`;
+        element.style.paddingTop = (height <= 745 || !isMobile) ? `0px` : `360px`;
       });
     } catch (e) {
       console.log(e);
     }
+
   
   });
   
@@ -201,8 +207,12 @@ export default function PopupWrapper({
     // const analytics = getAnalytics(app);
   }
   useEffect(() => {
-    if (Capacitor.getPlatform() == "android" && window.AndroidSafeArea){
-      window.AndroidSafeArea.refreshSafeArea();
+    if (Capacitor.getPlatform() == "android" && window?.AndroidSafeArea){
+      try {
+        window?.AndroidSafeArea.refreshSafeArea();
+      } catch (error) {
+          console.error(error)        
+      }
     }
   }, [])
   
