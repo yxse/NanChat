@@ -23,10 +23,9 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop on which the extension runs:**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**System information:**
+ - OS: [e.g. iOS/Androd/Windows 10]
+ - NanChat Version [e.g. 1.0.1]
 
 **Additional context**
 Add any other context about the problem here.
