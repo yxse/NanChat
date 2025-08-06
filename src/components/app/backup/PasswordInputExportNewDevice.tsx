@@ -22,13 +22,24 @@ const PasswordInputExportNewDevice = ({ onPasswordEntered }) => {
 }, []);
   // Handle complete password updates
   useEffect(() => {
-    const fullPassword = `${section1}-${section2}-${section3}`;
-
-    // Only call the callback if we have a complete password
-    if (section1.length === 6 && section2.length === 6 && section3.length === 6) {
-      onPasswordEntered && onPasswordEntered(fullPassword);
-    }
-  }, [section1, section2, section3, onPasswordEntered]);
+    const handlePassword = async () => {
+      const fullPassword = `${section1}-${section2}-${section3}`;
+  
+      if (section1.length === 6 && section2.length === 6 && section3.length === 6) {
+        if (onPasswordEntered) {
+          try {
+            await onPasswordEntered(fullPassword);
+            // Handle success if needed
+          } catch (error) {
+            console.error('Password validation failed:', error);
+            // Handle error
+          }
+        }
+      }
+    };
+  
+    handlePassword();
+  }, [section1, section2, section3]);
 
   // Handle input changes and auto-focus
   const handleChange = (value, section, nextInputRef) => {

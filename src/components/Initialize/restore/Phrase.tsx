@@ -146,7 +146,9 @@ export default function ImportPhrase({
             visible={importFileVisible}
             onClose={() => setImportFileVisible(false)}
             encryptedSeed={encryptedSeed}
-            onImportSuccess={initializeWalletsAndAuth}
+            onImportSuccess={async (seed) => {
+              await initializeWalletsAndAuth(seed)
+            }}
           />
         </div>
         <PinAuthPopup

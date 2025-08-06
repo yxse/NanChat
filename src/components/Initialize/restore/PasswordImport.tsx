@@ -105,7 +105,7 @@ export const PasswordImport: React.FC<PasswordImportProps> = ({
             color="primary"
             shape="rounded"
             size="large"
-            onClick={handleImport}
+            onClick={async () => await handleImport()}
           >
             {mode === "import" ? "Import" : "Verify"}
           </Button>
