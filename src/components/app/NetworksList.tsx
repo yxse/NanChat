@@ -242,17 +242,21 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
               {
                 !hidePrice &&
                 <div className="flex items-center space-x-1 mt-1">
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs" style={{color: "var(--adm-color-text-secondary)"}}>
                     {/* ${+(prices?.[ticker]?.usd)?.toPrecision(4)} */}
                     <ConvertToBaseCurrency amount={1} ticker={ticker} maximumSignificantDigits={4} />
                   </div>
                   {
                     !hasPrice ? null :
-                    prices?.[ticker]?.change > 0 ? <div className="text-xs text-green-600">
+                    prices?.[ticker]?.change == 0 ?
+                    <div className="text-xs" style={{}}>
+                      {(prices?.[ticker]?.change * 100)?.toFixed(2)}%
+                    </div> :
+                    (prices?.[ticker]?.change > 0 ? <div className="text-xs text-green-600">
                       +{(prices?.[ticker]?.change * 100)?.toFixed(2)}%
                     </div> : <div className="text-xs text-red-600">
                       {(prices?.[ticker]?.change * 100)?.toFixed(2)}%
-                    </div>
+                    </div>)
                   }
                 </div>
               }
@@ -390,7 +394,8 @@ export default function NetworkList({ onClick, hidePrice, showRepresentative = f
   const [action, setAction] = useState("");
   const {balances} = useWalletBalance()
   const hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data === 0) : []
-  
+  const { t } = useTranslation()
+
   const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker)).filter((ticker) => {
     if (filterTickers.length > 0) {
       return filterTickers.includes(ticker);

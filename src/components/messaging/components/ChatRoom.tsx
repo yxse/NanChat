@@ -644,7 +644,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             </div>
             <div 
             style={{
-                "paddingBottom": "var(--safe-area-inset-bottom)",
+                "paddingBottom": "calc(var(--safe-area-inset-bottom, 0px) + var(--android-inset-bottom, 0px))",
                 "backgroundColor": "var(--adm-color-background)"
             }}></div>
            {/* <SafeArea

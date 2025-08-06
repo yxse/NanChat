@@ -75,7 +75,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const {mutate: mutateInifinite} = useSWRConfig();
     const emit = useEmit()
     const names = chat?.participants;
-    let address = names?.find(participant => participant._id !== activeAccount)?._id;
+    let address = (activeAccount == null || activeAccount == '') ? undefined : names?.find(participant => participant._id !== activeAccount)?._id;
+    // console.log({activeAccount})
+    // console.log({address})
     if (account?.startsWith('nano_')) {
         address = account;
     }
@@ -435,6 +437,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             }} />
           }
         <ChatInputAdd 
+        key={address + chat?.id}
         visible={inputAdditionVisible}
         toAddress={
           chat?.type === "private" ?

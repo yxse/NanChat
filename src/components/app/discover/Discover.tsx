@@ -107,7 +107,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     useEffect(() => {
         if (defaultURL && services) { // open url from message
             let domain = new URL(defaultURL).hostname;
-            let service = services.find(service => new URL(service.link).hostname === domain);
+            let service = services.find(service => new URL(service.link).hostname === domain); // verifiy that the url is an existing service
             if (service) {
                 handleServiceClick({...service, link: defaultURL});
                 // setOpenService(service);
@@ -262,7 +262,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
             }}
             style={{
                 width: '100%',
-                height: 'calc(100vh - 40px - var(--safe-area-inset-top))',
+                height: 'calc(100vh - 40px - var(--safe-area-inset-top) - var(--android-inset-top, 0px))',
                 // height: '400px',
                 position: 'fixed',
                 zIndex: -1,

@@ -36,6 +36,7 @@ import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
 import { ImportFromQRcode } from "./ImportFromQRcode";
 import PasswordInputExportNewDevice from "../../app/backup/PasswordInputExportNewDevice";
 import { useTranslation } from 'react-i18next';
+import { authRegisterCanceled } from "../../messaging/components/Register";
 
 export default function ImportPhrase({
   setW,
@@ -153,6 +154,9 @@ export default function ImportPhrase({
               location={"create-wallet"}
               visible={pinVisible}
               setVisible={setPinVisible}
+              onCancel={() => {
+                authRegisterCanceled({t, setCreatePinVisible, setPinVisible})
+              }}
               // description="Enter your PIN to secure your wallet"
               onAuthenticated={async () => {
                 await setSeed(wallet.wallets["XNO"].seed, false)

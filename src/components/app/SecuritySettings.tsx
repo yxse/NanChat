@@ -23,7 +23,6 @@ import { isTauri } from "@tauri-apps/api/core";
 import { useTranslation } from 'react-i18next';
 function SecuritySettings() {
     const navigate = useNavigate();
-    const { t } = useTranslation();
     const [seed, setSeedLocal] = useState(undefined);
     const [hasPassword, setHasPassword] = useState(localStorage.getItem('seed') ? false : true);
     const [lockTimeSeconds, setLockTimeSeconds] = useLocalStorageState("lock-after-inactivity", {defaultValue: 
@@ -37,6 +36,7 @@ function SecuritySettings() {
     const {wallet} = useContext(WalletContext);
     const {data: minReceive, isLoading, mutate} = useSWR("/min-receive", fetcherMessages);
     const isPasswordMandatory = Capacitor.getPlatform() === "web" ? true : false; // Password is only mandatory on web version
+    const { t } = useTranslation();
       const valuesLock = [
         { value: "-1", label: "Disabled" },
         { value: "60", label: "1 minute" },
@@ -68,7 +68,7 @@ function SecuritySettings() {
               else if (whenToAuthenticate.length === 1) {
                 Toast.show({
                   icon: "fail",
-                  content: t('atLeastOneOption'),
+                  content: "At least one option must be enabled",
                   position: "top"
                 })
               }
@@ -88,8 +88,8 @@ function SecuritySettings() {
         visible={pinVisible}
         setVisible={setPinVisible}
         onAuthenticated={() => setWhenToAuthenticate(whenToAuthenticate.filter((v) => v !== actionToRemove))} />
-        {!seed?.isPasswordEncrypted && <WhenToAuthenticateItem value={"launch"}>{t('authenticateOnLaunch')}</WhenToAuthenticateItem>}
-          <WhenToAuthenticateItem value={"send"}>{t('authenticateOnSend')}</WhenToAuthenticateItem>
+        {!seed?.isPasswordEncrypted && <WhenToAuthenticateItem value={"launch"}>Authenticate on launch</WhenToAuthenticateItem>}
+          <WhenToAuthenticateItem value={"send"}>Authenticate on send</WhenToAuthenticateItem>
           </List>
   }
 
@@ -113,14 +113,14 @@ function SecuritySettings() {
                 let modal = Modal.show({
                   bodyStyle: {maxWidth: 400},
                   closeOnMaskClick: true,
-                  title: t('disablePassword'),
+                  title: t('disablePasswordTitle'),
                   content: (
                     <div>
                       <div>{t('disablePasswordDesc')}</div>
                       {
-                        (Capacitor.getPlatform() === "web" && !isTauri()) && // only stored unencrypted if no password using the web version, else secure storage is used
+                        (Capacitor.getPlatform() === "web" && !isTauri()) &&
                       <div>
-                        {t('disablePasswordWarning')}
+                        {t('disablePasswordWebWarning')}
                       </div>
                       }
                       <Form className="form-list high-contrast" mode="card">
@@ -129,7 +129,7 @@ function SecuritySettings() {
                         id="verify-password"
                         type="password"
                         autoComplete="current-password"
-                        placeholder={t('enterPassword')}
+                        placeholder={t('enterYourPassword')}
                         className="mt-2"
                       />
                       </Form.Item></Form>
@@ -168,32 +168,31 @@ function SecuritySettings() {
                           }
                         }}
                       >
-                        {t('disablePassword')}
+                        {t('disablePasswordButton')}
                       </Button>
                       {isPasswordMandatory && <div className="text-sm mt-4">
-                        <div dangerouslySetInnerHTML={{__html: t('passwordMandatoryWeb')}} />
+                        <div>{t('passwordMandatoryWeb')} <a href="https://nanchat.com" target="_blank">{t('downloadNanChat')}</a> {t('toUseSecureStorage')}</div>
                       </div>}
                     </div>
                   ),
                 });
               }}
             >
-              {t('disablePassword')}
+              {t('disablePasswordButton')}
             </List.Item>
             }
             {
               seed?.isPasswordEncrypted && 
-            
             <List.Item 
             prefix={<MdOutlinePassword size={24} />}
             onClick={() => {
               let modal = Modal.show({
                 closeOnMaskClick: true,
-                title: t('changePassword'),
+                title: t('changePasswordTitle'),
                 content: (
                   <div>
                     <PasswordForm 
-                    buttonText={t('changePassword')}
+                    buttonText={t('changePasswordButton')}
                     onFinish={async (values) => {
                         let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, values.password)
                         await setSeed(encryptedSeed, true)
@@ -208,11 +207,10 @@ function SecuritySettings() {
               });
             }}
             >
-              {t('changePassword')}
+              {t('changePasswordButton')}
             </List.Item>}
             {
               !seed?.isPasswordEncrypted &&
-            
             <List.Item
               prefix={<MdOutlinePassword size={24} />}
               onClick={async () => {
@@ -222,17 +220,15 @@ function SecuritySettings() {
                   title: t('requirePasswordTitle'),
                   content: (
                     <div>
-                      <div className="mb-2 ">{t('requirePasswordDesc')}</div>
+                      <div className="mb-2 ">{t('passwordWillEncryptSecretPhrase')}</div>
                       <div style={{color: "var(--adm-color-warning)"}}>
-                        {t('passwordWarning')}
-                      </div>
+                      {t('passwordWarning')}</div>
                        <PasswordForm
                                           onFinish={async (values) => {
                                             const password = values.password
                                             let encryptedSeed = await encrypt(seed.seed, password)
                                             await setSeedLocal({seed: encryptedSeed, isPasswordEncrypted: true})
                                             await setSeed(encryptedSeed, true)
-                                            
                                             Toast.show({
                                               icon: "success",
                                               content: t('passwordEnabled')
@@ -268,7 +264,7 @@ function SecuritySettings() {
               else if (confirmationMethodToSet === "none") {
                 setConfirmationMethod(confirmationMethodToSet)
               }
-            }} description={t('changeConfirmationMethod')} />
+            }} description={"Change confirmation method"} />
             <CreatePin
              visible={createPinVisible} 
              setVisible={setCreatePinVisible} 
@@ -284,7 +280,7 @@ function SecuritySettings() {
               
               let modal = Modal.show({
                 closeOnMaskClick: true,
-                title: t('lockAfterInactivity'),
+                title: "Lock After Inactivity",
                 content: (
                   <div>
                     <CheckList
@@ -305,13 +301,13 @@ function SecuritySettings() {
                               setLockTimeSeconds(parseInt(v.value))
                             }}
                           >
-                            {t(v.label.toLowerCase().replace(/ /g, '')) || v.label}
+                            {v.label}
                           </CheckList.Item>
                         ))
                       }
                     </CheckList>
-                    <div className="text-gray-300 text-sm mt-4">
-                      <div>{t('lockAfterInactivityDesc')}</div>
+                    <div className=" text-sm mt-4">
+                      <div>{t('lockAfterInactivityInfo')}</div>
                     </div>
                   </div>
                 ),
@@ -367,7 +363,7 @@ function SecuritySettings() {
                           // // localStorage.setItem("webauthn-credential-id", " ")
                           // Toast.show({
                           //   icon: "success",
-                          //   content: "Authentication enabled"
+                          //   content: t('authenticationEnabled')
                           // })
                           // setConfirmationMethodToSet("enabled")
                           // setPinVisible(true)
@@ -375,7 +371,7 @@ function SecuritySettings() {
                           console.error(error)
                           Toast.show({
                             icon: "fail",
-                            content: t('authenticationFailed') || "Failed to authenticate. This method may be not supported on your device.",
+                            content: t('authenticationFailed'),
                             duration: 5000
                           })
                         }
@@ -403,7 +399,7 @@ function SecuritySettings() {
                         //     localStorage.removeItem("webauthn-credential-id")
                         //     Toast.show({
                         //         icon: "success",
-                        //         content: "Confirmation disabled"
+                        //         content: t('confirmationDisabled')
                         //     })
                         //     setConfirmationMethod("none")
                         //     modal.close()
@@ -414,13 +410,16 @@ function SecuritySettings() {
                         {t('none')}
                         </CheckList.Item>
                         </CheckList>
-                        <div className="text-gray-300 text-sm mt-4">
+                        <div className=" text-sm mt-4">
                       <div>
-                      {t('authenticationRequiredDesc')}
+                        {t('confirmationRequiredToSend')}
                       </div>
-                      <div className="mt-2">
-                      {t('authenticationNote')}
+                      {
+                        (Capacitor.getPlatform() === "web" && !isTauri()) &&
+                      <div>
+                        {t('confirmationNotEncryptSecretKey')}
                       </div>
+                      }
                     </div>
                     </div>
               })}}
@@ -430,13 +429,13 @@ function SecuritySettings() {
             </List>
             {
           confirmationMethod !== "none" && 
-          <WhenToAuthenticateSettings t={t} />
+          <WhenToAuthenticateSettings />
       }
         </>
         {
           confirmationMethod !== "none" && 
         <div className="text-sm px-4" style={{color: "var(--adm-color-text-secondary)"}}>
-          {t('atLeastOneOption')}
+          At least one option must be enabled.
         </div> 
         }
         <Divider />
@@ -447,7 +446,7 @@ function SecuritySettings() {
                 navigate("/settings/security/blocked")
             }}
             >
-                {t('blockedAccounts')}
+                Blocked Accounts
             </List.Item>
             <List.Item
             extra={
@@ -490,7 +489,7 @@ function SecuritySettings() {
                             <Form.Item
                             layout="vertical"
                             name="minReceiveAmount"
-                            label={t('minReceiveAmount')}
+                            label={t('minReceiveAmountLabel')}
                             rules={[]}
                             >
                                 <Input
@@ -502,15 +501,15 @@ function SecuritySettings() {
                             </Form.Item>
                         </Form>
                         <div className="text-sm mt-2">
-                            <div>{t('filterLowValueDesc')}</div>
-                            <div className="mt-2">{t('setToZeroToDisable')}</div>
+                            <div>{t('minReceiveAmountInfo')}</div>
+                            <div className="mt-2">{t('minReceiveAmountDisableInfo')}</div>
                             </div>
                             </div>
                 })
             }
             }
             >
-                {t('minReceiveAmount')}
+                Min. Receive Amount
             </List.Item>
         </List>
         <Divider />
@@ -530,15 +529,15 @@ function SecuritySettings() {
             prefix={<DeleteOutline fontSize={24} color="red"/>}
             onClick={() => {
                 Modal.show({
-                  title: t('deleteAccount'),
-                  content: t('deleteAccountConfirm'),
+                  title: t('deleteAccountTitle'),
+                  content: t('deleteAccountContent'),
                   closeOnMaskClick: true,
                   actions: [
-                    { key: "confirm", text: t('deleteAccount'), style: { color: "var(--adm-color-danger)" }, onClick: async () => {
+                    { key: "confirm", text: t('delete'), style: { color: "var(--adm-color-danger)" }, onClick: async () => {
                       Modal.confirm({
-                        title: t('confirmAccountDeletion'),
+                        title: t('confirmAccountDeletionTitle'),
                         closeOnMaskClick: true,
-                        confirmText: t('deleteAccount'),
+                        confirmText: t('delete'),
                         cancelText: t('cancel'),
                         onConfirm: async () => {
                           await deleteAccount()
@@ -550,7 +549,7 @@ function SecuritySettings() {
                       navigate('/me')
                     }
                       })}},
-                    { key: "cancel", text: t('cancel') , onClick: () => {
+                    { key: "cancel", text: t('cancel'), onClick: () => {
                         Modal.clear()
                     }}
                   ],
