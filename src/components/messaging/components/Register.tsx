@@ -86,7 +86,7 @@ const register = async () => {
         fetcherMessagesPost('/set-name', {
             name: name,
             account: activeAccount
-        }).then(async (res) => {
+        }, activeAccountPk).then(async (res) => {
             console.log(res);
             // Toast.show({icon: 'success'});
             await mutate({name: name});
