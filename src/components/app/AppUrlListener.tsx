@@ -32,10 +32,27 @@ const AppUrlListener: React.FC<any> = () => {
     const location = useLocation();
     const [uri, setUri] = useState('');
     useEffect(() => {
+      const handleURL = (url) => {
+        let contactsFile = isContactImport(url);
+        if (contactsFile){
+          navigate("/contacts?import_url=" + contactsFile);
+          return;
+        }
+        if (
+          (url.startsWith("https://nanchat.com/") || (url.startsWith("nan://nanchat.com/")))
+          && !url.includes("?uri="))
+          {
+          // no valid action detected, we just open the app and redirect to the correct page
+          navigate("/")
+          navigate(url.replace('nan://nanchat.com/', '/').replace("https://nanchat.com/", "/"))
+          return; 
+        }
+        setUri(url);
+      }
       const handleOpenUrl = async () => {
         await onOpenUrl((urls) => {
           let url = urls[0];
-          setUri(url);
+          handleURL(url)
         });
       };
 
@@ -44,26 +61,15 @@ const AppUrlListener: React.FC<any> = () => {
       }
       if (Capacitor.isNativePlatform()){
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+          console.log(event.url)
+
           WebviewOverlay.toggleSnapshot(true);
-          let contactsFile = isContactImport(event.url);
-          if (contactsFile){
-            navigate("/contacts?import_url=" + contactsFile);
-            return;
-          }
-          if (event.url.startsWith("https://nanchat.com/") && !event.url.includes("?uri=")){
-            // no valid action detected, we just open the app and redirect to the correct page
-            navigate(event.url.replace("https://nanchat.com/", "/"));
-            return; 
-          }
-          setUri(event.url);
+         handleURL(event.url)
           try {
             // InAppBrowser.close()
           } catch (error) {
             console.log(error)
           }
-            // Toast.show({
-            //     content: "Opening URL: " + event.url
-            // });
           });
         }
 
