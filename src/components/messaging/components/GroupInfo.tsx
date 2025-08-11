@@ -30,6 +30,7 @@ import ProfileName from "./profile/ProfileName";
 import { BlockChatButton } from "./NewMessageWarning";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
+import icon from "../../../../public/icons/nanchat.svg"
 
 export const AccountCard = ({ account }) => {
 const navigate = useNavigate();
@@ -151,7 +152,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                 visible={visibleRemove} setVisible={setVisibleRemove} title={t('removeParticipant')} />
 </Card>
 </div>
-<div style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
+<div style={{maxWidth: 600, margin: 'auto', marginTop: 16, paddingBottom: 32}}>
 <List mode="card">
     {isAdmin && 
             <List.Item
@@ -216,9 +217,16 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                                     {chat?.name || t('newGroup')}
                                 </div>
                                 <QRCode
+                                imageSettings={{
+                                              src: icon,
+                                              height: 24,
+                                              width: 24,
+                                              excavate: false,
+                                            }}
                                 includeMargin
                                 value={"https://nanchat.com/chat/" + chat?.id + "?join"}
                                 size={256}
+                                style={{borderRadius: 8}}
                                 />
                                 <div style={{color: 'var(--adm-color-text-secondary)', marginTop: 16, textAlign: 'center', maxWidth: 256}}>
                                     {t('validUntil100Members')}
