@@ -188,6 +188,7 @@ const Message = memo(({
               }
               else {
                 Toast.show({ icon: 'success' });
+                emit('recall-message', {message: message.content})
               }
             }
             setVisible(false);

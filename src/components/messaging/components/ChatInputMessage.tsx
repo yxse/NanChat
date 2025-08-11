@@ -1,5 +1,5 @@
 import { AddCircleOutline } from "antd-mobile-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { useWallet } from "../../Popup";
@@ -64,7 +64,17 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useWindowDimensions()
-    const [newMessage, setNewMessage] = useState(defaultNewMessage || '');
+    const DRAFT_KEY = 'draft-' + account
+
+    let defaultMesageText = ''
+    if (defaultNewMessage){
+      defaultMesageText = defaultMesage
+    }
+    else if (localStorage.getItem(DRAFT_KEY)){
+      defaultMesageText = localStorage.getItem(DRAFT_KEY)
+    }
+    // debugger
+    const [newMessage, setNewMessage] = useState(defaultMesageText);
     const navigate = useNavigate();
     const {activeAccount, activeAccountPk} = useWallet()
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}&limit=1`, fetcherMessages);
@@ -72,6 +82,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const { mutate: mutateMessages} = useChat(account);
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
     const replyEvent = useEvent("reply-message");
+    const recallEvent = useEvent("recall-message");
     const {mutate: mutateInifinite} = useSWRConfig();
     const emit = useEmit()
     const names = chat?.participants;
@@ -86,6 +97,41 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     }
     const welcomeButtonClick = useEvent("open-input-plus");
 
+
+       useEffect(() => {
+    const savedDraft = localStorage.getItem(DRAFT_KEY)
+    // debugger
+    if (savedDraft) {
+      setTimeout(() => {
+        if (messageInputRef.current) {
+          const length = savedDraft.length;
+          messageInputRef.current.nativeElement.setSelectionRange(length, length);
+          messageInputRef.current.focus();
+        }
+      }, 0);
+    }
+  }, [account]);
+
+
+      // Debounced save function
+  const debouncedSave = useCallback(
+    debounce((id, text) => {
+        console.log('saving draft', id, text)
+        localStorage.setItem(id, text);
+    }, 500), // Save after 500ms of inactivity
+    []
+  );
+      // Simple debounce implementation
+  function debounce(func, delay) {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  }
+   useEffect(() => {
+    debouncedSave(DRAFT_KEY, newMessage);
+  }, [newMessage, account, debouncedSave]);
     useEffect(() => {
       console.log("welcomeButtonClick", welcomeButtonClick)
       if (welcomeButtonClick) {
@@ -116,6 +162,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
     }
     , [replyEvent, account]);
+    useEffect(() => {
+      if (newMessage == "" && recallEvent?.message){
+        setNewMessage(recallEvent?.message) // we put back the recalled message in the input (only if no new message being typed)
+        messageInputRef.current?.focus();
+      }
+    }
+    , [recallEvent]);
     
 
   const callbackSocket = (response: any, message) => {
