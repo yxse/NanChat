@@ -42,10 +42,7 @@ const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   if (message.joinRequest.status === "pending") {
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
-        <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
-        <ProfileName address={addresses[0]} />
-        </Link>
-           asked to join the chat
+        <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}><ProfileName address={addresses[0]} /></Link> asked to join the chat
           <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}
         </span>  
@@ -105,10 +102,7 @@ const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
   };
   return (
     <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
-      <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
-      <ProfileName address={addresses[0]} />
-       </Link>
-        asked to join the chat
+      <Link to={'/chat/' + addresses[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}><ProfileName address={addresses[0]} /></Link> asked to join the chat
         <span className="text-xs block mt-1">
         {formatTelegramDate(message.timestamp)}
         </span>  
