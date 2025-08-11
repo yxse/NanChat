@@ -146,7 +146,7 @@ export const parseURI = (uri) => {
     }
   }
 
-  export const MIN_USD_SWAP = 1;
+  export const MIN_USD_SWAP = 0.01;
 
   export const formatSize = (bytes) => {
     if (bytes == 0) return '0 Bytes';
