@@ -59,13 +59,13 @@ function NotificationIsDisabled() {
                     {t('enableNotificationsDevice')}
                     <div>
                       <Button onClick={() => {
-                        setInterval(() => {
-                          askPermission().then((isGranted) => {
-                            console.log({isGranted});
-                            setIsGranted(isGranted);
-                          }
-                          );
-                          }, 5000); // fallback refresh every 5 seconds to check if the user has enabled notifications in the settings
+                        // setInterval(() => {
+                        //   askPermission().then((isGranted) => {
+                        //     console.log({isGranted});
+                        //     setIsGranted(isGranted);
+                        //   }
+                        //   );
+                        //   }, 5000); // fallback refresh every 5 seconds to check if the user has enabled notifications in the settings
                         NativeSettings.open({
                           optionAndroid: AndroidSettings.AppNotification,
                           optionIOS: IOSSettings.AppNotification

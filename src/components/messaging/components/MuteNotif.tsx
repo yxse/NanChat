@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useChat } from '../hooks/useChat'
 import { useParams } from 'react-router-dom';
-import { muteChat, unmuteChat } from '../fetcher';
 import { useChats } from '../hooks/use-chats';
 import NotificationIsDisabled from '../../app/NotificationIsDisabled';
 
@@ -32,7 +31,9 @@ function MuteNotif() {
             {t('muteNotifications')}
         </List.Item>
     </List>
-    <NotificationIsDisabled />
+    {
+        !chat?.muted && <NotificationIsDisabled />
+    }
             </>
   )
 }

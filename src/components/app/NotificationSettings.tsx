@@ -115,8 +115,8 @@ function NotificationSettings() {
           keyNotification={"newReceive"}
         />
         <ItemNotication
-          title={t('newMessage')}
-          description={t('newMessageDesc')}
+          title={t('newChatRequest')}
+          description={t('newChatRequestDesc')}
           keyNotification={"newMessage"}
         />
         <ItemNotication

@@ -264,5 +264,7 @@
   "invalidPassword": "Senha inválida",
   "disablePasswordButton": "Desativar senha",
   "muteNotifications": "Silenciar notificações",
-  "errorWithMessage": "Erro: {{error}}"
+  "errorWithMessage": "Erro: {{error}}",
+  "newChatRequest": "Novo pedido de chat",
+  "newChatRequestDesc": "Receba uma notificação quando você receber um novo pedido de chat"
 } 

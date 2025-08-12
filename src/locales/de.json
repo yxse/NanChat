@@ -265,5 +265,7 @@
   "invalidPassword": "Ungültiges Passwort",
   "disablePasswordButton": "Passwort deaktivieren",
   "muteNotifications": "Benachrichtigungen stummschalten",
-  "errorWithMessage": "Fehler: {{error}}"
+  "errorWithMessage": "Fehler: {{error}}",
+  "newChatRequest": "Neue Chat-Anfrage",
+  "newChatRequestDesc": "Benachrichtigung erhalten, wenn Sie eine neue Chat-Anfrage erhalten"
 } 

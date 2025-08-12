@@ -266,5 +266,7 @@
   "invalidPassword": "無効なパスワードです",
   "disablePasswordButton": "パスワードを無効にする",
   "muteNotifications": "通知をミュート",
-  "errorWithMessage": "エラー: {{error}}"
+  "errorWithMessage": "エラー: {{error}}",
+  "newChatRequest": "新しいチャットリクエスト",
+  "newChatRequestDesc": "新しいチャットリクエストを受信したときに通知を受け取る"
 } 

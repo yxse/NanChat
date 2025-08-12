@@ -266,5 +266,7 @@
   "invalidPassword": "Geçersiz parola",
   "disablePasswordButton": "Parolayı devre dışı bırak",
   "muteNotifications": "Bildirimleri sessize al",
-  "errorWithMessage": "Hata: {{error}}"
+  "errorWithMessage": "Hata: {{error}}",
+  "newChatRequest": "Yeni sohbet isteği",
+  "newChatRequestDesc": "Yeni bir sohbet isteği aldığınızda bildirim alın"
 } 

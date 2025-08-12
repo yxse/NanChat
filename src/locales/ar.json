@@ -265,5 +265,7 @@
   "invalidPassword": "كلمة مرور غير صحيحة",
   "disablePasswordButton": "تعطيل كلمة المرور",
   "muteNotifications": "كتم الإشعارات",
-  "errorWithMessage": "خطأ: {{error}}"
+  "errorWithMessage": "خطأ: {{error}}",
+  "newChatRequest": "طلب دردشة جديد",
+  "newChatRequestDesc": "تلقي إشعار عند استلام طلب دردشة جديد"
 } 

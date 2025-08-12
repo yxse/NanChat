@@ -266,5 +266,7 @@
   "invalidPassword": "密码无效",
   "disablePasswordButton": "禁用密码",
   "muteNotifications": "静音通知",
-  "errorWithMessage": "错误：{{error}}"
+  "errorWithMessage": "错误：{{error}}",
+  "newChatRequest": "新的聊天请求",
+  "newChatRequestDesc": "当您收到新的聊天请求时收到通知"
 } 

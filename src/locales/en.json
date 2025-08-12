@@ -262,7 +262,10 @@
 "confirmAccountDeletionTitle": "Confirm Account Deletion",
 "delete": "Delete",
 "accountDeleted": "Account deleted",
-  "deleteAccount": "Delete Account",
-  "muteNotifications": "Mute Notifications",
-  "errorWithMessage": "Error: {{error}}"
+"deleteAccount": "Delete Account",
+"muteNotifications": "Mute Notifications",
+"errorWithMessage": "Error: {{error}}",
+"newChatRequest": "New chat request",
+"newChatRequestDesc": "Get notified when you receive a new chat request"
+
 }

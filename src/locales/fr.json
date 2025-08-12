@@ -264,5 +264,7 @@
   "invalidPassword": "Mot de passe invalide",
   "disablePasswordButton": "Désactiver le mot de passe",
   "muteNotifications": "Mettre en sourdine les notifications",
-  "errorWithMessage": "Erreur : {{error}}"
+  "errorWithMessage": "Erreur : {{error}}",
+  "newChatRequest": "Nouvelle demande de discussion",
+  "newChatRequestDesc": "Recevez une notification lorsque vous recevez une nouvelle demande de discussion"
 }
