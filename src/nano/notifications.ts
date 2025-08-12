@@ -90,6 +90,16 @@ async function askPermission() {
         const token = await getToken();
         await saveSubscription(token, allAccounts);
     }
+    if (Capacitor.getPlatform() == "android"){ // this is required to get correct display notification permission on android <13 (because requestPermissions return always granted)
+        // https://capacitorjs.com/docs/apis/push-notifications#checkpermissions
+        let r = await LocalNotifications.checkPermissions()
+        if (r.display == "granted"){
+           permissionGranted = true 
+        }
+        else{
+            permissionGranted = false
+        }
+    }
     return permissionGranted;
 }
 
