@@ -31,6 +31,7 @@ import { CardAddNewContact } from "./contacts/AddNewContact";
 import AddContacts from "../../app/AddContacts";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
+import MuteNotif from "./MuteNotif";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const { t } = useTranslation();
@@ -207,7 +208,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         defaultChatId={chat?.id}
                         messageInputRef={messageInputRef}
                     />
-                    <List mode="card" style={{marginTop: 16}}>
+                    <MuteNotif />
+                    <List mode="card" style={{}}>
                 <List.Item
                     extra={formatAddress(account)}
                     onClick={() => {
@@ -255,7 +257,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                 {t('address')}
                     </List.Item></List>
                    
-              <div style={{marginTop: 16, marginBottom: 16}}>
+              <div style={{ marginBottom: 16}}>
                     
                             <BlockChatButton 
                             mode="list"

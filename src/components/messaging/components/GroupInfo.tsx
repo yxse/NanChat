@@ -31,6 +31,7 @@ import { BlockChatButton } from "./NewMessageWarning";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
 import icon from "../../../../public/icons/nanchat.svg"
+import MuteNotif from "./MuteNotif";
 
 export const AccountCard = ({ account }) => {
 const navigate = useNavigate();
@@ -240,7 +241,8 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             </List.Item>
            
             </List>
-            <List style={{marginTop: 16}} mode="card">
+            <MuteNotif />
+            <List style={{}} mode="card">
             <List.Item
             extra={<div style={{display: 'flex', gap: 4, alignItems: 'center'}}>
                 <AccountIcon account={chat?.creator} width={24} />

@@ -162,6 +162,8 @@ export const addParticipants = (chatId, participants) => fetcherMessagesPost('/a
 export const removeParticipants = (chatId, participants) => fetcherMessagesPost('/remove-participants', {chatId, participants})
 export const joinRequest = (chatId) => fetcherMessagesPost('/join-request', {chatId})
 export const acceptJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/join-request-accept', {chatId, fromAccount})
+export const muteChat = (chatId) => fetcherMessagesPost('/mute', {chatId})
+export const unmuteChat = (chatId) => fetcherMessagesPost('/unmute', {chatId})
 export const rejectJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/join-request-reject', {chatId, fromAccount})
 export const deleteMessage = (chatId, height) => fetcherMessagesPost('/delete-message', {chatId, height})
 export const deleteAccount = () => fetcherMessagesPost('/delete-account', {})

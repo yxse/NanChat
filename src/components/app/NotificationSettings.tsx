@@ -17,6 +17,8 @@ import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../messaging/
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
 import { useTranslation } from 'react-i18next';
+import { App } from "@capacitor/app";
+import NotificationIsDisabled from "./NotificationIsDisabled";
 
 function NotificationSettings() {
     const navigate = useNavigate();
@@ -80,11 +82,16 @@ function NotificationSettings() {
     }
 
     useEffect(() => {
+      App.addListener('resume', () => {
+        askPermission().then((isGranted) => { // refresh to check if the user has enabled notifications in the settings
+                console.log({isGranted});
+                setIsGranted(isGranted);
+              });
+      })
       askPermission().then((isGranted) => {
         console.log({isGranted});
         setIsGranted(isGranted);
-      }
-      );
+      });
     }
     , []);
 
@@ -100,43 +107,7 @@ function NotificationSettings() {
           <span className="">{t('notificationSettings')}</span>
         </NavBar>
 
-      {
-        !isGranted && (
-          <div>
-            <div className="text-center text-lg mt-4">
-                {t('notificationsDisabled')}
-            </div>
-            <div className="text-center text-sm mb-4">
-            {
-              Capacitor.getPlatform() === "web" ? (
-                  <p>
-                    {t('enableNotificationsBrowser')}
-                  </p>
-              ) : (
-                  <p>
-                    {t('enableNotificationsDevice')}
-                    <div>
-                      <Button onClick={() => {
-                        // setInterval(() => {
-                        //   askPermission().then((isGranted) => {
-                        //     console.log({isGranted});
-                        //     setIsGranted(isGranted);
-                        //   }
-                        //   );
-                        //   }, 5000); // refresh every 5 seconds to check if the user has enabled notifications in the settings
-                        NativeSettings.open({
-                          optionAndroid: AndroidSettings.AppNotification,
-                          optionIOS: IOSSettings.AppNotification
-                        })
-                      }}>{t('enableNotifications')}</Button>
-                    </div>
-                  </p>
-              )
-            }
-            </div>
-          </div>
-        )
-      }
+     <NotificationIsDisabled />
         <List mode="card">
         <ItemNotication
           title={t('newReceive')}

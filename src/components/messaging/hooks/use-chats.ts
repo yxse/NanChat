@@ -1,7 +1,7 @@
 import useSWR, { mutate } from 'swr';
 import { useCallback, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost } from '../fetcher';
+import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
 import { useWallet } from '../../Popup';
 import { Toast } from 'antd-mobile';
 
@@ -15,7 +15,7 @@ interface UseChatsReturn {
   blockChat: (chatId: string) => Promise<void>;
 }
 
-export function useChats(chatId?: string): UseChatsReturn {
+export function useChats(chatIdOrAccount?: string): UseChatsReturn {
   const {activeAccount, activeAccountPk} = useWallet();
   // Fetch all chats
   const {
@@ -34,6 +34,13 @@ export function useChats(chatId?: string): UseChatsReturn {
     }
   );
   // const chat = chats?.find(chat => chat.id === chatId);
+  let chatId = chatIdOrAccount
+  if (chatId?.startsWith('nano_')){
+    chatId = chats.find(chat => chat.type === "private" && 
+      ((chat.participants[0]?._id == activeAccount && (chat.participants[1]?._id == chatId)) ||
+      (chat.participants[1]?._id == activeAccount && (chat.participants[0]?._id == chatId))))?.id
+      // get chat id from the nano adress, usefull for the mutate notification in /chat/[account]/info, eventually  /chat/[chatId]/group route can be used even for private chat to avoid this by directly using the real chatId
+  }
   const chat = Array.isArray(chats) ? chats.find(chat => chat.id === chatId) : undefined;
 
   const profilePictures = {}
@@ -115,6 +122,34 @@ export function useChats(chatId?: string): UseChatsReturn {
       throw new Error(r.error)
   }
   }
+async function muteNotifChat(mute) {
+        await mutateChats( // optimistic update
+          current => {
+              return current.map(chat => 
+                  (chat.id === chatId || 
+                    (chat.type === "private" && chat.participants.includes(chatId) && chat.participants[0] !== chat.participants[1]))// in case of private chat
+                      ? { ...chat, muted: mute }
+                      : chat
+              )
+          }
+          , false
+      )
+  let r
+  if (mute){
+    r = await muteChat(chatId)
+  }
+  else{
+    r = await unmuteChat(chatId)
+  }
+
+  if (r.success) {
+    // no need to resync if success
+  }
+  else if (r.error) {
+    await mutateChats()
+      throw new Error(r.error)
+  }
+}
     
 
   return { 
@@ -125,6 +160,7 @@ export function useChats(chatId?: string): UseChatsReturn {
     clearCache,
     mutateChats,
     blockChat,
+    muteNotifChat
     // isLoadingChat, 
     
   };
