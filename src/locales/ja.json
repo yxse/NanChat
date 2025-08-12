@@ -264,5 +264,7 @@
   "enterYourPassword": "パスワードを入力してください",
   "passwordDisabled": "パスワードが無効になりました",
   "invalidPassword": "無効なパスワードです",
-  "disablePasswordButton": "パスワードを無効にする"
+  "disablePasswordButton": "パスワードを無効にする",
+  "muteNotifications": "通知をミュート",
+  "errorWithMessage": "エラー: {{error}}"
 } 

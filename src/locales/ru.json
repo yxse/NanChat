@@ -264,5 +264,7 @@
   "enterYourPassword": "Введите ваш пароль",
   "passwordDisabled": "Пароль отключен",
   "invalidPassword": "Неверный пароль",
-  "disablePasswordButton": "Отключить пароль"
+  "disablePasswordButton": "Отключить пароль",
+  "muteNotifications": "Отключить уведомления",
+  "errorWithMessage": "Ошибка: {{error}}"
 } 

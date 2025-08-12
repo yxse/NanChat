@@ -263,5 +263,7 @@
   "enterYourPassword": "Geben Sie Ihr Passwort ein",
   "passwordDisabled": "Passwort deaktiviert",
   "invalidPassword": "Ungültiges Passwort",
-  "disablePasswordButton": "Passwort deaktivieren"
+  "disablePasswordButton": "Passwort deaktivieren",
+  "muteNotifications": "Benachrichtigungen stummschalten",
+  "errorWithMessage": "Fehler: {{error}}"
 } 

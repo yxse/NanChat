@@ -263,5 +263,7 @@
   "enterYourPassword": "أدخل كلمة المرور",
   "passwordDisabled": "تم تعطيل كلمة المرور",
   "invalidPassword": "كلمة مرور غير صحيحة",
-  "disablePasswordButton": "تعطيل كلمة المرور"
+  "disablePasswordButton": "تعطيل كلمة المرور",
+  "muteNotifications": "كتم الإشعارات",
+  "errorWithMessage": "خطأ: {{error}}"
 } 

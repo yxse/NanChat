@@ -264,5 +264,7 @@
   "enterYourPassword": "Voer uw wachtwoord in",
   "passwordDisabled": "Wachtwoord uitgeschakeld",
   "invalidPassword": "Ongeldig wachtwoord",
-  "disablePasswordButton": "Wachtwoord uitschakelen"
+  "disablePasswordButton": "Wachtwoord uitschakelen",
+  "muteNotifications": "Meldingen dempen",
+  "errorWithMessage": "Fout: {{error}}"
 } 

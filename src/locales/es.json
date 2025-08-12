@@ -264,5 +264,7 @@
   "enterYourPassword": "Ingresa tu contraseña",
   "passwordDisabled": "Contraseña deshabilitada",
   "invalidPassword": "Contraseña inválida",
-  "disablePasswordButton": "Deshabilitar contraseña"
+  "disablePasswordButton": "Deshabilitar contraseña",
+  "muteNotifications": "Silenciar notificaciones",
+  "errorWithMessage": "Error: {{error}}"
 } 

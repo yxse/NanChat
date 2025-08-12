@@ -264,5 +264,7 @@
   "enterYourPassword": "Parolanızı girin",
   "passwordDisabled": "Parola devre dışı bırakıldı",
   "invalidPassword": "Geçersiz parola",
-  "disablePasswordButton": "Parolayı devre dışı bırak"
+  "disablePasswordButton": "Parolayı devre dışı bırak",
+  "muteNotifications": "Bildirimleri sessize al",
+  "errorWithMessage": "Hata: {{error}}"
 } 

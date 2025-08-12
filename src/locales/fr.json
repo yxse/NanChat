@@ -262,5 +262,7 @@
   "enterYourPassword": "Entrez votre mot de passe",
   "passwordDisabled": "Mot de passe désactivé",
   "invalidPassword": "Mot de passe invalide",
-  "disablePasswordButton": "Désactiver le mot de passe"
+  "disablePasswordButton": "Désactiver le mot de passe",
+  "muteNotifications": "Mettre en sourdine les notifications",
+  "errorWithMessage": "Erreur : {{error}}"
 }

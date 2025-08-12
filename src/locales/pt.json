@@ -262,5 +262,7 @@
   "enterYourPassword": "Digite sua senha",
   "passwordDisabled": "Senha desativada",
   "invalidPassword": "Senha inválida",
-  "disablePasswordButton": "Desativar senha"
+  "disablePasswordButton": "Desativar senha",
+  "muteNotifications": "Silenciar notificações",
+  "errorWithMessage": "Erro: {{error}}"
 } 

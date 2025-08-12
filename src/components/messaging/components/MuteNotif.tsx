@@ -1,5 +1,6 @@
 import { List, Switch, Toast } from 'antd-mobile'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useChat } from '../hooks/useChat'
 import { useParams } from 'react-router-dom';
 import { muteChat, unmuteChat } from '../fetcher';
@@ -7,6 +8,7 @@ import { useChats } from '../hooks/use-chats';
 import NotificationIsDisabled from '../../app/NotificationIsDisabled';
 
 function MuteNotif() {
+    const { t } = useTranslation()
     const {
             account
         } = useParams();
@@ -21,13 +23,13 @@ function MuteNotif() {
                 try {
                     await muteNotifChat(checked)
                 } catch (error) {
-                    Toast.show({content: "Error: " + error})                    
+                    Toast.show({ content: t('errorWithMessage', { error: String(error) }) })                    
                 }
             }}
             checked={chat?.muted} />
         }
         >
-            Mute Notifications
+            {t('muteNotifications')}
         </List.Item>
     </List>
     <NotificationIsDisabled />

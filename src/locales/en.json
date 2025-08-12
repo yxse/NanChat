@@ -262,5 +262,7 @@
 "confirmAccountDeletionTitle": "Confirm Account Deletion",
 "delete": "Delete",
 "accountDeleted": "Account deleted",
-"deleteAccount": "Delete Account"
+  "deleteAccount": "Delete Account",
+  "muteNotifications": "Mute Notifications",
+  "errorWithMessage": "Error: {{error}}"
 }
