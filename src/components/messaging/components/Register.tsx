@@ -9,7 +9,7 @@ import { AccountIcon } from '../../app/Home';
 import { Button, Form, ImageUploader, Input, Modal, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';
 import { fetcherAccount, fetcherChat, fetcherMessages, fetcherMessagesPost, getNewChatToken } from '../fetcher';
-import useSWR, { preload } from 'swr';
+import useSWR, { preload, useSWRConfig } from 'swr';
 import { LockOutline } from 'antd-mobile-icons';
 import { useHideNavbarOnMobile } from '../../../hooks/use-hide-navbar';
 import { useChats } from '../hooks/use-chats';
@@ -52,6 +52,7 @@ export const authRegisterCanceled = ({t, setPinVisible, setCreatePinVisible}) =>
 
 const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     // const navigate = useNavigate();
+      const { mutate: mutateGlobal } = useSWRConfig()
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
     const {mutateChats} = useChats();
     const [pinVisible, setPinVisible] = useState(false);
@@ -66,7 +67,7 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     useEffect(() => {
         const generatedWallet = walletLib.generateLegacy()
         for (let ticker of Object.keys(networks)) {
-          dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
+          dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutateGlobal, dispatch) } });
         }
         setSeed(generatedWallet.seed, false).then(async () => {
         })
