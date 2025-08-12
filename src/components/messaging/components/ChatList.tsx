@@ -1,5 +1,5 @@
 import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Space, Toast } from "antd-mobile";
-import { AddCircleOutline, ChatAddOutline, FillinOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
+import { AddCircleOutline, BellMuteOutline, ChatAddOutline, FillinOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
@@ -302,7 +302,8 @@ const saveScrollPosition = useCallback(
                         className="text-xs"
                         >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
                             {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
-                            <div>
+                            <div style={{display: "flex", alignItems: "end"}}>
+                              {chat.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                               <Button
                               className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1"
                                size="mini" color="primary" shape="rounded">{chat.unreadCount}</Button>
@@ -311,7 +312,7 @@ const saveScrollPosition = useCallback(
                         : // empty div to keep the same height
                         <div>
                             <span className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
-                                {''}
+                                {''}{chat.muted && <BellMuteOutline fontSize={18}/>}
                             </span>
                         </div>
                         }
