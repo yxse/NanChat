@@ -35,6 +35,7 @@ import { useHideNavbarOnMobile } from "../hooks/use-hide-navbar";
 import ExportSecretPhrase from "./app/ExportSecretPhrase";
 import { useTranslation } from 'react-i18next';
 import ChangeLanguage from "./settings/ChangeLanguage";
+import { refreshStatusBarTheme } from "./messaging/utils";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -448,6 +449,7 @@ className="mb-24"
                           // setTheme(val);
                           console.log(val);
                           localStorage.setItem("theme", val[0]);
+                          refreshStatusBarTheme()
                         }}
                       >
                         <CheckList.Item
@@ -661,7 +663,9 @@ className="mb-24"
                 </Space>
               </Button>
             }
-            <div className="mt-4 pb-4">
+            <div 
+            style={{paddingBottom: 'calc(var(--safe-area-inset-bottom) + 16px)'}}
+            className="mt-4">
             <LedgerSelect 
             onConnect={() => {
               navigate("/wallet")

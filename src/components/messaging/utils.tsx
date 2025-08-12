@@ -7,6 +7,8 @@ import { useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 import { networks } from "../../utils/networks";
+import { Device } from "@capacitor/device";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
 export const hasLink = (message: string) => {
     return String(message)?.match(/(https?:\/\/[^\s]+)/g)
@@ -208,4 +210,21 @@ export const openInBrowser = (url: string) => {
 
 export const openHashInExplorer = (hash: string, ticker: string) => {
   openInBrowser(`https://nanexplorer.com/${networks[ticker].id}/block/${hash}`)
+}
+export const refreshStatusBarTheme = () => {
+  if (Capacitor.getPlatform() == "android"){
+    Device.getInfo().then((info) => {
+    console.log("sdk: ", info.androidSDKVersion)
+    if (info.androidSDKVersion && info.androidSDKVersion >= 35){
+      if (document.documentElement.getAttribute("data-prefers-color-scheme") === "dark"){
+        console.log("set dark")
+        StatusBar.setStyle({ style: Style.Dark });
+      }
+      else {
+        console.log("set light")
+        StatusBar.setStyle({ style: Style.Light });
+      }
+    }
+  })
+}
 }

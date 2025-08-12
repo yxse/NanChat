@@ -8,6 +8,7 @@ import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { EventProvider } from "./messaging/components/EventContext";
 import '../i18n';
 import { getWindowDimensions } from "../hooks/use-windows-dimensions";
+import { refreshStatusBarTheme } from "./messaging/utils";
 function saveCache(map) {
   // clear cache 
   // localStorage.removeItem('app-cache')
@@ -207,6 +208,9 @@ export default function PopupWrapper({
     // const analytics = getAnalytics(app);
   }
   useEffect(() => {
+    if (Capacitor.getPlatform() == "android"){
+      refreshStatusBarTheme()
+    }
     if (Capacitor.getPlatform() == "android" && window?.AndroidSafeArea){
       try {
         window?.AndroidSafeArea.refreshSafeArea();
