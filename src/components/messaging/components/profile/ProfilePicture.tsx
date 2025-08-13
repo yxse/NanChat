@@ -4,15 +4,19 @@ import { DotLoading, Image, ImageViewer } from "antd-mobile";
 import { accountIconUrl } from "../../../app/Home";
 import { NoAvatar } from "../icons/NoAvatar";
 
-const ProfilePicture = ({ address, width=40, borderRadius=8, clickable }) => {
-    const { data, isLoading } = useSWR(address, fetcherAccount, {
+const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = null }) => {
+    let isLoading = false
+    if (src == null){
+        const { data, isLoading: isLoadingData } = useSWR(address, fetcherAccount, {
             revalidateIfStale: false,
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-    });
-    let src = data?.profilePicture?.url
+        });
+        src = data?.profilePicture?.url
+        isLoading = isLoadingData
+    }
     let icon
-    if (src == null) {
+    if (src == null || src == false) {
         icon = <NoAvatar width={width} height={width} />
     }
     else{

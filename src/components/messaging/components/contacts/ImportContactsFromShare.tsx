@@ -38,7 +38,10 @@ export const useContacts = () => {
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const { data: contactsOnNanChat } = useSWR<Chat[]>(
         `/names?accounts=${contacts.map((contact) => convertAddress(contact.addresses[0].address, 'XNO')).join(',')}`, 
-        fetcherMessages);
+        fetcherMessages, {
+            focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
+            dedupingInterval: 60 * 60 * 1000
+        });
      
     let contactsNotOnNanChat = contacts.filter((contact) => {
         return !contactsOnNanChat?.find?.((c) => c._id === contact.addresses[0].address);
@@ -60,7 +63,10 @@ export const useContacts = () => {
             addresses: [{
                 network: 'ALL',
                 address: localContact?.addresses[0].address
-            }]
+            }],
+            profilePicture: {
+                url: contact?.profilePicture?.url || false // false is to show no avatar with <ProfilePicture /> if no pfp set 
+            }
         }
     });
 

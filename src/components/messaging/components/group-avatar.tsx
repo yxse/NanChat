@@ -47,7 +47,7 @@ const GroupAvatar = ({ chat }) => {
       backgroundColor: 'var(--text-color-primary)',
       width: widthTotal, height: widthTotal, display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: gap, alignContent: 'center'}}>
       {participants?.map((participant, index) => (
-        <ProfilePicture address={participant?._id} key={index} width={width} borderRadius={8}/>
+        <ProfilePicture address={participant?._id} key={index} width={width} borderRadius={8} src={participant?.profilePicture?.url || false}/>
       ))}
     </div>
   );

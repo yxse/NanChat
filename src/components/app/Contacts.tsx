@@ -453,7 +453,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         style={{}}
                         prefix={
                         <div style={{paddingTop: 8, paddingBottom: 8}}>
-                            <ProfilePicture address={contact.addresses[0]?.address} width={48}  />
+                            <ProfilePicture address={contact.addresses[0]?.address} width={48} src={contact?.profilePicture?.url} />
                             </div>}
                          key={index}
                             onClick={() => {
@@ -504,7 +504,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         style={{}}
                         prefix={
                         <div style={{paddingTop: 8, paddingBottom: 8}}>
-                            <ProfilePicture address={contact.addresses[0]?.address} width={48}  />
+                            <ProfilePicture address={contact.addresses[0]?.address} width={48}  src={false}/>
                             </div>}
                          key={index}
                             onClick={() => {
