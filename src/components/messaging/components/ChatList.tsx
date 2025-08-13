@@ -303,7 +303,7 @@ const saveScrollPosition = useCallback(
                         >{formatTelegramDate(chat.lastMessageTimestamp)}</div>
                             {(chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount)? (
                             <div style={{display: "flex", alignItems: "end"}}>
-                              {chat.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
+                              {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                               <Button
                               className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1"
                                size="mini" color="primary" shape="rounded">{chat.unreadCount}</Button>
@@ -312,7 +312,7 @@ const saveScrollPosition = useCallback(
                         : // empty div to keep the same height
                         <div>
                             <span className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
-                                {''}{chat.muted && <BellMuteOutline fontSize={18}/>}
+                                {''}{chat?.muted && <BellMuteOutline fontSize={18}/>}
                             </span>
                         </div>
                         }

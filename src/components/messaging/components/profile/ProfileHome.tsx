@@ -102,15 +102,6 @@ const ProfileHome: React.FC = () => {
                 </List>
             <List className='my-4' mode='card'>
             <List.Item
-                    prefix={<UserContactOutline fontSize={24} />}
-                    onClick={() => navigate('/contacts')}
-                    >
-                        {t('contacts')}
-                    </List.Item>
-            </List>
-            
-            <List className='my-4' mode='card'>
-            <List.Item
                     prefix={<SetOutline fontSize={24} />}
                     onClick={() => navigate('/me/settings')}
                     extra={<SeedVerifiedBadge/>}

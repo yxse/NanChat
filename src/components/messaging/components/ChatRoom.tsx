@@ -1,4 +1,4 @@
-import { LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
+import { BellMuteOutline, LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -327,6 +327,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                    className="flex-1 text-center">
                     <h2 className="flex items-center justify-center gap-2">
                     <ProfileName address={address} fallback={formatAddress(address)} />
+                    {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     </h2>
                     <HeaderStatus lastOnline={participant?.lastOnline} />
                 </div>
@@ -364,6 +365,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                    className="flex-1 text-center">
                     <h2 className="flex items-center justify-center gap-2">
                     {chat?.name || 'Group Chat'} ({chat?.participants.length})
+                    {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     </h2>
                 </div>
                 </NavBar>
