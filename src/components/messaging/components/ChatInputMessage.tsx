@@ -68,7 +68,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
 
     let defaultMesageText = ''
     if (defaultNewMessage){
-      defaultMesageText = defaultMesage
+      defaultMesageText = defaultNewMessage
     }
     else if (localStorage.getItem(DRAFT_KEY)){
       defaultMesageText = localStorage.getItem(DRAFT_KEY)
