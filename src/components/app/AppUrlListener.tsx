@@ -15,6 +15,7 @@ import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 
 
 const isContactImport = (url: string) => {
+  console.log({url})
   const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
   const urlData = new URL(url);
   const searchParams = urlData.searchParams;
@@ -33,6 +34,7 @@ const AppUrlListener: React.FC<any> = () => {
     const [uri, setUri] = useState('');
     useEffect(() => {
       const handleURL = (url) => {
+        console.log("handle", url)
         let contactsFile = isContactImport(url);
         if (contactsFile){
           navigate("/contacts?import_url=" + contactsFile);
@@ -61,6 +63,7 @@ const AppUrlListener: React.FC<any> = () => {
       }
       if (Capacitor.isNativePlatform()){
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+          console.log('appurlopen')
           console.log(event.url)
 
           WebviewOverlay.toggleSnapshot(true);

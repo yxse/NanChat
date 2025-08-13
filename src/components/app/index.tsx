@@ -95,37 +95,8 @@ import { useTranslation } from 'react-i18next';
 
 
 
-// run this as part of the app launch
-if (Capacitor.isPluginAvailable('ShareExtension')) {
-  window.addEventListener('sendIntentReceived',  () => {
-      checkIntent();
-  });
-  checkIntent();
-}
 
-async function checkIntent() {
-  try {
-      const result: any = await ShareExtension.checkSendIntentReceived();
-      /* sample result::
-      { payload: [
-          {
-              "type":"image%2Fjpg",
-              "description":"",
-              "title":"IMG_0002.JPG",
-              // url contains a full, platform-specific file URL that can be read later using the Filsystem API.
-              "url":"file%3A%2F%2F%2FUsers%2Fcalvinho%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FE4C13502-3A0B-4DF4-98ED-9F31DDF03672%2Fdata%2FContainers%2FShared%2FAppGroup%2FF41DC1F5-54D7-4EC5-9785-5248BAE06588%2FIMG_0002.JPG",
-              // webPath returns a path that can be used to set the src attribute of an image for efficient loading and rendering.
-              "webPath":"capacitor%3A%2F%2Flocalhost%2F_capacitor_file_%2FUsers%2Fcalvinho%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FE4C13502-3A0B-4DF4-98ED-9F31DDF03672%2Fdata%2FContainers%2FShared%2FAppGroup%2FF41DC1F5-54D7-4EC5-9785-5248BAE06588%2FIMG_0002.JPG",
-          }]
-       } 
-       */
-      if (result && result.payload && result.payload.length) {
-          console.log('Intent received: ', JSON.stringify(result));
-      }
-  } catch (err) {
-      console.log(err);
-  }
-}
+
 
 
 
@@ -326,7 +297,44 @@ function SafeAreaWrapper({ children, callback }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  async function checkIntent() {
+  try {
+      const result: any = await ShareExtension.checkSendIntentReceived();
+      /* sample result::
+      { payload: [
+          {
+              "type":"image%2Fjpg",
+              "description":"",
+              "title":"IMG_0002.JPG",
+              // url contains a full, platform-specific file URL that can be read later using the Filsystem API.
+              "url":"file%3A%2F%2F%2FUsers%2Fcalvinho%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FE4C13502-3A0B-4DF4-98ED-9F31DDF03672%2Fdata%2FContainers%2FShared%2FAppGroup%2FF41DC1F5-54D7-4EC5-9785-5248BAE06588%2FIMG_0002.JPG",
+              // webPath returns a path that can be used to set the src attribute of an image for efficient loading and rendering.
+              "webPath":"capacitor%3A%2F%2Flocalhost%2F_capacitor_file_%2FUsers%2Fcalvinho%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FE4C13502-3A0B-4DF4-98ED-9F31DDF03672%2Fdata%2FContainers%2FShared%2FAppGroup%2FF41DC1F5-54D7-4EC5-9785-5248BAE06588%2FIMG_0002.JPG",
+          }]
+       } 
+       */
+      if (Capacitor.getPlatform() == "android" && result && result.payload && result.payload.length) {
+        const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
+        const title = result.payload?.[0]?.title
+        if (title && contactsFileName.find((name) => title.startsWith(name))){
+        let json = JSON.stringify(result)
+          console.log('Import contact Intent received: ', json);
+          navigate('/contacts?import_url=' + decodeURIComponent(result.payload[0]?.url))
+        }
+      }
+  } catch (err) {
+      console.log(err);
+  }
+}
+
   useEffect(() => {
+if (Capacitor.isPluginAvailable('ShareExtension')) {
+  window.addEventListener('sendIntentReceived',  () => {
+      checkIntent(); // to handle import contact
+  });
+  checkIntent();
+}
+
     console.log("callback", callback);
     if (callback) {
       navigate(callback.callback);
