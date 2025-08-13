@@ -382,7 +382,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     }
     if (isLoading && contactsOnNanChatMergedWithLocalContacts == null) return <DotLoading />
     
-    const mergedList = contactsOnNanChatMergedWithLocalContacts?.concat(contactsNotOnNanChat)
+    const mergedList = contactsOnNanChatMergedWithLocalContacts?.sort((a, b) => a.name?.localeCompare(b.name))?.concat(contactsNotOnNanChat?.sort((a, b) => a.name?.localeCompare(b.name)))
     function rowRenderer(
             index,
             contactsData,
