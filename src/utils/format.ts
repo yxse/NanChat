@@ -83,26 +83,7 @@ export const parseURI = (uri) => {
   }
 
   export const ShareModal = async ({title, url}) => {
-    try {
-      if (!Capacitor.isNativePlatform() && navigator.share) {
-        if (url == null) {
-          navigator.share({
-            text: title
-          })
-        }
-        else{
-
-          navigator.share({
-            title: title,
-            url: url
-          })
-        }
-      }
-      else {
-        throw new Error("Share API not supported");
-      }
-    } catch (error) {
-      if (await Share.canShare()) {
+    if (Capacitor.isNativePlatform() && await Share.canShare()) {
         Share.share({
           text: title,
         });
@@ -110,12 +91,11 @@ export const parseURI = (uri) => {
       else{
         copyToClipboard(title);
         Toast.show({
-          icon: "success",
-          content: "Invite link copied to clipboard"
+          icon: 'success',
+          content: "Copied to clipboard!",
+          duration: 2000
         });
       }
-      
-    }
   }
 
   export const copyToClipboard = async (text, error = "Failed to copy") => {
