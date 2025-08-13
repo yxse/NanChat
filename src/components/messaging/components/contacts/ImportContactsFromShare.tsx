@@ -12,7 +12,7 @@ import { Filesystem } from '@capacitor/filesystem';
 import useLocalStorageState from 'use-local-storage-state';
 import { networks } from '../../../../utils/networks';
 import ProfilePicture from './../profile/ProfilePicture';
-import { formatAddress } from '../../../../utils/format';
+import { convertAddress, formatAddress } from '../../../../utils/format';
 import { useBackupContacts } from './BackupContacts';
 import { defaultContacts } from '../../utils';
 import { fetcherMessages } from '../../fetcher';
@@ -37,7 +37,7 @@ export const useContacts = () => {
     const {backupContacts} = useBackupContacts()
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const { data: contactsOnNanChat } = useSWR<Chat[]>(
-        `/names?accounts=${contacts.map((contact) => contact.addresses[0].address).join(',')}`, 
+        `/names?accounts=${contacts.map((contact) => convertAddress(contact.addresses[0].address, 'XNO')).join(',')}`, 
         fetcherMessages);
      
     let contactsNotOnNanChat = contacts.filter((contact) => {
@@ -47,8 +47,22 @@ export const useContacts = () => {
         return {
             _id: contact.addresses[0].address,
             name: contact.name,
+            addresses: contact.addresses
         }
     })
+
+    const contactsOnNanChatMergedWithLocalContacts = contactsOnNanChat?.map((contact) => {
+        // find local contact if one address is the same
+        const localContact = contacts.find((c) => c.addresses[0].address === contact._id);
+        return {
+            _id: contact._id,
+            name: localContact?.name || contact.name,
+            addresses: [{
+                network: 'ALL',
+                address: localContact?.addresses[0].address
+            }]
+        }
+    });
 
 
     const parseContacts = (text) => {
@@ -153,6 +167,7 @@ export const useContacts = () => {
         contacts,
         contactsOnNanChat,
         contactsNotOnNanChat,
+        contactsOnNanChatMergedWithLocalContacts
     }
 }
 

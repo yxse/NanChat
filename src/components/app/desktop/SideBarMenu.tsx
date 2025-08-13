@@ -1,5 +1,5 @@
 import { Badge, SideBar } from "antd-mobile";
-import { CompassOutline, MessageFill, MessageOutline, SetOutline, UserOutline } from "antd-mobile-icons";
+import { CompassOutline, MessageFill, MessageOutline, SetOutline, UserContactOutline, UserOutline } from "antd-mobile-icons";
 import { useState } from "react";
 import { AiFillHome, AiOutlineHome, AiOutlineWallet } from "react-icons/ai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -32,6 +32,11 @@ export const SideBarMenu = () => {
         title: t('chats'),
         icon: <Badge content={unreadCount}><MessageFill size={btnSize} /></Badge>,
       },
+      {
+      key: "contacts",
+      title: t('contacts'),
+      icon: <UserContactOutline size={btnSize} />
+    },
       {
         key: "wallet",
         title: t('wallets'),
@@ -90,6 +95,10 @@ export const SideBarMenu = () => {
             }
             else if (key === "chat") {
               navigate("/chat");
+              return
+            }
+            else if (key === "contacts") {
+              navigate("/contacts");
               return
             }
             else if (key === "me") {

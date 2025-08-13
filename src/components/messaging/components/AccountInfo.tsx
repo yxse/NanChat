@@ -185,7 +185,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 />
                 <ChatInputTip
                 filterTickers={
-                    inContacts ? contact?.addresses[0].network === 'ALL' ? [] : [contact?.addresses[0].network]
+                    inContacts ? 
+                    contact?.addresses[0].network === 'ALL' ? [] : (inOnNanchat ? [] : [contact?.addresses[0].network])
                     : (inOnNanchat ? [] : [ticker || 'XNO'])
                 } 
                 mode={"list"}
@@ -208,7 +209,10 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         defaultChatId={chat?.id}
                         messageInputRef={messageInputRef}
                     />
+                    {
+                        inOnNanchat && 
                     <MuteNotif />
+                    }
                     <List mode="card" style={{}}>
                 <List.Item
                     extra={formatAddress(account)}

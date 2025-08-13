@@ -9,6 +9,7 @@ import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrows
 import { networks } from "../../utils/networks";
 import { Device } from "@capacitor/device";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { convertAddress } from "../../utils/format";
 
 export const hasLink = (message: string) => {
     return String(message)?.match(/(https?:\/\/[^\s]+)/g)
@@ -227,4 +228,12 @@ export const refreshStatusBarTheme = () => {
     }
   })
 }
+}
+
+export  const findNanoAddress = (addresses) => {
+    if (addresses == null) return null;
+    if (addresses.find((address) => address.network === 'XNO')) {
+        return 'nano_' + addresses?.find((address) => address.network === 'XNO').address?.split('_')[1];
+    }
+    return convertAddress(addresses[0].address, 'XNO');
 }

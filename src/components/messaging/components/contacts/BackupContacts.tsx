@@ -121,9 +121,8 @@ function BackupContacts() {
 
     return (
         <div className="mt-6 pt-4 mb-4 ml-2 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-        <LockFill className="mr-2 inline" />Your contacts are backed up end-to-end encrypted
-        <br/> {contactsBackupLength} contacts backed up.
-        {contacts.length > 0 && <div className="mt-2">You have {contacts.length} contacts</div>}
+        {contacts.length > 0 && <div className="mt-2 mb-2">You have {contacts.length} contacts</div>}
+        <LockFill className="mr-2 inline" />Your contacts are backed up end-to-end encrypted.
 
         {/* contacts local: 
         {JSON.stringify(contacts).length}

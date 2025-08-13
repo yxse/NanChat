@@ -48,7 +48,7 @@ import AddNetwork from "./AddNetwork";
 import { networks } from "../../utils/networks";
 import { FaExchangeAlt } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
-import {AppstoreOutline, BellOutline, CompassOutline, LoopOutline, MessageOutline, SetOutline, UserOutline} from "antd-mobile-icons";
+import {AppstoreOutline, BellOutline, CompassOutline, LoopOutline, MessageOutline, SetOutline, UserContactOutline, UserOutline} from "antd-mobile-icons";
 import Contacts from "./Contacts";
 import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
 import PWAInstallComponent from "../PWAInstallComponent";
@@ -181,6 +181,11 @@ export const MenuBar = () => {
       icon: <Badge content={unreadCount}><MessageOutline size={btnSize} /></Badge>,
     },
     {
+      key: "contacts",
+      title: t('contacts'),
+      icon: <UserContactOutline size={btnSize} />
+    },
+    {
       key: "wallet",
       title: t('wallets'),
       icon: <AiOutlineWallet size={btnSize} />,
@@ -195,6 +200,7 @@ export const MenuBar = () => {
       title: t('discover'),
       icon: <CompassOutline size={btnSize} />,
     },
+    
     {
       key: "me",
       title: t('me'),
@@ -255,6 +261,10 @@ export const MenuBar = () => {
           else if (key === "swap") {
             setVisible(true);
             setAction("swap");
+            return
+          }
+          else if (key === "contacts") {
+            navigate("/contacts");
             return
           }
           else if (key === "chat") {
