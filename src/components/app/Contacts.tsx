@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, NavBar, Icon, Button, Popover, FloatingBubble, Space, Modal, Input, Popup, Card, Form, Toast, SwipeAction, CenterPopup, Divider } from 'antd-mobile';
+import { List, NavBar, Icon, Button, Popover, FloatingBubble, Space, Modal, Input, Popup, Card, Form, Toast, SwipeAction, CenterPopup, Divider, DotLoading } from 'antd-mobile';
 import { AiOutlineDelete, AiOutlineExport, AiOutlineImport, AiOutlineMenu, AiOutlineMore, AiOutlinePlus } from 'react-icons/ai';
 import useLocalStorageState from 'use-local-storage-state';
 import NetworkList from './NetworksList';
@@ -30,7 +30,11 @@ import AddContacts from './AddContacts';
 import { useScrollRestoration } from 'use-scroll-restoration';
 import { t } from 'i18next';
 import PasteAction from './PasteAction';
-
+import {
+    List as VirtualizedList,
+    AutoSizer,
+    WindowScroller,
+  } from 'react-virtualized'
 
 export const ImportContacts = ({showAdd = false}) => {
     const [popupVisible, setPopupVisible] = useState(false);
@@ -172,7 +176,7 @@ export const ImportContacts = ({showAdd = false}) => {
         </div>;
     }
     return  <div className=''>
-        <List header="Import Contacts">
+        <List header="Import Contacts" style={{"backgroundColor": "var(--main-background-color)"}}>
          
 
         {
@@ -315,7 +319,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const [searchParams] = useSearchParams();
     const [addContactVisible, setAddContactVisible] = useState( searchParams.get("add") === "true" );
     const navigate = useNavigate();
-    const {contactsOnNanChatMergedWithLocalContacts, contactsNotOnNanChat} = useContacts()
+    const {contactsOnNanChatMergedWithLocalContacts, contactsNotOnNanChat,isLoading} = useContacts()
     console.log({contactsOnNanChatMergedWithLocalContacts})
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     const [contactToEdit, setContactToEdit] = useState(null);
@@ -376,8 +380,91 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     if (onlyImport) {
         return <ImportContacts />
     }
+    if (isLoading && contactsOnNanChatMergedWithLocalContacts == null) return <DotLoading />
     
+    const mergedList = contactsOnNanChatMergedWithLocalContacts?.concat(contactsNotOnNanChat)
+    function rowRenderer(
+            index,
+            contactsData,
+            style
+          
+          ) {
+            // console.log({index, contactsData})
+            const contact = contactsData[index]
+            const key = index
 
+            if (index == contactsData?.length) return <div style={style}
+                        key={key}>
+            <ImportContacts />
+            <BackupContacts />
+            </div>
+            let elmt = null
+            if (index == 0) elmt = <>
+               <List.Item
+                    onClick={() => inviteFriends()}
+                     arrowIcon>
+            <div
+            style={{display: 'flex', alignItems: "center", color: 'var(--adm-color-primary)', }}
+            ><MailOutline style={{marginRight: 4}}/>
+                {t('inviteFriends')}
+            </div>
+            </List.Item>
+            <div 
+            
+            style={{ backgroundColor: 'var(--main-background-color)'}} className='adm-list-header'
+                        >Your NanChat contacts</div></>
+            if (index == contactsOnNanChatMergedWithLocalContacts?.length) elmt = <div 
+            
+            style={{ backgroundColor: 'var(--main-background-color)'}} className='adm-list-header'
+                        >Your contacts not yet on NanChat</div>
+           return <div style={style}
+                        key={key}>{elmt} <SwipeAction
+           
+                        rightActions={[
+                            {
+                                key: 'delete',
+                                color: 'danger',
+                                text: 'Delete',
+                                onClick: () => {
+                                    Modal.confirm({
+                                        title: `Delete ${contact.name}?`,
+                                        content: `Are you sure you want to delete this contact?`,
+                                        onConfirm: async () => {
+                                            let newContacts = contacts.filter((c) => c.name !== contact.name);
+                                            setContacts(newContacts);
+                                            Toast.show({
+                                                icon: 'success',
+                                            });
+                                            await backupContacts(newContacts)
+                                        },
+                                        confirmText: 'Delete',
+                                        cancelText: 'Cancel',
+                                    });
+                                },
+                            }
+                        ]}>
+
+                        <List.Item
+                        
+                        prefix={
+                        <div style={{paddingTop: 8, paddingBottom: 8}}>
+                            <ProfilePicture address={contact?.addresses[0]?.address} width={48} src={contact?.profilePicture?.url !== null ? contact?.profilePicture?.url : false} />
+                            </div>}
+                         key={key + "list"}
+                            onClick={() => {
+                                navigate(`/${contact.addresses[0].address}/info`);
+                                // setContactToEdit(contact);
+                                // setEditContactVisible(true);
+                                // form.setFieldsValue({ newName: contact.name });
+                            }}
+                        >
+                            <ProfileName
+                            fallback={contact?.name}
+                            address={contact?.addresses[0]?.address}
+                            />
+                        </List.Item>
+                    </SwipeAction></div>
+            }
     return (
         <div >
             <NavBar
@@ -410,70 +497,42 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 // </div>
             }
             
-                <List>
-                    <List.Item
-                    onClick={() => inviteFriends()}
-                     arrowIcon>
-            <div
-            style={{display: 'flex', alignItems: "center", color: 'var(--adm-color-primary)', }}
-            ><MailOutline style={{marginRight: 4}}/>
-                {t('inviteFriends')}
-            </div>
-            </List.Item>
-            </List>
-            <List header={contactsOnNanChatMergedWithLocalContacts?.length > 0 ? 'Your NanChat contacts' : null}>
-                {contactsOnNanChatMergedWithLocalContacts?.sort((a, b) => a.name?.localeCompare(b.name)).map((contact, index) => (
-                    <SwipeAction
-                        key={index}
-                        rightActions={[
-                            {
-                                key: 'delete',
-                                color: 'danger',
-                                text: 'Delete',
-                                onClick: () => {
-                                    Modal.confirm({
-                                        title: `Delete ${contact.name}?`,
-                                        content: `Are you sure you want to delete this contact?`,
-                                        onConfirm: async () => {
-                                            let newContacts = contacts.filter((c) => c.name !== contact.name);
-                                            setContacts(newContacts);
-                                            Toast.show({
-                                                icon: 'success',
-                                            });
-                                            await backupContacts(newContacts)
-                                        },
-                                        confirmText: 'Delete',
-                                        cancelText: 'Cancel',
-                                    });
-                                },
-                            }
-                        ]}>
-
-                        <List.Item
-                        style={{}}
-                        prefix={
-                        <div style={{paddingTop: 8, paddingBottom: 8}}>
-                            <ProfilePicture address={contact.addresses[0]?.address} width={48} src={contact?.profilePicture?.url} />
-                            </div>}
-                         key={index}
-                            onClick={() => {
-                                navigate(`/${contact.addresses[0].address}/info`);
-                                // setContactToEdit(contact);
-                                // setEditContactVisible(true);
-                                // form.setFieldsValue({ newName: contact.name });
-                            }}
-                        >
-                            <ProfileName
-                                address={contact.addresses[0]?.address}
+            <List >
+                {/* {contactsOnNanChatMergedWithLocalContacts?.sort((a, b) => a.name?.localeCompare(b.name)).map((contact, index) => (
+                    
+                ))} */}
+                <div style={{ 
+            height: isMobile ? "calc(100vh - 45px - 59px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
+          // 47px for the header, 58px for the menu
+          , overflow: "hidden" }}>
+                <AutoSizer>
+                              {({ width, height }) => (
+                                <VirtualizedList
+                                key="v1"
+                                  rowCount={mergedList?.length + 1}
+                                  rowRenderer={({index, style}) => rowRenderer(index,mergedList, style)}
+                                  width={width}
+                                  height={height}
+                                  rowHeight={
+                    ({ index }) => {
+                      if (index === mergedList?.length) return 500 // footer import buttons
+                      if (index == 0) return 65 + 38.5 + 50.5; // item + list header + invite friend 
+                      if (index === contactsOnNanChatMergedWithLocalContacts?.length) return 65 + 38.5; //  item + list header 
+                      return 65;
+                    }}
+                                  overscanRowCount={5}
+                                //   isScrolling={isScrolling}
                                 />
-                        </List.Item>
-                    </SwipeAction>
-                ))}
+                              )}
+                            </AutoSizer>
+                            </div>
                 </List>
 
-                <List header={contactsNotOnNanChat?.length > 0 ? "Your contacts not yet on NanChat" : null}>
+                {/* <List header={contactsNotOnNanChat?.length > 0 ? "Your contacts not yet on NanChat" : null}> */}
 
-                {contactsNotOnNanChat.sort((a, b) => a.name?.localeCompare(b.name)).map((contact, index) => (
+
+
+                {/* {contactsNotOnNanChat.sort((a, b) => a.name?.localeCompare(b.name)).map((contact, index) => (
                     <SwipeAction
                         key={index}
                         rightActions={[
@@ -514,9 +573,9 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                 // form.setFieldsValue({ newName: contact.name });
                             }}
                         >{contact.name}</List.Item>
-                    </SwipeAction>
-                ))}
-            </List>
+                    </SwipeAction> */}
+                {/* ))} */}
+            {/* </List> */}
             <AddContacts
                 defaultName={""}
                 defaultAddress={""}
@@ -526,10 +585,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 setContactToEdit={setContactToEdit}
                 contactToEdit={contactToEdit}
                  />
-            <ImportContacts />
-
             <ImportContactsFromShare />
-            <BackupContacts />
             </div>
         </div>
     );

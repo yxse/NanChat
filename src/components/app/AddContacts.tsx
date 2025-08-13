@@ -122,7 +122,7 @@ const AddContacts: React.FC = ({defaultName, defaultAddress, defaultNetwork, set
         await backupContacts(newContacts)
     };
 
-    console.log(contacts)
+    // console.log(contacts)
     
 
     

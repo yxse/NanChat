@@ -36,11 +36,12 @@ export const useContact = () => {
 export const useContacts = () => {
     const {backupContacts} = useBackupContacts()
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
-    const { data: contactsOnNanChat } = useSWR<Chat[]>(
+    const { data: contactsOnNanChat, isLoading } = useSWR<Chat[]>(
         `/names?accounts=${contacts.map((contact) => convertAddress(contact.addresses[0].address, 'XNO')).join(',')}`, 
         fetcherMessages, {
             focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
-            dedupingInterval: 60 * 60 * 1000
+            dedupingInterval: 60 * 60 * 1000,
+            keepPreviousData: true,
         });
      
     let contactsNotOnNanChat = contacts.filter((contact) => {
@@ -173,7 +174,8 @@ export const useContacts = () => {
         contacts,
         contactsOnNanChat,
         contactsNotOnNanChat,
-        contactsOnNanChatMergedWithLocalContacts
+        contactsOnNanChatMergedWithLocalContacts,
+        isLoading
     }
 }
 
