@@ -53,64 +53,8 @@ export default function ChangeRep() {
     });
   }
 
-  return (
-    <div className="">
-      <div className="">
-        <div className="">
-          <NavBar 
-          className="app-navbar "
-          onBack={() => navigate(`/me/settings`)}>
-            {t('changeRepresentative', { network: networks[ticker].name })}
-          </NavBar>
-          <Card style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
-          <div className="flex justify-center m-2">
-            <img
-              src={networks[ticker].logo}
-              alt={`${ticker} logo`}
-              width={48}
-            />
-          </div>
-
-          <Modal
-            visible={open}
-            onClose={() => setOpen(false)}
-            title={t('onlineRepresentatives')}
-            closeOnMaskClick
-            content={
-              <RepresentativeList ticker={ticker} onClick={async (address) => {
-                await changeRep(ticker, address)
-                setOpen(false);
-                mutate("representative-" + ticker);
-                setNewRep(address);
-              }} />
-            }
-            showCloseButton
-          />
-          <Representative ticker={ticker} condensed={false} newLocalRep={newRep} />
-
-
-          <div 
-          style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto'}}
-          className="flex justify-between flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-2 m-2 mt-8">
-            <Button
-              block
-              size="large"
-              shape="rounded"
-              color="primary"
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              {t('pickFromAList')}
-            </Button>
-            <Button
-            size="large"
-            shape="rounded"
-              loading={isLoading}
-              block
-              color="default"
-              onClick={() => {
-                let modal = Modal.show({
+  function showModalManual(){
+    let modal = Modal.show({
                   closeOnMaskClick: true,
                   title: t('setRepresentative'),
                   content: (
@@ -176,12 +120,82 @@ export default function ChangeRep() {
                         <Button type="submit" color="primary" block onClick={async () => {
                           modal.close();
                         }}>
-                          {t('changeRepresentative')}
+                          {t('changeRepresentative',  { network: networks[ticker].name })}
                         </Button>
                       </Form>
+                      <div     style={{color: 'var(--adm-color-warning)', marginTop: 16}}
+>
+                        {t('representativeExplanation3')}
+                        </div>
                     </>
                   ),
                 });
+  }
+
+  useEffect(() => {
+    if (searchParams.get("address")){
+      showModalManual()
+    }
+  }, [])
+  
+  return (
+    <div className="">
+      <div className="">
+        <div className="">
+          <NavBar 
+          className="app-navbar "
+          onBack={() => navigate(`/me/settings`)}>
+            {t('changeRepresentative', { network: networks[ticker].name })}
+          </NavBar>
+          <Card style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
+          <div className="flex justify-center m-2">
+            <img
+              src={networks[ticker].logo}
+              alt={`${ticker} logo`}
+              width={48}
+            />
+          </div>
+
+          <Modal
+            visible={open}
+            onClose={() => setOpen(false)}
+            title={t('onlineRepresentatives')}
+            closeOnMaskClick
+            content={
+              <RepresentativeList ticker={ticker} onClick={async (address) => {
+                await changeRep(ticker, address)
+                setOpen(false);
+                mutate("representative-" + ticker);
+                setNewRep(address);
+              }} />
+            }
+            showCloseButton
+          />
+          <Representative ticker={ticker} condensed={false} newLocalRep={newRep} />
+
+
+          <div 
+          style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto'}}
+          className="flex justify-between flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-2 m-2 mt-8">
+            <Button
+              block
+              size="large"
+              shape="rounded"
+              color="primary"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              {t('pickFromAList')}
+            </Button>
+            <Button
+            size="large"
+            shape="rounded"
+              loading={isLoading}
+              block
+              color="default"
+              onClick={() => {
+                showModalManual()
               }}
             >
               {t('manualEntry')}
