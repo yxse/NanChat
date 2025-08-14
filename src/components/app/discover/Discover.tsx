@@ -15,7 +15,7 @@ import { AccountListItems } from "../../messaging/components/NewChatPopup";
 import { CheckCircleFill } from "antd-mobile-icons";
 import { MdOutlineCircle } from "react-icons/md";
 import { ChatAvatar } from "../../messaging/components/ChatList";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AiOutlineShareAlt } from "react-icons/ai";
 import { FaRegCircleDot } from "react-icons/fa6";
 import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-card";
@@ -89,7 +89,8 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         params,
         setParams,
     ] = useSearchParams();
-    
+    const navigate = useNavigate();
+
     const inputRef = useRef(null);
     const {
         width,
@@ -122,6 +123,11 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
  
     WebviewOverlay.handleNavigation((event) => {
         console.log('navigationHandler', JSON.stringify(event));
+        if (event.url.startsWith('https://nanchat.com/')){
+            closeNanoApp()
+            navigate(event.url.replace('https://nanchat.com', ''))
+            return
+        }
         setOpenService({...openService, link: event.url});
         if (Capacitor.getPlatform() === "ios") {
             // or else webview not opening when navigationhandler is used
@@ -161,6 +167,18 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         }
     };
 
+    async function closeNanoApp() {
+        setOpenService(null);
+        // await WebviewOverlay.toggleSnapshot(false);
+        const element = document.getElementById('webview-overlay') as HTMLElement;
+        element.style.zIndex = "-1";
+        element.style.backgroundImage = "none";
+        element.style.backgroundColor = "transparent"
+        WebviewOverlay.close();
+        if (onClose) {
+            onClose();
+        }
+    }
     return (
         <div className="">
             {!defaultURL && <>
@@ -237,18 +255,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         <div
            
             size="middle"
-            onClick={ async () => {
-                setOpenService(null);
-                // await WebviewOverlay.toggleSnapshot(false);
-                const element = document.getElementById('webview-overlay') as HTMLElement;
-                element.style.zIndex = "-1";
-                element.style.backgroundImage = "none";
-                element.style.backgroundColor = "transparent"
-                WebviewOverlay.close();
-                if (onClose) {
-                    onClose();
-                }
-            }}
+            onClick={closeNanoApp}
             >
                 <FaRegCircleDot />
             </div></div>
