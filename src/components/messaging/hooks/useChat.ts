@@ -75,10 +75,9 @@ export function useChat(chatId) {
     isLoading,
     isValidating 
   } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId, chat?.height), fetcherMessagesCache, {
-    revalidateFirstPage: false,
-    
+    revalidateFirstPage: true,
     // revalidateOnFocus: false,
-    revalidateOnReconnect: false, // don't revalidate on reconnect as socket should already update
+    revalidateOnReconnect: true,
     revalidateOnMount: true,
   });
 
