@@ -66,15 +66,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const {isMobile} = useWindowDimensions()
     const DRAFT_KEY = 'draft-' + account
 
-    let defaultMesageText = ''
-    if (defaultNewMessage){
-      defaultMesageText = defaultNewMessage
-    }
-    else if (localStorage.getItem(DRAFT_KEY)){
-      defaultMesageText = localStorage.getItem(DRAFT_KEY)
-    }
     // debugger
-    const [newMessage, setNewMessage] = useState(defaultMesageText);
+    const [newMessage, setNewMessage] = useState('');
     const navigate = useNavigate();
     const {activeAccount, activeAccountPk} = useWallet()
     const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}&limit=1`, fetcherMessages);
@@ -130,6 +123,19 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     };
   }
    useEffect(() => {
+    let defaultMesageText
+     if (defaultNewMessage){
+      defaultMesageText = defaultNewMessage
+    }
+    else if (localStorage.getItem(DRAFT_KEY)){
+      defaultMesageText = localStorage.getItem(DRAFT_KEY)
+    }
+    else {
+      defaultMesageText = ""
+    }
+    setNewMessage(defaultMesageText)
+  }, [account]);
+   useEffect(() => {
     debouncedSave(DRAFT_KEY, newMessage);
   }, [newMessage, account, debouncedSave]);
     useEffect(() => {
@@ -163,10 +169,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     }
     , [replyEvent, account]);
     useEffect(() => {
+      // console.log({recallEvent})
       if (newMessage == "" && recallEvent?.message){
         setNewMessage(recallEvent?.message) // we put back the recalled message in the input (only if no new message being typed)
         messageInputRef.current?.focus();
       }
+      emit("recall-message", null);
     }
     , [recallEvent]);
     
@@ -272,7 +280,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       let chatId = account;
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
-        content: "tip",
+        content: "Transfer",
         fromAccount: activeAccount,
         // toAccount: account,
         timestamp: new Date(),
@@ -288,7 +296,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
-     messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
+    //  messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
      socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
     //  messageInputRef.current?.focus();
     };
@@ -314,12 +322,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
-     if (chat.type === "private") {
-      messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
-     }
-      else {
-        messageEncrypted['content'] = message.content;
-      }
+    //  if (chat.type === "private") {
+    //   messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
+    //  }
+    //   else {
+    //     messageEncrypted['content'] = message.content;
+    //   }
      socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
     }
     const sendFileMessage = async (file) => {
