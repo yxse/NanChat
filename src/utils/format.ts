@@ -6,6 +6,7 @@ import { Clipboard } from "@capacitor/clipboard";
 import { HapticsImpact } from "./haptic";
 import { ImpactStyle } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
+import { t } from "i18next";
 
 export const convertAddress = (address, ticker) => {
   if (address == null) {
@@ -92,7 +93,7 @@ export const parseURI = (uri) => {
         copyToClipboard(title);
         Toast.show({
           icon: 'success',
-          content: "Copied to clipboard!",
+          content: t('addressCopiedToClipboard'),
           duration: 2000
         });
       }

@@ -28,7 +28,7 @@ import { CardAddNewContact, InputAddressAndNetwork } from '../messaging/componen
 import AddContacts from './AddContacts';
 
 import { useScrollRestoration } from 'use-scroll-restoration';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import PasteAction from './PasteAction';
 import {
     List as VirtualizedList,
@@ -37,6 +37,7 @@ import {
   } from 'react-virtualized'
 
 export const ImportContacts = ({showAdd = false}) => {
+    const { t } = useTranslation();
     const [popupVisible, setPopupVisible] = useState(false);
     const [importMethod, setImportMethod] = useState('');
     const {addContacts} = useContacts();
@@ -65,7 +66,7 @@ export const ImportContacts = ({showAdd = false}) => {
                 if (!urlNaultExport.startsWith('https://nault.cc/import-address-book#')) {
                     Toast.show({
                         icon: 'fail',
-                        content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
+                        content: t('invalidNaultData'),
                         duration: 5000,
                     });
                     return;
@@ -78,24 +79,24 @@ export const ImportContacts = ({showAdd = false}) => {
                 console.error(error);
                 Toast.show({
                     icon: 'fail',
-                    content: 'Invalid data. Make sure you copied the data correctly from Nault. URL should start with https://nault.cc/import-address-book#',
+                    content: t('invalidNaultData'),
                     duration: 5000,
                 });                            
             }
         }
         return <div>
             <div className='text-xl text-center mb-4'>
-                Import Contacts from Nault
+                {t('importContactsFromNault')}
             </div>
             <List>
                 <List.Item>
-                    1) Open Nault and go to Address Book
+                    {t('importFromNaultStep1')}
                 </List.Item>
                 <List.Item>
-                    2) Click on "IMPORT / EXPORT" at the top, select "Export Address Book" and click "COPY TO CLIPBOARD"
+                    {t('importFromNaultStep2')}
                 </List.Item>
                 <List.Item>
-                    3) Click on "Paste from Clipboard" below
+                    {t('importFromNaultStep3')}
                 </List.Item>
             </List>
             <div className='w-full text-center' style={{paddingRight: 16, paddingLeft: 16}}>
@@ -109,7 +110,7 @@ export const ImportContacts = ({showAdd = false}) => {
                 setStep(1);
             }}
             >
-                Open Nault
+                {t('openApp', { appName: 'Nault' })}
             </Button>
             <Button
             className='mt-4 w-full'
@@ -122,7 +123,7 @@ export const ImportContacts = ({showAdd = false}) => {
                 });
             }}
             >
-                Paste from Clipboard
+                {t('pasteFromClipboard')}
             </Button>
             <Scanner
             onScan={(result) => {
@@ -137,7 +138,7 @@ export const ImportContacts = ({showAdd = false}) => {
                 
             }}
             >
-                Or Scan QR Code
+                {t('orScanQrCode')}
             </Button>
             </Scanner>
             
@@ -147,17 +148,17 @@ export const ImportContacts = ({showAdd = false}) => {
     const PopupContentNatriumKalium = () => {
         return <div>
             <div className='text-xl text-center mb-4'>
-                Import Contacts from {importMethod}
+                {t('importContactsFromApp', { appName: importMethod })}
             </div>
             <List>
                 <List.Item>
-                    1) Open {importMethod} and go to Contacts
+                    {t('importFromAppStep1', { appName: importMethod })}
                 </List.Item>
                 <List.Item>
-                    2) Click on <UploadOutline style={{display: 'inline'}}/> button at the top right
+                    {t('importFromAppStep2')}
                 </List.Item>
                 <List.Item>
-                    3) Select open in NanChat
+                    {t('importFromAppStep3')}
                 </List.Item>
             </List>
             <div className='w-full text-center'>
@@ -170,13 +171,13 @@ export const ImportContacts = ({showAdd = false}) => {
                 window.location.href = importMethod === 'Natrium' ? 'manta://contacts' : 'banano://contacts';
             }}
             >
-                Open {importMethod}
+                {t('openApp', { appName: importMethod })}
             </Button>
             </div>
         </div>;
     }
     return  <div className=''>
-        <List header="Import Contacts" style={{"backgroundColor": "var(--main-background-color)"}}>
+        <List header={t('importContacts')} style={{"backgroundColor": "var(--main-background-color)"}}>
          
 
         {
@@ -188,7 +189,7 @@ export const ImportContacts = ({showAdd = false}) => {
             setImportMethod('Natrium');
         }}
         >
-            Contacts from Natrium
+            {t('contactsFromApp', { appName: 'Natrium' })}
         </List.Item>
         <List.Item
         clickable
@@ -197,7 +198,7 @@ export const ImportContacts = ({showAdd = false}) => {
             setImportMethod('Kalium');
         }}
         >
-            Contacts from Kalium
+            {t('contactsFromApp', { appName: 'Kalium' })}
         </List.Item></>
     }
         <List.Item
@@ -207,7 +208,7 @@ export const ImportContacts = ({showAdd = false}) => {
             setImportMethod('Nault');
         }}
         >
-            Contacts from Nault
+            {t('contactsFromApp', { appName: 'Nault' })}
         </List.Item>
         </List>
     <label htmlFor="file_input" className='cursor-pointer   space-x-2  '>
@@ -218,9 +219,9 @@ export const ImportContacts = ({showAdd = false}) => {
         clickable
         // description="Nault, Natrium and Kalium export file supported"
         >
-            Contacts from file
+            {t('contactsFromFile')}
             <div className="text-xs" style={{color: "var(--adm-color-text-secondary)"}}>
-            Nault, Natrium and Kalium export file supported
+            {t('contactsFromFileSupported')}
                         </div>
         </List.Item>
         {
@@ -231,7 +232,7 @@ export const ImportContacts = ({showAdd = false}) => {
             navigate('/contacts?add=true'); // eventually this should be a popup
         }}
         >
-            Add contact manually
+            {t('addContactManually')}
         </List.Item>
         }
         </List>
@@ -269,6 +270,7 @@ export const ImportContacts = ({showAdd = false}) => {
 }
 
 export const InviteContactButton = ({ addresses }) => {
+    const { t } = useTranslation();
     const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
     const {inviteFriends} = useInviteFriends()
     const navigate = useNavigate();
@@ -285,11 +287,12 @@ export const InviteContactButton = ({ addresses }) => {
         inviteFriends()
     }}
     >
-        Invite to NanChat
+        {t('inviteToNanChat')}
     </List.Item>
                 </>
 }
 export const MessageButton = ({ addresses }) => {
+    const { t } = useTranslation();
     const {data: name, isLoading} = useSWR(findNanoAddress(addresses), fetcherAccount);
     const {inviteFriends} = useInviteFriends()
     const navigate = useNavigate();
@@ -308,7 +311,7 @@ export const MessageButton = ({ addresses }) => {
         size='large'
     >
         <MessageOutline style={{display: 'inline', marginRight: 8}} />
-         Messages
+         {t('messagesPlural')}
     </List.Item>
     }
     return null
@@ -316,6 +319,7 @@ export const MessageButton = ({ addresses }) => {
 
 
 const Contacts: React.FC = ({onlyImport = false}) => {
+    const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const [addContactVisible, setAddContactVisible] = useState( searchParams.get("add") === "true" );
     const navigate = useNavigate();
@@ -412,11 +416,11 @@ const Contacts: React.FC = ({onlyImport = false}) => {
             <div 
             
             style={{ backgroundColor: 'var(--main-background-color)'}} className='adm-list-header'
-                        >Your NanChat contacts</div></>
+                        >{t('yourNanChatContacts')}</div></>
             if (index == contactsOnNanChatMergedWithLocalContacts?.length) elmt = <div 
             
             style={{ backgroundColor: 'var(--main-background-color)'}} className='adm-list-header'
-                        >Your contacts not yet on NanChat</div>
+                        >{t('yourContactsNotOnNanChat')}</div>
            return <div style={style}
                         key={key}>{elmt} <SwipeAction
            
@@ -424,11 +428,11 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                             {
                                 key: 'delete',
                                 color: 'danger',
-                                text: 'Delete',
+                                text: t('delete'),
                                 onClick: () => {
                                     Modal.confirm({
-                                        title: `Delete ${contact.name}?`,
-                                        content: `Are you sure you want to delete this contact?`,
+                                        title: t('deleteContactConfirmTitle', { name: contact.name }),
+                                        content: t('deleteContactConfirmContent'),
                                         onConfirm: async () => {
                                             let newContacts = contacts.filter((c) => c.name !== contact.name);
                                             setContacts(newContacts);
@@ -437,8 +441,8 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                             });
                                             await backupContacts(newContacts)
                                         },
-                                        confirmText: 'Delete',
-                                        cancelText: 'Cancel',
+                                        confirmText: t('delete'),
+                                        cancelText: t('cancel'),
                                     });
                                 },
                             }
@@ -483,7 +487,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 contacts.length === 0 && 
                 <>
                 <div className='text-center text-xl p-4'>
-                    No contacts
+                    {t('noContacts')}
                     </div>
                                
                         </>
@@ -592,6 +596,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
 };
 
 export const SelectContact = ({ ticker, onSelect }) => {
+    const { t } = useTranslation();
     const [visible, setVisible] = useState(false);
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: defaultContacts
@@ -620,7 +625,7 @@ export const SelectContact = ({ ticker, onSelect }) => {
             closeOnMaskClick={true}
         >
             <div className='text-xl p-2 text-center'>
-                Contacts for {networks[ticker].name}
+                {t('contactsForNetwork', { networkName: networks[ticker].name })}
             </div>
             <List
             style={{paddingBottom: 'var(--safe-area-inset-bottom)'}}
