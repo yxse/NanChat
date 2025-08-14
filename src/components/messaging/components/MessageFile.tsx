@@ -92,6 +92,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
     const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(null)
     const [fileMeta, setFileMeta] = useState(file.meta)
+    const [canDecrypt, setCanDecrypt] = useState(true)
     const {activeAccount, activeAccountPk} = useWallet()
         let targetAccount = message.fromAccount === activeAccount 
                 ? message.toAccount
@@ -119,7 +120,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                     worker.onmessage = async (e) => {
                       if (e.data.status === 'success') {
                         // Handle successful decryption
-                        Toast.show({content: 'saving file', icon: 'loading'});
+                        // Toast.show({content: 'saving file', icon: 'loading'});
                         
                         await writeUint8ArrayToFile(
                           e.data.fileID,
@@ -128,14 +129,15 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                         );
                       
                         
-                        Toast.show({content: 'file saved', icon: 'success'});
+                        // Toast.show({content: 'file saved', icon: 'success'});
                         console.log("file saved");
-                        
+                        setCanDecrypt(true)
                         setDecrypted(await readFileToBlobUrl(e.data.fileID));
                       } else {
                         // Handle error
+                        setCanDecrypt(false)
                         console.error("Decryption failed:", e.data.error);
-                        Toast.show({content: 'Decryption failed', icon: 'fail'});
+                        // Toast.show({content: 'Decryption failed', icon: 'fail'});
                       }
                       
                       // Terminate the worker when done
@@ -180,6 +182,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
             <div>File blocked because chat not accepted</div>
         </div>
         if (!decrypted) return <DotLoading />
+        if (!canDecrypt) return <div>File not available</div>
         return (
             <div
             // style={{marginLeft: '10px', marginRight: '10px'}}
