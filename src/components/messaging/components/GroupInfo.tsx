@@ -40,7 +40,7 @@ onClick={() => {
     navigate(`/chat/${account._id}/info`)
 }}
 className="" style={{ display: 'flex', flexDirection: 'column', gap: 2, cursor: 'pointer'}}>
-                                <ProfilePicture address={account?._id} key={account?._id} width={58} borderRadius={8}/>
+                                <ProfilePicture address={account?._id} key={account?._id} width={58} borderRadius={8} src={account?.profilePicture?.url || false}/>
                                 <div
                                 className="text-sm text-center"
                                 style={{ width: '58px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--adm-color-text-secondary)' }}
