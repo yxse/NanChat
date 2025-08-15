@@ -382,9 +382,9 @@ export default function Start({
         </div>
           </div>
           <div 
-          style={{textAlign: "center", position: "absolute", bottom: 0, width: "100%", padding: 16, left: 0, right: 0}}
+          style={{textAlign: "center", position: "absolute", bottom: "var(--safe-area-inset-bottom)", width: "100%", padding: 8, left: 0, right: 0}}
           className="">
-                  <span className="text-sm" style={{ color: "var(--adm-color-text-secondary)", }}>
+                  <span className="text-sm" style={{ color: "var(--adm-color-text-secondary)", marginBottom: "var(--safe-area-inset-bottom)"}}>
                       YXSE © 2025
                   </span>
               </div>
