@@ -462,10 +462,14 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                 // form.setFieldsValue({ newName: contact.name });
                             }}
                         >
+                            {contact?.username ?  // if on nanchat show with profile name (to include verified badge if any, else show the local saved contact name)
                             <ProfileName
                             fallback={contact?.name}
                             address={contact?.addresses[0]?.address}
                             />
+                            :
+                             contact?.name
+                            }
                         </List.Item>
                     </SwipeAction></div>
             }
@@ -480,7 +484,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 {t('contacts')}
             </NavBar>
              <div ref={ref} style={{ height:
-                isMobile ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
+                isMobile ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 46px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
                 // 47px for the header, 58px for the menu
                 , overflow: "auto" }}>
             {

@@ -60,6 +60,7 @@ export const useContacts = () => {
         const localContact = contacts.find((c) => c.addresses[0].address === contact._id);
         return {
             _id: contact._id,
+            username: contact?.username,
             name: localContact?.name || contact.name,
             addresses: [{
                 network: 'ALL',
