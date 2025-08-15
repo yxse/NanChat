@@ -117,7 +117,7 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
           title: "Biometry changed",
           closeOnMaskClick: false,
           closeOnAction: false,
-          content: 'ls:' + localStorage.getItem('confirmation-method'),
+          content: 'It seems that biometry settings have changed. Please re-enable biometry in your device settings or sign out of your wallet and restore it using your secret recovery phrase.',
           actions: [
             {
               key: "settings", text: "Open settings", onClick: async () => {
