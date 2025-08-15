@@ -9,7 +9,8 @@ import { EventProvider } from "./messaging/components/EventContext";
 import '../i18n';
 import { getWindowDimensions } from "../hooks/use-windows-dimensions";
 import { refreshStatusBarTheme } from "./messaging/utils";
-function saveCache(map) {
+
+export function saveCache(map) {
   // clear cache 
   // localStorage.removeItem('app-cache')
   
@@ -48,21 +49,7 @@ function localStorageProvider() {
   App.addListener('pause', () => {
     saveCache(map)
   })
-  // App.addListener('resume', () => {
-  //   if (Capacitor.getPlatform() == "android" && window?.AndroidSafeArea) {
-  //     //fix https://github.com/ionic-team/capacitor/issues/7951#issuecomment-3082814965
-  //     window.AndroidSafeArea.refreshSafeArea();
-  //   }
-  // })
-  // window.addEventListener('unload', () => {
-  //   // console.log('unload')
-  //   let appCache = JSON.stringify(Array.from(map.entries()).filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
-  //   localStorage.setItem('app-cache', appCache)
-  // })
-  // setInterval(() => {
-  //   saveCache(map)
-  // }
-  //   , 5000);
+
  
   // We still use the map for write & read for performance.
   return map

@@ -1,4 +1,4 @@
-import useSWR, { mutate } from 'swr';
+import useSWR, { mutate, useSWRConfig } from 'swr';
 import { useCallback, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
@@ -17,6 +17,8 @@ interface UseChatsReturn {
 
 export function useChats(chatIdOrAccount?: string): UseChatsReturn {
   const {activeAccount, activeAccountPk} = useWallet();
+    const { cache } = useSWRConfig()
+
   // Fetch all chats
   const {
     data: chats, 
@@ -24,7 +26,7 @@ export function useChats(chatIdOrAccount?: string): UseChatsReturn {
     mutate: mutateChats
   } = useSWR<Chat[]>(
     '/chats', 
-    () => fetcherChats(chats || [], activeAccount, activeAccountPk),
+    () => fetcherChats(chats || [], activeAccount, activeAccountPk, cache),
      {
       revalidateOnFocus: false,
       revalidateIfStale: false,

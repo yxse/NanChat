@@ -4,6 +4,7 @@ import { accountIconUrl } from "../app/Home";
 import { signMessage } from "../../api-invoke/Sign";
 import { Toast } from "antd-mobile";
 import { inMemoryMap } from "../../services/database.service";
+import { saveCache } from "../Wrapper";
 
 
 export const getNewChatToken = async (account, privateKey) => {
@@ -30,11 +31,13 @@ export const getNewChatToken = async (account, privateKey) => {
 
 export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
-export const fetcherChats = async (oldChats, activeAccount, activeAccountPk) => {
+export const fetcherChats = async (oldChats, activeAccount, activeAccountPk, cache) => {
     const lastSync = localStorage.getItem('lastSync');
     if (lastSync){
         return fetcherMessages('/chats?ts=' + lastSync, activeAccount, activeAccountPk).then((res) => {
             if (res.error == null){
+                // console.log(cache)
+                
                 // merge chats, the res.chat overwrite the old chats
                 let uniqueChats = [];
                 let chatIds = new Set();
@@ -51,6 +54,9 @@ export const fetcherChats = async (oldChats, activeAccount, activeAccountPk) => 
                     }
                 });
                 setTimeout(() => {
+                    saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
+                }, 1000); // to not slow down fetcherchats
+                setTimeout(() => {
                     localStorage.setItem('lastSync', res.ts); // prevent bug race condition loading chats on start causing missing updates
                 }, 5000);
                 return uniqueChats;
@@ -61,6 +67,9 @@ export const fetcherChats = async (oldChats, activeAccount, activeAccountPk) => 
         return fetcherMessages('/chats', activeAccountPk).then((res) => {
             if (res.error == null){
                 localStorage.setItem('lastSync', res.ts);
+                setTimeout(() => {
+                    saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
+                }, 1000); // to not slow down fetcherchats
                 return res.chats;
             }
         })
