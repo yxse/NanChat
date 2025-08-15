@@ -380,6 +380,7 @@ textarea::placeholder, input::placeholder {
   --text-color-primary: #1E2C3D;
   --main-background-color: #1E2C3D;
   --adm-color-border: rgb(49, 69, 94);
+  --adm-border-color: rgb(49, 69, 94);
 }
 .banano-theme {
   --adm-color-primary: #FBDD11;
@@ -387,7 +388,8 @@ textarea::placeholder, input::placeholder {
   --adm-color-background: #2A2A2E;
   --main-background-color: #212124;
   --text-color-primary: #212124;
-  --adm-color-border: rgb(50, 50, 50)
+  --adm-color-border: rgb(50, 50, 50);
+  --adm-border-color: rgb(50, 50, 50)
 }
 /* #292A2D */
 /* #212124 */
@@ -409,6 +411,7 @@ textarea::placeholder, input::placeholder {
   /* --adm-color-text: #dbdbdb; */
   /* --text-color-primary: white; */
   --adm-color-border: rgb(224, 224, 224);
+  --adm-border-color: rgb(224, 224, 224);
 }
 
 /*  animation keyboard ios native */
