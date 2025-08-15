@@ -8,7 +8,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     let store = ShareStore.store
 
+    func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            if granted {
+                print("Permission granted")
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            } else {
+                print("Permission denied: \(String(describing: error))")
+            }
 
+            // Check settings after request
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                print("Notification settings after request: \(settings.authorizationStatus.rawValue)")
+            }
+        }
+    }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
       NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
     }
@@ -23,6 +39,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            print("Notification settings: \(settings.authorizationStatus.rawValue)")
+        }
+
+        requestNotificationPermission()
 
         return true
     }
