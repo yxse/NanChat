@@ -131,7 +131,7 @@ export const RepresentativeList = ({ ticker, onClick }) => {
   const { t } = useTranslation()
   if (isLoadingRepresentativeOnline) return <DotLoading />
   return <>
-    <div className={"searchBarContainer sticky top-0 z-50"} style={{ backgroundColor: "rgba(26, 26, 26)" }}>
+    <div className={"searchBarContainer sticky top-0 z-50"} style={{ backgroundColor: "var(--adm-color-background)" }}>
       <SearchBar
         placeholder={t('searchPlaceholder')}
         value={searchText}

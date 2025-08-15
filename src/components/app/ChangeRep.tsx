@@ -26,7 +26,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { MdContentPaste } from "react-icons/md";
 import { Representative, RepresentativeList } from "./NetworksList";
-import { WalletContext } from "../Popup";
+import { useWallet, WalletContext } from "../Popup";
 import { convertAddress, pasteFromClipboard } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { PasteIcon } from "./Icons";
@@ -40,10 +40,9 @@ export default function ChangeRep() {
   const [newRep, setNewRep] = useState<string>(null); // to refresh on change of rep when account not yet opened
   const [form] = Form.useForm();
   const { ticker } = useParams();
-  const {wallet} = useContext(WalletContext);
-  const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
+  const {wallet, activeAccount} = useWallet()
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   async function changeRep(ticker, rep) {
@@ -55,7 +54,12 @@ export default function ChangeRep() {
 
   function showModalManual(){
     let modal = Modal.show({
+      onClose: () => {
+        setSearchParams({})
+        form.setFieldValue("address", "");
+      },
                   closeOnMaskClick: true,
+
                   title: t('setRepresentative'),
                   content: (
                     <>
@@ -97,11 +101,12 @@ export default function ChangeRep() {
                             }} 
                             >
                                <ScanCodeOutline
+                               style={{color: 'var(--adm-color-text-secondary)'}}
                             fontSize={24}
-                            className="cursor-pointer text-gray-200 mr-3 mt-4"
+                            className="cursor-pointer  mr-3 mt-4"
                             />
                             </Scanner>
-                          <PasteIcon fontSize={24} className="cursor-pointer text-gray-200 mr-4 mt-4"
+                          <PasteIcon style={{color: 'var(--adm-color-text-secondary)'}} fontSize={24} className="cursor-pointer  mr-4 mt-4"
                             onClick={() => {
                               try {
                                 (async () =>
@@ -117,7 +122,7 @@ export default function ChangeRep() {
                             }
                           />
                         </div>
-                        <Button type="submit" color="primary" block onClick={async () => {
+                        <Button style={{marginTop: 16}} type="submit" color="primary" block onClick={async () => {
                           modal.close();
                         }}>
                           {t('changeRepresentative',  { network: networks[ticker].name })}
@@ -133,10 +138,11 @@ export default function ChangeRep() {
   }
 
   useEffect(() => {
-    if (searchParams.get("address")){
+    if (wallet && activeAccount && searchParams.get("address")){
+      Modal.clear()
       showModalManual()
     }
-  }, [])
+  }, [activeAccount])
   
   return (
     <div className="">
@@ -147,7 +153,10 @@ export default function ChangeRep() {
           onBack={() => navigate(`/me/settings`)}>
             {t('changeRepresentative', { network: networks[ticker].name })}
           </NavBar>
-          <Card style={{maxWidth: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
+          <div style={{display: "flex",justifyContent:"center"}}>
+          <Card style={{
+            margin: 12,
+            maxWidth: 600, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
           <div className="flex justify-center m-2">
             <img
               src={networks[ticker].logo}
@@ -202,7 +211,15 @@ export default function ChangeRep() {
             </Button>
           </div>
 
-          <div className="text-base text-gray-400 text-left m-4 pb-16 mb-96 overflow-y-scroll  mt-10">
+      
+      </Card>
+      </div>
+      <div style={{display: "flex", justifyContent: "center"}}>
+          <div style={{
+            color: 'var(--adm-color-text-secondary)',
+          maxWidth: 600, 
+          }}
+          className="text-base text-left m-4 mt-10">
             <BiInfoCircle className="inline mr-2" />
             <span className="text-sm font-bold underline cursor-pointer"
               onClick={() => {
@@ -222,7 +239,7 @@ export default function ChangeRep() {
             >{t('whatIsARepresentative')}</span>
 
           </div>
-      </Card>
+          </div>
         </div>
       </div>
     </div>
