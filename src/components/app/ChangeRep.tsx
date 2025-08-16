@@ -41,7 +41,7 @@ export default function ChangeRep() {
   const [form] = Form.useForm();
   const { ticker } = useParams();
   const {wallet, activeAccount} = useWallet()
-
+  const [visibleModal, setVisibleModal] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -52,95 +52,15 @@ export default function ChangeRep() {
     });
   }
 
-  function showModalManual(){
-    let modal = Modal.show({
-      onClose: () => {
-        setSearchParams({})
-        form.setFieldValue("address", "");
-      },
-                  closeOnMaskClick: true,
-
-                  title: t('setRepresentative'),
-                  content: (
-                    <>
-                      <Form
-                        initialValues={{
-                          address: searchParams.get("address") || "",
-                        }}
-                        form={form}
-                        className="mt-4"
-                        layout="vertical"
-                        onFinish={async (values) => {
-                          try {
-                            await changeRep(ticker, values.address);
-                            mutate("representative-" + ticker);
-                            setNewRep(values.address);
-                          } catch (error) {
-                            console.error("Error changing rep:", error);
-                            Toast.show({
-                              content: error.message,
-                            });
-                          }
-                        }}
-                      >
-                        <div className="flex justify-between">
-                          <Form.Item
-                            label={t('address')}
-                            name={"address"}
-                            style={{ width: "100%" }}
-                          >
-                            <TextArea
-                              autoSize={{ minRows: 2, maxRows: 4 }}
-                              placeholder={t('newRepresentativeAddress')}
-                              rows={2}
-                            />
-                          </Form.Item>
-                          <Scanner 
-                            onScan={(result) => {
-                              form.setFieldValue("address", result);
-                            }} 
-                            >
-                               <ScanCodeOutline
-                               style={{color: 'var(--adm-color-text-secondary)'}}
-                            fontSize={24}
-                            className="cursor-pointer  mr-3 mt-4"
-                            />
-                            </Scanner>
-                          <PasteIcon style={{color: 'var(--adm-color-text-secondary)'}} fontSize={24} className="cursor-pointer  mr-4 mt-4"
-                            onClick={() => {
-                              try {
-                                (async () =>
-                                  form.setFieldValue("address", await pasteFromClipboard()))();
-                              }
-                              catch (error) {
-                                console.error("Error pasting:", error);
-                                Toast.show({
-                                  content: t('errorPasting'),
-                                });
-                              }
-                            }
-                            }
-                          />
-                        </div>
-                        <Button style={{marginTop: 16}} type="submit" color="primary" block onClick={async () => {
-                          modal.close();
-                        }}>
-                          {t('changeRepresentative',  { network: networks[ticker].name })}
-                        </Button>
-                      </Form>
-                      <div     style={{color: 'var(--adm-color-warning)', marginTop: 16}}
->
-                        {t('representativeExplanation3')}
-                        </div>
-                    </>
-                  ),
-                });
+  function showModalManual(address = ""){
+   setVisibleModal(true)
   }
 
   useEffect(() => {
     if (wallet && activeAccount && searchParams.get("address")){
-      Modal.clear()
-      showModalManual()
+      form.setFieldValue("address", searchParams.get("address"));
+      console.log("len", Modal.length)
+      showModalManual(searchParams.get("address") || "")
     }
   }, [activeAccount])
   
@@ -242,6 +162,92 @@ export default function ChangeRep() {
           </div>
         </div>
       </div>
+      <Modal
+      visible={visibleModal}
+      destroyOnClose
+       onClose={() => {
+        setSearchParams({}, {replace: true})
+        form.setFieldValue("address", "");
+        setVisibleModal(false)
+        }}
+        closeOnMaskClick
+        title={t('setRepresentative')}
+        content={<><Form
+                        initialValues={{
+                          // address: 
+                        }}
+                        form={form}
+                        className="mt-4"
+                        layout="vertical"
+                        onFinish={async (values) => {
+                          console.log({values})
+                          console.log(form.getFieldValue('address'))
+                          try {
+                            await changeRep(ticker, values.address);
+                            mutate("representative-" + ticker);
+                            setNewRep(values.address);
+                          setVisibleModal(false)
+                          setSearchParams({}, {replace: true})
+                          form.setFieldValue("address", "");
+                          } catch (error) {
+                            console.error("Error changing rep:", error);
+                            Toast.show({
+                              content: error.message,
+                            });
+                          }
+                        }}
+                      >
+                        <div className="flex justify-between">
+                          <Form.Item
+                            label={t('address')}
+                            name={"address"}
+                            style={{ width: "100%" }}
+                          >
+                            <TextArea
+                              autoSize={{ minRows: 2, maxRows: 4 }}
+                              placeholder={t('newRepresentativeAddress')}
+                              rows={2}
+                            />
+                          </Form.Item>
+                          <Scanner 
+                            onScan={(result) => {
+                              form.setFieldValue("address", result);
+                            }} 
+                            >
+                               <ScanCodeOutline
+                               style={{color: 'var(--adm-color-text-secondary)'}}
+                            fontSize={24}
+                            className="cursor-pointer  mr-3 mt-4"
+                            />
+                            </Scanner>
+                          <PasteIcon style={{color: 'var(--adm-color-text-secondary)'}} fontSize={24} className="cursor-pointer  mr-4 mt-4"
+                            onClick={() => {
+                              try {
+                                (async () =>
+                                  form.setFieldValue("address", await pasteFromClipboard()))();
+                              }
+                              catch (error) {
+                                console.error("Error pasting:", error);
+                                Toast.show({
+                                  content: t('errorPasting'),
+                                });
+                              }
+                            }
+                            }
+                          />
+                        </div>
+                        <Button style={{marginTop: 16}} type="submit" color="primary" block onClick={async () => {
+                   
+                        }}>
+                          {t('changeRepresentative',  { network: networks[ticker].name })}
+                        </Button>
+                      </Form>
+                        <div style={{color: 'var(--adm-color-warning)', marginTop: 16}}>
+                        {t('representativeExplanation3')}
+                        </div>
+                  </>
+                      }
+                    />
     </div>
   );
 }
