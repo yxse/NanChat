@@ -1025,10 +1025,10 @@
   dependencies:
     tslib "^2.1.0"
 
-"@capacitor/device@^7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/device/-/device-7.0.2.tgz#406bde129d3fcf55f0de0b691509535e2a00e315"
-  integrity sha512-OMGMBjLbh7ApaqW1oOJIV73iyrFK/T5v2MzuQYq3GLT+jnGvCuj/y82Ofq2Fz9/hlJ2fukztPwG1K80jyk0i6w==
+"@capacitor/device@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/device/-/device-6.0.2.tgz#14b0f69fb93625ce2608f1ecec01b2f635070bb8"
+  integrity sha512-WDUxUkkuqEtbmE1YmyDzzGVJD8r5oRFgs/1zy+Xa7Da3MlBrgKaiQKZoRVdr6FTnAVyHnVP4LabN3w2sCuA3+A==
 
 "@capacitor/filesystem@^6.0.3":
   version "6.0.3"
@@ -1050,10 +1050,9 @@
   resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-6.2.0.tgz#7cd4db0471d1cc270962061b64b28f79f3f89103"
   integrity sha512-gisvZBIrKT1siiumgpLPY63HmJe69Ed/dOmfQQ+U1MIJmOR5gWGWvfO7QSj/FMatVZS4Xt/8jCoUgzDD1U6kSw==
 
-"@capacitor/keyboard@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-6.0.3.tgz#0ea0e2f832722c02e32c5bb8a1e776d8bddc9b9e"
-  integrity sha512-V/mURxBI68HvClYjrGBlOriWkwYN7r+cWid/igJz/3scNc/V81DgQ9fpoLr4W0I5NY7YxOesjIJLuLO+LT18mQ==
+"@capacitor/keyboard@https://github.com/Benskalz/capacitor-plugins.git#0b553028bd3c20657f278f072acd5dc8d12bde62":
+  version "7.0.2"
+  resolved "https://github.com/Benskalz/capacitor-plugins.git#0b553028bd3c20657f278f072acd5dc8d12bde62"
 
 "@capacitor/local-notifications@6":
   version "6.1.2"
