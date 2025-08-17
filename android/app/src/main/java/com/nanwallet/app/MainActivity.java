@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.view.ViewGroup;
@@ -20,7 +21,6 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.d(TAG, "onCreate: Initializing edge-to-edge handler");
 
         // Enable edge-to-edge before setting up the handler
@@ -35,6 +35,7 @@ public class MainActivity extends BridgeActivity {
             );
         }
 
+        configureWebView(); // prevent loosing focus when keyboard open and trying reply to message
         // Call the edge-to-edge handler after the bridge is initialized
         edgeToEdgeHandler();
         bridge.getWebView().addJavascriptInterface(new Object() {
@@ -266,4 +267,20 @@ public class MainActivity extends BridgeActivity {
       });
     }
   }
+
+    private void configureWebView() {
+        WebView webView = this.bridge.getWebView();
+
+        // Your solution: Override onLongClick to prevent focus loss
+        webView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                WebView.HitTestResult result = webView.getHitTestResult();
+
+                // If the result type is null or not editable text - return true (ignore the long click)
+                // Otherwise return false (show context menu)
+                return result == null || result.getType() != WebView.HitTestResult.EDIT_TEXT_TYPE;
+            }
+        });
+    }
 }
