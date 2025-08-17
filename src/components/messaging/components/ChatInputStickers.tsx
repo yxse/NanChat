@@ -1,5 +1,5 @@
 import { GiftOutline, MessageOutline, PhoneFill, ReceivePaymentOutline, SendOutline } from "antd-mobile-icons";
-import { useContext, useEffect, useRef, useState } from "react";
+import { memo, useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
@@ -24,7 +24,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { networks } from "../../../utils/networks";
 
 const ChatInputStickers: React.FC<{ onStickerSelect  }> = ({ onStickerSelect  }) => {
-
+  console.log("render stickers")
     const {data, isLoading} = useSWR('/stickers', fetcherMessagesNoAuth);
 
 
@@ -46,4 +46,4 @@ const ChatInputStickers: React.FC<{ onStickerSelect  }> = ({ onStickerSelect  })
     );
   };
 
-export default ChatInputStickers;
+export default memo(ChatInputStickers);

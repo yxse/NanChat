@@ -25,6 +25,56 @@ import { networks } from "../../../utils/networks";
 import NewChatPopup, { SelectParticipant } from "./NewChatPopup";
 import Swap from "../../app/Swap";
 
+
+ const ButtonTransfer = ({onClick}) => {
+      return <div
+      style={{textAlign: 'center'}}>
+        <Button
+        style={{borderRadius: 12}}
+        size='large'
+        onClick={() => {
+          onClick();
+        }}>
+        <div style={{fontSize: 34}}>
+        <AiOutlineSwap />
+        </div>
+        </Button>
+        <div className='mt-2'>
+        Transfer
+        </div>
+        </div>
+    }
+    const ButtonAirdrop = ({onClick}) => {
+      return <div
+      style={{textAlign: 'center'}}>
+        <Button
+        style={{borderRadius: 12}}
+        size='large'
+        onClick={() => {
+          onClick();
+        }}>
+        <div style={{fontSize: 34}}>
+        <GiftOutline />
+        </div>
+        </Button>
+        <div className='mt-2'>
+        Airdrop
+        </div>
+        </div>
+    }
+    const ButtonListTransfer = ({onClick}) => {
+      return <List.Item
+        onClick={() => {
+          onClick();
+        }}
+        >
+          <div className="">
+          <AiOutlineSwap style={{display: "inline", marginRight: 8}} />
+           Transfer
+          </div>
+        </List.Item>
+    }
+
 const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onTipSent, mode="button", filterTickers =[], type="transfer", chat }) => {
     const [visible, setVisible] = useState(false);
     const [visibleSelectAccount, setVisibleSelectAccount] = useState(false);
@@ -50,62 +100,15 @@ const ChatInputTip: React.FC<{ toAddress, onTipSent, mode }> = ({ toAddress, onT
         setVisible(true);
         }
     }
-    const ButtonTransfer = () => {
-      return <div
-      style={{textAlign: 'center'}}>
-        <Button
-        style={{borderRadius: 12}}
-        size='large'
-        onClick={() => {
-          onClick();
-        }}>
-        <div style={{fontSize: 34}}>
-        <AiOutlineSwap />
-        </div>
-        </Button>
-        <div className='mt-2'>
-        Transfer
-        </div>
-        </div>
-    }
-    const ButtonAirdrop = () => {
-      return <div
-      style={{textAlign: 'center'}}>
-        <Button
-        style={{borderRadius: 12}}
-        size='large'
-        onClick={() => {
-          onClick();
-        }}>
-        <div style={{fontSize: 34}}>
-        <GiftOutline />
-        </div>
-        </Button>
-        <div className='mt-2'>
-        Airdrop
-        </div>
-        </div>
-    }
-    const ButtonListTransfer = () => {
-      return <List.Item
-        onClick={() => {
-          onClick();
-        }}
-        >
-          <div className="">
-          <AiOutlineSwap style={{display: "inline", marginRight: 8}} />
-           Transfer
-          </div>
-        </List.Item>
-    }
-    console.log("tip rendered")
+   
+    // console.log("tip rendered")
     return (
         <>
        {
         mode === "button" ? 
-        type === "transfer" ? <ButtonTransfer /> : type === "airdrop" ? <ButtonAirdrop /> : null
+        type === "transfer" ? <ButtonTransfer onClick={onClick} /> : type === "airdrop" ? <ButtonAirdrop onClick={onClick} /> : null
         :
-        <ButtonListTransfer />
+        <ButtonListTransfer onClick={onClick} />
        }
         <ResponsivePopup
         bodyClassName="disable-keyboard-resize"

@@ -24,7 +24,6 @@ import { useChats } from "../hooks/use-chats";
 
 const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, messageInputRef, account }) => {
     const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
-    const [lastEmitTime, setLastEmitTime] = useState(0);
     const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);
     const [dateNow, setDateNow] = useState(Date.now());
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,6 +37,7 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
+    const lastEmitTimeRef = useRef(0); // important to use useRef instead of useState to prevent race condition that can happen on low cpu simulation
 
     const [participantsTyping, setParticipantsTyping] = useState<string[]>([]);
     if (account?.startsWith('nano_')) {
@@ -45,10 +45,9 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     }
 
     useEffect(() => {
-        if (newMessage.trim() && Date.now() - lastEmitTime > 1000) { // send typing event every 1s at most
-            // socket.emit('typing', address || chat?.id);
+        if (newMessage.trim() && Date.now() - lastEmitTimeRef.current > 1000) { // send typing event every 1s at most
+            lastEmitTimeRef.current = Date.now();
             socket.emit('typing', chat?.id);
-            setLastEmitTime(Date.now());
         }
     }
         , [newMessage, chat]);

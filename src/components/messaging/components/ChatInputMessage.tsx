@@ -1,5 +1,5 @@
 import { AddCircleOutline } from "antd-mobile-icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { useWallet } from "../../Popup";
@@ -52,6 +52,39 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
   }, false);
 }
 
+
+    const StickerButton = ({stickerVisible, inputAdditionVisible, messageInputRef, setInputAdditionVisible, setStickerVisible}) =>  {
+      const {isMobile} = useWindowDimensions()
+      const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} className="hoverable"  />
+      const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} className="hoverable" />
+
+      return <div
+          onClick={() => {
+            if (!stickerVisible && inputAdditionVisible) {
+              setInputAdditionVisible(false);
+            }
+            if (stickerVisible){
+              setStickerVisible(false);
+              messageInputRef.current?.focus();
+            }
+            else {
+              setStickerVisible(true);
+              messageInputRef.current?.blur();
+            }
+          }}
+          className="hoverable"
+          style={{}}
+          >
+          {
+            stickerVisible ? 
+              (isMobile ? <FaKeyboard className="w-5 h-5" 
+                 /> : iconRisibank)
+            :
+            iconRisibankGray
+        }
+        </div>
+    }
+    
 const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined, hideInput = false }) => {
     const { t } = useTranslation();
     let {
@@ -205,6 +238,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         return
       }
    }
+
+
     // useEffect(scrollToBottom, [messages]);
     const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -362,35 +397,20 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       socket.emit('message', message, (response) => callbackSocket(response, message));
     }
 
-    const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} className="hoverable"  />
-    const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} className="hoverable" />
+const onUploadSuccess = useCallback((file) => {
+  sendFileMessage(file);
+}, [activeAccount, chat]);
+
+const onTipSent = useCallback((ticker, hash, destinationAddress) => {
+          sendTipMessage(ticker, hash, destinationAddress);
+}, [activeAccount, chat]);
+
+const onStickerSelect = useCallback((stickerId) => {
+            sendStickerMessage(stickerId);
+}, [activeAccount, chat]);
 
 
-    const StickerButton = () => <div
-          onClick={() => {
-            if (!stickerVisible && inputAdditionVisible) {
-              setInputAdditionVisible(false);
-            }
-            if (stickerVisible){
-              setStickerVisible(false);
-              messageInputRef.current?.focus();
-            }
-            else {
-              setStickerVisible(true);
-              messageInputRef.current?.blur();
-            }
-          }}
-          className="hoverable"
-          style={{}}
-          >
-          {
-            stickerVisible ? 
-              (isMobile ? <FaKeyboard className="w-5 h-5" 
-                 /> : iconRisibank)
-            :
-            iconRisibankGray
-        }
-        </div>
+    
     // console.log("message input render")
     return (
         <div 
@@ -423,7 +443,14 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             {/* <ChatInputTip toAddress={address} onTipSent={(ticker, hash) => {
               sendTipMessage(ticker, hash);
             }} /> */}
-              <StickerButton />
+              <StickerButton
+              inputAdditionVisible={inputAdditionVisible}
+              messageInputRef={messageInputRef}
+              setInputAdditionVisible={setInputAdditionVisible}
+              setStickerVisible={setStickerVisible}
+              stickerVisible={stickerVisible}
+              key={"sticker-btn"}
+               />
           <div 
           style={{
             borderRadius: 6, width: '100%',
@@ -493,9 +520,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           
           {
             stickerVisible && <ChatInputStickers // showing stickers list
-            onStickerSelect={(stickerId) => {
-              sendStickerMessage(stickerId);
-            }} />
+            onStickerSelect={onStickerSelect} />
           }
         <ChatInputAdd 
         key={address + chat?.id}
@@ -508,12 +533,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           undefined 
         }
         chat={chat}
-        onUploadSuccess={(file) => {
-          sendFileMessage(file);
-        }}
-        onTipSent={(ticker, hash, destinationAddress) => {
-          sendTipMessage(ticker, hash, destinationAddress);
-        }} />
+        onUploadSuccess={onUploadSuccess}
+        onTipSent={onTipSent}
+           />
 
           
 

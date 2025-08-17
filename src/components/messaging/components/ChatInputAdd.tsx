@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, memo } from 'react';
 import { ImageUploader, Toast, Button, Avatar, Divider, Modal } from 'antd-mobile';
 import { FileOutline, FolderOutline, LockOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
 import useSWR from 'swr';
@@ -12,6 +12,7 @@ import ChatInputFile from './ChatInputFile';
 import ChatInputTip from './ChatInputTip';
 
 const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat }) => {
+    // console.log("render input add")
     return (
                 <div style={{
                     display: visible ? "flex" : "none",
@@ -28,4 +29,4 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat }) 
     );
 };
 
-export default ChatInputAdd;
+export default memo(ChatInputAdd);
