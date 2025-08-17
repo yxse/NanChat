@@ -58,13 +58,19 @@ const Message = memo(({
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Only close if clicking outside ref element
-      if (ref.current && !ref.current.contains(event.target)) {
+      // if (ref.current && !ref.current.contains(event.target)) {
         setVisible(false);
-      }
+      // }
     };
 
     document.addEventListener('mouseup', handleClickOutside);
-    return () => document.removeEventListener('mouseup', handleClickOutside);
+    document.querySelector("#scrollableDiv")?.addEventListener('scroll', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mouseup', handleClickOutside);
+      document.querySelector("#scrollableDiv")?.removeEventListener('scroll', handleClickOutside)
+
+    }
   }, []);
   const decrypted = useMessageDecryption({ message });
 
@@ -100,7 +106,7 @@ const Message = memo(({
     { key: 'copy', text: 'Copy', icon: <CopyIcon /> }
   ]
   const MAX_RECALL_TIME = 1000 * 60 * 4 // 4 minutes
-  if (Date.now() - message.timestamp < MAX_RECALL_TIME && isFromCurrentUser) {
+  if (Date.now() - new Date(message.timestamp) < MAX_RECALL_TIME && isFromCurrentUser) {
     actions.push({ key: 'recall', text: 'Recall', icon: <AiOutlineRollback /> });
   }
   // Handle special message types
@@ -188,7 +194,7 @@ const Message = memo(({
               }
               else {
                 Toast.show({ icon: 'success' });
-                emit('recall-message', {message: message.content})
+                emit('recall-message', {message: decrypted})
               }
             }
             setVisible(false);
