@@ -452,7 +452,11 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                         
                         prefix={
                         <div style={{paddingTop: 8, paddingBottom: 8}}>
-                            <ProfilePicture address={contact?.addresses[0]?.address} width={48} src={contact?.profilePicture?.url !== null ? contact?.profilePicture?.url : false} />
+                            <ProfilePicture address={contact?.addresses[0]?.address} width={48} src={
+                                contact?.username ? 
+                                (contact?.profilePicture?.url !== null ? contact?.profilePicture?.url : false)
+                                : false
+                            } />
                             </div>}
                          key={key + "list"}
                             onClick={() => {
