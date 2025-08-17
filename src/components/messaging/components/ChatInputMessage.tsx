@@ -156,7 +156,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
 
       console.log("replyEvent", replyEvent)
-      if (replyEvent) {
+      if (replyEvent && replyEvent?.message?.chatId === account) { // ensure the reply event is for this chat to prevent unnecessary focus
         setReplyMessage(replyEvent?.message);
         messageInputRef.current?.focus();
       }
