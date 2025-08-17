@@ -34,6 +34,7 @@ const CheckListItemAccount = ({ account, disabled, onClick }) => {
                         
                         prefix={
                             <AccountAvatar
+                            src={account?.profilePicture?.url || false}
                             verified={account?.verified}
                                 account={account._id}
                                 badgeColor={"gray"}

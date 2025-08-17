@@ -27,6 +27,7 @@ import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Swap from "./Swap";
 import { Capacitor } from "@capacitor/core";
 import { useTranslation } from 'react-i18next'
+import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 
 
 
@@ -204,6 +205,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
   const [visible, setVisible] = useState(false);
   const [activeTicker, setActiveTicker] = useState(null);
   const [action, setAction] = useState("");
+  const {isMobile} = useWindowDimensions()
   const hasPrice = prices?.[ticker]?.usd;
   const ButtonAction = ({ action, text, ticker }) => { 
     return <Button 
@@ -289,9 +291,9 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
                 </div>
                 }
                 {
-                  !hideActions &&
+                  (!hideActions && !isMobile) &&
                 
-                <div className="flex space-x-4 ml-6 mr-1 justify-end hide-on-lg">
+                <div className="flex space-x-4 ml-6 mr-1 justify-end">
                   <ButtonAction action={"receive"} text={t('receive')} ticker={ticker} />
                   <ButtonAction action={"send"} text={t('send')} ticker={ticker} /> 
                   {

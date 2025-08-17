@@ -54,7 +54,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     // const { data: messagesHistory } = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
     const [autoScroll, setAutoScroll] = useState(true);
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
-    const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
+    // const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
     const {isMobile, width} = useWindowDimensions();
     const [page, setPage] = useState(0);
     const [height, setHeight] = useState(2000)
@@ -235,10 +235,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     useEffect(() => {
         // scrp
         // debugger
-        if (document.activeElement === messageInputRef.current?.nativeElement && isKeyboardOpen) {
-            messageInputRef.current?.blur();
-            messageInputRef.current?.focus(); // probably hacky but fix scroll bottom android when keyboard open, cause maybe by istyping?
-        }
+        // if (document.activeElement === messageInputRef.current?.nativeElement && isKeyboardOpen) {
+        //     messageInputRef.current?.blur();
+        //     messageInputRef.current?.focus(); // probably hacky but fix scroll bottom android when keyboard open, cause maybe by istyping?
+        // }
 
         // console.log("scrollTop", infiniteScrollRef.current?.scrollTop);
         // console.log("scrollTop", infiniteScrollRef.current?.scrollHeight);

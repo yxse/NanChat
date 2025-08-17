@@ -363,7 +363,7 @@ export default function App({callback}) {
     "home" | "art" | "swap" | "history" | "network"
   >("home");
   const [isNavOpen, setNavOpen] = useState<boolean>(false);
-  const { isMobile } = useWindowDimensions();
+  const { isMobile, isTablet } = useWindowDimensions();
   const {activeAccount, activeAccountPk} = useWallet();
   
 
@@ -464,7 +464,7 @@ export default function App({callback}) {
         }
         >
         {
-          !isMobile && 
+          (!isMobile && !isTablet) && 
           <div style={{flex: "none", position: "sticky", top: 0}}>
             <SideBarMenu />
           </div>
@@ -516,7 +516,7 @@ export default function App({callback}) {
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}
         </div>
         {
-          isMobile && <MenuBar />
+          (isMobile || isTablet) && <MenuBar />
         }
         {/* <MenuBar /> */}
         {/* <SafeArea style={{

@@ -5,7 +5,7 @@ export function useHideNavbarOnMobile(hide) {
         const {isMobile, width} = useWindowDimensions();
     
     useEffect(() => {
-      if (hide && width <= 768) {
+      if (hide && width <= 800) {
         // Select the navbar element
         const admTabBar = document.querySelector('.adm-tab-bar.bottom');
         

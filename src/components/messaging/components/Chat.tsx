@@ -25,7 +25,7 @@ const Chat: React.FC = () => {
     const { wallet, dispatch } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     // const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
-    const {isMobile} = useWindowDimensions();
+    const {isTablet, isMobile} = useWindowDimensions();
     const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
     const {mutate: mutateInifinite} = useSWRConfig();
     const {chats, mutateChats} = useChats();
@@ -64,7 +64,7 @@ const {
                     <div key={"chat-account"}
                      className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
                         {
-                            !isMobile &&
+                            (!isMobile || isTablet) &&
                         
                         <div
                         className='hide-on-mobile'
@@ -81,7 +81,7 @@ const {
                         <ChatList
                             onlineAccount={onlineAccount}
                             onChatSelect={(chatId) => {
-                                if (isMobile && document.startViewTransition) {
+                                if (isTablet && document.startViewTransition) {
                                     document.startViewTransition(() => {
                                         navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
                                     })
@@ -123,7 +123,7 @@ const {
                         <ChatList
                             onlineAccount={onlineAccount}
                             onChatSelect={(chatId) => {
-                                if (isMobile && document.startViewTransition) {
+                                if ((isMobile || isTablet) && document.startViewTransition) {
                                     document.startViewTransition(() => {
                                         navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
                                     })
@@ -134,7 +134,7 @@ const {
                             }}
                         /></div>
                         {
-                            !isMobile &&
+                             (!isMobile || isTablet) &&
                         
                         <div
                         className='hide-on-mobile'
