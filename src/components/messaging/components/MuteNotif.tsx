@@ -5,6 +5,7 @@ import { useChat } from '../hooks/useChat'
 import { useParams } from 'react-router-dom';
 import { useChats } from '../hooks/use-chats';
 import NotificationIsDisabled from '../../app/NotificationIsDisabled';
+import { BellMuteOutline } from 'antd-mobile-icons';
 
 function MuteNotif() {
     const { t } = useTranslation()
@@ -28,6 +29,7 @@ function MuteNotif() {
             checked={chat?.muted} />
         }
         >
+            <BellMuteOutline style={{display: "inline", marginRight: 8}} />
             {t('muteNotifications')}
         </List.Item>
     </List>

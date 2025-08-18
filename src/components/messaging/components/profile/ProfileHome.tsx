@@ -52,8 +52,6 @@ const ProfileHome: React.FC = () => {
                 >
                     {t('name')}
                 </List.Item>
-                
-              
                 <List.Item
                 extra={formatAddress(me?._id)}
                 onClick={() => {
@@ -98,7 +96,17 @@ const ProfileHome: React.FC = () => {
                 >
                     {t('myQrCode')}
                 </List.Item>
-                
+                  <List.Item
+                extra={<div style={{textAlign: "right", paddingTop: 8, paddingBottom: 8, wordBreak: "break-all"}}>
+{me?.bio}
+                </div>
+                }
+                onClick={() => {
+                    navigate('/profile/bio')
+                }}
+                >
+                    {t('bio')}
+                </List.Item>
                 </List>
             <List className='my-4' mode='card'>
             <List.Item

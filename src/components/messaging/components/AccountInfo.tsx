@@ -1,4 +1,4 @@
-import { LockFill, LockOutline, MessageOutline, PhoneFill, SendOutline } from "antd-mobile-icons";
+import { EditSOutline, InformationCircleOutline, LockFill, LockOutline, MessageOutline, PhoneFill, QuestionCircleOutline, SendOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -12,7 +12,7 @@ import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, Card, Divider, DotLoading, Input, List, Modal, NavBar, Popup, Toast } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
+import { fetcherAccount, fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
@@ -48,9 +48,9 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const chatsInCommon = chats?.filter(
         (chat) => chat.type === "group" && chat?.participants?.find((participant) => participant._id === account) && chat?.accepted === true && chat?.blocked === false)
     const chatsInCommonLength = chatsInCommon?.length || 0;
-    const { data: names } = useSWR<Chat[]>(`/names?accounts=nano_${account?.split('_')[1]}`, fetcherMessages);
+    const { data: name } = useSWR<Chat[]>('nano_' + account?.split('_')[1], fetcherAccount);
     const {data: isBlocked} = useSWR(`/is-blocked?address=${account}`, fetcherMessages, {fallback: false});
-    const name = names?.[0];
+
     const nameOrAccount = name?.name || formatAddress(account);
     const {getContact} = useContact();
     const [visible, setVisible] = useState(false);
@@ -69,7 +69,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const {isMobile} = useWindowDimensions();
     const inContacts = contacts?.find((contact) => contact.addresses?.find((address) => address.address === account));
 
-    const inOnNanchat = names?.find((name) => name._id === convertAddress(account, 'XNO'));
+    const inOnNanchat = name?._id === convertAddress(account, 'XNO');
     const contact = getContact(account);
     useHideNavbarOnMobile(true)
     return (
@@ -209,6 +209,15 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         defaultChatId={chat?.id}
                         messageInputRef={messageInputRef}
                     />
+                    {
+                        name?.bio && <List mode="card" >
+                            <List.Item style={{wordBreak: "break-all"}}>
+                                <InformationCircleOutline style={{display: "inline", marginRight: 8}} />
+                                {/* About */}
+                                {name?.bio}
+                            </List.Item>
+                        </List>
+                    }
                     {
                         inOnNanchat && 
                     <MuteNotif />

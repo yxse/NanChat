@@ -90,6 +90,7 @@ import { SeedVerifiedBadge } from "../messaging/utils";
 import BlockedChats from "./BlockedChats";
 import SwapHistory from "./SwapHistory";
 import { useTranslation } from 'react-i18next';
+import SetBio from "../messaging/components/SetBio";
 
 // reduceMotion()
 
@@ -507,6 +508,7 @@ export default function App({callback}) {
             {/* <Route  path="/settings" element={<Settings />} /> */}
             <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
             <Route  path="/profile/name" element={<SetName />} />
+            <Route  path="/profile/bio" element={<SetBio />} />
             <Route  path="/profile/username" element={<SetUsername />} />
             <Route path="/files" element={<FileManagement />} />
             <Route  path="/chat/*" element={<Chat />} />
