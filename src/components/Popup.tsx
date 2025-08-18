@@ -35,7 +35,9 @@ function walletsReducer(state, action) {
   switch (action.type) {
     case "ADD_WALLET":
       // if (state.wallets[action.payload.ticker]) return state;
-      if (action.payload.ticker === "XNO") localStorage.setItem('activeAddress', action.payload.wallet.getActiveAccount());
+      if (action.payload.ticker === "XNO") {
+        localStorage.setItem('activeAddress', action.payload.wallet.getActiveAccount());
+      }
       return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };
     case "USE_LEDGER":
       return {
@@ -61,6 +63,7 @@ function walletsReducer(state, action) {
       localStorage.setItem('hiddenIndexes', JSON.stringify(hiddenIndexesSorted));
       return { ...state, accounts: state.accounts.filter((account) => account.accountIndex !== action.payload), hiddenIndexes: [...state.hiddenIndexes, action.payload].sort((a, b) => a - b) };
     case "ADD_ACCOUNTS":
+      localStorage.setItem('activeAddresses', JSON.stringify(action.payload.map((account) => account.address)));
       return { ...state, accounts: action.payload };
     // , lastAccountIndex: +localStorage.getItem('lastAccountIndex') };
     case "ADD_ACCOUNT":

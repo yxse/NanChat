@@ -57,14 +57,7 @@ function SelectAccount({ }) {
       clearCache();
     }
   }
-  useEffect(() => {
-    // todo handle that better
-    // if (localStorage.getItem('activeAddresses') === null) {
-      // activeAddresses is used for service workers notifications
-      localStorage.setItem('activeAddresses', JSON.stringify(wallet.accounts.map((account) => account.address)));
-    // }
-  }
-  , []);
+
   return (<>
   <div style={{color: "var(--adm-color-text-secondary)"}} className="text-sm flex items-center cursor-pointer" onClick={() => {
     setVisible(true)

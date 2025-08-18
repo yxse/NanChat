@@ -24,6 +24,10 @@ import { useTranslation } from "react-i18next";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
+
+  // this seems to increase socket io message of about 60ms, probably beacause that changes /chats and /messages data which cause many render
+  // could be optimized using more memo() in ChatRoom/ChatListo to reduce unnessecary re render
+
   const id = message._id;
   await mutate(currentPages => {
       const newPages = [...(currentPages || [])];

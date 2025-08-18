@@ -98,7 +98,7 @@ const ProfileHome: React.FC = () => {
                 </List.Item>
                   <List.Item
                 extra={<div style={{textAlign: "right", paddingTop: 8, paddingBottom: 8, wordBreak: "break-all"}}>
-{me?.bio}
+                        {me?.bio ? me?.bio : t('notSet')}
                 </div>
                 }
                 onClick={() => {

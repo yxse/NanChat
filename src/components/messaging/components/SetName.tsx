@@ -67,7 +67,7 @@ const SetName: React.FC = () => {
                 }, activeAccountPk).then((res) => {
                     console.log(res);
                     Toast.show({icon: 'success'});
-                    mutate({name: values.name});
+                    mutate({...me, name: values.name});
                     // navigate('/chat');
                     if (isRegistered) {
                         navigate('/me');

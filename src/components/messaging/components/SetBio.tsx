@@ -53,11 +53,11 @@ const SetBio: React.FC = () => {
             mode='card'
             onFinish={(values) => {
                 fetcherMessagesPost('/set-bio', {
-                    bio: values.bio,
+                    bio: values.bio?.trim(),
                 }).then((res) => {
                     console.log(res);
                     Toast.show({icon: 'success'});
-                    mutate({bio: values.bio});
+                    mutate({...me, bio: values.bio});
                     navigate('/me');
                 }).catch((err) => {
                     console.log(err);
