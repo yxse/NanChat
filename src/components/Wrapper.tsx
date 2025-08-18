@@ -195,6 +195,9 @@ export default function PopupWrapper({
     // const analytics = getAnalytics(app);
   }
   useEffect(() => {
+    if (Capacitor.getPlatform() == "ios"){
+      document.body.classList.add('ios')
+    }
     if (Capacitor.getPlatform() == "android"){
       refreshStatusBarTheme()
     }

@@ -415,20 +415,20 @@ textarea::placeholder, input::placeholder {
 }
 
 /*  animation keyboard ios native */
-.app:not(:has(.chat-list)){
-    /* padding-bottom: 0;
+.ios .app:not(:has(.chat-list)){
+    padding-bottom: 0;
     transition: padding-bottom 0.25s cubic-bezier(0.25, 0.1, 0.25, 1.0);
   will-change: padding-bottom;
-  transform: translateZ(0.1); */
+  transform: translateZ(0.1);
 
 }
 
 
-.adm-popup-body:not(:has(.chat-list)) {
-  /* margin-bottom: 0;
+.ios .adm-popup-body:not(:has(.chat-list)) {
+  margin-bottom: 0;
   transition: margin-bottom 0.25s cubic-bezier(0.25, 0.1, 0.25, 1.0);
   will-change: margin-bottom;
-  transform: translateZ(0.1); */
+  transform: translateZ(0.1);
 }
 
 .swap-btn:hover {
