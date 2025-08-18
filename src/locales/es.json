@@ -293,5 +293,7 @@
   "deleteContactConfirmTitle": "¿Eliminar a {{name}}?",
   "deleteContactConfirmContent": "¿Seguro que deseas eliminar este contacto?",
   "noContacts": "Sin contactos",
-  "contactsForNetwork": "Contactos para {{networkName}}"
+  "contactsForNetwork": "Contactos para {{networkName}}",
+  "bio": "Biografía",
+  "setBio": "Establecer biografía"
 } 

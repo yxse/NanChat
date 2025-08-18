@@ -1,4 +1,6 @@
 {
+  "bio": "Bio",
+  "setBio": "Set Bio",
   "voting": "Voting",
   "notVoting": "Not Voting",
   "currentlyRepresentedBy": "Currently Represented by",

@@ -293,5 +293,7 @@
   "deleteContactConfirmTitle": "{{name}} verwijderen?",
   "deleteContactConfirmContent": "Weet u zeker dat u dit contact wilt verwijderen?",
   "noContacts": "Geen contacten",
-  "contactsForNetwork": "Contacten voor {{networkName}}"
+  "contactsForNetwork": "Contacten voor {{networkName}}",
+  "bio": "Bio",
+  "setBio": "Bio instellen"
 } 

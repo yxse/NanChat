@@ -293,5 +293,7 @@
   "deleteContactConfirmTitle": "{{name}} を削除しますか？",
   "deleteContactConfirmContent": "この連絡先を削除してもよろしいですか？",
   "noContacts": "連絡先がありません",
-  "contactsForNetwork": "{{networkName}} の連絡先"
+  "contactsForNetwork": "{{networkName}} の連絡先",
+  "bio": "自己紹介",
+  "setBio": "自己紹介を設定"
 } 

@@ -293,5 +293,7 @@
   "deleteContactConfirmTitle": "{{name}} silinsin mi?",
   "deleteContactConfirmContent": "Bu kişiyi silmek istediğinizden emin misiniz?",
   "noContacts": "Kişi yok",
-  "contactsForNetwork": "{{networkName}} ağı için kişiler"
+  "contactsForNetwork": "{{networkName}} ağı için kişiler",
+  "bio": "Biyografi",
+  "setBio": "Biyografiyi ayarla"
 } 

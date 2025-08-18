@@ -292,5 +292,7 @@
   "deleteContactConfirmTitle": "حذف {{name}}؟",
   "deleteContactConfirmContent": "هل أنت متأكد أنك تريد حذف جهة الاتصال هذه؟",
   "noContacts": "لا توجد جهات اتصال",
-  "contactsForNetwork": "جهات الاتصال لشبكة {{networkName}}"
+  "contactsForNetwork": "جهات الاتصال لشبكة {{networkName}}",
+  "bio": "نبذة",
+  "setBio": "تعيين النبذة"
 } 

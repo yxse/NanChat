@@ -293,5 +293,7 @@
   "deleteContactConfirmTitle": "Удалить {{name}}?",
   "deleteContactConfirmContent": "Вы уверены, что хотите удалить этот контакт?",
   "noContacts": "Нет контактов",
-  "contactsForNetwork": "Контакты для {{networkName}}"
+  "contactsForNetwork": "Контакты для {{networkName}}",
+  "bio": "Био",
+  "setBio": "Установить био"
 } 

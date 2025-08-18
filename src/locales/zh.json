@@ -293,5 +293,7 @@
   "deleteContactConfirmTitle": "删除 {{name}}？",
   "deleteContactConfirmContent": "您确定要删除此联系人吗？",
   "noContacts": "没有联系人",
-  "contactsForNetwork": "{{networkName}} 的联系人"
+  "contactsForNetwork": "{{networkName}} 的联系人",
+  "bio": "简介",
+  "setBio": "设置简介"
 } 
