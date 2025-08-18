@@ -88,9 +88,12 @@ const AppUrlListener: React.FC<any> = () => {
         navigate(event.notification.data.url);
         
         FirebaseMessaging.getDeliveredNotifications().then((notifications) => {
-          // remove notification of the chat
-          const notificationsChat = notifications.notifications.filter((notification) => notification.data?.url === event.notification.data.url);
           console.log("notification filtered", notificationsChat);
+          if (Capacitor.getPlatform() === "android"){ // on iOS, threadId of notification allows to already remove all notification of that thread when clicking, on android we remove all notification, grouping notification in android seems to be pain in the ass
+            FirebaseMessaging.removeAllDeliveredNotifications()
+          }
+          // remove notification of the chat
+          const notificationsChat = notifications.notifications.filter((notification) => notification.data?.url === event.notification.data.url); // this doesnt seem to work as data is not available
           FirebaseMessaging.removeDeliveredNotifications({notifications: notificationsChat});
         });
       }
@@ -170,7 +173,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   const index = activeAddresses?.findIndex((address) => address === toAccount);
   let accounts = seed?.length === 128 ? wallet.accounts(seed, index, index) : wallet.legacyAccounts(seed, index, index );
   let decryptionKey = accounts[0].privateKey;
-  console.log("decryptionKey", decryptionKey);
+  // console.log("decryptionKey", decryptionKey);
   console.log("accounts", accounts);
   console.log("activeAddresses", activeAddresses);
   console.log("index", index);
