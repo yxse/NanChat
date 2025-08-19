@@ -37,34 +37,35 @@ const ChatSocket: React.FC = () => {
                     socket.auth = { token };
                     socket.connect();
                     console.log('socket connected');
-                    mutateChats()
+                    // mutateChats()
                 });
         return () => {
             socket.disconnect();
             console.log('disconnect socket');
         };
     }, [activeAccount]);
-    useEffect(() => {
-        socket.io.on('reconnect', () => {
+    const onReconnect = () => {
             console.log('reconnect socket');
-            mutateChats()
             socket.emit('join', activeAccount);
             for (let ticker of Object.keys(wallet.wallets)) {
                 wallet.wallets[ticker]?.receiveAllActiveAccount();
               }
             // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the chats on reconnect
             // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all chats
-        });
-        socket.io.on('open', () => {
+    }
+    const onConnect = () => {
             console.log('socket open');
             mutateChats()
-        })
+    }
+    useEffect(() => {
+        socket.io.on('reconnect', onReconnect);
+        socket.on('connect', onConnect)
 
         socket.emit('join', activeAccount);
 
         return () => {
-            socket.io.off('reconnect');
-            socket.io.off('open');
+            socket.io.off('reconnect', onReconnect);
+            socket.off('connect', onConnect)
         };
     }, [activeAccount, onlineAccount]);
 

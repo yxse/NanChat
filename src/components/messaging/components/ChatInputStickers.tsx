@@ -25,7 +25,11 @@ import { networks } from "../../../utils/networks";
 
 const ChatInputStickers: React.FC<{ onStickerSelect  }> = ({ onStickerSelect  }) => {
   console.log("render stickers")
-    const {data, isLoading} = useSWR('/stickers', fetcherMessagesNoAuth);
+    const {data, isLoading} = useSWR('/stickers', fetcherMessagesNoAuth, {            
+          focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
+            dedupingInterval: 60 * 60 * 1000,
+            keepPreviousData: true,
+});
 
 
     return (

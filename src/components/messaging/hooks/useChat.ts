@@ -75,9 +75,10 @@ export function useChat(chatId) {
     isLoading,
     isValidating 
   } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId, chat?.height), fetcherMessagesCache, {
-    revalidateFirstPage: true,
-    // revalidateOnFocus: false,
-    revalidateOnReconnect: true,
+    revalidateFirstPage: false, // should not be needed and cause flickering on scroll
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true, 
+    // revalidateIfStale: true,
     revalidateOnMount: true,
   });
 
@@ -153,7 +154,6 @@ export function useChat(chatId) {
       }, false);
     }
   }, [pages]);
-    
   // debugger
   const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;
   return {

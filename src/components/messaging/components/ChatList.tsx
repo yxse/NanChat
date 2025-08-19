@@ -110,7 +110,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     const { account } = useParams();
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-    const {chats, mutateChats: mutate, isLoading: isLoadingChat} = useChats(account);
+    const {chats, mutateChats: mutate, isLoading: isLoadingChat} = useChats(account, true);
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -245,6 +245,20 @@ const saveScrollPosition = useCallback(
         <PasteAction mode="scan" text={" "} scanOpen={scanOpen} setScanOpen={setScanOpen}/>
         </div>
       )
+
+    //     const onReconnect = () => {
+    //     console.log('reconnect socket mutate chat');
+    //     mutate()
+    // }
+    //  useEffect(() => {
+    //         socket.io.on('reconnect', onReconnect)
+    //             // refetch messages when reconnect
+    //             // on mobile, if the app is in background, the socket connection will be lost, so we need to refresh the message on reconnect
+    //              // eventually we could optimize this by sending only new data, for example with a ?ts=timestamp query param instead of re fetching all messages
+    //         return () => {
+    //             socket.io.off('reconnect', onReconnect);
+    //         };
+    //     }, []);
 
       function rowRenderer({
         index,

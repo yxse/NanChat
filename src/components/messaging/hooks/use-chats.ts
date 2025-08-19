@@ -1,9 +1,10 @@
 import useSWR, { mutate, useSWRConfig } from 'swr';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
 import { useWallet } from '../../Popup';
 import { Toast } from 'antd-mobile';
+import { saveCache } from '../../Wrapper';
 
 interface UseChatsReturn {
   chats: Chat[] | undefined;
@@ -15,7 +16,7 @@ interface UseChatsReturn {
   blockChat: (chatId: string) => Promise<void>;
 }
 
-export function useChats(chatIdOrAccount?: string): UseChatsReturn {
+export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChatsReturn {
   const {activeAccount, activeAccountPk} = useWallet();
     const { cache } = useSWRConfig()
 
@@ -28,13 +29,16 @@ export function useChats(chatIdOrAccount?: string): UseChatsReturn {
     '/chats', 
     () => fetcherChats(chats || [], activeAccount, activeAccountPk, cache),
      {
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-      revalidateOnReconnect: true,
-      revalidateOnMount: false,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true, // revalidateOnReconnect to false will also prevent any revalidation by socket io on reconnect
+      revalidateOnMount: true,
       fallbackData: [],
+      dedupingInterval: 10000
     }
   );
+  // console.log(chats[0])
+  const lastSaveTime = useRef(0);
+
   // const chat = chats?.find(chat => chat.id === chatId);
   let chatId = chatIdOrAccount
   if (chatId?.startsWith('nano_')){
@@ -83,14 +87,15 @@ export function useChats(chatIdOrAccount?: string): UseChatsReturn {
     
   // }, [chats])
 
-  useEffect(() => {
-    // const isFirstLoad = !sessionStorage.getItem('app-initialized');
-    // mutateChats() // to force refresh
-    // if (isFirstLoad) {
-      // mutateChats() // fetch all chats on first load, then chats should be updated by socket
-      // sessionStorage.setItem('app-initialized', 'true');
-    // }
-  }, []);
+useEffect(() => {
+  const now = Date.now();
+  if (doSaveCache && (now - lastSaveTime.current) >= 30000) { // force save chats to localstorage cache for improved consistency, fallback if save cache no triggered beforeunload
+    lastSaveTime.current = now;
+    setTimeout(() => {
+      saveCache(cache);
+    }, 1000); // add delay for performances
+  }
+}, [cache, chats]);
   // {onError: async (error) => {
   //         console.log("aze error get chats", error)
   //         if (error === 401 || error === 403) {
@@ -152,7 +157,7 @@ async function muteNotifChat(mute) {
       throw new Error(r.error)
   }
 }
-    
+    // console.log(chats[0])
 
   return { 
     chats, 

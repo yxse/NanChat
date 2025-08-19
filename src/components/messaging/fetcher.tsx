@@ -53,12 +53,13 @@ export const fetcherChats = async (oldChats, activeAccount, activeAccountPk, cac
                         uniqueChats.push(chat);
                     }
                 });
-                setTimeout(() => {
-                    saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
-                }, 1000); // to not slow down fetcherchats
-                setTimeout(() => {
-                    localStorage.setItem('lastSync', res.ts); // prevent bug race condition loading chats on start causing missing updates
-                }, 5000);
+                // saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
+                // setTimeout(() => {
+                //     // localStorage.setItem('lastSync', res.ts); // prevent bug race condition loading chats on start causing missing updates
+                // }, 1000); // to not slow down fetcherchats
+                // setTimeout(() => {
+                // }, 5000);
+                // console.log(uniqueChats[0])
                 return uniqueChats;
             }
         })
@@ -66,10 +67,10 @@ export const fetcherChats = async (oldChats, activeAccount, activeAccountPk, cac
     else{
         return fetcherMessages('/chats', activeAccountPk).then((res) => {
             if (res.error == null){
-                localStorage.setItem('lastSync', res.ts);
-                setTimeout(() => {
-                    saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
-                }, 1000); // to not slow down fetcherchats
+                // setTimeout(() => {
+                //     saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
+                //     localStorage.setItem('lastSync', res.ts);
+                // }, 1000); // to not slow down fetcherchats
                 return res.chats;
             }
         })
@@ -106,6 +107,7 @@ const cacheAllMessagesChat = async (chatId, height) => {
 export const fetcherMessagesCache = (url) => getChatToken().then(async (token) => {
     console.time('cache')
 
+    console.log("fetch message cache", url)
     // Parse params from the URL
     const urlParams = new URLSearchParams(url.split('?')[1]);
     const requestedHeight = parseInt(urlParams.get('cursor') || '0');
@@ -125,6 +127,9 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
           let cachedData
           if (inMemoryMap.has(cacheKey)){
                 cachedData = inMemoryMap.get(cacheKey);
+                if (cachedData){
+                    cachedMessages = cachedMessages.concat(cachedData);
+                }
             }
             else{
                 cachedData = localStorage.getItem(cacheKey);

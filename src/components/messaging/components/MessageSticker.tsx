@@ -12,7 +12,11 @@ import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 
 const MessageSticker = ({ message, side, hash, ticker }) => {
-    const {data, isLoading} = useSWR('/stickers', fetcherMessagesNoAuth);
+    const {data } = useSWR('/stickers', fetcherMessagesNoAuth, {            
+          focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
+            dedupingInterval: 60 * 60 * 1000,
+            keepPreviousData: true,
+});
     
     let url = data?.find(sticker => sticker.id == message.stickerId)?.cache_url;
     return (

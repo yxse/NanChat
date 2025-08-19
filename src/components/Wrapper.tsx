@@ -11,6 +11,7 @@ import { getWindowDimensions } from "../hooks/use-windows-dimensions";
 import { refreshStatusBarTheme } from "./messaging/utils";
 
 export function saveCache(map) {
+  console.log("saving cache")
   // clear cache 
   // localStorage.removeItem('app-cache')
   
@@ -34,6 +35,10 @@ export function saveCache(map) {
   // let appCache = JSON.stringify(Array.from(map.entries()))
   // .filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
   localStorage.setItem('app-cache', JSON.stringify(array))
+  const latstUpdatedChat = array.find((e) => e[0] === "/chats")?.[1]?.data[0]?.updatedAt
+  if (latstUpdatedChat){ // save last updated time of chat, serving as cursor
+    localStorage.setItem('lastSync', new Date(latstUpdatedChat).getTime().toString()) // eventually could be more precise using the r.ts of /chats response
+  }
 }
 
 function localStorageProvider() {
