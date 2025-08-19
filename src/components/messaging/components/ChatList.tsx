@@ -126,7 +126,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     //     chat.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     // );
     // const accountData = accounts?.find(name => name._id === activeAccount)
-    const {isMobile, width} = useWindowDimensions()
+    const {isMobile, width, isTablet} = useWindowDimensions()
     const {inviteFriends} = useInviteFriends()
      const [scanOpen, setScanOpen] = useState(false)
     const listRef = useRef(null);
@@ -398,7 +398,7 @@ const saveScrollPosition = useCallback(
             className="chat-list"          
           >
           <div style={{ 
-            height: isMobile ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
+            height: (isMobile || isTablet) ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
           // 47px for the header, 58px for the menu
           , overflow: "hidden" }}>
             <AutoSizer>
