@@ -25,7 +25,9 @@ export const SignPopup = ({visible, setVisible, uri, setUri}) => {
     >
       <Sign uri={uri} onClose={() => {
         setVisible(false)
-        setUri("")
+        if (setUri){
+          setUri("")
+        }
       }} />
     </ResponsivePopup>
   )

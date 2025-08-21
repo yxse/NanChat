@@ -15,35 +15,36 @@ function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanO
   const [visible, setVisible] = React.useState(false);
   const [visibleSign, setVisibleSign] = React.useState(false);
   const [activeTicker, setActiveTicker] = React.useState<string | null>(null);
+  const [newURI, setNewURI] = useState<string | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    if (uri) {
+    if (uri && uri !== "") {
       executeURI(uri);
     }
   }
   , [uri]);
 
   function executeURI(uri: string) {
+    let tmpUri = uri;
     try {
-      if (uri.startsWith("nanauth://sign?") 
-        || uri.startsWith("nanauth://sign/?") // for tauri
+      if (uri.startsWith("https://nanchat.com/?uri=")) { // handle universal link
+        tmpUri = uri.replace("https://nanchat.com/?uri=", "");
+      }
+      if (tmpUri.startsWith("nanauth://sign?") 
+        || tmpUri.startsWith("nanauth://sign/?") // for tauri
       ) { 
         // navigate(uri.replace("nanauth://sign?", "/sign?"));
         setVisibleSign(true);
+        setNewURI(tmpUri);
         return;
       }
       if (uri.startsWith("https://nanchat.com/chat/")) { // handle chat group/my qrcode join
-        uri = uri.replace("https://nanchat.com", "");
-        navigate(uri)
+        tmpUri = uri.replace("https://nanchat.com", "");
+        navigate(tmpUri)
         return
       }
-      if (uri.startsWith("https://nanchat.com/?uri=")) { // handle universal link
-        uri = uri.replace("https://nanchat.com/?uri=", "");
-        uri = decodeURIComponent(uri);
-      }
         
-      let parsed = parseURI(uri);
-      if (parsed)
+      let parsed = parseURI(tmpUri);
         // Toast.show({
         //   content: JSON.stringify(parsed),
         // });
@@ -85,6 +86,7 @@ function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanO
     defaultOpen={scanOpen}
       onScan={(result) => {
         executeURI(result);
+        if (setScanOpen) setScanOpen(false);
       }}
     >
       {
@@ -141,7 +143,7 @@ function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanO
       <SignPopup 
         visible={visibleSign}
         setVisible={setVisibleSign}
-        uri={uri}
+        uri={newURI}
         setUri={setUri}
         onSign={(result) => {
           WebviewOverlay.toggleSnapshot(false);
