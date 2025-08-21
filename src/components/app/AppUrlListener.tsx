@@ -81,16 +81,13 @@ const AppUrlListener: React.FC<any> = () => {
 
     }, []);
     useEffect(() => {
-        if (eventOpenUrl) {
+        if (eventOpenUrl && Capacitor.isNativePlatform()) {
           console.log("eventOpenUrl data url", eventOpenUrl);
+          WebviewOverlay.toggleSnapshot(true);
           handleURL(eventOpenUrl);
+          emit('open-url', null);
       }
 
-      return () => {
-        if (eventOpenUrl) {
-          emit('open-url', null); // clear event when unmounting
-        }
-      }
     }, [eventOpenUrl]);
     useEffect(() => {
 

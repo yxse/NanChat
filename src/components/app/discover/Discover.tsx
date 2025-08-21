@@ -126,7 +126,8 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     WebviewOverlay.handleNavigation((event) => {
         console.log('navigationHandler', JSON.stringify(event));
         if (event.url.startsWith('https://nanchat.com/?uri=')){
-            emit('open-url', {url: event.url});
+            emit('open-url', event.url);
+            return
         }
         else if (event.url.startsWith('https://nanchat.com/')){
             closeNanoApp()
