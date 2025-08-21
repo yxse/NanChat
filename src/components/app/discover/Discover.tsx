@@ -22,6 +22,7 @@ import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-ca
 import { useChats } from "../../messaging/hooks/use-chats";
 import ProfileName from "../../messaging/components/profile/ProfileName";
 import { useTranslation } from "react-i18next";
+import { useEmit } from "../../messaging/components/EventContext";
 const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const ChatName = ({ chat, activeAccount }) => {
@@ -84,6 +85,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const [visible, setVisible] = useState(false);
     const [visibleMessage, setVisibleMessage] = useState(false);
     const [openService, setOpenService] = useState(null);
+    const emit = useEmit()
     // get defaultURL from query params with react-router-dom
     const [
         params,
@@ -123,7 +125,10 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
  
     WebviewOverlay.handleNavigation((event) => {
         console.log('navigationHandler', JSON.stringify(event));
-        if (event.url.startsWith('https://nanchat.com/')){
+        if (event.url.startsWith('https://nanchat.com/?uri=')){
+            emit('open-url', {url: event.url});
+        }
+        else if (event.url.startsWith('https://nanchat.com/')){
             closeNanoApp()
             navigate(event.url.replace('https://nanchat.com', ''))
             return

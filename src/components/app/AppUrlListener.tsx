@@ -12,6 +12,7 @@ import { getSharedKey } from '../../services/sharedkey';
 import { box, wallet } from 'multi-nano-web';
 import { getSeed } from '../../utils/storage';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
+import { useEmit, useEvent } from '../messaging/components/EventContext';
 
 
 const isContactImport = (url: string) => {
@@ -32,25 +33,27 @@ const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [uri, setUri] = useState('');
-    useEffect(() => {
-      const handleURL = (url) => {
-        console.log("handle", url)
-        let contactsFile = isContactImport(url);
-        if (contactsFile){
-          navigate("/contacts?import_url=" + contactsFile);
-          return;
-        }
-        if (
-          (url.startsWith("https://nanchat.com/") || (url.startsWith("nan://nanchat.com/")))
-          && !url.includes("?uri="))
-          {
-          // no valid action detected, we just open the app and redirect to the correct page
-          navigate("/")
-          navigate(url.replace('nan://nanchat.com/', '/').replace("https://nanchat.com/", "/"))
-          return; 
-        }
-        setUri(url);
+    const eventOpenUrl = useEvent('open-url'); // handle open url from discover nano apps
+    const emit = useEmit()
+    const handleURL = (url) => {
+      console.log("handle", url)
+      let contactsFile = isContactImport(url);
+      if (contactsFile){
+        navigate("/contacts?import_url=" + contactsFile);
+        return;
       }
+      if (
+        (url.startsWith("https://nanchat.com/") || (url.startsWith("nan://nanchat.com/")))
+        && !url.includes("?uri="))
+        {
+        // no valid action detected, we just open the app and redirect to the correct page
+        navigate("/")
+        navigate(url.replace('nan://nanchat.com/', '/').replace("https://nanchat.com/", "/"))
+        return; 
+      }
+      setUri(url);
+    }
+    useEffect(() => {
       const handleOpenUrl = async () => {
         await onOpenUrl((urls) => {
           let url = urls[0];
@@ -77,6 +80,18 @@ const AppUrlListener: React.FC<any> = () => {
         }
 
     }, []);
+    useEffect(() => {
+        if (eventOpenUrl) {
+          console.log("eventOpenUrl data url", eventOpenUrl);
+          handleURL(eventOpenUrl);
+      }
+
+      return () => {
+        if (eventOpenUrl) {
+          emit('open-url', null); // clear event when unmounting
+        }
+      }
+    }, [eventOpenUrl]);
     useEffect(() => {
 
       FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
