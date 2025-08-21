@@ -127,6 +127,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         console.log('navigationHandler', JSON.stringify(event));
         if (event.url.startsWith('https://nanchat.com/?uri=')){
             emit('open-url', event.url);
+            event.complete(false)
             return
         }
         else if (event.url.startsWith('https://nanchat.com/')){
