@@ -28,6 +28,11 @@ const verifyHistoryIntegrity = (account, history, blocks, ticker, accountPublicK
     if (!isValidHash) {
       throw new Error("Block hash verification failed for " + block.hash);
     }
+    if (i < history.history.length-1 && history.history[i+1].previous !== block.hash){
+      // verify that each block of history is correctly linked together 
+      // ensure that no other network block could be inserted
+      throw new Error("Block hash not linked, verification failed for " + block.hash);
+    }
     verifyBlock(account, block, block.subtype, block.hash, accountPublicKey)
     if (blocks[`verified-${block.hash}`] != null && blocks[`verified-${block.hash}`] !== ticker){ 
       throw new Error("Block already verified on another network: " + blocks[`verified-${block.hash}`] + " " + block.hash);
