@@ -40,14 +40,15 @@ const verifyHistoryIntegrity = (account, history, blocks, ticker, accountPublicK
     // ensure previous block is verified too
     // if open block (previous=000..) no need to check
     const keyPrevious = `verified-${block.previous}`
-    if (block.previous !== "0".repeat(64) && 
+    const isOpen = block.previous === "0".repeat(64) && i == 0
+    if (!isOpen && 
       verifiedHashes[keyPrevious] == null // if not in memory
       && blocks[keyPrevious] == null // if not already saved
     ){
       debugger
       throw new Error("Previous block not yet verified: " + block.previous);
     }
-    if (block.previous !== "0".repeat(64) && blocks[keyPrevious] !== ticker && verifiedHashes[keyPrevious] !== ticker){
+    if (!isOpen && blocks[keyPrevious] !== ticker && verifiedHashes[keyPrevious] !== ticker){
       throw new Error("Previous block already verified on another network: " + blocks[keyPrevious] + " " + block.previous );
     }
     verifiedHashes[`verified-${block.hash.trim()}`] = ticker
