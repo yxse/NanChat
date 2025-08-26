@@ -30,6 +30,9 @@ function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanO
       if (uri.startsWith("https://nanchat.com/?uri=")) { // handle universal link
         tmpUri = uri.replace("https://nanchat.com/?uri=", "");
       }
+      if (uri.startsWith("nan://nanchat.com/?uri=")) { // handle nan:// link
+        tmpUri = uri.replace("nan://nanchat.com/?uri=", "");
+      }
       if (tmpUri.startsWith("nanauth://sign?") 
         || tmpUri.startsWith("nanauth://sign/?") // for tauri
       ) { 
