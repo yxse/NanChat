@@ -129,11 +129,11 @@ public class MainActivity extends BridgeActivity {
 
                 Log.d(TAG, "has nav bar:" + hasNavigationBar());
                 // Fallback: if bottom inset is 0 but navigation bar should exist, use resource method
-                if (bottomPx == 0 && hasNavigationBar()) {
-                    int navBarHeight = getNavigationBarHeight();
-                    bottomPx = Math.round(navBarHeight / density);
-                    Log.d(TAG, "Using fallback navigation bar height: " + bottomPx + "px");
-                }
+                // if (bottomPx == 0 && hasNavigationBar()) {
+                //     int navBarHeight = getNavigationBarHeight();
+                //     bottomPx = Math.round(navBarHeight / density);
+                //     Log.d(TAG, "Using fallback navigation bar height: " + bottomPx + "px");
+                // }
 
 
                 Log.d(TAG, String.format("Setting CSS variables for API < 35 - top: %dpx, left: %dpx, right: %dpx, bottom: %dpx",
@@ -146,6 +146,7 @@ public class MainActivity extends BridgeActivity {
                     view.evaluateJavascript(String.format("document.documentElement.style.setProperty('--android-inset-left', '%spx')", leftPx), null);
                     view.evaluateJavascript(String.format("document.documentElement.style.setProperty('--android-inset-right', '%spx')", rightPx), null);
                     view.evaluateJavascript(String.format("document.documentElement.style.setProperty('--android-inset-bottom', '%spx')", bottomPx), null);
+                    view.evaluateJavascript(String.format("document.documentElement.style.setProperty('--android-inset-bottom-buttons', '%spx')", 0), null);
                 }else{
                     // this is used to fix bug keyboard extra space when navigation button are enabled
                     view.evaluateJavascript(String.format("document.documentElement.style.setProperty('--android-inset-bottom-buttons', '%spx')", bottomPx), null);
