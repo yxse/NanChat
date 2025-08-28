@@ -74,15 +74,16 @@ const Message = memo(({
   }, []);
   const decrypted = useMessageDecryption({ message });
 
+  // causing too much re render
   // Store decrypted message in wallet state for reuse
-  useEffect(() => {
-    if (decrypted) {
-      dispatch({
-        type: 'ADD_MESSAGE',
-        payload: { _id: message._id, content: decrypted }
-      });
-    }
-  }, [decrypted, dispatch, message._id]);
+  // useEffect(() => { 
+  //   if (decrypted) {
+  //     dispatch({
+  //       type: 'ADD_MESSAGE',
+  //       payload: { _id: message._id, content: decrypted }
+  //     });
+  //   }
+  // }, [decrypted, dispatch, message._id]);
   const [sending, setSending] = useState(false);
   useEffect(() => {
     // set sending after 2 seconds

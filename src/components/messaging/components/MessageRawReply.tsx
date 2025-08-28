@@ -10,10 +10,10 @@ const MessageRawReply = ({ message }) => {
     
     useEffect(() => {
         if (decrypted) {
-            dispatch({
-                type: 'ADD_MESSAGE',
-                payload: { _id: message._id, content: decrypted }
-            });
+            // dispatch({
+            //     type: 'ADD_MESSAGE',
+            //     payload: { _id: message._id, content: decrypted }
+            // });
         }
     }, [decrypted])
     return (

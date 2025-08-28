@@ -4,16 +4,16 @@ import { WalletContext } from "../../Popup";
 import ProfileName from "./profile/ProfileName";
 import { CloseCircleFill } from "antd-mobile-icons";
 
-const MessageRaw = ({ message }) => {
+const MessageRaw = ({ message, includeProfileName }) => {
     const decrypted = useMessageDecryption({message})
         const { dispatch } = useContext(WalletContext);
     
     useEffect(() => {
         if (decrypted) {
-            dispatch({
-                type: 'ADD_MESSAGE',
-                payload: { _id: message._id, content: decrypted }
-            });
+            // dispatch({
+            //     type: 'ADD_MESSAGE',
+            //     payload: { _id: message._id, content: decrypted }
+            // });
         }
     }, [decrypted])
     return (
@@ -24,7 +24,7 @@ const MessageRaw = ({ message }) => {
             overflow: 'hidden',
             containerType: 'inline-size',
         }}>
-        {(message?.type === "group" || message?.type === "reply") && <><ProfileName includeVerified={false} address={message.fromAccount} />{": "}</>}
+        {includeProfileName && <><ProfileName includeVerified={false} address={message.fromAccount} />{": "}</>}
         {decrypted ? decrypted : 
         '\u00A0' // blank space to keep the height
         } 
