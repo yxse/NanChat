@@ -26,7 +26,7 @@ import { DateHeader } from "../../app/History";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
 
-const MessageSystem: React.FC<{ message }> = ({ message }) => {
+const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   const { activeAccount } = useWallet();
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
@@ -45,6 +45,25 @@ const MessageSystem: React.FC<{ message }> = ({ message }) => {
   //   dedupingInterval: 60000,
   // });
 
+    if (raw) { // used to display in chatList
+       return (
+      <>{"["}
+        <ProfileName address={addresses?.[0]} /> {action} {" "}
+          {addresses?.map((address, index) => {
+            if (index === 0) {
+              return null;
+            }
+            return (
+              <span key={index} className="" style={{ }}>
+                    <ProfileName address={address} />
+                {index === addresses.length - 1 ? null : ", "}
+              </span>
+            );
+          })}
+          {"]"}
+      </>
+    );
+    }
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
         <Link to={'/chat/' + addresses?.[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>

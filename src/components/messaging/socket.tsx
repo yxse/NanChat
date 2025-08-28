@@ -92,6 +92,7 @@ const ChatSocket: React.FC = () => {
                                     newChat.lastMessageFrom = message.fromAccount;
                                     newChat.lastMessageTimestamp = new Date().toISOString();
                                     newChat.lastMessageId = message._id;
+                                    newChat.lastMessageType = message.type;
                                     newChat.isLocal = false;
                                     newChat.height = message.height;
                                     // move chat to top

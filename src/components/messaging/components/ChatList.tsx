@@ -45,6 +45,7 @@ import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import ProfilePicture from "./profile/ProfilePicture";
 import PasteAction from "../../app/PasteAction";
 import { useTranslation } from "react-i18next";
+import { ChatListDesciption } from "./ChatListDescription";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -295,6 +296,19 @@ const saveScrollPosition = useCallback(
                             const accountFrom = from?._id;
                             const hasName = from?.name;
                             const pfp = from?.profilePicture?.url
+        const message = {
+                    content: chat.lastMessage,
+                    fromAccount: accountFrom,
+                    toAccount: accountTo,
+                    _id: chat.lastMessageId,
+                    isLocal: chat.isLocal,
+                    type: chat?.lastMessageType,
+                    chatId: chat.id,
+                    height: chat.height,
+                }
+
+        
+        
         return (
             <List.Item
             style={style}
@@ -343,18 +357,7 @@ const saveScrollPosition = useCallback(
                 }
                 // Ellipsis component is laggy when there are many messages
                 // description={<Ellipsis content={decrypted || '...'} />}
-                description={<MessageRaw 
-                    key={chat.lastMessageId}
-                    message={{
-                    content: chat.lastMessage,
-                    fromAccount: accountFrom,
-                    toAccount: accountTo,
-                    _id: chat.lastMessageId,
-                    isLocal: chat.isLocal,
-                    type: chat.type,
-                    chatId: chat.id,
-                    height: chat.height,
-                }} />}
+                description={<ChatListDesciption chat={chat} message={message} />}
             >
                 <div className="flex items-center gap-2">
                     {

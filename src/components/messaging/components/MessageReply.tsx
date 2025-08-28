@@ -24,10 +24,8 @@ function MessageReply({message, onClose}) {
             </div>
     <MessageRaw
     key={message._id}
-    message={{
-        ...message,
-        type: 'reply',
-    }}
+    includeProfileName={true}
+    message={message}
     />
     </div>
   )

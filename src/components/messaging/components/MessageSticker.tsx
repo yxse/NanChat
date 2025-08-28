@@ -11,7 +11,7 @@ import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 
-const MessageSticker = ({ message, side, hash, ticker }) => {
+const MessageSticker = ({ message, side, raw = false }) => {
     const {data } = useSWR('/stickers', fetcherMessagesNoAuth, {            
           focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
             dedupingInterval: 60 * 60 * 1000,
@@ -19,6 +19,16 @@ const MessageSticker = ({ message, side, hash, ticker }) => {
 });
     
     let url = data?.find(sticker => sticker.id == message.stickerId)?.cache_url;
+    if (raw) {
+        return <img src={url} style={{
+                // width: '85px',
+                height: '75px',
+                marginBottom: 0,
+                objectFit: 'contain',
+                
+                }} />
+            
+    }
     return (
         <div
         // style={{marginLeft: '10px', marginRight: '10px'}}
