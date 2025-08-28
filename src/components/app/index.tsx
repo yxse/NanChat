@@ -412,32 +412,6 @@ export default function App({callback}) {
     return (<></>);
     }
   
-    const {data: newNetworks, isLoading: isLoadingNewNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
-    if (newNetworks) {
-      let newNetworksToAdd = {}
-      let numberOfNewNetworks = 0
-      for (let ticker in newNetworks) {
-        if (!networks[ticker]) {
-          let newNetworksLs = JSON.parse(localStorage.getItem("newNetworks"))
-          if (!newNetworksLs?.[ticker]) {
-            newNetworksToAdd[ticker] = newNetworks[ticker]
-            numberOfNewNetworks++
-          }
-        }
-      }
-     
-      if (numberOfNewNetworks > 0) {
-        // localStorage.setItem("newNetworks", JSON.stringify(newNetworksToAdd))
-        // setCustomNetworks({...customNetworks, ...newNetworksToAdd})
-        for (let ticker in newNetworksToAdd) {
-         networks[ticker] = newNetworksToAdd[ticker]
-        }
-        // Toast.show({
-        //   content: `Restart NanChat to add ${numberOfNewNetworks} new network${numberOfNewNetworks > 1 ? "s" : ""}`,
-        //   duration: 7000
-        // })
-      }
-    }
     console.log("index render")
     useEffect(() => {
       if (activeAccount){
