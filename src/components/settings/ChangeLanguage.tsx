@@ -44,6 +44,10 @@ function ChangeLanguage() {
         label: 'Português',
       },
       {
+        key: 'pl',
+        label: 'Polski',
+      },
+      {
         key: 'ru',
         label: 'Русский',
       },
