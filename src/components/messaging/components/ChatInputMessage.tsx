@@ -46,6 +46,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
           newChat.lastMessage = message.content;
           newChat.lastMessageTimestamp = new Date().toISOString();
           newChat.lastMessageId = id;
+          newChat.lastMessageType = message.type;
           newChat.isLocal = true;
           newChat.lastMessageFrom = activeAccount;
           newChat.height = message.height
@@ -336,7 +337,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
      const messageEncrypted = { ...message };
     //  messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
-     socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
+     socket.emit('message', message,  (response) => callbackSocket(response, message));
     //  messageInputRef.current?.focus();
     };
     messageInputRef.sendTip = sendTipMessage;
@@ -403,15 +404,19 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
 
 const onUploadSuccess = useCallback((file) => {
   sendFileMessage(file);
-}, [activeAccount, chat]);
+}, [activeAccount, chat, replyMessage]);
 
 const onTipSent = useCallback((ticker, hash, destinationAddress) => {
           sendTipMessage(ticker, hash, destinationAddress);
-}, [activeAccount, chat]);
+}, [activeAccount, chat, replyMessage]);
+
+// const onRedPacketSent = useCallback((ticker, hash, mode, quantity) => {
+//           sendRedPacketMessage(ticker, hash, mode, quantity);
+// }, [activeAccount, chat]);
 
 const onStickerSelect = useCallback((stickerId) => {
             sendStickerMessage(stickerId);
-}, [activeAccount, chat]);
+}, [activeAccount, chat, replyMessage]);
 
 
     

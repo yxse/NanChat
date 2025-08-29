@@ -124,6 +124,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
                 onAccountSelect={async (accounts) => {
                     let newParticipants = chat?.participants?.map((participant) => participant._id) || []
                     newParticipants = newParticipants.concat(accounts)
+                    newParticipants = Array.from(new Set(newParticipants)) // unique
                     await updateSharedKeys(chat?.id, newParticipants, activeAccountPk) // we generate new shared keys for all the participants, eventually we could reuse the sared key when adding participant                    
                     let r = await addParticipants(chat?.id, accounts)
                     if (r.error) {

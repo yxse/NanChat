@@ -623,6 +623,7 @@ className="mb-24"
                   { revalidate: false } // do not revalidate
                 )
                 mutate("/chats") // preload chats
+                mutate("/stickers") // preload stickers
                 Toast.show({
                   icon: "success",
                   content: `Cleared ${count} items from cache`
