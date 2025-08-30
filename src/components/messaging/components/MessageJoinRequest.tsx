@@ -28,7 +28,7 @@ import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import { useChats } from "../hooks/use-chats";
 import ProfileName from "./profile/ProfileName";
 
-const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
+const MessageJoinRequest: React.FC<{ message }> = ({ message, raw }) => {
   const { activeAccount, activeAccountPk } = useWallet();
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
@@ -38,6 +38,9 @@ const MessageJoinRequest: React.FC<{ message }> = ({ message }) => {
 
   if (isLoadingChat) {
     return <DotLoading />;
+  }
+  if (raw) {
+      return (<>{"["}<ProfileName address={addresses[0]} /> asked to join the chat{"]"}</>);
   }
   if (message.joinRequest.status === "pending") {
     return (

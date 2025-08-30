@@ -13,6 +13,7 @@ import trTranslations from './locales/tr.json';
 import itTranslations from './locales/it.json';
 import ptTranslations from './locales/pt.json';
 import nlTranslations from './locales/nl.json';
+import plTranslations from './locales/pl.json';
 
 const languageDetector = new LanguageDetector(null, {
   
@@ -57,6 +58,9 @@ i18n
       },
       nl: {
         translation: nlTranslations
+      },
+      pl: {
+        translation: plTranslations
       },
     },
     fallbackLng: 'en',

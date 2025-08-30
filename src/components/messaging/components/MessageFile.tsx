@@ -87,7 +87,7 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
     }
   };
 
-const MessageFile = ({ message, side, file, deleteMode=false }) => {
+const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" }) => {
     const {chat} = useChats(message.chatId)
     const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(null)
@@ -163,12 +163,14 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                       worker.terminate();
                     };
             }
-            decryptFile()
+            if (isAccepted && activeAccountPk){
+                decryptFile()
+            }
 
             return () => {
                 ImageViewer.clear() // close the image viewer on unmount
             }
-        }, [isAccepted])
+        }, [isAccepted, activeAccountPk])
         
 
         const fileType = fileMeta?.type
@@ -193,7 +195,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
         {
             !decrypted &&
             // <DotLoading />
-        <Skeleton animated style={{"--height": "300px", "--border-radius": "8px", "--width": "300px"}}/>
+        <Skeleton animated style={{"--height": maxHeight, "--border-radius": "8px", "--width": maxHeight}}/>
         }
         
             <div
@@ -215,7 +217,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                     }}
                     src={decrypted} style={{
                         borderRadius: 8,
-                        maxHeight: '300px',
+                        maxHeight: maxHeight,
                     }} />
                 }
                 {
@@ -225,7 +227,7 @@ const MessageFile = ({ message, side, file, deleteMode=false }) => {
                     controls
                     style={{
                         borderRadius: 8,
-                        height: '300px',
+                        height: maxHeight,
                     }}>
                         <source src={decrypted + '#t=0.05'} // #t=0.05 allows to preview the first frame
                          type={fileType} />

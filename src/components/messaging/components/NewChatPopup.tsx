@@ -283,7 +283,9 @@ export function SelectParticipant({visible, setVisible, participants, onAccountS
                     />
                 </div>
 
-                <CheckList>
+                <CheckList style={{overflow: "auto", 
+                    height: "calc(90vh - 44px - 56px)" // height ResponsivePopup - heigh of header
+                    }}>
                         {
                             participantsFiltered?.map(account => (
                                 <CheckListItemAccount

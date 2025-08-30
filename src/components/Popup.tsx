@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
 
 import PopupWrapper from "./Wrapper";
 import Lockscreen from "./Lock";
@@ -13,7 +13,7 @@ import { ConfigProvider, Modal, Toast } from "antd-mobile";
 import { Wallet } from "../nano/wallet";
 import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR, { preload, useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { getSeed } from "../utils/storage";
 import { Capacitor, PluginListenerHandle } from "@capacitor/core";
@@ -25,7 +25,7 @@ import { showLogoutSheet } from "./Settings";
 import enUS from 'antd-mobile/es/locales/en-US'
 import { defaultContacts } from "./messaging/utils";
 import { fetchPrices } from "../nanswap/swap/service";
-import { fetcherMessages } from "./messaging/fetcher";
+import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
 
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
@@ -242,6 +242,7 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
     </WalletContext.Provider>
   );
 }
+preload('/networks', fetcherChat)
 
 export default function InitialPopup() {
   const [walletState, setWalletState] = useState<"locked" | "pin-locked" | "unlocked" | "no-wallet" | "loading">("loading");
@@ -251,6 +252,14 @@ export default function InitialPopup() {
   const [callback, setCallback] = useState(null);
   const [ledger, setLedger] = useState(null);
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
+  const {data: newNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+    if (newNetworks) {
+      for (let ticker in newNetworks) {
+        if (!networks[ticker]) {
+          networks[ticker] = newNetworks[ticker]
+        }
+      }
+    }
   return (
     <ConfigProvider locale={enUS}>
     <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>

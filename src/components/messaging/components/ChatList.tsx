@@ -295,12 +295,25 @@ const saveScrollPosition = useCallback(
                             const accountFrom = from?._id;
                             const hasName = from?.name;
                             const pfp = from?.profilePicture?.url
+        const message = {
+                    content: chat.lastMessage,
+                    fromAccount: accountFrom,
+                    toAccount: accountTo,
+                    _id: chat.lastMessageId,
+                    isLocal: chat.isLocal,
+                    type: chat?.lastMessageType,
+                    chatId: chat.id,
+                    height: chat.height,
+                }
+
+        
+        
         return (
             <List.Item
             style={style}
             key={key}
             arrowIcon={false}
-                className={chat.id === account ? 'active' : ''}
+                className={"chat-item " + (chat.id === account ? 'active' : '')}
                 onClick={() => {
                     onChatSelect(chat.id)
                     // local mutate to update unread count
@@ -343,18 +356,7 @@ const saveScrollPosition = useCallback(
                 }
                 // Ellipsis component is laggy when there are many messages
                 // description={<Ellipsis content={decrypted || '...'} />}
-                description={<MessageRaw 
-                    key={chat.lastMessageId}
-                    message={{
-                    content: chat.lastMessage,
-                    fromAccount: accountFrom,
-                    toAccount: accountTo,
-                    _id: chat.lastMessageId,
-                    isLocal: chat.isLocal,
-                    type: chat.type,
-                    chatId: chat.id,
-                    height: chat.height,
-                }} />}
+                description={<MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} />}
             >
                 <div className="flex items-center gap-2">
                     {

@@ -364,6 +364,8 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
           isMobile ? {
           } : {
             width: 450,
+            marginRight: "auto",
+            marginLeft: "auto"
           }}
 
         className="w-full transition-opacity">

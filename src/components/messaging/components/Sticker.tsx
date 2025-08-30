@@ -11,52 +11,21 @@ import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 
-const MessageSticker = ({ message, side, raw = false }) => {
+const Sticker = ({ stickerId, height = "75px" }) => {
     const {data } = useSWR('/stickers', fetcherMessagesNoAuth, {            
           focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
             dedupingInterval: 60 * 60 * 1000,
             keepPreviousData: true,
 });
     
-    let url = data?.find(sticker => sticker.id == message.stickerId)?.cache_url;
-    if (raw) {
+    let url = data?.find(sticker => sticker.id == stickerId)?.cache_url;
         return <img src={url} style={{
-                // width: '85px',
-                height: '75px',
+                height: height,
                 marginBottom: 0,
                 objectFit: 'contain',
                 
                 }} />
             
     }
-    return (
-        <div
-        // style={{marginLeft: '10px', marginRight: '10px'}}
-        key={message._id + "-sticker"}
-        // className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} `}
-    >
-        <div
-        style={{
-        }}
-            className={`rounded-lg ${side === "from"
-                    ? ' rounded-br-none'
-                    : ' rounded-bl-none'
-                }`}
-        >
-            <p
-            > 
-            <img src={url} style={{
-                // width: '85px',
-                height: '75px',
-                marginBottom: 0,
-                objectFit: 'contain',
-                
-                }} />
-            </p>
-         
-        </div>
-    </div>
-    )
-}
 
-export default MessageSticker;
+export default Sticker;

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { useState } from "react";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
+import VerifyOpenBlock from "./VerifyOpenBlock";
 
 function DeveloperSettings() {
     const navigate = useNavigate();
@@ -63,6 +64,8 @@ function DeveloperSettings() {
             When Developer Mode is turned on, wallet security is reduced. Adding a malicious network can result in loss of funds.
             <br />
         </div>
+                <VerifyOpenBlock />
+
     </div>
   )
 }

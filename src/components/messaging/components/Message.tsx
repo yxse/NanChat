@@ -74,15 +74,16 @@ const Message = memo(({
   }, []);
   const decrypted = useMessageDecryption({ message });
 
+  // causing too much re render
   // Store decrypted message in wallet state for reuse
-  useEffect(() => {
-    if (decrypted) {
-      dispatch({
-        type: 'ADD_MESSAGE',
-        payload: { _id: message._id, content: decrypted }
-      });
-    }
-  }, [decrypted, dispatch, message._id]);
+  // useEffect(() => { 
+  //   if (decrypted) {
+  //     dispatch({
+  //       type: 'ADD_MESSAGE',
+  //       payload: { _id: message._id, content: decrypted }
+  //     });
+  //   }
+  // }, [decrypted, dispatch, message._id]);
   const [sending, setSending] = useState(false);
   useEffect(() => {
     // set sending after 2 seconds
@@ -151,6 +152,13 @@ const Message = memo(({
         isFromTeam={isFromTeam}
       />
         {message?.replyMessage && <div style={{display: "flex", justifyContent: isFromCurrentUser ? "flex-end" : "flex-start"}}>
+           <Popover
+           mode="dark"
+          content={<div style={{maxWidth: 300}}><MessageRaw key={"full" + message.replyMessage._id} message={message.replyMessage} ellipsis={false} maxHeight={"75px"} includeProfileName={false}/></div>}
+          trigger={(!message.replyMessage?.file) ? "click": false} // only trigger popover if text message
+          placement='top'
+          defaultVisible={false}
+        >
           <div 
           className={`chat-message p-2 rounded-md from message text-sm`}
         style={{
@@ -159,9 +167,11 @@ const Message = memo(({
           marginRight: isFromCurrentUser ? 66 : 0,
           marginBottom: 2,
           maxWidth: '250px',
+          cursor: 'pointer'
           // width: '100%',
                 }}>
-                  <MessageRawReply message={{...message.replyMessage, type: "reply"}} /></div></div>}
+                  <MessageRaw key={"reply" + message.replyMessage._id} message={message.replyMessage} ellipsis includeProfileName={true}/>
+                  </div></Popover></div>}
       <div
         ref={ref}
         {...onLongPress}

@@ -381,6 +381,7 @@ textarea::placeholder, input::placeholder {
   --main-background-color: #1E2C3D;
   --adm-color-border: rgb(49, 69, 94);
   --adm-border-color: rgb(49, 69, 94);
+  --gold-color: #f7d672;
 }
 .banano-theme {
   --adm-color-primary: #FBDD11;
@@ -389,7 +390,9 @@ textarea::placeholder, input::placeholder {
   --main-background-color: #212124;
   --text-color-primary: #212124;
   --adm-color-border: rgb(50, 50, 50);
-  --adm-border-color: rgb(50, 50, 50)
+  --adm-border-color: rgb(50, 50, 50);
+  --gold-color: #f7d672;
+
 }
 /* #292A2D */
 /* #212124 */
@@ -403,6 +406,7 @@ textarea::placeholder, input::placeholder {
   /* --main-background-color: #1e1f21; */
   /* --adm-color-text: #d7d7d7; */
   --text-color-primary: var(--adm-color-text);
+  --gold-color: #f7d672;
 }
 .light-theme {
   /* --adm-color-primary: #4090ff; */
@@ -412,6 +416,7 @@ textarea::placeholder, input::placeholder {
   /* --text-color-primary: white; */
   --adm-color-border: rgb(224, 224, 224);
   --adm-border-color: rgb(224, 224, 224);
+  --gold-color: rgb(192 164 119);
 }
 
 /*  animation keyboard ios native */
@@ -873,4 +878,9 @@ input[type=number]::-webkit-outer-spin-button {
 .adm-form .adm-form-footer {
   /* padding-bottom: calc(var(--safe-area-inset-bottom, 0px) + var(--android-inset-bottom, 0px)) !important; */
   margin-bottom: calc(var(--safe-area-inset-bottom, 0px) + var(--android-inset-bottom, 0px)) !important;
+}
+
+.chat-item .adm-list-item-content-main {
+  /* for chat list message ellipsis */
+  overflow: auto; 
 }

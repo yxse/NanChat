@@ -7,6 +7,7 @@ import { rawToMega } from "./accounts";
 import { getRepresentative, setRepresentative } from "../components/getRepresentative";
 import { convertAddress } from "../utils/format";
 import { sendNotificationTauri } from "./notifications";
+import { Preferences } from '@capacitor/preferences';
 
 var lock = new AsyncLock();
 
@@ -245,6 +246,12 @@ export class Wallet {
         // this.subscribeConfirmation(addresses);
       }, 500);
     }
+
+    const activeAccount = this.getActiveAccount()
+    let last = (await Preferences.get({key: `lastVerifiedFrontier-${activeAccount}-${this.ticker}`})).value
+    if (last == null){ // only do the verif history initially if not already done
+      await this.verifyHistory(activeAccount)
+    }
     return addresses;
   };
 
@@ -287,12 +294,119 @@ export class Wallet {
     return data;
   }
 
-  verifyFrontier = async (account, accountInfo) => {
-    // verify frontier signature
-      // https://docs.nano.org/releases/network-upgrades/#epoch-blocks
+  sendToWorker = async (data) => {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL("../../src/worker/verifyHistoryWorker.js", import.meta.url), { type: "module" });
+    
+    worker.postMessage(data);
+    
+    worker.onmessage = (event) => {
+      resolve(event.data);
+      worker.terminate();
+    };
+    
+    worker.onerror = (error) => {
+      reject(error);
+      worker.terminate();
+    };
+  });
+}
+
+  verifyHistory = async (account) => {
+    // verify the history of an account and save all its verified hashes
+    // this adds security to prevent signing block on a unexpected network in case of a malicious backend
+    return lock.acquire('verif-' + account.split('_')[1], async () => {
+      let { value: head } = await Preferences.get({ key: `lastVerifiedFrontier-${account}-${this.ticker}` });
+
+      if (head === null){
+        head = false
+      }
+      console.log("Verifying history...", account, this.ticker)
+      console.time("fetching & verifyHistory " + account + " head: " + head)
+      let history = await this.rpc.acocunt_history(account, "-1", "0", true, head);
+      
+      if (!head && history.history[0].previous !== "0".repeat(64)){ // if head not used, the history 0 should be the open block
+        throw new Error("Warning: Invalid open block " + JSON.stringify(history.history[0]))
+      }
+      if (head && history.history[0].hash !== head){ // if head is used, the first block should match it
+        throw new Error("Warning: Invalid head block " + JSON.stringify(history.history[0]))
+      }
+      const blocks = {}
+      for (let i = 0; i < history.history.length; i++) {
+        const block = history.history[i];
+        const key = `verified-${block.hash}`
+        const keyPrevious = `verified-${block.previous}`
+        blocks[key] = (await Preferences.get({ key: key})).value
+        blocks[keyPrevious] = (await Preferences.get({ key: keyPrevious})).value
+      }
+
+
+      try {
+        const accountPublicKey = this.getPublicKey(account)
+        const result = await this.sendToWorker({account, history, blocks, ticker: this.ticker, accountPublicKey})
+        console.log('result: ', result)
+        if (result.status !== "success"){
+          throw new Error("Warning: could not verify account integrity " + result.error)
+        }
+        for (const [verifiedHashKey, ticker] of Object.entries(result.verifiedHashes)) {
+          // use Preferences insteead of localstorage for more persitence
+          await Preferences.set({
+              key: verifiedHashKey.trim(),
+              value: ticker,
+            });
+        }
+        
+        await Preferences.set({
+          key: `lastVerifiedFrontier-${account}-${this.ticker}`,
+          value: result.lastVerifiedHash.trim(),
+        });
+        if (!head){
+          // save open block to allow easy integrity verification
+          await Preferences.set({
+              key: `openBlock-${account}-${this.ticker}`,
+              value: history.history[0].hash,
+            });
+        }
+        return { success: true };
+      } catch (error) {
+        throw new Error(error.message)
+      }
+      finally {
+        console.timeEnd("fetching & verifyHistory " + account + " head: " + head)
+      }
+    })
+  }
+
+  verifyBlock = (account, blockContents, subtype, hash) => {
+    // https://docs.nano.org/releases/network-upgrades/#epoch-blocks
     const epochV2SignerAccount = 'nano_3qb6o6i1tkzr6jwr5s7eehfxwg9x6eemitdinbpi7u8bjjwsgqfj4wzser3x';
+    if (subtype === "epoch"){
+      if (blockContents.account !== epochV2SignerAccount){
+          throw new Error("Frontier epoch block account verification failed");
+      }
+      const publicKey = tools.addressToPublicKey(epochV2SignerAccount);
+      const valid = tools.verifyBlock(publicKey, blockContents);
+      if (valid !== true) {
+        throw new Error("Epoch block signature verification failed: " + hash)
+      }
+    }
+    else{
+      const publicKey = this.getPublicKey(account)
+      const valid = tools.verifyBlock(publicKey, blockContents);
+      if (valid !== true) {
+        throw new Error("Block signature verification failed: " + hash)
+      }
+    }
+    return true
+  }
+  verifyFrontier = async (account, accountInfo) => {
     const hash = accountInfo.frontier;
-    const blocksInfo = await this.rpc.blocks_info([hash]);
+    const promises = [
+        this.rpc.blocks_info([hash]),
+        this.verifyHistory(account)
+    ]
+    const [blocksInfo, history] = await Promise.all(promises) 
+
     if (blocksInfo.error) {
       throw new Error("Frontier block not found");
     }
@@ -313,25 +427,22 @@ export class Wallet {
     if (accountInfo.representative !== blockContents.representative) {
       throw new Error("Frontier block representative mismatch");
     }
+    let verifiedHash = (await Preferences.get({key: `verified-${hash}`})).value
+    if (verifiedHash == null){
+      throw new Error("Frontier block not yet verified");
+    }
+    if (verifiedHash != null && verifiedHash != this.ticker){
+      throw new Error("Frontier block already verified on another network: " + hash + " " + verifiedHash);
+    }
+    
     
     const validHash = tools.verifyBlockHash(blockContents, hash);
     if (!validHash) {
       throw new Error("Frontier block hash verification failed");
     }
-    if (blocksInfo.subtype === "epoch"){
-      const publicKey = tools.addressToPublicKey(epochV2SignerAccount);
-      const valid = tools.verifyBlock(publicKey, blockContents);
-      if (valid !== true) {
-        throw new Error("Frontier epoch block signature verification failed");
-      }
-    }
-    else{
-      const publicKey = this.getPublicKey(account);
-      const valid = tools.verifyBlock(publicKey, blockContents);
-      if (valid !== true) {
-        throw new Error("Frontier block signature verification failed");
-      }
-    }
+    
+    this.verifyBlock(account, blockContents, blocksInfo.subtype, hash)
+
     return true;
   }
 
@@ -475,6 +586,10 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       else {
         const privateKey = this.getPrivateKey(account);
         signedBlock = block.receive(data, privateKey); // Returns a correctly formatted and signed block ready to be sent to the blockchain
+      }
+      // debugger
+      if (new BigNumber(signedBlock.balance).isLessThanOrEqualTo(new BigNumber(account_info.balance))){
+          throw new Error("Invalid receive block")
       }
       let r = await this.rpc.process(signedBlock, "receive");
       this.addHashReceiveToAnimate(r.hash);
@@ -668,10 +783,10 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
       if (accountDb === null || accountDb === undefined) {
         return;
       }
-      Toast.show({
-        icon: "loading",
-        content: "Receiving " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
-      });
+      // Toast.show({
+      //   icon: "loading",
+      //   content: "Receiving " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
+      // });
       // console.log("Receiving new send on : " + data_json.message.block.link_as_account)
       let pk = accountDb.privateKey;
       let pubk = accountDb.publicKey;
