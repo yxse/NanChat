@@ -59,7 +59,7 @@ export const Representative = ({ ticker, condensed = false, newLocalRep = null }
   const [localRepresentative, setLocalRepresentative] = useState(null)
   const {wallet} = useContext(WalletContext);
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
-  const { data, isLoading } = useSWR("representative-" + ticker, () => fetchAccountInfo(ticker, activeAccount));
+  const { data, isLoading } = useSWR(activeAccount ? "representative-" + ticker : null, () => fetchAccountInfo(ticker, activeAccount));
   const { data: representativeOnline, isLoading: isLoadingRepresentativeOnline } = useSWR('https://api.nanexplorer.com/representatives_online?network=' + networks[ticker].id, fetcher);
 
   const currentRep = data?.representative ? data?.representative : localRepresentative;
