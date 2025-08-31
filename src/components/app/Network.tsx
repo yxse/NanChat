@@ -124,7 +124,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
     bodyClassName={action === "send" ? "disable-keyboard-resize": ""}
     position={isMobile ? "bottom" : "right" }
     destroyOnClose={action === 'send' ? true : false} // destroy send modal on close e
-    showCloseButton={true}
+    showCloseButton={(action === "swap" || action === "buy") ? false : true}
     visible={modalVisible}
     // closeOnSwipe={true}
     closeOnMaskClick={true}

@@ -317,7 +317,7 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
             }}
             form={form}
             onFinish={onSwap}
-            className="mt-2 swap-form"
+            className="mt-4 swap-form"
             layout="horizontal"
             footer={
               <>

@@ -444,6 +444,8 @@ Capacitor.getPlatform() !== "ios" ?
     <div style={{height: 80, width: "100%"}}></div>
   }
      <ResponsivePopup
+        destroyOnClose // to update when closing swap and opening buy not updating
+        showCloseButton={false}
             position={"bottom"}
             // closeOnSwipe
               visible={action === "buy"}

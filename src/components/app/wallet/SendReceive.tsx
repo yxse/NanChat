@@ -151,6 +151,8 @@ export const SendReceive = () => {
          action={action} ticker={activeTicker} modalVisible={activeTicker} setModalVisible={setVisible} setAction={setAction} />
          
         <Popup
+        destroyOnClose
+        showCloseButton={false}
         position={"bottom"}
         // closeOnSwipe
           visible={visible}
