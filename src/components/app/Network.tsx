@@ -469,7 +469,7 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
           />
             }
             {
-              (ticker === "XNO" && Capacitor.getPlatform() !== "ios") &&
+              (ticker === "XNO" && (Capacitor.getPlatform() !== "ios" || !lowBalanceUsd)) && 
           <ButtonActionCircle
           title={t('buy')}
           icon={<GoCreditCard size={22} className="" />}
