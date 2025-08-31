@@ -39,7 +39,7 @@
     "@capacitor/ios": "^6.2.0",
     "@capacitor/keyboard": "https://github.com/Benskalz/capacitor-plugins.git#0b553028bd3c20657f278f072acd5dc8d12bde62",
     "@capacitor/local-notifications": "6",
-    "@capacitor/preferences": "^7.0.2",
+    "@capacitor/preferences": "^6",
     "@capacitor/share": "6",
     "@capacitor/splash-screen": "^6.0.3",
     "@capacitor/status-bar": "6",

@@ -486,12 +486,12 @@ const MessageContent = ({
           <ProfileName address={message.fromAccount} fallback={"..."} />
         </span>
       )}
-      <p>
+      <div>
         {!decrypted && !message.isLocal && (
           <LockOutline />
         )}
         <MessageContentLink message={decrypted} />
-      </p>
+      </div>
     </div>
   );
 };

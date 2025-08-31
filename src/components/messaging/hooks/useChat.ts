@@ -96,43 +96,6 @@ export function useChat(chatId) {
   // );
   const unreadCount = 0;
 
-  // Send message function
-  const sendNewMessage = useCallback(async (content) => {
-    try {
-      // Optimistic update
-      const optimisticMessage = {
-        id: Date.now(),
-        content,
-        status: 'sending',
-        timestamp: new Date().toISOString()
-      };
-
-      // Update local data immediately
-      mutate(currentPages => {
-        const newPages = [...(currentPages || [])];
-        newPages[0] = [optimisticMessage, ...(newPages[0] || [])];
-        return newPages;
-      }, false);
-
-      // Send the actual message
-      const newMessage = await sendMessage(chatId, content);
-
-      // Update with the real message
-      mutate(currentPages => {
-        const newPages = [...(currentPages || [])];
-        newPages[0] = newPages[0].map(msg => 
-          msg.id === optimisticMessage.id ? newMessage : msg
-        );
-        return newPages;
-      }, false);
-
-      return newMessage;
-    } catch (error) {
-      // Revert optimistic update on error
-      mutate();
-      throw error;
-    }
-  }, [chatId, mutate]);
 
   // Load more messages
   const loadMore = useCallback(() => {
@@ -162,7 +125,6 @@ export function useChat(chatId) {
     isLoadingInitial,
     isLoadingMore,
     loadMore,
-    sendMessage: sendNewMessage,
     unreadCount,
     mutate,
     hasMore

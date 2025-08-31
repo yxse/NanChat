@@ -2,7 +2,7 @@ import { box } from "multi-nano-web";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { useWallet, WalletContext } from "../../Popup";
-import { Card, DotLoading, ImageViewer, Modal, Skeleton, Toast } from "antd-mobile";
+import { Card, DotLoading, ImageViewer, Modal, Popover, Skeleton, Toast } from "antd-mobile";
 import { convertAddress, formatAmountRaw, formatSize } from "../../../utils/format";
 import { networks } from "../../../utils/networks";
 import useSWR from "swr";
@@ -10,7 +10,7 @@ import { fetchAccountInfo, fetchBlock } from "../../app/Network";
 import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
-import { DownlandOutline, ExclamationCircleFill } from "antd-mobile-icons";
+import { DownlandOutline, ExclamationCircleFill, FileWrongOutline } from "antd-mobile-icons";
 import { decryptGroupMessage, getSharedKey } from "../../../services/sharedkey";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
@@ -183,8 +183,12 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
             </div>
             <div>File blocked because chat not accepted</div>
         </div>
-        if (!decrypted) return <DotLoading />
-        if (!canDecrypt) return <div>File not available</div>
+        if (!decrypted && canDecrypt) return <DotLoading />
+        if (!canDecrypt) return <div>
+            <Popover content="File no longer available." trigger="click" mode="dark">
+                <FileWrongOutline fontSize={48} />
+            </Popover>
+            </div>
         return (
             <div
             // style={{marginLeft: '10px', marginRight: '10px'}}

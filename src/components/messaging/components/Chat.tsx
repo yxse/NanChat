@@ -27,12 +27,6 @@ const Chat: React.FC = () => {
     // const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
     const {isTablet, isMobile} = useWindowDimensions();
     const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
-    const {mutate: mutateInifinite} = useSWRConfig();
-    const {chats, mutateChats} = useChats();
-const {
-        account
-    } = useParams();
-    // useEffect(() => {
     //     getChatToken().then((token) => {
     //         socket.auth = { token };
     //         socket.connect();
@@ -73,8 +67,6 @@ const {
                             display: "flex", 
                             flexDirection: "column",
                             flexBasis: "45%", 
-                            overflowY: "scroll",
-                            overflowX: "hidden",
                             maxWidth: 420
 
                             }}>
@@ -101,7 +93,7 @@ const {
                             minWidth: 180,
                             }}>
 
-                        <ChatRoom key={"chat-room"} onlineAccount={onlineAccount} />
+                        <ChatRoom key={"chat-room-1"} />
                         </div>
                     </div>
                 } />
@@ -115,13 +107,11 @@ const {
                             display: "flex", 
                             flexDirection: "column",
                             // flexBasis: "45%", 
-                            overflowY: "scroll",
-                            overflowX: "hidden",
                             maxWidth: 420,
                             width: "100%"
                             }}>
                         <ChatList
-                            onlineAccount={onlineAccount}
+                            
                             onChatSelect={(chatId) => {
                                 if ((isMobile || isTablet) && document.startViewTransition) {
                                     document.startViewTransition(() => {
@@ -148,7 +138,7 @@ const {
                             minWidth: 180,
                             }}>
 
-                        <ChatRoom key={"chat-room"} onlineAccount={onlineAccount} />
+                        <ChatRoom key={"chat-room-2"}  />
                         </div>}
                     </div>} />
             </Routes>

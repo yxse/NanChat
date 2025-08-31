@@ -8,8 +8,17 @@ import { saveCache } from "../Wrapper";
 
 
 export const getNewChatToken = async (account, privateKey) => {
+    if (!account){
+        console.log("Cannot get token: no account provided")
+        return null
+    }
+    if (!privateKey){
+        console.log("Cannot get token: no private key provided")
+        return null
+    }
     const message = "Login to nanwallet.com chat. Date:" + new Date().toISOString();
     const signature = signMessage(privateKey, message);
+    // debugger
     return fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/token', {
         headers: {
             'Content-Type': 'application/json',
@@ -34,7 +43,7 @@ export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_
 export const fetcherChats = async (oldChats, activeAccount, activeAccountPk, cache) => {
     const lastSync = localStorage.getItem('lastSync');
     if (lastSync){
-        return fetcherMessages('/chats?ts=' + lastSync, activeAccount, activeAccountPk).then((res) => {
+        return fetcherMessages('/chats?ts=' + lastSync, activeAccountPk).then((res) => {
             if (res.error == null){
                 // console.log(cache)
                 
@@ -87,8 +96,30 @@ export const fetcherMessages = (url, activeAccountPk) => getChatToken(activeAcco
         }
     })
     .then((res) => res.json()).then((data) => {
-        if (data.error) throw new Error(data.error)
+        if (data?.error) throw new Error(data.error)
         return data
+    }).catch(async (err) => {
+        if (
+            err.message == 'Invalid token.' ||
+            err.message == 'Token expired.' ){
+            // Token invalid, fetch a new one and retry once
+            console.log("Token invalid, fetching a new one")
+            const newToken = await getChatToken(activeAccountPk, true);
+            if (newToken == null) {
+                throw new Error('Chat token not available');
+            }
+            const res = await fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': newToken
+                }
+            });
+            const data_1 = await res.json();
+            if (data_1.error) throw new Error(data_1.error);
+            return data_1;
+        }
+        console.log("error fetch messages", err)
+        throw err
     })
 })
 

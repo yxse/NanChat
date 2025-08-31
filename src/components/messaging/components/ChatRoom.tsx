@@ -1,5 +1,5 @@
 import { BellMuteOutline, LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
@@ -37,13 +37,12 @@ import { useChats } from "../hooks/use-chats";
 import { useSWRConfig } from "swr"
 import { unstable_serialize } from 'swr/infinite'
 
-const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
+const ChatRoom: React.FC<{}> = ({  }) => {
     const {mutate: mutateInifinite} = useSWRConfig();
     const {
         account
     } = useParams();
     // const [messages, setMessages] = useState<Message[]>([]);
-    const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const infiniteScrollRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
@@ -55,9 +54,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
     const [autoScroll, setAutoScroll] = useState(true);
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
     // const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
-    const {isMobile, width} = useWindowDimensions();
-    const [page, setPage] = useState(0);
-    const [height, setHeight] = useState(2000)
+    const {width} = useWindowDimensions();
     const { inviteFriends } = useInviteFriends();
     const {
         messages,
@@ -68,8 +65,8 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         hasMore,
     } = useChat(account);
 
-    const {chat, chats, isLoading, mutateChats} = useChats(account);
-    // console.log("chats", chats);
+    const {chat, isLoading} = useChats(account);
+    console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
@@ -274,9 +271,14 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
         }
     }, [messages])
 
-    // console.log("account", account);
+    // console.log("messages", messages.length)
 
-    
+    const onSent = useCallback(() => {
+    // Your logic here
+    setTimeout(() => {
+        scrollToBottom();
+    }, 0);
+}, [scrollToBottom]); 
     const StartConversation = ({address}) => {
         if (!accountExists) return null;
         return (  <div
@@ -590,17 +592,10 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
                     <NewMessageWarning fromAddress={address} account={activeAccount} chat={chat} />
                 }
                     <ChatInputMessage
+                    // chat={chat}
+                    // mutateChats={mutateChats}
                         messageInputRef={messageInputRef}
-                        onSent={(message) => {
-
-                            // mutate(prev => {
-                            //     return [...prev, { ...message, isLocal: true }];
-                            // }, false);
-                            setTimeout(() => {
-                                scrollToBottom();
-                            }, 0);
-                            // setMessages(prev => [...prev, { ...message, isLocal: true }]);
-                        }}
+                        onSent={onSent}
                     />
                 </div>
                

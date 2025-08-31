@@ -26,7 +26,7 @@ export function saveCache(map) {
       array.push([key, map.get(key)])
     }
     else {
-      let elmt = map.get(key)
+      let elmt = {...map.get(key)} // {... } for shallow clone to not update the origanl map which could cause scrolling back to bottom when loading old messages 
       elmt.data = [elmt.data[0]] // only keep the first message page
       elmt['_l'] = 1 // set the length to 1 to prevent swr fetching all pages https://github.com/vercel/swr/blob/f521fb7e3ea9cc7b6c02ec32b7329784b4d8e854/src/infinite/types.ts#L154
       array.push([key, elmt])

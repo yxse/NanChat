@@ -105,8 +105,8 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", { defaultValue: [0] });
   const [authVisible, setAuthVisible] = useState(true);
   const [hasWallet, setHasWallet] = useState(localStorage.getItem('hasWallet') === 'true');
-  const { data: pricesUSD, mutate: mutatePrice } = useSWR("prices", fetchPrices);
-  const {data: minReceive, mutate: mutateMinReceive} = useSWR("/min-receive", fetcherMessages);
+  const { mutate: mutatePrice } = useSWR("prices", fetchPrices);
+  const {mutate: mutateMinReceive} = useSWR("/min-receive", fetcherMessages);
   useEffect(() => {
     function updateBiometryInfo(info: CheckBiometryResult): void {
       if (info.isAvailable) {
@@ -153,32 +153,6 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
       }
     }
     updateBiometry();
-    // SplashScreen.show({autoHide: false});
-    // getSeed().then((seed) => {
-    //   if (seed?.seed && !seed?.isPasswordEncrypted) {
-    //     setWalletState("unlocked");
-    //   }
-    //   else if (seed?.seed && seed?.isPasswordEncrypted) {
-    //     setWalletState("locked");
-    //   }
-    //   else {
-    //     setWalletState("no-wallet");
-    //   }
-    //   SplashScreen.hide();
-    //   // setWalletState("unlocked");
-    //   // setSeed(localStorage.getItem('seed'));
-    //   // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
-
-    //   for (let ticker of Object.keys(networks)) {
-    //     if (wallet.wallets[ticker]) continue;
-    //     // let newWallet = initWallet("XNO", "0", mutate, dispatch)
-    //     dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed.seed, mutate, dispatch) } });
-    //     // dispatch({ type: "ADD_WALLET", payload: { ticker: ticker, seed: localStorage.getItem('seed'), mutate: mutate } });
-    //   }
-    // }).finally(() => {
-    //   SplashScreen.hide();
-    // });
-
     if (!hasWallet) {
       setWalletState("no-wallet");
     }

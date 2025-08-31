@@ -141,8 +141,8 @@ export const DateHeader = ({ timestamp, timestampPrev, timestampNext, reverse = 
 }
 export const Alias = ({ account, hideNull }) => {
   const { data, isLoading, isValidating } = useSWR('alias-' + account, () => fetchAlias(account), {
-    // dedupingInterval: 1000 * 60 * 60 * 24 // 1 day
-    keepPreviousData: true,
+    dedupingInterval: 1000 * 60 * 60, // 1 hour
+    focusThrottleInterval: 1000 * 60 * 60,
   })
   const {wallet} = useContext(WalletContext)
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })

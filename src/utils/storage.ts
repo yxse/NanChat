@@ -144,7 +144,7 @@ const getActiveAccount = () => {
   return activeAddress
 }
 
-export async function getChatToken(activeAccountPk): Promise<string> {
+export async function getChatToken(activeAccountPk, foreceRefresh = false): Promise<string> {
   const tokens = await getChatTokens();
   const activeAccount = getActiveAccount();
   let token = tokens?.[activeAccount]?.token;
@@ -152,6 +152,10 @@ export async function getChatToken(activeAccountPk): Promise<string> {
   if (!token){
     console.log("No cached token, fetching new one");
    return await getNewChatToken(activeAccount, activeAccountPk);
+  }
+  if (foreceRefresh) {
+    console.log("Forcing token refresh");
+    return await getNewChatToken(activeAccount, activeAccountPk);
   }
   if (expiresAt && new Date(expiresAt) < new Date()) {
     console.log("Token expired, fetching new one");
