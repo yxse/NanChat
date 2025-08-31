@@ -199,10 +199,16 @@ export function generateSecurePassword() {
 
 export const openInBrowser = (url: string) => {
   if (Capacitor.isNativePlatform()) {
-    InAppBrowser.openInSystemBrowser({
-      url,
-      options: DefaultSystemBrowserOptions
-    })
+    try {
+      InAppBrowser.openInSystemBrowser({
+        url,
+        options: DefaultSystemBrowserOptions
+      })
+    } catch (error) {
+      InAppBrowser.openInExternalBrowser({
+        url: url
+      })      
+    }
   }
   else {
     window.open(url)
