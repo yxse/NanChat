@@ -179,7 +179,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
         })
       }
       </div>
-      <ArtImages onImageClick={(url) => {
+      <ArtImages onImageClick={({image: url}) => {
           setCurrentAvatar(url);
           fetcherMessagesPost('/upload/update-pfp', {
               url,

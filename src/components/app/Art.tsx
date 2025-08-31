@@ -80,7 +80,7 @@ export function ArtImages({onImageClick}) {
 
     const ExploreNanft  = () => {
         return <Button style={{marginTop: 32}} shape="rounded" onClick={() => {
-                        onImageClick('https://nanswap.com/art')
+                        onImageClick({url: 'https://nanswap.com/art'})
                     }}
                     >
                         <CompassOutline style={{display: "inline", marginRight: 4}}/>
@@ -135,16 +135,16 @@ export function ArtImages({onImageClick}) {
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                 {
                     allData.map((nanft) => {
-                        return <a 
+                        return <div 
                         onClick={(e) => {
                             if (onImageClick) {
-                                onImageClick(nanft.location)
+                                onImageClick({url: "https://nanswap.com/art/assets/" + nanft.id, image: nanft.location})
                                 e.preventDefault()
                             }
                         }}
-                        target="_blank" href={"https://nanswap.com/art/assets/" + nanft.id} key={nanft.id}>
+                         key={nanft.id}>
                             <Image src={proxyImage(nanft.location)} style={{ borderRadius: 8 }} />
-                        </a>
+                        </div>
                     })
                 }
             </div>
@@ -174,7 +174,10 @@ export default function Art() {
             onBack={() => navigate("/wallet")}>
               NaNFT
             </NavBar>
-        <ArtImages setOpenUrl={setOpenUrl} onImageClick={(url) => setOpenUrl(url)} />
+        <ArtImages onImageClick={({url}) => {
+            console.log(url)
+            setOpenUrl(url)}
+         } />
         
         {
           openUrl && <Discover defaultURL={openUrl} onClose={() => {
