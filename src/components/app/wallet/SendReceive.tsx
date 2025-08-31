@@ -59,7 +59,7 @@ export const ButtonActionCircle = ({title, icon, onClick}) => {
   <span 
   style={{
     minWidth: 60,
-    maxWidth: 70,
+    maxWidth: 80,
     textAlign: "center",
     wordBreak: "break-word",
     overflow: "hidden",
@@ -101,13 +101,7 @@ export const SendReceive = () => {
       <>
          {
           isMobile && <>
-          <div className="mb-4" style={{
-            display: "flex",
-            justifyContent: "space-evenly",
-            maxWidth: "325px",
-            marginRight: "auto",
-            marginLeft: "auto",
-          }}>
+          <div className="flex justify-center mb-4" style={{gap: 24}}>
                     <ButtonActionCircle
                     title={t('receive')}
                     icon={<AiOutlineArrowDown size={22} />}
