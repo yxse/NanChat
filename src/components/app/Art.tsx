@@ -24,7 +24,7 @@ import {
     TextArea,
     Toast,
 } from "antd-mobile";
-import { ScanCodeOutline } from "antd-mobile-icons";
+import { CompassOutline, ScanCodeOutline } from "antd-mobile-icons";
 
 import { useEffect, useState } from "react";
 import Receive from "./Receive";
@@ -43,6 +43,7 @@ import { GrInProgress } from "react-icons/gr";
 import { fetcher, getOrder } from "../../nanswap/swap/service";
 import useSWRInfinite from "swr/infinite";
 import { useWallet } from "../Popup";
+import { Discover } from "./discover/Discover";
 
 export function ArtImages({onImageClick}) {
     const {activeAccount} = useWallet()
@@ -73,8 +74,19 @@ export function ArtImages({onImageClick}) {
     }
 
     useEffect(() => {
+        // if (!activeAccount) return
         loadMore()
-    }, [])
+    }, [activeAccount])
+
+    const ExploreNanft  = () => {
+        return <Button style={{marginTop: 32}} shape="rounded" onClick={() => {
+                        onImageClick('https://nanswap.com/art')
+                    }}
+                    >
+                        <CompassOutline style={{display: "inline", marginRight: 4}}/>
+                        Explore NaNFT
+                        </Button>
+    }
     // const { data, size, setSize, isLoading } = useSWRInfinite(getKey, fetcher)
     const proxyImage = (url) => `https://i.nanwallet.com/unsafe/rs::400/plain/${url}@webp`
     const allData = data?.flat()
@@ -102,7 +114,10 @@ export function ArtImages({onImageClick}) {
                     marginTop: 32,
                 }}
                 status="empty"
-                title="Your NanFTs will appear here"
+                title={<div>
+                    Your NanFTs will appear here <br/>
+                    <ExploreNanft />
+                </div>}
                 description=""
             />
             {/* <a href="https://nanswap.com/art" target="_blank">
@@ -123,7 +138,7 @@ export function ArtImages({onImageClick}) {
                         return <a 
                         onClick={(e) => {
                             if (onImageClick) {
-                                onImageClick(proxyImage(nanft.location))
+                                onImageClick(nanft.location)
                                 e.preventDefault()
                             }
                         }}
@@ -140,7 +155,7 @@ export function ArtImages({onImageClick}) {
                 hasMore={hasMore}
                 children={(hasMore, failed) => {
                     if (hasMore) return <div className="text-center"><DotLoading /></div>
-                    if (!hasMore) return 'No more.'
+                    if (!hasMore) return <ExploreNanft />
                     if (failed) return 'Failed to load data'
                 }
                 }
@@ -151,12 +166,20 @@ export function ArtImages({onImageClick}) {
 
 export default function Art() {
     const navigate = useNavigate();
+    const [openUrl, setOpenUrl] = useState(false);
+
     return <>
     <NavBar
             className="app-navbar "
             onBack={() => navigate("/wallet")}>
               NaNFT
             </NavBar>
-        <ArtImages />
+        <ArtImages setOpenUrl={setOpenUrl} onImageClick={(url) => setOpenUrl(url)} />
+        
+        {
+          openUrl && <Discover defaultURL={openUrl} onClose={() => {
+            setOpenUrl(false)
+          }}/>
+        }        
     </>
 }
