@@ -127,7 +127,7 @@ const ChatRoom: React.FC<{}> = ({ onlineAccount }) => {
             return () => {
                 socket.io.off('reconnect', onReconnect);
             };
-        }, []);
+        }, [account]);
 
     useEffect(() => {
         socket.emit('join', account); // join chat id
