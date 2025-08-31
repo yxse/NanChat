@@ -122,7 +122,7 @@ export const SendReceive = () => {
                       showAction('send');
                     }}
                     />
-                    {(Capacitor.getPlatform() === "web" || !lowBalanceUsd) && 
+                    {(Capacitor.getPlatform() !== "ios" || !lowBalanceUsd) && 
                     <ButtonActionCircle
                     title={t('swap')}
                     icon={<AiOutlineRetweet size={22} />}
@@ -131,7 +131,7 @@ export const SendReceive = () => {
                       setVisible(true);
                     }}
                     />}
-                    {(Capacitor.getPlatform() !== "ios") && 
+                    {(Capacitor.getPlatform() !== "ios" || !lowBalanceUsd) && 
                     <ButtonActionCircle
                     title={t('buy')}
                     icon={<GoCreditCard size={22} />}
