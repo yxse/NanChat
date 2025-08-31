@@ -37,7 +37,7 @@ export const MetadataCard = ({ message  }) => {
   return (<>
        <Card
        onClick={() => setOpenUrl(true)}
-        style={{maxWidth: 300, padding: 8, margin: 8, marginTop: 0}}>
+        style={{maxWidth: 300, marginTop: 0, cursor: "pointer"}}>
         <div style={{ display: 'flex', gap: 8 }}>
           {
             data?.image && 
@@ -53,7 +53,9 @@ export const MetadataCard = ({ message  }) => {
               {data?.description}
               </p>
             </div>{
-              !data?.image && !data?.title && !data?.description && <div>
+              !data?.image && !data?.title && !data?.description && <div 
+              style={{wordBreak: "break-all"}}
+              >
                 {url.replace('https://', '')}
               </div>
             }

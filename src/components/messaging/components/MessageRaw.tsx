@@ -6,6 +6,7 @@ import { CloseCircleFill } from "antd-mobile-icons";
 import MessageFile from "./MessageFile";
 import Sticker from "./Sticker";
 import MessageSystem from "./MessageSystem";
+import { MetadataCard } from "./antd-mobile-metadata-card";
 
 export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includeProfileName}) => {
     const style = ellipsis ? { 
@@ -30,8 +31,11 @@ export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includePro
     if (message.file){
         return <MessageFile file={message.file} message={message} maxHeight={"42px"} />
     }
-
+    
     const decrypted = useMessageDecryption({message})
+    if (message.nanoApp){
+        return <MetadataCard message={decrypted} />
+    }
      return (
         <div style={style}>
             {includeProfileName && <><ProfileName includeVerified={false} address={message.fromAccount} />{": "}</>}

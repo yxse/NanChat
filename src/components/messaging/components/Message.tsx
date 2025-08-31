@@ -155,7 +155,7 @@ const Message = memo(({
            <Popover
            mode="dark"
           content={<div style={{maxWidth: 300}}><MessageRaw key={"full" + message.replyMessage._id} message={message.replyMessage} ellipsis={false} maxHeight={"75px"} includeProfileName={false}/></div>}
-          trigger={(!message.replyMessage?.file) ? "click": false} // only trigger popover if text message
+          trigger={(message.replyMessage?.file || message.replyMessage.nanoApp) ? false : "click"} // only trigger popover if text message
           placement='top'
           defaultVisible={false}
         >
