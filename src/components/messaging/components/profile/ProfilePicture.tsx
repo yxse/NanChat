@@ -4,7 +4,8 @@ import { DotLoading, Image, ImageViewer } from "antd-mobile";
 import { accountIconUrl } from "../../../app/Home";
 import { NoAvatar } from "../icons/NoAvatar";
 
-const imgProxy = (src, width) => `https://i.nanwallet.com/unsafe/rs::${width*2}/plain/${encodeURI(src)}` // width*2 for better render
+const getDevicePixelRatioCeiled = () => Math.ceil(window.devicePixelRatio || 1);
+const imgProxy = (src, width) => `https://i.nanwallet.com/unsafe/rs::${width}/dpr:${getDevicePixelRatioCeiled()}/plain/${encodeURI(src)}` 
 
 const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = null }) => {
     let isLoading = false
