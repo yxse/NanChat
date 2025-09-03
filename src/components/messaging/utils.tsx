@@ -20,8 +20,10 @@ export const isNanoAppMessage = (message: string) => {
 }
 export const isSpecialMessage = (message: Message) => {
     
-    return message?.stickerId || message?.tip || message?.file ||
-    message?.type === "system" || message?.type === "join-request" || message?.content === "File" || message?.content === "Sticker" || message?.content === "tip" || message?.content === "Transfer"
+    return message?.stickerId || message?.tip || message?.file || message?.redPacket ||
+    message?.type === "system" || message?.type === "join-request" || message?.content === "File" || message?.content === "Sticker" || message?.content === "tip" 
+    || message?.content === "Transfer"
+    || message?.content === "Red Packet"
 }
  /**
  * Extracts title, description and image from a webpage's meta tags

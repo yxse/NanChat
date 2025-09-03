@@ -16,9 +16,9 @@ import useSWR from "swr";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../messaging/fetcher";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
-import { ChatName, ItemChat } from "./discover/Discover";
 import { useChats } from "../messaging/hooks/use-chats";
 import { useWallet } from "../Popup";
+import { ChatName, ItemChat } from "../messaging/components/ItemChat";
 
 function BlockedChats() {
     const navigate = useNavigate();

@@ -293,5 +293,13 @@
   "noContacts": "Sem contatos",
   "contactsForNetwork": "Contatos para {{networkName}}",
   "bio": "Bio",
-  "setBio": "Definir bio"
+  "setBio": "Definir bio",
+  "redPacket": "Envelope Vermelho",
+  "randomAmount": "Valor Aleatório",
+  "amountEach": "Valor por pessoa",
+  "identicalAmount": "Valor Idêntico",
+  "total": "Total",
+  "securedByNanPay": "Protegido por NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Envelopes vermelhos não abertos dentro de 24 horas serão reembolsados.",
+  "transfer": "Transferir"
 } 

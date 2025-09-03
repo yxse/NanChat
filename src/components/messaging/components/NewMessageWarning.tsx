@@ -8,8 +8,8 @@ import { formatAddress } from '../../../utils/format';
 import { useChats } from '../hooks/use-chats';
 import { ChatCheckOutline, ChatWrongOutline } from 'antd-mobile-icons';
 import { useWallet } from '../../Popup';
-import { ChatName } from '../../app/discover/Discover';
 import { useTranslation } from 'react-i18next';
+import { ChatName } from './ItemChat';
 
 export function BlockChatButton({chat, onSuccess, mode='button'}) {
     const { t } = useTranslation();

@@ -11,6 +11,7 @@ import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrows
 import { useEmit, useEvent } from "../components/messaging/components/EventContext";
 import { ResponsivePopup } from "../components/Settings";
 import { WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
+import { signMessage } from "../components/messaging/fetcher";
 
 
 export const SignPopup = ({visible, setVisible, uri, setUri}) => {
@@ -33,11 +34,7 @@ export const SignPopup = ({visible, setVisible, uri, setUri}) => {
   )
 }
 
-export const signMessage = (privateKey, message) => {
-  let messageToSign = "Signed Message: " + message // Add prefix to message as a security measure to prevent to sign a block by mistake / from an attacker request
-  const signed = tools.sign(privateKey, messageToSign)
-  return signed
-}
+
 export default function Sign({uri, onClose}) {
   const {wallet} = useContext(WalletContext)
   const [message, setMessage] = useState("")

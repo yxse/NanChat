@@ -24,6 +24,9 @@ export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includePro
         return <div style={style}><MessageSystem raw message={message} /></div>
     }
     
+    if (message.content === "Red Packet"){
+        return <div style={{color: "var(--adm-color-danger)"}}>[Red Packet]</div>
+    }
     if (message.stickerId){
         return <Sticker stickerId={message.stickerId} height={maxHeight}/>
     }

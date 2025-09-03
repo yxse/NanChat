@@ -25,20 +25,27 @@ import { networks } from "../../../utils/networks";
 import { DateHeader } from "../../app/History";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
+import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
 
 const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   const { activeAccount } = useWallet();
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
+  let actionMessage = message.content.split(' ')[1];
   let action = message.content.split(' ')[1];
+  let redPacketId
   if (message.content.includes('recalled')) {
-    action = 'recalled a message';
+    actionMessage = 'recalled a message';
   }
   if (message.content.includes('created')) {
-    action = 'created the group';
+    actionMessage = 'created the group';
+  }
+  if (message.content.includes('opened')) {
+    redPacketId = message.content.split(' ')[2]
+    actionMessage = 'opened red packet from';
   }
   if (message.content.includes('transferred')) {
-    action = `transferred ${message.content.split(' ')[2]} ${message.content.split(' ')[3]} to`;
+    actionMessage = `transferred ${message.content.split(' ')[2]} ${message.content.split(' ')[3]} to`;
   }
   
   // const { data, isLoading } = useSWR(`/names?accounts=${addresses?.join(',')}`, fetcherMessages, {
@@ -48,7 +55,7 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
     if (raw) { // used to display in chatList
        return (
       <>{"["}
-        <ProfileName address={addresses?.[0]} /> {action} {" "}
+        <ProfileName address={addresses?.[0]} /> {actionMessage} {" "}
           {addresses?.map((address, index) => {
             if (index === 0) {
               return null;
@@ -64,11 +71,18 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
       </>
     );
     }
+    if (action === "opened"){ // red packet
+    return <div className="text-center m-4" style={{  }}>  <RedPacketIcon width={18} style={{verticalAlign: "baseline"}}/> <ProfileName address={addresses?.[0]} /> opened <Link 
+    to={"/red-packet-result?id=" + redPacketId}
+    style={{color: "var(--gold-color)"}}>red packet</Link> from {" "}
+          <ProfileName address={addresses?.[1]} />
+      </div>
+    }
     return (
       <div className="text-center m-4" style={{ color: "var(--adm-color-text-secondary)" }}>
         <Link to={'/chat/' + addresses?.[0] + '/info'} style={{ color: "var(--adm-color-primary)" }}>
         <ProfileName address={addresses?.[0]} />
-           </Link> {action} {" "}
+           </Link> {actionMessage} {" "}
 
           {addresses?.map((address, index) => {
             if (index === 0) {

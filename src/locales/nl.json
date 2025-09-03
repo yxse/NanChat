@@ -295,5 +295,13 @@
   "noContacts": "Geen contacten",
   "contactsForNetwork": "Contacten voor {{networkName}}",
   "bio": "Bio",
-  "setBio": "Bio instellen"
+  "setBio": "Bio instellen",
+  "redPacket": "Rode Enveloppe",
+  "randomAmount": "Willekeurig Bedrag",
+  "amountEach": "Bedrag per persoon",
+  "identicalAmount": "Identiek Bedrag",
+  "total": "Totaal",
+  "securedByNanPay": "Beveiligd door NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Rode enveloppen die binnen 24 uur niet worden geopend, worden terugbetaald.",
+  "transfer": "Overdragen"
 } 

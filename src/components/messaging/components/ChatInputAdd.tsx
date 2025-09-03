@@ -10,6 +10,7 @@ import { saveFileInCache } from '../../../services/database.service';
 import { AiOutlineSwap } from 'react-icons/ai';
 import ChatInputFile from './ChatInputFile';
 import ChatInputTip from './ChatInputTip';
+import ChatInputRedPacket from './ChatInputRedPacket';
 
 const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat }) => {
     // console.log("render input add")
@@ -25,6 +26,8 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat }) 
                     : 
                     <ChatInputTip toAddress={toAddress} onTipSent={onTipSent}/>
                     }
+                    <ChatInputRedPacket chat={chat} />
+
                 </div>
     );
 };

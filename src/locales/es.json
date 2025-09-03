@@ -295,5 +295,13 @@
   "noContacts": "Sin contactos",
   "contactsForNetwork": "Contactos para {{networkName}}",
   "bio": "Biografía",
-  "setBio": "Establecer biografía"
+  "setBio": "Establecer biografía",
+  "redPacket": "Sobre Rojo",
+  "randomAmount": "Cantidad Aleatoria",
+  "amountEach": "Cantidad por persona",
+  "identicalAmount": "Cantidad Idéntica",
+  "total": "Total",
+  "securedByNanPay": "Asegurado por NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Los sobres rojos no abiertos dentro de las 24 horas serán reembolsados.",
+  "transfer": "Transferir"
 } 

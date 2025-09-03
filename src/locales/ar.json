@@ -294,5 +294,13 @@
   "noContacts": "لا توجد جهات اتصال",
   "contactsForNetwork": "جهات الاتصال لشبكة {{networkName}}",
   "bio": "نبذة",
-  "setBio": "تعيين النبذة"
+  "setBio": "تعيين النبذة",
+  "redPacket": "ظرف أحمر",
+  "randomAmount": "مبلغ عشوائي",
+  "amountEach": "المبلغ لكل شخص",
+  "identicalAmount": "مبلغ متطابق",
+  "total": "المجموع",
+  "securedByNanPay": "مؤمن بواسطة NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "الأظرف الحمراء التي لم تُفتح خلال 24 ساعة سيتم ردها.",
+  "transfer": "تحويل"
 } 

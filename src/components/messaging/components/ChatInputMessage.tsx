@@ -27,7 +27,6 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
 
   // this seems to increase socket io message of about 60ms, probably beacause that changes /chats and /messages data which cause many render
   // could be optimized using more memo() in ChatRoom/ChatListo to reduce unnessecary re render
-
   const id = message._id;
   await mutate(currentPages => {
       const newPages = [...(currentPages || [])];
@@ -114,7 +113,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
     const replyEvent = useEvent("reply-message");
     const recallEvent = useEvent("recall-message");
-    const {mutate: mutateInifinite} = useSWRConfig();
     const emit = useEmit()
     const names = chat?.participants;
     let address = (activeAccount == null || activeAccount == '') ? undefined : names?.find(participant => participant._id !== activeAccount)?._id;
@@ -335,12 +333,49 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
-     const messageEncrypted = { ...message };
-    //  messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
      socket.emit('message', message,  (response) => callbackSocket(response, message));
     //  messageInputRef.current?.focus();
     };
     messageInputRef.sendTip = sendTipMessage;
+    
+    const sendRedPacketMessage = async (ticker: string, hash: string, mode: "normal" | "lucky", quantity: number, messageContent, stickerId) => {
+      let chatId = account;
+      // let messageTip = 'Tip ' + ticker + ' ' + hash;
+      let encryptedMessageContent = ""
+     
+      const message: Message = {
+        content: "Red Packet",
+        fromAccount: activeAccount,
+        // toAccount: account,
+        timestamp: new Date(),
+        chatId: chatId,
+        height: chat?.height + 1,
+        redPacket: {ticker, hash, mode, quantity, message: messageContent, stickerId},
+        _id: Math.random().toString()
+      };
+      await mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+       if (messageContent?.length > 0){
+        if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
+        encryptedMessageContent = box.encrypt(messageContent, address, activeAccountPk);
+        message.toAccount = address;
+        }
+        else if (chat.type === "group") {
+          let sharedAccount = chat.sharedAccount;
+          encryptedMessageContent = box.encrypt(messageContent, sharedAccount, activeAccountPk);
+          message.toAccount = sharedAccount;
+        }
+        localStorage.setItem("message-" + encryptedMessageContent, messageContent);
+      }
+      const messageEncrypted = { 
+        ...message,
+        redPacket: { ...message.redPacket }
+      };
+      messageEncrypted['redPacket']['message'] = encryptedMessageContent;
+      onSent(message);
+      // debugger
+     socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
+    };
+    messageInputRef.sendRedPacketMessage = sendRedPacketMessage;
 
     const sendStickerMessage = async (stickerId: string) => {
       let chatId = account;
@@ -532,7 +567,7 @@ const onStickerSelect = useCallback((stickerId) => {
             onStickerSelect={onStickerSelect} />
           }
         <ChatInputAdd 
-        key={address + chat?.id}
+        key={address + chat?.id + replyMessage} // adding replyMessage here fix bug replying message with pasting a file
         visible={inputAdditionVisible}
         toAddress={
           chat?.type === "private" ?

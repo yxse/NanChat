@@ -10,14 +10,13 @@ import { fetchAccountInfo, fetchBlock } from "../../app/Network";
 import { rawToMega } from "../../../nano/accounts";
 import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { openHashInExplorer } from "../utils";
-import { GiftOutline } from "antd-mobile-icons";
+import { CheckCircleOutline, GiftOutline } from "antd-mobile-icons";
 import ProfileName from "./profile/ProfileName";
-import { ChatName } from "../../app/discover/Discover";
 import ProfilePicture from "./profile/ProfilePicture";
 import { AiOutlineSwap } from "react-icons/ai";
 import { useTranslation } from "react-i18next";
 
-const MessageTip = ({ message, side, hash, ticker }) => {
+const MessageTip = ({ message, side, hash, ticker , fromRedPacket = false}) => {
     const {data, isLoading} = useSWR("block-" + hash, () => fetchBlock(ticker, hash), {revalidateOnFocus: false});
     const amountMega = data?.amount && rawToMega(ticker, data.amount);
     const { t } = useTranslation();
@@ -58,8 +57,11 @@ const MessageTip = ({ message, side, hash, ticker }) => {
             </div>
                <div className="text-sm" style={{color: 'var(--adm-color-text-secondary)'}}>
               <Divider style={{margin: '8px 0'}}/>
-              <AiOutlineSwap style={{display: "inline", marginRight: 4}}/>
-              {t('transfer')}
+              {fromRedPacket ? 
+              <>
+              <CheckCircleOutline style={{display: "inline"}} /> NanChat {t('transfer')}
+              </>
+              : <><AiOutlineSwap style={{display: "inline", marginRight: 4}}/>{t('transfer')}</>}
             </div>
         </Card>
     </div>

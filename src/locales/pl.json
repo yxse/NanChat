@@ -293,5 +293,15 @@
   "deleteContactConfirmTitle": "Usunąć {{name}}?",
   "deleteContactConfirmContent": "Czy na pewno chcesz usunąć ten kontakt?",
   "noContacts": "Brak kontaktów",
-  "contactsForNetwork": "Kontakty dla {{networkName}}"
+  "contactsForNetwork": "Kontakty dla {{networkName}}",
+  "bio": "Biografia",
+  "setBio": "Ustaw biografię",
+  "redPacket": "Czerwona Koperta",
+  "randomAmount": "Losowa Kwota",
+  "amountEach": "Kwota na osobę",
+  "identicalAmount": "Identyczna Kwota",
+  "total": "Suma",
+  "securedByNanPay": "Zabezpieczone przez NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Czerwone koperty nieotwarte w ciągu 24 godzin zostaną zwrócone.",
+  "transfer": "Przelew"
 }

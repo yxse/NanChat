@@ -295,5 +295,13 @@
   "noContacts": "没有联系人",
   "contactsForNetwork": "{{networkName}} 的联系人",
   "bio": "简介",
-  "setBio": "设置简介"
+  "setBio": "设置简介",
+  "redPacket": "红包",
+  "randomAmount": "随机金额",
+  "amountEach": "每人金额",
+  "identicalAmount": "相同金额",
+  "total": "总计",
+  "securedByNanPay": "由 NanPay 保护。",
+  "redPacketNotOpenedWillBeRefunded": "24小时内未打开的红包将被退还。",
+  "transfer": "转账"
 } 

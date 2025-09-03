@@ -293,5 +293,15 @@
   "deleteContactConfirmTitle": "Удалить {{name}}?",
   "deleteContactConfirmContent": "Вы уверены, что хотите удалить этот контакт?",
   "noContacts": "Нет контактов",
-  "contactsForNetwork": "Контакты для {{networkName}}"
+  "contactsForNetwork": "Контакты для {{networkName}}",
+  "bio": "Био",
+  "setBio": "Установить био",
+  "redPacket": "Красный Конверт",
+  "randomAmount": "Случайная Сумма",
+  "amountEach": "Сумма на человека",
+  "identicalAmount": "Идентичная Сумма",
+  "total": "Всего",
+  "securedByNanPay": "Защищено NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Красные конверты, не открытые в течение 24 часов, будут возвращены.",
+  "transfer": "Перевод"
 } 

@@ -25,7 +25,7 @@ import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
 import { MdOutlineReply, MdOutlineSync } from "react-icons/md";
 import MessageRaw from "./MessageRaw";
-import MessageRawReply from "./MessageRawReply";
+import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
 
 const Message = memo(({
   message,
@@ -39,6 +39,8 @@ const Message = memo(({
   const activeAccount = wallet.accounts.find(
     (account) => account.accountIndex === wallet.activeIndex
   )?.address;
+
+  // console.log("render", message?._id)
 
   const [visible, setVisible] = useState(false);
   const emit = useEmit();
@@ -497,7 +499,7 @@ const MessageContent = ({
 };
 
 const MessageSpecial = ({ message, type, activeAccount }) => {
-  const { fromAccount, stickerId, tip, file } = message;
+  const { fromAccount, stickerId, tip, file, redPacket } = message;
   const side = fromAccount === activeAccount ? 'from' : 'to';
   return (
     <div className="" >
@@ -509,6 +511,7 @@ const MessageSpecial = ({ message, type, activeAccount }) => {
       {stickerId && <MessageSticker message={message} side={side} hash={stickerId} ticker={stickerId} />}
       {tip && <MessageTip message={message} side={side} hash={tip.hash} ticker={tip.ticker} />}
       {file && <MessageFile message={message} side={side} file={file} />}
+      {redPacket && <MessageRedPacket message={message}  />}
     </div>
   );
 };

@@ -6,10 +6,15 @@ import { decryptGroupMessage, getSharedKey } from '../../../services/sharedkey';
 import { isSpecialMessage } from '../utils';
 
 const useMessageDecryption = ({ message }) => {
-  const { wallet, dispatch } = useContext(WalletContext);
+  const { wallet } = useContext(WalletContext);
   const [decryptedContent, setDecryptedContent] = useState(() => {
+    if (message.isLocal && message.redPacket?.message) {
+      console.log("local redpacket message", message)
+      return message.redPacket?.message;
+    }
     // Immediate synchronous checks for cached content
     if (message.isLocal) {
+      // console.log("local message", message)
       return message.content;
     }
 
@@ -75,14 +80,14 @@ const useMessageDecryption = ({ message }) => {
 
         // Store decrypted content
         localStorage.setItem(`message-${message._id}`, decrypted);
-        dispatch({
-          type: 'ADD_MESSAGE',
-          payload: { _id: messageId, content: decrypted }
-        });
+        // dispatch({
+        //   type: 'ADD_MESSAGE',
+        //   payload: { _id: messageId, content: decrypted }
+        // });
         setDecryptedContent(decrypted);
         
       } catch (error) {
-        console.error('Message decryption failed:', error);
+        console.error('Message decryption failed:', error, message);
         // setDecryptedContent(message.content);
         setDecryptedContent(false);
       }

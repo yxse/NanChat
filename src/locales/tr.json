@@ -295,5 +295,13 @@
   "noContacts": "Kişi yok",
   "contactsForNetwork": "{{networkName}} ağı için kişiler",
   "bio": "Biyografi",
-  "setBio": "Biyografiyi ayarla"
+  "setBio": "Biyografiyi ayarla",
+  "redPacket": "Kırmızı Zarf",
+  "randomAmount": "Rastgele Miktar",
+  "amountEach": "Kişi Başına Miktar",
+  "identicalAmount": "Aynı Miktar",
+  "total": "Toplam",
+  "securedByNanPay": "NanPay tarafından güvence altına alınmıştır.",
+  "redPacketNotOpenedWillBeRefunded": "24 saat içinde açılmayan kırmızı zarflar iade edilecektir.",
+  "transfer": "Transfer"
 } 

@@ -1,11 +1,16 @@
 import { tools } from "multi-nano-web";
 import { getChatToken, setChatToken } from "../../utils/storage";
 import { accountIconUrl } from "../app/Home";
-import { signMessage } from "../../api-invoke/Sign";
 import { Toast } from "antd-mobile";
 import { inMemoryMap } from "../../services/database.service";
 import { saveCache } from "../Wrapper";
 
+
+export const signMessage = (privateKey, message) => {
+  let messageToSign = "Signed Message: " + message // Add prefix to message as a security measure to prevent to sign a block by mistake / from an attacker request
+  const signed = tools.sign(privateKey, messageToSign)
+  return signed
+}
 
 export const getNewChatToken = async (account, privateKey) => {
     if (!account){
@@ -135,6 +140,7 @@ const cacheAllMessagesChat = async (chatId, height) => {
 
 }
 
+export const cacheKeyPrefix = (chatId) => `chat_${chatId}_msg_`;
 export const fetcherMessagesCache = (url) => getChatToken().then(async (token) => {
     console.time('cache')
 
@@ -145,7 +151,6 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
     const requestedLimit = parseInt(urlParams.get('limit') || '20');
     const chatId = urlParams.get('chatId');
     // Generate cache key prefix for this chat
-    const cacheKeyPrefix = `chat_${chatId}_msg_`;
   //   const maxHeightKey = `chat_${chatId}_maxHeight`;
   
       // Get the cached messages
@@ -154,7 +159,7 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
     //   debugger
     
       for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--){
-          let cacheKey = cacheKeyPrefix + i;
+          let cacheKey = cacheKeyPrefix(chatId) + i;
           let cachedData
           if (inMemoryMap.has(cacheKey)){
                 cachedData = inMemoryMap.get(cacheKey);
@@ -192,7 +197,7 @@ export const fetcherMessagesCache = (url) => getChatToken().then(async (token) =
                 let messages = await res.json();
                 if (messages.error) return messages
                 messages.forEach((msg) => {
-                    let cacheKey = cacheKeyPrefix + msg.height;
+                    let cacheKey = cacheKeyPrefix(chatId) + msg.height;
                     localStorage.setItem(cacheKey, JSON.stringify(msg));
                     // console.log('cached', cacheKey)
                 });
@@ -217,6 +222,8 @@ export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BAC
 .then((res) => res.json()).then((data) => {
     return data
 })
+
+export const openRedPacket = ({id}) => fetcherMessagesPost('/redpacket/open', {id})
 export const fetcherMessagesPost = (url, data, activeAccountPk) => getChatToken(activeAccountPk).then(async (token) => {
     return fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
     method: 'POST',

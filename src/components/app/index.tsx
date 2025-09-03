@@ -91,6 +91,8 @@ import BlockedChats from "./BlockedChats";
 import SwapHistory from "./SwapHistory";
 import { useTranslation } from 'react-i18next';
 import SetBio from "../messaging/components/SetBio";
+import RedPacket from "./redpacket/RedPacket";
+import RedPacketResult from "./redpacket/RedPacketResult";
 
 // reduceMotion()
 
@@ -471,7 +473,9 @@ export default function App({callback}) {
             <Route
               path="/:ticker/receive"
               element={<Network defaultReceiveVisible={true} defaultAction="receive" />} />
-            <Route path="/:ticker/send" element={<Network defaultReceiveVisible={true} defaultAction="send" />} />
+            <Route path="/:ticker/red-packet" element={<RedPacket  />}/>
+            <Route path="/red-packet-result" element={<RedPacketResult  />}/>
+            <Route path="/:ticker/send" element={<Send ticker={"XNO"} />} />
             <Route path="/:ticker/representative" element={<ChangeRep />} />
             {/* <Route path="/messages" element={<Messaging />} />
             <Route path="/messages/:account" element={<ChatRoom />} />

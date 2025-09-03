@@ -1,6 +1,6 @@
 import { Form, Modal } from 'antd-mobile';
 import React, { useState } from 'react'
-import { AmountFormItem } from './Send';
+import { AmountFormItem } from './AmountFormItem';
 
 function SetAmountModal({ticker, visible, setVisible, onOk}) {
   const [form] = Form.useForm();

@@ -294,5 +294,13 @@
   "noContacts": "Keine Kontakte",
   "contactsForNetwork": "Kontakte für {{networkName}}",
   "bio": "Bio",
-  "setBio": "Bio festlegen"
+  "setBio": "Bio festlegen",
+  "redPacket": "Rotes Paket",
+  "randomAmount": "Zufälliger Betrag",
+  "amountEach": "Betrag pro Person",
+  "identicalAmount": "Identischer Betrag",
+  "total": "Gesamt",
+  "securedByNanPay": "Gesichert durch NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Rote Pakete, die innerhalb von 24 Stunden nicht geöffnet werden, werden erstattet.",
+  "transfer": "Überweisen"
 } 

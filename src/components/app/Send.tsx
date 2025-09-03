@@ -56,156 +56,9 @@ import ProfileName from "../messaging/components/profile/ProfileName";
 import { fetcherMessages } from "../messaging/fetcher";
 import { Keyboard } from "@capacitor/keyboard";
 import { useTranslation } from 'react-i18next';
-export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send"}) => {
-  const { t } = useTranslation();
-  const {wallet} = useContext(WalletContext)
-  const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
-  const { data: fiatRates, isLoading, error } = useSWR('fiat', fetchFiatRates);
-  const { data: balance, isLoading: balanceLoading } = useSWR(
-    "balance-" + ticker + "-" + activeAccount,
-    () => fetchBalance(ticker, activeAccount),
-  );
-  const { data: prices, isLoading: isLoadingPrices } = useSWR(
-    "prices",
-    fetchPrices,
-  );
-  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+import { sendTransaction } from "./SendTransaction";
+import { AmountFormItem } from "./AmountFormItem";
 
-  const isAmountFiat = amountType === "fiat";
-  const formItemName = isAmountFiat ? "amountFiat" : "amount";
-  const label = isAmountFiat ? t('amountFiat', { currency: selected }) : t('amount');
-  const currency = isAmountFiat ? selected : ticker;
-
-  const getFiatRate = () => {
-    if (!fiatRates || !fiatRates[selected]) return 1;
-    return fiatRates[selected];
-  };
-
-  const switchAmountType = () => {
-    const newAmountType = isAmountFiat ? "crypto" : "fiat";
-    setAmountType(newAmountType);
-    const currentAmount = form.getFieldValue(formItemName);
-    if (!currentAmount) return;
-    const fiatRate = getFiatRate();
-    const newAmount = isAmountFiat
-      ? currentAmount / (prices[ticker]?.usd * fiatRate)
-      : currentAmount * prices[ticker]?.usd * fiatRate;
-    form.setFieldValue(newAmountType === "fiat" ? "amountFiat" : "amount", newAmount);
-  };
-
-  const setMaxAmount = () => {
-    const fiatRate = getFiatRate();
-    const maxAmount = isAmountFiat ? balance * prices[ticker]?.usd * fiatRate : balance;
-    form.setFieldValue(formItemName, maxAmount);
-    updateOtherAmountField(maxAmount);
-  };
-
-  const getAvailableAmount = () => {
-    const fiatRate = getFiatRate();
-    if (prices?.[ticker] == null) return "..";
-    const fiatAmount = (balance * prices[ticker]?.usd * fiatRate).toFixed(2);
-    return isAmountFiat
-      ? `${fiatAmount} ${selected} (${balance} ${ticker})`
-      : `${balance} ${ticker}`;
-  };
-
-  const updateOtherAmountField = (value) => {
-    const fiatRate = getFiatRate();
-    const otherFieldName = isAmountFiat ? "amount" : "amountFiat";
-    const convertedValue = isAmountFiat
-      ? value / (prices[ticker]?.usd * fiatRate)
-      : value * prices[ticker]?.usd * fiatRate;
-    form.setFieldValue(otherFieldName, convertedValue);
-  };
-
-  const handleInputChange = (e) => {
-    const value = e
-    if (isNaN(value)) return;
-    updateOtherAmountField(value);
-  };
-
-  if (isLoading) return <div>{t('loading', 'Loading...')}</div>;
-  if (error) return <div>{t('errorLoadingFiatRates', 'Error loading fiat rates')}</div>;
-
-  const rules = [
-    
-   
-  ]
-  if (type === "send") {
-    rules.push({
-      validateTrigger: "onConfirm",
-      required: true,
-      message: t('pleaseEnterAmount'),
-      type: "number",
-      transform: (value) => parseFloat(value),
-    });
-    rules.push({
-      validateTrigger: "onConfirm",
-      validator: async (rule, value) => {
-        if (value <= 0) {
-          throw new Error(t('amountMustBeGreaterThanZero'));
-        }
-      },
-    });
-    rules.push( {
-      validateTrigger: "onConfirm", // allow to not show error while typing amount, only on submit
-      required: true,
-      message: t('availableAmount', { amount: getAvailableAmount() }),
-      type: "number",
-      transform: (value) => parseFloat(value),
-      min: 0,
-      max: isAmountFiat ? balance * prices[ticker].usd * getFiatRate() : balance,
-  });
-  }
-
-  return (
-    <Form.Item
-    normalize={(value, prevValue) => {
-      value = value?.replace(/,/g, ".") // fix issue with comma in input, like netherlands region with english language on iOS
-      if (isNaN(value)) return prevValue;
-      return value;
-    }}
-    className="form-list"
-      name={formItemName}
-      label={""}
-      validateFirst
-      required={false}
-      extra={
-        <div 
-        className="flex justify-between space-x-2 items-center mr-2">
-          <div
-          style={{}}
-           className="flex items-center cursor-pointer" onClick={switchAmountType}>
-            {currency}
-            <CgArrowsExchangeV size={20} />
-          </div>
-          {
-            type === "send" &&
-          <span 
-          style={{ borderBottom: "1px dashed", cursor: "pointer" }}
-           onClick={setMaxAmount}>
-            {t('max')}
-          </span>
-          }
-        </div>
-      }
-      rules={rules}
-    >
-      <Input
-      id="amount"
-      className="form-list"
-      step={"any"}
-      autoComplete="off"
-      autoFocus={type === "receive"}
-        clearable
-        type="text"
-        inputMode="decimal"
-        onChange={handleInputChange}
-        placeholder={t('enterAmount')}
-      />
-    </Form.Item>
-  );
-};
 
 const useFocus = () => {
   const htmlElRef = useRef(null)
@@ -499,78 +352,27 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 visible={pinVisible}
                 setVisible={setPinVisible}
                 onAuthenticated={async () => {
-                  try {
-                    setIsLoading(true);
-                    console.log(form.getFieldsValue());
-                    const fromAddress = activeAccount
-                    const toAddress = form.getFieldValue("address");
-                    const amount = form.getFieldValue("amount");
-                    console.log(fromAddress, toAddress, amount);
-                    if (!global.ledger){ // block chats not available on ledger
-                      console.log(dataBlockedAccount)
-                      let isBlocked = await dataBlockedAccount;
-                      if (isBlocked?.blocked) {
-                        console.error("Error sending:", isBlocked);
-                        Toast.show({
-                        icon: "fail",
-                        content: t('canceledBlocked'),
-                      });
-                      return;
-                    }
-                  }
-                    console.log(dataSend)
-                    let data = await dataSend;
-                    if (
-                      (customNetworks()?.[ticker] && data.existingFrontier.error !== "Block not found") || // if custom network is used, no block for the frontier should be found, or it might be malicious
-                      (data.existingFrontier.ticker !== ticker && !customNetworks()?.[ticker]) // if not custom network, ticker should match
-                    ) {
-                      console.error("Error sending:", data.existingFrontier.error);
-                      Toast.show({
-                        icon: "fail",
-                        content: t('canceledMalicious', { wrongTicker: data.existingFrontier.ticker, ticker }),
-                      });
-                      return;
-                    }
-
-                    console.log({data})
-                    let result = await wallet.wallets[ticker].send(data)
-                    setResult(result)
-                    if (result.error) {
-                      console.error("Error sending:", result.error);
-                      Toast.show({
-                        icon: "fail",
-                        content: t('errorSending', { error: result.error }),
-                      });
-
-                      return;
-                    }
-                    // await send(ticker, fromAddress, toAddress, amount);
-                    // Toast.show({
-                    //   content: "Success!",
-                    // });
-                    setSentAmount(amount);
-                    setSentTo(toAddress);
-                    form.setFieldsValue({ address: "", amount: "" });
-                    if (location.pathname !== '/' && !location.pathname.startsWith(`/chat`)) {
-                      // navigate(`/${ticker}`, { replace: true }); //reset params send
-                      navigate(location.pathname, { replace: true }); //reset params send
-                    }
-                    setConfirmPopupOpen(false);
-                    setSuccessPopupOpen(true);
-                    mutate("balance-" + ticker);
-                    mutate("history-" + ticker);
-                    if (onSent) {
-                      onSent(ticker, result.hash);
-                    }
-                  } catch (error) {
-                    console.error("Error sending:", error);
-                    Toast.show({
-                      content: t('errorSending', { error: error.toString() }),
-                    });
-                  } finally {
-                    setIsLoading(false);
-                  }
-                   setConfirmPopupOpen(false);
+                  await sendTransaction({
+                    fromAddress: activeAccount,
+                    toAddress: form.getFieldValue("address"),
+                    amount: form.getFieldValue("amount"),
+                    ticker,
+                    wallet,
+                    form,
+                    setIsLoading,
+                    setResult,
+                    setSentAmount,
+                    setSentTo,
+                    setConfirmPopupOpen,
+                    setSuccessPopupOpen,
+                    mutate,
+                    navigate,
+                    location,
+                    dataBlockedAccount,
+                    dataSend,
+                    customNetworks,
+                    onSent
+                  });
                 }}
                 />
                 <div 
@@ -585,25 +387,6 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                     HapticsImpact({
                       style: ImpactStyle.Medium
                     });
-                  // try {
-                  //   await authenticate()
-                  // } catch (error) {
-                  //   console.error("Error authenticating:", error);
-                  //   Toast.show({
-                  //     content: "Error authenticating",
-                  //   });
-                  //   return;
-                  // }
-                    // if (localStorage.getItem("webauthn-credential-id")) {
-                    //   const challenge = crypto.randomUUID()
-                    //   await webauthn.client.authenticate([localStorage.getItem("webauthn-credential-id")], challenge, {
-                    //     // "authenticatorType": "both",
-                    //     // "userVerification": "discouraged",
-                    //     "timeout": 5000
-                    //   })
-                    // }
-             
-                    
                 }}
                 className="w-full mt-4"
                 >

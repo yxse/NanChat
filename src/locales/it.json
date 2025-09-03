@@ -295,5 +295,13 @@
   "noContacts": "Nessun contatto",
   "contactsForNetwork": "Contatti per {{networkName}}",
   "bio": "Biografia",
-  "setBio": "Imposta biografia"
+  "setBio": "Imposta biografia",
+  "redPacket": "Busta Rossa",
+  "randomAmount": "Importo Casuale",
+  "amountEach": "Importo per persona",
+  "identicalAmount": "Importo Identico",
+  "total": "Totale",
+  "securedByNanPay": "Sicurizzato da NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Le buste rosse non aperte entro 24 ore saranno rimborsate.",
+  "transfer": "Trasferire"
 } 

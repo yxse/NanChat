@@ -295,5 +295,13 @@
   "noContacts": "連絡先がありません",
   "contactsForNetwork": "{{networkName}} の連絡先",
   "bio": "自己紹介",
-  "setBio": "自己紹介を設定"
+  "setBio": "自己紹介を設定",
+  "redPacket": "赤い封筒",
+  "randomAmount": "ランダム金額",
+  "amountEach": "一人あたりの金額",
+  "identicalAmount": "同一金額",
+  "total": "合計",
+  "securedByNanPay": "NanPayによって保護されています。",
+  "redPacketNotOpenedWillBeRefunded": "24時間以内に開封されなかった赤い封筒は返金されます。",
+  "transfer": "送金"
 } 

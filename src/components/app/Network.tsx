@@ -25,7 +25,7 @@ import Receive from "./Receive";
 import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard } from "../Settings";
 import { getAccount } from "../getAccount";
-import Send, { AmountFormItem } from "./Send";
+import Send from "./Send";
 import History from "./History";
 import useSWR, { mutate, useSWRConfig } from "swr";
 import { getWalletRPC, initWallet, rawToMega } from "../../nano/accounts";

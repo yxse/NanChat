@@ -1,4 +1,12 @@
 {
+  "redPacket": "Red Packet",
+  "randomAmount": "Random Amount",
+  "amountEach": "Amount each",
+  "identicalAmount": "Identical Amount",
+  "total": "Total",
+  "securedByNanPay": "Secured by NanPay.",
+  "redPacketNotOpenedWillBeRefunded": "Red Packets not opened within 24 hours will be refunded.",
+  "transfer": "Transfer",
   "bio": "Bio",
   "setBio": "Set Bio",
   "voting": "Voting",
