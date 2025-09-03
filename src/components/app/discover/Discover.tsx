@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
-import { DotLoading, List, NavBar, Popup, Button, Space, Toast, CheckList, Ellipsis, Divider } from "antd-mobile";
+import { DotLoading, List, NavBar, Popup, Button, Space, Toast, CheckList, Ellipsis, Divider, Card } from "antd-mobile";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../../messaging/fetcher";
 import useSWR from "swr";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -20,66 +20,16 @@ import { AiOutlineShareAlt } from "react-icons/ai";
 import { FaRegCircleDot } from "react-icons/fa6";
 import { MetadataCard } from "../../messaging/components/antd-mobile-metadata-card";
 import { useChats } from "../../messaging/hooks/use-chats";
-import ProfileName from "../../messaging/components/profile/ProfileName";
 import { useTranslation } from "react-i18next";
 import { useEmit } from "../../messaging/components/EventContext";
-const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
-
-export const ChatName = ({ chat, activeAccount }) => {
-    if (!activeAccount){ // pass activeAccount as param because useWallet doesnt work in Modal.show 
-        const { activeAccount: activeAccountWallet} = useWallet();
-        activeAccount = activeAccountWallet
-    }
-    return chat?.type === "group" ? (chat?.name || "Group Chat") : (chat?.participants?.find(participant => participant._id !== activeAccount)?.name)
-}
-
-export const ItemChat = ({ chat, onClick }) => {
-    return (
-        <List.Item
-            clickable={false}
-            onClick={() => onClick(chat)}
-            prefix={
-                <ChatAvatar chat={chat} />
-            }
-        >
-            <div style={{wordBreak: "break-all"}} className="flex items-center gap-2">
-
-            <ChatName chat={chat} />
-            </div>
-        </List.Item>
-    );
-}
-export const ChatListItems = ({ chats, onClick, viewTransition = true, selectedAccounts, setSelectedAccounts, alreadySelected }) => {
-    const { activeAccount } = useWallet();
-    const [visible, setVisible] = useState(false);
-    return (
-        <div>
-
-        <List
-        value={selectedAccounts}
-        onChange={(v) => {
-            setSelectedAccounts(v)
-        }}
-         extra={null}
- 
-         >
-           
-            {
-                chats?.map(chat => (
-                   <ItemChat key={chat.id} chat={chat} onClick={onClick} />
-                ))
-            }
-        </List>
-            </div>
-    );
-}
+import { ChatListItems } from "../../messaging/components/ChatListItems";
+import { ItemChat } from "../../messaging/components/ItemChat";
 
 
 export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const { t } = useTranslation();
-    const { wallet } = useContext(WalletContext);
+    const { activeAccount } = useWallet()
     const {chats} = useChats();
-    const accounts = chats?.map((chat) => chat.participants).flat()
     const [shareContent, setShareContent] = useState("nothing");
     const [selectedChat, setSelectedChat] = useState(null);
     const [visible, setVisible] = useState(false);
@@ -94,17 +44,18 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const navigate = useNavigate();
 
     const inputRef = useRef(null);
-    const {
-        width,
-        height,
-    } = useWindowDimensions();
-        const activeAccount = convertAddress(
-        wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, 
-        "XNO"
-    );
     
     const { data: services, isLoading } = useSWR('/services?platform=' + Capacitor.getPlatform(), fetcherMessagesNoAuth);
     
+    // Group services by category
+    const groupedServices = services?.reduce((acc, service) => {
+        const category = service.cat || 'Other'; // Default to 'Other' if no category
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(service);
+        return acc;
+    }, {});
 
         
     useEffect(() => {
@@ -196,8 +147,61 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
                 {t('discover')}
             </NavBar>
             
-            
-                <List>
+                <List mode="card">
+                    <List.Item >
+                        Featured
+                    </List.Item>
+                    {/* blank item to show a divider border */}
+                    <List.Item ></List.Item>
+
+                    <div className="grid"
+        style={{
+          gridTemplateColumns: 'repeat(auto-fit, 80px)',
+          justifyContent: 'center',
+          gap: 12
+        }}>
+                    {services?.slice(0, 4).map((service, index) => (
+                        <div
+                        style={{cursor: "pointer"}}
+                        className=""
+                            key={index}
+                            onClick={() => handleServiceClick(service)}
+                        >
+                            
+                                <img src={service.favicon} alt={service.name} style={{width: 42, marginRight: "auto", marginLeft: "auto"}} />
+                            <div className="mt-2 mb-6" style={{
+                                 textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", textAlign: "center", color: "var(--adm-color-text-secondary)"}}>
+                            {service.name}
+                            </div>
+                        </div>
+                    ))}
+                    </div>                
+                </List>
+                <List mode="card" header="Discover nano apps"></List>
+{Object.entries(groupedServices || {}).map(([category, categoryServices]) => (
+    <div key={category} style={{ marginBottom: 8 }}>
+        <List mode="card">
+            <List.Item>
+                {category}
+            </List.Item>
+            {categoryServices.map((service, index) => (
+                <List.Item
+                arrowIcon={false}
+                    key={index}
+                    prefix={<img src={service.favicon} alt={service.name} style={{width: 40}} />}
+                    onClick={() => handleServiceClick(service)}
+                    description={service.description}
+                >
+                    {service.name}
+                </List.Item>
+            ))}
+        </List>
+    </div>
+))}
+<div style={{marginBottom: 32}}>
+    &nbsp;
+</div>
+                {/* <List mode="card">
                     {services?.map((service, index) => (
                         <List.Item
                             key={index}
@@ -208,7 +212,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
                             {service.name}
                         </List.Item>
                     ))}
-                </List>
+                </List> */}
                 </>
             }   
               

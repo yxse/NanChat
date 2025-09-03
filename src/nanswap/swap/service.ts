@@ -20,7 +20,10 @@ export const fetchPrices = async () => {
   };
 export const fetchAlias = async (account) => {
     const response = await fetch(`https://api.nanexplorer.com/alias?account=${account}`);
-    return response.json().then((data) => data.alias);
+    return response.json().then((data) => data.alias).catch((e) => {
+      console.log('cannot fetch alias', e)
+      return null
+})
 }
 export const fetchAliasIdentifierMulti = async (email) => {
     const {identifier, domain} = parseEmailIdentifier(email);
