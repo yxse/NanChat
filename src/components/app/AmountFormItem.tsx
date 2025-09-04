@@ -6,10 +6,13 @@ import { fetchBalance } from "./Network";
 import useLocalStorageState from "use-local-storage-state";
 import { Form, Input } from "antd-mobile";
 import { CgArrowsExchangeV } from "react-icons/cg";
+import { convertAddress } from "../../utils/format";
 
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send", label = "", rulesMinMax}) => {
   const { t } = useTranslation();
-  const {wallet, activeAccount} = useWallet()
+  const {wallet} = useWallet()
+  const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
+
   const { data: fiatRates, isLoading, error } = useSWR('fiat', fetchFiatRates);
   const { data: balance, isLoading: balanceLoading } = useSWR(
     "balance-" + ticker + "-" + activeAccount,

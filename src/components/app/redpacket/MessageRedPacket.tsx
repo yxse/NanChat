@@ -46,16 +46,39 @@ export const useMessageRedpacket = ({message}) => {
 }
 
 export const useRedpacketState = (message) => {
+    const [currentTime, setCurrentTime] = useState(new Date())
     const redPacket = message?.redPacket
     const isGroup = message?.type === "group"
     const {activeAccount} = useWallet()
+    
     const isOpen = isGroup ? 
         (redPacket?.openedBy?.find((claim) => claim.account === activeAccount) || redPacket.remain <= 0) : 
-        redPacket?.openedBy?.length > 0 // on private chat, redpacket is open if one open
+        redPacket?.openedBy?.length > 0
 
-    const isExpired = new Date(redPacket?.expiredAt) < new Date()
+    const isExpired = redPacket?.expiredAt ? new Date(redPacket.expiredAt) < currentTime : false
     const state = (isOpen ? "opened" : isExpired ? "expired" : "new")
-    const isFinished = isExpired || redPacket?.remain <= 0
+    const isFinished = redPacket?.remain <= 0
+
+    // Update current time periodically to keep isExpired accurate
+    useEffect(() => {
+        if (!redPacket?.expiredAt) return
+
+        const expiredAt = new Date(redPacket.expiredAt)
+        
+        // If already expired, no need to set up timer
+        // if (expiredAt <= new Date()) return
+
+        // Calculate time until expiration
+        const timeUntilExpiry = expiredAt.getTime() - Date.now()
+        
+        // Set up timer to update exactly when it expires
+        const timeoutId = setTimeout(() => {
+            setCurrentTime(new Date())
+        }, timeUntilExpiry)
+
+        return () => clearTimeout(timeoutId)
+    }, [message, redPacket?.expiredAt])
+
     return {
         state,
         isOpen, 
@@ -97,20 +120,19 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
             }, false);
             if (message.type === 'group' || message.fromAccount !== activeAccount){
                 navigate(`/red-packet-result?id=${message._id}`); // only for group red packet or if not from the sender
+                return
             }
         }
-    }, [isOpen, data, message._id, navigate]);
+        if (visible && message.fromAccount === activeAccount && message.type === "group"){
+            navigate(`/red-packet-result?id=${message._id}`); 
+        }
+        else if (visible && isExpired && message.type === "group"){
+            navigate(`/red-packet-result?id=${message._id}`); 
+        }
+    }, [isOpen, data, message._id, navigate, isExpired]);
     
-    return  <Modal
-        
-        closeOnMaskClick
-        showCloseButton
-        bodyStyle={{
-            backgroundColor: "rgb(203, 64, 64)",
-            backgroundImage: "url(https://bucket.nanwallet.com/logo/45-degree-fabric-dark.png)"
-        }}
-        actions={[
-            {
+    const actions = []
+        actions.push({
                 key: 'confirm',
                 style: {"backgroundColor":"#f7d672","borderRadius":"50%","width":"80px","height":"80px","WebkitBoxShadow":"0px 0px 15px 5px rgba(0, 0, 0, 0.54)","boxShadow":"0px 0px 15px 0px rgba(0, 0, 0, 0.54)","border":"none", color: "black", margin: "auto"},
                 text: <>
@@ -138,9 +160,17 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                     navigate(`/red-packet-result?id=`+ message._id)
                 }
                 
-            },
-        ]}
-        visible={visible}
+            })
+    return  <Modal
+        
+        closeOnMaskClick
+        showCloseButton
+        bodyStyle={{
+            backgroundColor: "rgb(203, 64, 64)",
+            backgroundImage: "url(https://bucket.nanwallet.com/logo/45-degree-fabric-dark.png)"
+        }}
+        actions={actions}
+        visible={visible && !isExpired}
         onClose={() => {
             setVisible(false);
         }}
@@ -151,7 +181,11 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
             <ProfilePicture address={message.fromAccount} size={32} /> <ProfileName address={message.fromAccount} />
             </div>
             {
-                messageDecrypted ? 
+                isExpired ?
+                <div style={{textAlign: "center", marginTop: 16, fontSize: 24, fontWeight: "bold", color: "#dbdbdb"}}>
+            Red Packet Expired
+            </div> :
+                 messageDecrypted ? 
             <div style={{textAlign: "center", marginTop: 16, fontSize: 24, fontWeight: "bold", color: "#dbdbdb"}}>
             {messageDecrypted}
             </div> : 
@@ -221,7 +255,7 @@ const MessageRedPacket = ({ message, side, hash }) => {
             <div className="flex items-center gap-2 ">
                 <div>
                     {
-                        isOpen ? <RedPacketIconOpened width={32} />: <RedPacketIcon width={32} />
+                        (isOpen || isExpired) ? <RedPacketIconOpened width={32} />: <RedPacketIcon width={32} />
                     }
                 </div>
                 <div className="flex flex-col">
@@ -236,6 +270,7 @@ const MessageRedPacket = ({ message, side, hash }) => {
 
                 }}> 
                 {isOpen ? "Opened" : ""}
+                {!isOpen && isExpired ? "Expired" : ""}
                 </div>
                 </div>
             </div>
@@ -258,4 +293,4 @@ const MessageRedPacket = ({ message, side, hash }) => {
     )
 }
 
-export default memo(MessageRedPacket);
+export default MessageRedPacket;

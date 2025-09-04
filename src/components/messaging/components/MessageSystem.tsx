@@ -27,6 +27,10 @@ import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
 import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
 
+const RedPacketLink = ({id}) => {
+  return <Link to={"/red-packet-result?id=" + id} style={{color: "var(--gold-color)"}}>Red Packet</Link>
+}
+
 const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   const { activeAccount } = useWallet();
 
@@ -37,14 +41,24 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   if (message.content.includes('recalled')) {
     actionMessage = 'recalled a message';
   }
-  if (message.content.includes('created')) {
+  else if (message.content.includes('created')) {
     actionMessage = 'created the group';
   }
-  if (message.content.includes('opened')) {
+  else if (message.content.includes('opened')) {
     redPacketId = message.content.split(' ')[2]
     actionMessage = 'opened red packet from';
   }
-  if (message.content.includes('transferred')) {
+  else if (message.content.includes('expired')) {
+    redPacketId = message.content.split(' ')[2]
+    if (raw) {
+      actionMessage = <>Red Packet Expired</>
+    }
+    else{
+      actionMessage = <><RedPacketLink id={redPacketId} /> Expired</>
+    }
+    action = "expired"
+  }
+  else if (message.content.includes('transferred')) {
     actionMessage = `transferred ${message.content.split(' ')[2]} ${message.content.split(' ')[3]} to`;
   }
   
@@ -72,9 +86,7 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
     );
     }
     if (action === "opened"){ // red packet
-    return <div className="text-center m-4" style={{  }}>  <RedPacketIcon width={18} style={{verticalAlign: "baseline"}}/> <ProfileName address={addresses?.[0]} /> opened <Link 
-    to={"/red-packet-result?id=" + redPacketId}
-    style={{color: "var(--gold-color)"}}>red packet</Link> from {" "}
+    return <div className="text-center m-4" style={{  }}>  <RedPacketIcon width={18} style={{verticalAlign: "baseline"}}/> <ProfileName address={addresses?.[0]} /> opened <RedPacketLink id={redPacketId} /> from {" "}
           <ProfileName address={addresses?.[1]} />
       </div>
     }

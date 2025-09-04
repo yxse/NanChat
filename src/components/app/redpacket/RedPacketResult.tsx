@@ -55,7 +55,7 @@ const RedPacketResult = ({ side, hash }) => {
   
   // Custom hooks
   const {message: messageDecrypted, sticker} = useMessageRedpacket({message: message})
-  const {isFinished} = useRedpacketState(message)
+  const {isFinished, isExpired} = useRedpacketState(message)
   useHideNavbarOnMobile(true)
 
   // NOW do your conditional logic and early returns
@@ -73,8 +73,7 @@ const RedPacketResult = ({ side, hash }) => {
   const ticker = message?.redPacket?.ticker
 
   const claims = message?.redPacket?.openedBy;
-  const totalDuration = claims?.length > 1 
-    ? new Date(claims[claims.length - 1].ts) - new Date(message.timestamp)
+  const totalDuration = claims?.length > 0 ? new Date(claims[claims.length - 1].ts) - new Date(message.timestamp)
     : 0;
 
   const totalDurationMinutes = Math.floor(totalDuration / (1000 * 60));
@@ -84,10 +83,16 @@ const RedPacketResult = ({ side, hash }) => {
   const isGroup = message.type === "group"
   let resultHeader = ""
   if (isFinished){
-    resultHeader = `${message?.redPacket?.openedBy?.length} Red Packet(s) opened (${+rawToMega(ticker, totalAmount)} ${ticker} in total) in ${openedIn}`
+    resultHeader = `${message?.redPacket?.openedBy?.length} Red Packet(s) opened (${formatAmountMega(rawToMega(ticker, totalAmount), ticker)} ${ticker} in total) in ${openedIn}`
   }
   else{
-    resultHeader = message?.redPacket?.openedBy?.length + " Red Packet(s) opened. " + message?.redPacket?.remain + " remaining."
+    resultHeader = message?.redPacket?.openedBy?.length + " Red Packet(s) opened. "
+    if (!isExpired){
+       resultHeader += message?.redPacket?.remain + " remaining."
+    }
+    else{
+       resultHeader += " Red Packet Expired."
+    }
   }
   return (
     <div
@@ -132,6 +137,9 @@ const RedPacketResult = ({ side, hash }) => {
       {
         claim &&
         <RedPacketReward amountRaw={claim.amount} messageDecrypted={messageDecrypted} ticker={ticker} sticker={sticker}  fromAccount={message.fromAccount}/>
+      }
+      {
+        !isGroup && isExpired && <div style={{textAlign: "center", color: "var(--adm-color-text-secondary)", marginTop: 32}}>Red Packet expired and refunded.</div>
       }
       {
         isGroup && 
