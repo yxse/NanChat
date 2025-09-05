@@ -88,12 +88,14 @@ export const useRedpacketState = (message) => {
 }
 
 const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sticker}) => {
-    const { mutate } = useSWRConfig()
     const {data, mutate: mutateRedPacket} = useSWR(visible ? '/redpacket?id=' + message._id : null, fetcherMessages) // only fetch when visible for optimization
     const {state, isOpen, isExpired} = useRedpacketState(data)
     const navigate = useNavigate()
     const {mutate: mutateMessages} = useChat(message.chatId)
     const {activeAccount} = useWallet()
+    const navigateToResult = () => {
+        navigate(`/red-packet-result?id=${message._id}`, {viewTransition: false})
+    }
     useEffect(() => {
         debugger
         if (isOpen && data && !data?.error) {
@@ -119,15 +121,15 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                 });
             }, false);
             if (message.type === 'group' || message.fromAccount !== activeAccount){
-                navigate(`/red-packet-result?id=${message._id}`); // only for group red packet or if not from the sender
+                navigateToResult() // only for group red packet or if not from the sender
                 return
             }
         }
         if (visible && message.fromAccount === activeAccount && message.type === "group"){
-            navigate(`/red-packet-result?id=${message._id}`); 
+            navigateToResult() 
         }
         else if (visible && isExpired && message.type === "group"){
-            navigate(`/red-packet-result?id=${message._id}`); 
+            navigateToResult() 
         }
     }, [isOpen, data, message._id, navigate, isExpired]);
     
@@ -155,9 +157,13 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                     // else{
                     //     await mutate("/redpacket?id=" + message._id)
                     // }
-                    await mutate("/redpacket?id=" + message._id, r)
+                    navigateToResult()
+                    await mutateRedPacket() 
+                    // await mutateRedPacket(r) // this is causing navigation glitch on ios
                     // navigate(`/red-packet-result?id=`+ message._id, {state: {message: redPacketMessage, stickerId: message.redPacket.stickerId, id: message._id, ticker: ticker}})
-                    navigate(`/red-packet-result?id=`+ message._id)
+                    // navigateToResult()
+
+                    
                 }
                 
             })

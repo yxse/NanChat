@@ -128,14 +128,16 @@ const ChatInputRedPacket = ({ filterTickers =[], chat }) => {
             setActiveTicker(ticker);
             setVisibleSend(true);
             if (isMobile || isTablet) {
-              if (document.startViewTransition) {
-                    document.startViewTransition(() => {
-                      navigate(`/${ticker}/red-packet?chatId=${chat.id}`, {unstable_viewTransition: true})
-                    })
-                }
-                else{
-                    navigate(`/${ticker}/red-packet?chatId=${chat.id}`);
-                }
+              navigate(`/${ticker}/red-packet?chatId=${chat.id}`);
+              // view transition bugged on ios cause probably of network select popup
+              // if (document.startViewTransition) {
+              //       document.startViewTransition(() => {
+              //         navigate(`/${ticker}/red-packet?chatId=${chat.id}`, {unstable_viewTransition: false, viewTransition: false})
+              //       })
+              //   }
+              //   else{
+              //       navigate(`/${ticker}/red-packet?chatId=${chat.id}`);
+              //   }
             }
             setVisible(false);
           }} /></div>

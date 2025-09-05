@@ -170,6 +170,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
           style={successPopupOpen ? {display: "none"} : {}}
             form={form}
             onFinish={async (values) => {
+              Keyboard.hide()
                dataPrepareSend = wallet.wallets[ticker].prepareSend({
                 source: activeAccount,
                 destination: config?.account,
@@ -185,7 +186,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
                 <div className="text-3xl mb-4">
                   {amountTotal} {ticker}
                 </div>
-              <div className="popup-primary-button" style={{
+              <div className="" style={{
                 // paddingTop: (height <= 745 || !isMobile) ? 0 // on small screen, no padding to prevent overflow, padding is used to prevent content shifting when keyboard is opened
                 //             : 360,
                           }}>
@@ -303,7 +304,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
               className="form-list"
                 name={"message"}
                 >
-                  <Input style={{  }} type="text" placeholder="Best wishes!" autoComplete="off" />
+                  <Input style={{  }} type="text" placeholder="Best wishes!" autoComplete="off" enterKeyHint="send"/>
                 </Form.Item>
              </Form>
 
