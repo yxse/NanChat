@@ -58,6 +58,7 @@
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-deep-link": "~2",
     "@tauri-apps/plugin-notification": "~2",
+    "@tauri-apps/plugin-updater": "~2",
     "@teamhive/capacitor-webview-overlay": "https://github.com/Benskalz/capacitor-webview-overlay.git#b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a",
     "@yudiel/react-qr-scanner": "^2.0.1",
     "@zxcvbn-ts/core": "^3.0.4",

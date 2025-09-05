@@ -1,7 +1,7 @@
-use tauri_plugin_deep_link::DeepLinkExt;
-use tauri::{AppHandle, Manager};
 use keyring::{error::Error as KeyringError, Entry as KeyringEntry};
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Manager};
+use tauri_plugin_deep_link::DeepLinkExt;
 
 // Custom error type to handle conversion
 #[derive(Debug, Serialize, Deserialize)]
@@ -39,14 +39,15 @@ fn delete_secret(service: String, username: String) -> Result<(), AppError> {
     Ok(())
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
-            let _ = app.get_webview_window("main")
-                       .expect("no main window")
-                       .set_focus();
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
         }))
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_deep_link::init())
@@ -59,7 +60,11 @@ pub fn run() {
             app.deep_link().register("xdg")?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![save_secret, get_secret, delete_secret])
+        .invoke_handler(tauri::generate_handler![
+            save_secret,
+            get_secret,
+            delete_secret
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

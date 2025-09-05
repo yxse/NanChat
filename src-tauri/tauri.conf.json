@@ -22,6 +22,7 @@
     }
   },
   "bundle": {
+    "createUpdaterArtifacts": true,
     "active": true,
     "targets": "all",
     "icon": [
@@ -41,6 +42,12 @@
       "desktop": {
         "schemes": ["nano", "web-nano", "ban", "nanauth", "nan"]
       }
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzRkY1QjE3OTNCMUI3ODMKUldTRHQ3R1RGMXYvMHhJb21sSjV2VVdxS1NuWnd3dEs1Z21HVWFpR3FwS0N4RmJ4RUtrOUZKeW0K",
+      "endpoints": [
+        "https://github.com/yxse/nanchat/releases/latest/download/latest.json"
+      ] 
     }
   }
 }
