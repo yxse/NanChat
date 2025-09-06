@@ -36,6 +36,7 @@ import { useInviteFriends } from "../hooks/use-invite-friends";
 import { useChats } from "../hooks/use-chats";
 import { useSWRConfig } from "swr"
 import { unstable_serialize } from 'swr/infinite'
+import { debounce } from 'lodash';
 
 const ChatRoom: React.FC<{}> = ({  }) => {
     const {mutate: mutateInifinite} = useSWRConfig();
@@ -55,6 +56,24 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
     // const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
     const {width} = useWindowDimensions();
+    //   const { ref: messagesEndRef, setScroll } = useScrollRestoration('contacts', {
+    //     persist: 'localStorage',
+    //   });
+    
+    const scrollKeyStore = `scrollTop-chat-room-` + account
+    // const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
+
+const saveScrollPosition = useCallback(
+  debounce((position) => {
+    try {
+      localStorage.setItem(scrollKeyStore, position.toString());
+      console.log('Scroll position saved:', position);
+    } catch (error) {
+      console.error('Error saving scroll position to localStorage:', error);
+    }
+  }, 200), // 200ms debounce time - adjust as needed
+  []
+);
     const { inviteFriends } = useInviteFriends();
     const {
         messages,
@@ -279,6 +298,27 @@ const ChatRoom: React.FC<{}> = ({  }) => {
         scrollToBottom();
     }, 0);
 }, [scrollToBottom]); 
+  useEffect(() => {
+      return () => {
+        saveScrollPosition.cancel();
+      };
+    }, [saveScrollPosition]);
+useEffect(() => {
+      // restore scroll position
+      const scrollTop = localStorage.getItem(scrollKeyStore);
+      if (scrollTop) {
+          const scrollTopInt = parseInt(scrollTop);
+          if (!isNaN(scrollTopInt)) {
+              if (infiniteScrollRef.current) {
+                setTimeout(() => {
+                    (infiniteScrollRef.current as any).scrollTo({top: scrollTopInt});
+                }, 0)
+              }
+          }
+      }
+      return () => {
+      }
+      }, [infiniteScrollRef]);
     const StartConversation = ({address}) => {
         if (!accountExists) return null;
         return (  <div
@@ -497,6 +537,7 @@ const ChatRoom: React.FC<{}> = ({  }) => {
                                     inverse={true}
                                     // scrollThreshold={"300px"} // this cause scroll flickering issue
                                     onScroll={(e) => {
+                                        saveScrollPosition(e.target.scrollTop)
                                         //disable auto scroll when user scrolls up
                                         // console.log(e.target.scrollTop);
                                         if (e.target.scrollTop > 0) {
