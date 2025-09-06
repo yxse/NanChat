@@ -16,3 +16,4 @@ android/.idea/deploymentTargetSelector.xml
 .DS_Store
 *.keystore
 yarn-error.log
+myapp.key
