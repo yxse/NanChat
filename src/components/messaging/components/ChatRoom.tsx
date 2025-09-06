@@ -60,7 +60,7 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     //     persist: 'localStorage',
     //   });
     
-    const scrollKeyStore = `scrollTop-chat-room-` + account
+    const scrollKeyStore = `scrollTop-chat-room`
     // const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
 
 const saveScrollPosition = useCallback(

@@ -162,6 +162,7 @@ const saveScrollPosition = useCallback(
 );
   // Clean up the debounce on unmount
   useEffect(() => {
+    localStorage.removeItem('scrollTop-chat-room') // reset scroll chat room
       return () => {
         saveScrollPosition.cancel();
       };
