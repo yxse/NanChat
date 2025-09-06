@@ -1,4 +1,5 @@
 {
+  "sendRedPackets": "Envoyer des Enveloppes Rouges",
   "voting": "Vote",
   "notVoting": "Ne vote pas",
   "currentlyRepresentedBy": "Actuellement représenté par",

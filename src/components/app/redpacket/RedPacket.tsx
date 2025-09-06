@@ -154,7 +154,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
     //  className="divide-y divide-solid divide-gray-700 space-y-6"
      >
           <NavBar onBack={() => navigate(-1)}>
-            {t('send')} Paquet(s) Rouge
+            {t('sendRedPackets')}
             </NavBar>
       <div
       style={{maxWidth: 500, backgroundColor: "var(--main-background-color)"}}

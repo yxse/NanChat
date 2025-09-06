@@ -1,4 +1,5 @@
 {
+  "sendRedPackets": "Send Red Packets",
   "redPacket": "Red Packet",
   "randomAmount": "Random Amount",
   "amountEach": "Amount each",

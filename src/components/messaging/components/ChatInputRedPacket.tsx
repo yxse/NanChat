@@ -118,7 +118,7 @@ const ChatInputRedPacket = ({ filterTickers =[], chat }) => {
         >
           <div>
           <div>
-            <div className="text-2xl  text-center p-2">Red Packet</div>
+            <div className="text-2xl  text-center p-2">{t('redPacket')}</div>
           </div>
           <div style={{maxHeight: "50vh", overflowY: "auto"}}>
           <NetworkList
