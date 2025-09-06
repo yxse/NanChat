@@ -95,7 +95,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     const [fileMeta, setFileMeta] = useState(file.meta)
     const [canDecrypt, setCanDecrypt] = useState(true)
     const {activeAccount, activeAccountPk} = useWallet()
-    
+    console.log(file.meta)
     let targetAccount = message.fromAccount === activeAccount 
             ? message.toAccount
             : message.fromAccount;
@@ -133,7 +133,9 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
             }
         } catch (error) {
             console.error("Error processing worker response:", error);
+            if (!error.message.contains('File is already being saved')){
                 setCanDecrypt(false);
+            }
         }
     }, [file.meta?.name, file.meta?.type]);
 
@@ -185,11 +187,11 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                 decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
             }
             
-            console.log('decrypting file', fileID, message, decryptionKey, fileIDsBeingDecrypted)
+            // console.log('decrypting file', fileID, message, decryptionKey, fileIDsBeingDecrypted)
             
             // Start the worker with the necessary data
             if (fileIDsBeingDecrypted.has(fileID)) return
-            
+            fileIDsBeingDecrypted.add(fileID)
             worker.postMessage({
                 file,
                 targetAccount,
@@ -197,7 +199,6 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                 message,
                 type: 'decrypt',
             });
-            fileIDsBeingDecrypted.add(fileID)
         }
         
         if (isAccepted && activeAccountPk){
@@ -219,7 +220,36 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     const fileType = fileMeta?.type
     const fileSize = fileMeta?.size
     const fileName = fileMeta?.name
+   let heightImage = +(maxHeight.split('px')[0])
+let widthImage = fileMeta?.width
+let heightConstrained = false
 
+// Check if height needs to be constrained
+if(fileMeta?.height < heightImage){
+    heightImage = fileMeta?.height
+} else {
+    heightConstrained = true
+}
+
+// Calculate width based on aspect ratio if height was constrained
+if (heightConstrained && fileMeta?.height && fileMeta?.width) {
+    const aspectRatio = fileMeta.width / fileMeta.height
+    widthImage = heightImage * aspectRatio
+}
+
+// Check if width needs to be constrained
+const widthChatRoom = document.getElementById('scrollableDiv')?.clientWidth || 500
+const maxWidthAllowed = widthChatRoom - (8*2) - 56 // minus margin and minus pfp
+
+if (widthChatRoom && widthImage > maxWidthAllowed) {
+    widthImage = maxWidthAllowed
+    
+    // If width is constrained, recalculate height to maintain aspect ratio
+    if (fileMeta?.height && fileMeta?.width) {
+        const aspectRatio = fileMeta.height / fileMeta.width
+        heightImage = widthImage * aspectRatio
+    }
+}
     // Early returns for different states
     if (!isAccepted) return (
         <div>
@@ -229,7 +259,6 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
             <div>File blocked because chat not accepted</div>
         </div>
     )
-    
     if (!canDecrypt) return (
         <div>
             <Popover content="File no longer available." trigger="click" mode="dark">
@@ -238,7 +267,13 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         </div>
     )
     
-    if (!decrypted && canDecrypt) return <DotLoading />
+    if (!decrypted && canDecrypt) return <div>
+        {fileMeta.height ? 
+        <Skeleton animated style={{"--height": `${heightImage}px`, "--border-radius": "8px", "--width": `${widthImage}px`}}/>
+        : 
+        <Skeleton animated style={{"--height": `75px`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
+        }
+    </div>
 
     // Main render - only when decrypted exists
     return (

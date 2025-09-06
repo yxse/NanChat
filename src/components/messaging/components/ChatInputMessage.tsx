@@ -422,6 +422,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             name: file.name,
             type: file.type,
             size: file.size,
+            ...file?.imageDimensions
           }
         }
       };

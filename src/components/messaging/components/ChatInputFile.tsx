@@ -79,7 +79,16 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         if (!beforeUpload(file)) {
             return;
         }
-        
+         const isImage = file.type.startsWith('image');
+         let imageDimensions = undefined
+        // Get image dimensions if it's an image
+        if (isImage) {
+            try {
+            imageDimensions = await getImageDimensions(file);
+            } catch (error) {
+            console.warn('Could not get image dimensions:', error);
+            }
+        }
         setLoading(true);
         try {
             const formData = new FormData();
@@ -108,10 +117,15 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                         icon: 'loading',
                         content: 'Uploading file...',
                     });
+                    debugger
                     formData.append('file', new Blob([encrypted], { type: file.type }));
                     formData.append('fileName', file.name);
                     formData.append('fileType', file.type);
                     formData.append('fileSize', file.size);
+                    if (imageDimensions){
+                        formData.append('imageHeight', imageDimensions.height);
+                        formData.append('imageWidth', imageDimensions.width);
+                    }
                     formData.append('account', activeAccount);
                     
                     const response = await fetch(import.meta.env.VITE_PUBLIC_BACKEND +
@@ -147,6 +161,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                         name: file.name,
                         type: file.type,
                         size: file.size,
+                        imageDimensions: imageDimensions
                     });
                     
                     Toast.show({
@@ -187,44 +202,91 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         }
     };
     
-    const confirmSend = ({ droppedFiles }) => {
-      Modal.confirm({
-        title: 'Send File',
-        confirmText: 'Send',
-        cancelText: 'Cancel',
-        content: <div>
-          {
-            // only for images
-            droppedFiles[0].type.startsWith('image') &&
+    const confirmSend = async ({ droppedFiles }) => {
+  debugger;
+  
+  const file = droppedFiles[0];
+  const objectURL = URL.createObjectURL(file);
+  
+  let imageDimensions = null;
+  
+  const isImage = file.type.startsWith('image');
+
+  
+  const cleanup = () => {
+    URL.revokeObjectURL(objectURL);
+  };
+
+  Modal.confirm({
+    title: 'Send File',
+    confirmText: 'Send',
+    cancelText: 'Cancel',
+    content: (
+      <div>
+        {isImage && (
+          <div>
             <img 
-            onClick={() => {
-              ImageViewer.show({image: URL.createObjectURL(droppedFiles[0])})
-            }}
-            src={URL.createObjectURL(droppedFiles[0])} style={{maxWidth: 200, maxHeight: 200}}/>
-          }
-          <p>{droppedFiles[0].name}</p>
-          <p
-          style={{color: 'var(--adm-color-text-secondary)'}}
-          >{formatSize(droppedFiles[0].size)}</p>
-          <div className="flex items-center space-x-2 text-sm mt-2" style={{color: 'var(--adm-color-text-secondary)'}}>
-            <LockOutline  style={{marginRight: 8}}/> File will be end-to-end encrypted. 
+              onClick={() => {
+                ImageViewer.show({ image: objectURL });
+              }}
+              src={objectURL} 
+              style={{ maxWidth: 200, maxHeight: 200, cursor: 'pointer' }}
+              alt={file.name}
+            />
           </div>
-        </div>,
-        onConfirm: () => {
-          if (droppedFiles && droppedFiles.length > 0) {
-            const file = droppedFiles[0];
-            if (beforeUpload(file)) {
-                const droppedFile = {
-                    url: URL.createObjectURL(file),
-                    file: file,
-                };
-                setFileList([droppedFile]);
-                handleUpload(file);
-            }
+        )}
+        <p>{file.name}</p>
+        <p style={{ color: 'var(--adm-color-text-secondary)' }}>
+          {formatSize(file.size)}
+        </p>
+        <div 
+          className="flex items-center space-x-2 text-sm mt-2" 
+          style={{ color: 'var(--adm-color-text-secondary)' }}
+        >
+          <LockOutline style={{ marginRight: 8 }} /> 
+          File will be end-to-end encrypted.
+        </div>
+      </div>
+    ),
+    onConfirm: () => {
+      if (droppedFiles && droppedFiles.length > 0) {
+        if (beforeUpload(file)) {
+          const droppedFile = {
+            url: objectURL,
+            file: file,
+          };
+          setFileList([droppedFile]);
+          handleUpload(file);
         }
       }
-    });
-    }
+    },
+    onCancel: cleanup,
+    afterClose: cleanup
+  });
+};
+
+// Helper function for getting image dimensions
+const getImageDimensions = (file) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({
+        width: img.naturalWidth,
+        height: img.naturalHeight
+      });
+    };
+    
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    
+    img.src = url;
+  });
+};
     // Function to handle drag and drop
     const handleDrop = (e) => {
         e.preventDefault();

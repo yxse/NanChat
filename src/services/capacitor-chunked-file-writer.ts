@@ -266,6 +266,7 @@ export async function backupWalletICloud(encryptedWalletTxt, filename) {
 }
 
 
+export let fileIDsBeingDecrypted = new Set();
 export let fileIDsBeingSaved = new Set();
 /**
  * Writes a Uint8Array to a file in chunks using base64 encoding with Capacitor
@@ -339,7 +340,7 @@ export async function readFileToBlobUrl(fileId) {
       return null;      
     }
     const uri = `${(await Filesystem.getUri({ path: fileId, directory: Directory.Data })).uri}`;
-    let converted = await Capacitor.convertFileSrc(uri);
+    let converted = Capacitor.convertFileSrc(uri);
     
     converted = converted.replace(import.meta.env.VITE_PUBLIC_SERVER_URL, 'https://localhost'); // only usefull when using dev server
     console.log('File read successfully:', uri, converted);
