@@ -47,7 +47,7 @@ export default function ChangeRep() {
 
   async function changeRep(ticker, rep) {
     await wallet.wallets[ticker].change({
-      account: activeAccount,
+      account: convertAddress(activeAccount, ticker),
       newRep: rep,
     });
   }
