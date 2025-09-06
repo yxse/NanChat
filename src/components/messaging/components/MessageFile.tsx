@@ -1,5 +1,5 @@
 import { box } from "multi-nano-web";
-import { memo, useContext, useEffect, useMemo, useState } from "react";
+import { memo, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { useWallet, WalletContext } from "../../Popup";
 import { Card, DotLoading, ImageViewer, Modal, Popover, Skeleton, Toast } from "antd-mobile";
@@ -15,7 +15,7 @@ import { decryptGroupMessage, getSharedKey } from "../../../services/sharedkey";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
-import { readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
+import { fileIDsBeingDecrypted, readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
 import { setData } from "../../../services/database.service";
 import { dangerousExtensions } from "../utils";
 import { useChats } from "../hooks/use-chats";
@@ -87,6 +87,7 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
     }
   };
 
+
 const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" }) => {
     const {chat} = useChats(message.chatId)
     const isAccepted = chat?.accepted || deleteMode 
@@ -94,184 +95,219 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     const [fileMeta, setFileMeta] = useState(file.meta)
     const [canDecrypt, setCanDecrypt] = useState(true)
     const {activeAccount, activeAccountPk} = useWallet()
-        let targetAccount = message.fromAccount === activeAccount 
-                ? message.toAccount
-                : message.fromAccount;
-        const isGroupMessage = message?.type === 'group';
-        if (isGroupMessage){
-            targetAccount = message.fromAccount
+    
+    let targetAccount = message.fromAccount === activeAccount 
+            ? message.toAccount
+            : message.fromAccount;
+    const isGroupMessage = message?.type === 'group';
+    if (isGroupMessage){
+        targetAccount = message.fromAccount
+    }
+
+    // Stable callback for handling worker success
+    const handleWorkerSuccess = useCallback(async (e) => {
+        try {
+            if (e.data.status === 'success') {
+                console.log("file save success", e);
+                
+                // Save the file
+                await writeUint8ArrayToFile(
+                    e.data.fileID,
+                    e.data.decrypted, 
+                    {name: file.meta?.name, type: file.meta?.type}
+                );
+                
+                console.log("file saved");
+                
+                    setCanDecrypt(true);
+                    const uri = await readFileToBlobUrl(e.data.fileID);
+                    console.log({uri, decrypted: uri});
+                    
+                    // Use requestAnimationFrame to ensure state update happens in next frame
+                                               setDecrypted(uri);
+
+            } else {
+                // Handle error
+                    setCanDecrypt(false);
+                    console.error("File Decryption failed:", e.data.error);
+            }
+        } catch (error) {
+            console.error("Error processing worker response:", error);
+                setCanDecrypt(false);
         }
-        useEffect(() => {
-            async function decryptFile() {
-                if (!isAccepted) return
-                let fileID = file.url.split('/').pop()
-                let cachedFile = await readFileToBlobUrl(fileID)
-                if (cachedFile) {
+    }, [file.meta?.name, file.meta?.type]);
+
+    // Stable callback for handling worker errors
+    const handleWorkerError = useCallback((error) => {
+        console.error("Worker error:", error);
+            setCanDecrypt(false);
+    }, []);
+    const fileID = file.url.split('/').pop()
+
+    useEffect(() => {
+        let worker = null;
+        
+        async function decryptFile() {
+            if (!isAccepted) return
+            
+            const cachedFile = await readFileToBlobUrl(fileID)
+            
+            if (cachedFile) {
                 console.log('hit file from file system', fileID)
                 setDecrypted(cachedFile)
-                // inMemoryMap.set(fileID, cachedFile)
                 return
-                }
-                else if (deleteMode){
-                  return
-                }
-              
-                    const worker = new Worker(new URL("../../../../src/worker/fileWorker.js", import.meta.url), { type: "module" });
-                    worker.onmessage = async (e) => {
-                      if (e.data.status === 'success') {
-                        // Handle successful decryption
-                        // Toast.show({content: 'saving file', icon: 'loading'});
-                        
-                        await writeUint8ArrayToFile(
-                          e.data.fileID,
-                          e.data.decrypted, 
-                          {name: file.meta?.name, type: file.meta?.type}
-                        );
-                      
-                        
-                        // Toast.show({content: 'file saved', icon: 'success'});
-                        console.log("file saved");
-                        setCanDecrypt(true)
-                        setDecrypted(await readFileToBlobUrl(e.data.fileID));
-                      } else {
-                        // Handle error
-                        setCanDecrypt(false)
-                        console.error("Decryption failed:", e.data.error);
-                        // Toast.show({content: 'Decryption failed', icon: 'fail'});
-                      }
-                      
-                      // Terminate the worker when done
-                      worker.terminate();
-                    };
-                    let decryptionKey = activeAccountPk;
-                    if (isGroupMessage) {
-                        decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
+            }
+            else if (deleteMode){
+                return
+            }
+          
+            worker = new Worker(new URL("../../../../src/worker/fileWorker.js", import.meta.url), { type: "module" });
+            
+            worker.onmessage = (e) => {
+                handleWorkerSuccess(e).finally(() => {
+                    if (worker) {
+                        worker.terminate();
+                        worker = null;
                     }
-                    
-                    console.log('decrypting file', fileID)
-                    // Start the worker with the necessary data
-                    worker.postMessage({
-                      file,
-                      targetAccount,
-                      decryptionKey,
-                      message,
-                      type: 'decrypt',
-                    });
-                    
-                    // Clean up function
-                    return () => {
-                      worker.terminate();
-                    };
-            }
-            if (isAccepted && activeAccountPk){
-                decryptFile()
-            }
+                });
+            };
+            
+            worker.onerror = (error) => {
+                handleWorkerError(error);
+                if (worker) {
+                    worker.terminate();
+                    worker = null;
+                }
+            };
 
-            return () => {
-                ImageViewer.clear() // close the image viewer on unmount
+            let decryptionKey = activeAccountPk;
+            if (isGroupMessage) {
+                decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
             }
-        }, [isAccepted, activeAccountPk])
+            
+            console.log('decrypting file', fileID, message, decryptionKey, fileIDsBeingDecrypted)
+            
+            // Start the worker with the necessary data
+            if (fileIDsBeingDecrypted.has(fileID)) return
+            
+            worker.postMessage({
+                file,
+                targetAccount,
+                decryptionKey,
+                message,
+                type: 'decrypt',
+            });
+            fileIDsBeingDecrypted.add(fileID)
+        }
         
+        if (isAccepted && activeAccountPk){
+            decryptFile()
+        }
 
-        const fileType = fileMeta?.type
-        const fileSize = fileMeta?.size
-        const fileName = fileMeta?.name
-        // if (!file?.url?.startsWith('https://bucket.nanwallet.com/encrypted-files/')) return null
-        if (!isAccepted) return <div>
+        // Cleanup function
+        return () => {
+            fileIDsBeingDecrypted.delete(fileID)
+            if (worker) {
+                worker.terminate();
+                worker = null;
+            }
+            
+            ImageViewer.clear(); // close the image viewer on unmount
+        };
+    }, [isAccepted, activeAccountPk, message.chatId, message.toAccount, handleWorkerSuccess, handleWorkerError])
+
+    const fileType = fileMeta?.type
+    const fileSize = fileMeta?.size
+    const fileName = fileMeta?.name
+
+    // Early returns for different states
+    if (!isAccepted) return (
+        <div>
             <div>
                 {fileMeta?.name} - {formatSize(fileMeta?.size)}
             </div>
             <div>File blocked because chat not accepted</div>
         </div>
-        if (!decrypted && canDecrypt) return <DotLoading />
-        if (!canDecrypt) return <div>
+    )
+    
+    if (!canDecrypt) return (
+        <div>
             <Popover content="File no longer available." trigger="click" mode="dark">
                 <FileWrongOutline fontSize={48} />
             </Popover>
-            </div>
-        return (
-            <div
-            // style={{marginLeft: '10px', marginRight: '10px'}}
-            key={message._id}
-            className={``}
-            // style={{height: '300px'}}
-        > 
-        {
-            !decrypted &&
-            // <DotLoading />
-        <Skeleton animated style={{"--height": maxHeight, "--border-radius": "8px", "--width": maxHeight}}/>
-        }
-        
-            <div
-            style={{
-            }}
-                className={``}
-            >
-               {
-                decrypted &&
-               
-                <p
-                > 
-                {
-                    fileType?.startsWith('image') && 
+        </div>
+    )
+    
+    if (!decrypted && canDecrypt) return <DotLoading />
 
-                    <img
-                    onClick={() => {
-                        ImageViewer.show({image: decrypted})
-                    }}
-                    src={decrypted} style={{
-                        borderRadius: 8,
-                        maxHeight: maxHeight,
-                    }} />
-                }
-                {
-                    fileType?.startsWith('video') && 
-                    <video 
-                    preload="metadata"
-                    controls
-                    style={{
-                        borderRadius: 8,
-                        height: maxHeight,
-                    }}>
-                        <source src={decrypted + '#t=0.05'} // #t=0.05 allows to preview the first frame
-                         type={fileType} />
-                    </video>
-                }
-                {
-                    !fileType?.startsWith('image') && !fileType?.startsWith('video') && decrypted &&
-                    <Card>
-                        <div 
-                         onClick={async () => {
-                            await downloadFile(decrypted, fileName, fileType, file.url.split('/').pop())
-                         }}
-                        style={{display: 'flex', flexDirection: 'row', cursor: 'pointer', alignItems: 'center', justifyContent: 'space-between', gap: 8}}>
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <b
-                            style={{
-                                fontSize: 16,
-                                color: 'var(--adm-color-text)',
+    // Main render - only when decrypted exists
+    return (
+        <div key={message._id} className={``}>
+            <div className={``}>
+                <p> 
+                    {fileType?.startsWith('image') && 
+                        <img
+                            onClick={() => {
+                                ImageViewer.show({image: decrypted})
                             }}
-                            >{fileName}</b>
-                            <div style={{color: 'var(--adm-color-text-secondary)'}}>
-                                {formatSize(fileSize)}
+                            src={decrypted} 
+                            style={{
+                                borderRadius: 8,
+                                maxHeight: maxHeight,
+                            }} 
+                        />
+                    }
+                    {fileType?.startsWith('video') && 
+                        <video 
+                            preload="metadata"
+                            controls
+                            style={{
+                                borderRadius: 8,
+                                height: maxHeight,
+                            }}
+                        >
+                            <source src={decrypted + '#t=0.05'} type={fileType} />
+                        </video>
+                    }
+                    {!fileType?.startsWith('image') && !fileType?.startsWith('video') && 
+                        <Card>
+                            <div 
+                                onClick={async () => {
+                                    await downloadFile(decrypted, fileName, fileType, file.url.split('/').pop())
+                                }}
+                                style={{
+                                    display: 'flex', 
+                                    flexDirection: 'row', 
+                                    cursor: 'pointer', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'space-between', 
+                                    gap: 8
+                                }}
+                            >
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <b style={{
+                                        fontSize: 16,
+                                        color: 'var(--adm-color-text)',
+                                    }}>
+                                        {fileName}
+                                    </b>
+                                    <div style={{color: 'var(--adm-color-text-secondary)'}}>
+                                        {formatSize(fileSize)}
+                                    </div>
+                                </div>
+                                <a target="_blank">
+                                    <DownlandOutline
+                                        color="var(--adm-color-text)"
+                                        fontSize={24} 
+                                    />
+                                </a>
                             </div>
-                        </div>
-                        <a 
-                       
-                        target="_blank">
-                            <DownlandOutline
-                            color="var(--adm-color-text)"
-                             fontSize={24} />
-                        </a>
-                        </div>
-                    </Card>
-                }
-
+                        </Card>
+                    }
                 </p>
-             }
             </div>
         </div>
-        )
-    }   
+    )
+}   
 
 export default MessageFile;
