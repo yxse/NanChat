@@ -80,7 +80,7 @@ const RedPacketResult = ({ side, hash }) => {
   const totalDurationSeconds = Math.floor(totalDuration / 1000);
 
   const openedIn = totalDurationMinutes > 1 ? `${totalDurationMinutes} minutes` : `${totalDurationSeconds} seconds`
-  const isGroup = message.type === "group"
+  const isGroup = message?.type === "group"
   let resultHeader = ""
   if (isFinished){
     resultHeader = `${message?.redPacket?.openedBy?.length} Red Packet(s) opened (${formatAmountMega(rawToMega(ticker, totalAmount), ticker)} ${ticker} in total) in ${openedIn}`
@@ -115,7 +115,7 @@ const RedPacketResult = ({ side, hash }) => {
           <div>
             {/* <img src={networks[ticker]?.logo} style={{width: '32px', height: '32px', display: "inline-block"}} />  */}
             <div style={{display: 'flex', gap: 4, alignItems: 'center', justifyContent: "center", fontWeight: "bold"}}>
-            <ProfilePicture address={message.fromAccount} size={32} /> <ProfileName address={message.fromAccount} />
+            <ProfilePicture address={message?.fromAccount} size={32} /> <ProfileName address={message?.fromAccount} />
             </div>
             <div style={{color: "var(--adm-color-text-secondary)"}}>
             {
@@ -136,7 +136,7 @@ const RedPacketResult = ({ side, hash }) => {
             }
       {
         claim &&
-        <RedPacketReward amountRaw={claim.amount} messageDecrypted={messageDecrypted} ticker={ticker} sticker={sticker}  fromAccount={message.fromAccount}/>
+        <RedPacketReward amountRaw={claim.amount} messageDecrypted={messageDecrypted} ticker={ticker} sticker={sticker}  fromAccount={message?.fromAccount}/>
       }
       {
         !isGroup && isExpired && <div style={{textAlign: "center", color: "var(--adm-color-text-secondary)", marginTop: 32}}>Red Packet expired and refunded.</div>
