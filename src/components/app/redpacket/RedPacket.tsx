@@ -135,7 +135,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
     inputRefMessage.sendRedPacketMessage(ticker,hash, amountMode, quantity || 1, form.getFieldValue("message") || "Best wishes!", sticker);
     debugger
     if (location.pathname.includes('/red-packet')){ // return back to chat only if we were on the /red-packet path because on larger screen we use modal popup and so no need to go back
-      navigate("/chat/" + chatId, {replace: true});
+      navigate(-1, {replace: true});
     }
     if (onPacketSent) {
       onPacketSent();
