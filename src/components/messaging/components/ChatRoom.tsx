@@ -1,5 +1,5 @@
 import { BellMuteOutline, LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
@@ -309,10 +309,11 @@ useEffect(() => {
       if (scrollTop) {
           const scrollTopInt = parseInt(scrollTop);
           if (!isNaN(scrollTopInt)) {
+            // debugger
               if (infiniteScrollRef.current) {
-                setTimeout(() => {
-                    (infiniteScrollRef.current as any).scrollTo({top: scrollTopInt});
-                }, 0)
+                  (infiniteScrollRef.current as any).scrollTo(0, scrollTopInt);
+                // setTimeout(() => {
+                // }, 0)
               }
           }
       }

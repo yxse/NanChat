@@ -97,9 +97,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
         navigate(`/red-packet-result?id=${message._id}`, {viewTransition: false})
     }
     useEffect(() => {
-        debugger
         if (isOpen && data && !data?.error) {
-            debugger
             mutateMessages(currentPages => {
                 if (!currentPages) return currentPages;
                 const key = cacheKeyPrefix(message.chatId) + message.height

@@ -329,6 +329,7 @@ export async function readFileToBlobUrl(fileId) {
           path: fileId
         });
         let url = URL.createObjectURL(fileInfo.data);
+        console.log('File read successfully:', url);
         return url;
       } catch (error) {
         return null; 
