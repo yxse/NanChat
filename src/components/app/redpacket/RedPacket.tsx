@@ -174,7 +174,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
                dataPrepareSend = wallet.wallets[ticker].prepareSend({
                 source: activeAccount,
                 destination: config?.account,
-                amount: megaToRaw(ticker, amount),
+                amount: megaToRaw(ticker, amountTotal),
               })
               setDataSend(dataPrepareSend)
               setConfirmPopupOpen(true);
@@ -327,10 +327,10 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
               <div className="text-xl  text-center p-2 mb-2">{t('sending')}</div>
                 <div className="text-center">
                   <div className="text-2xl">
-                     {form.getFieldValue("amount")} {ticker}
+                     {amountTotal} {ticker}
                   </div>
                   <div className="text-base" style={{color: "var(--adm-color-text-secondary)"}}>
-                    ~<ConvertToBaseCurrency amount={form.getFieldValue("amount")} ticker={ticker} />
+                    ~<ConvertToBaseCurrency amount={amountTotal} ticker={ticker} />
                   </div>
                 </div>
                 <Divider />
@@ -357,14 +357,14 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
                 </div>
                 <PinAuthPopup
                 location={"send"}
-                description={t('sendButton') + ` ${form.getFieldValue("amount")} ${ticker}`}
+                description={t('sendButton') + ` ${amountTotal} ${ticker}`}
                 visible={pinVisible}
                 setVisible={setPinVisible}
                 onAuthenticated={async () => {
                                   await sendTransaction({
                                     fromAddress: activeAccount,
                                     toAddress: config?.account,
-                                    amount: form.getFieldValue("amount"),
+                                    amount: amountTotal,
                                     ticker,
                                     wallet,
                                     form,
