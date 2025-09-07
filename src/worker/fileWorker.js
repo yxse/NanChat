@@ -14,8 +14,16 @@ self.onmessage = async function(e) {
       // Note: You'll need to implement cache reading logic for workers
       // or move that to the main thread
       let data = await fetch(file.url);
-      let fileData = await data.bytes();
-      
+      let fileData;
+
+      try {
+        fileData = await response.bytes(); 
+      } catch (error) {
+        // fallback if byte not available (eg on iOS 17.5)
+        const arrayBuffer = await data.arrayBuffer();
+        fileData = new Uint8Array(arrayBuffer);
+      }
+        
       console.log("Decrypting file", file.url);
       console.time("decrypt file");
       let decrypted = box.decryptFile(fileData, targetAccount, decryptionKey);
