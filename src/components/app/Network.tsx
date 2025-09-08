@@ -60,6 +60,7 @@ import { useHideNavbarOnMobile } from "../../hooks/use-hide-navbar";
 import { ButtonActionCircle } from "./wallet/SendReceive";
 import { fetcherMessages } from "../messaging/fetcher";
 import { useTranslation } from 'react-i18next';
+import BigNumber from "bignumber.js";
 // const WebviewOverlayPlugin = registerPlugin<IWebviewOverlayPlugin>('WebviewOverlayPlugin');
 
 export const fetchBalance = async (ticker: string, account: string) => {
@@ -78,9 +79,8 @@ export const fetchBalance = async (ticker: string, account: string) => {
   if (balance.error) {
     return 0;
   } else {
-    let balanceTotal =
-      +rawToMega(ticker, balance.balance) + +rawToMega(ticker, balance.pending);
-    return balanceTotal;
+    let balanceTotal = BigNumber(rawToMega(ticker, balance.balance)).plus(BigNumber(rawToMega(ticker, balance.pending)))
+    return balanceTotal.toString();
   }
 };
 export const fetchAccountInfo = async (ticker: string, account: string) => {

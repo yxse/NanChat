@@ -32,7 +32,7 @@ import { megaToRaw, send } from "../../nano/accounts";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import { MdContentPaste, MdCurrencyExchange } from "react-icons/md";
-import { convertAddress, formatAddress, parseURI, pasteFromClipboard } from "../../utils/format";
+import { convertAddress, formatAddress, formatAmountMega, parseURI, pasteFromClipboard } from "../../utils/format";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { CgArrowsExchangeV } from "react-icons/cg";
 import { fetchAliasInternet, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
@@ -132,7 +132,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
     {t('availableFiat')} ~<ConvertToBaseCurrency amount={balance} ticker={ticker} />
   </div> :
   <div className="text-sm" style={{color: "var(--adm-color-text-secondary)"}}>
-    {t('availableCrypto')} {balanceLoading ? <DotLoading /> : balance} {ticker }
+    {t('availableCrypto')} {balanceLoading ? <DotLoading /> : formatAmountMega(balance, ticker)} {ticker }
   </div>
 }
 

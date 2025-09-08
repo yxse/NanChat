@@ -87,10 +87,6 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
   }
   const {chat} = useChats(chatId)
   const chatType = chat?.type
-  const { data: balance, isLoading: balanceLoading } = useSWR(
-    "balance-" + ticker + "-" + activeAccount,
-    () => fetchBalance(ticker, activeAccount),
-  );
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();

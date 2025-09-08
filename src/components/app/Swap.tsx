@@ -41,7 +41,7 @@ import { createOrder, fetcher, getAllCurrencies, getEstimate, getLimits, getOrde
 import { GoCreditCard } from "react-icons/go";
 import { fetchBalance } from "./Network";
 import { WalletContext } from "../Popup";
-import { convertAddress } from "../../utils/format";
+import { convertAddress, formatAmountMega } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Buy from "./Buy";
@@ -301,7 +301,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
                       setAmount(balance)
                     }}
                     className="text-base text-orange-500 text-left mb-4 cursor-pointer">
-                    Insufficient balance. Available: <span className="underline">{balance} {selectedFrom}</span>
+                    Insufficient balance. Available: <span className="underline">{formatAmountMega(balance, selectedFrom)} {selectedFrom}</span>
                   </div>
                 }
                 {

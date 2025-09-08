@@ -76,10 +76,6 @@ export default function Buy({hideHistory = false, defaultFrom = "USD", defaultTo
   const [form] = Form.useForm();
   const {wallet} = useContext(WalletContext);
   const accountFrom = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedFrom);
-  // const { data: balance, isLoading: balanceLoading } = useSWR(
-  //   "balance-" + selectedFrom,
-  //   () => fetchBalance(selectedFrom, accountFrom),
-  // );
   const { data: estimate, isLoading: isLoadingEstimate } = useSWR(
     getEstimateFiat + '?from=' + selectedFrom + '&to=' + selectedTo + '&amount=' + amount,
     fetcher,
