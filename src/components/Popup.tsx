@@ -102,14 +102,14 @@ export default function InitialPopup() {
   const initializing = cacheProvider == null
   console.log("InitialPopup")
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
-  // const {data: newNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
-  //   if (newNetworks) {
-  //     for (let ticker in newNetworks) {
-  //       if (!networks[ticker]) {
-  //         networks[ticker] = newNetworks[ticker]
-  //       }
-  //     }
-  //   }
+  const {data: newNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+    if (newNetworks) {
+      for (let ticker in newNetworks) {
+        if (!networks[ticker]) {
+          networks[ticker] = newNetworks[ticker]
+        }
+      }
+    }
   //   if (initializing) {
   //   return null
   // }
