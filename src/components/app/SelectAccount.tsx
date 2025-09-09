@@ -4,7 +4,7 @@ import { networks } from "../../utils/networks";
 import Network, { fetchAccountInfo, fetchBalance, ModalReceive, showModalReceive } from "./Network";
 import { Button, CenterPopup, CheckList, Divider, DotLoading, Ellipsis, FloatingBubble, Grid, Image, List, Popup, SearchBar, Space, SwipeAction, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { BiPlus } from "react-icons/bi";
 import { fetchPrices, fetcher } from "../../nanswap/swap/service";
 import { CopyToClipboard } from "../Settings";
@@ -36,6 +36,7 @@ function SelectAccount({ }) {
   const [accountsLabels, setAccountsLabels] = useLocalStorageState("accountsLabels", {defaultValue: {}});
   const {wallet, dispatch} = useContext(WalletContext);
   const [visible, setVisible] = useState(false);
+    const {mutate} = useSWRConfig()
   const {clearCache} = useChats();
   const activeAccount = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address;
   const {isMobile} = useWindowDimensions()
@@ -54,8 +55,14 @@ function SelectAccount({ }) {
       if (wallet.activeIndex === accountIndex){
         dispatch({type: "SET_ACTIVE_INDEX", payload: 0});
       }
-      clearCache();
+      clearCacheAll();
     }
+  }
+  const clearCacheAll = () => {
+    setTimeout(() => {
+      mutate('/chats-'+activeAccount)
+      clearCache()
+    }, 1000) // this somehow prevent issue with chats loading from the wrong account
   }
 
   return (<>
@@ -127,7 +134,7 @@ function SelectAccount({ }) {
                 onClick={() => {
                   dispatch({type: "SET_ACTIVE_INDEX", payload: account.accountIndex});
                   setVisible(false);
-                  clearCache();
+                  clearCacheAll();
                 }}
                 key={account.address}
                 prefix={

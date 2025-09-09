@@ -66,6 +66,13 @@ export const getKey = (pageIndex, previousPageData, chatId, height) => {
 export function useChat(chatId) {
   // Get messages using infinite loading
   const {mutateChats, chat} = useChats(chatId);
+
+  const {activeAccount, activeAccountPk} = useWallet()
+
+  const fetcherWithAccount = (key) => {
+    return fetcherMessagesCache(key, activeAccount, activeAccountPk);
+  };
+
   const {
     data: pages,
     error,
@@ -74,7 +81,9 @@ export function useChat(chatId) {
     mutate,
     isLoading,
     isValidating 
-  } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId, chat?.height), fetcherMessagesCache, {
+  } = useSWRInfinite((pageIndex, previousPageData) => getKey(pageIndex, previousPageData, chatId, chat?.height), 
+  fetcherWithAccount
+  , {
     revalidateFirstPage: false, // should not be needed and cause flickering on scroll
     revalidateOnFocus: true,
     revalidateOnReconnect: true, 

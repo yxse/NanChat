@@ -9,11 +9,14 @@ import { EventProvider } from "./messaging/components/EventContext";
 import '../i18n';
 import { getWindowDimensions } from "../hooks/use-windows-dimensions";
 import { refreshStatusBarTheme } from "./messaging/utils";
+import { timestampStorageHandler, useCacheProvider } from '@piotr-cz/swr-idb-cache'
 
 export function saveCache(map) {
+  return
   console.log("saving cache")
   // clear cache 
   // localStorage.removeItem('app-cache')
+      debugger
   
   // return
   // filter out inf messages to not load them all directly
@@ -195,6 +198,8 @@ export default function PopupWrapper({
   children: ReactNode;
   theme: "light" | "dark";
 }) {
+  console.log("popup wrapper render")
+
   if (Capacitor.getPlatform() === "web") {
     const app = initializeApp(firebaseConfig);
     // const analytics = getAnalytics(app);
@@ -215,11 +220,12 @@ export default function PopupWrapper({
     }
   }, [])
   
+    // Cache Provider is being initialized - render fallback component in the meantime
+
   return (
     <EventProvider>
-    <SWRConfig value={{ provider: localStorageProvider }}>
     <div className={`wrapper`}
-      >{children}</div></SWRConfig>
+      >{children}</div>
       </EventProvider>
   );
 }

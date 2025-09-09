@@ -93,6 +93,7 @@ import { useTranslation } from 'react-i18next';
 import SetBio from "../messaging/components/SetBio";
 import RedPacket from "./redpacket/RedPacket";
 import RedPacketResult from "./redpacket/RedPacketResult";
+import { ClipLoader as HashSpinner } from "react-spinners";
 
 // reduceMotion()
 
@@ -424,6 +425,9 @@ export default function App({callback}) {
     }
     , [activeAccount, activeAccountPk]);
 
+  if (!activeAccount) return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
+                <HashSpinner size={80} color="#0096FF" loading={true} />
+              </div>
   return (
     <>
     <LockAfterInactivity />

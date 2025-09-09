@@ -92,7 +92,7 @@ const saveScrollPosition = useCallback(
     if (chat?.participants[0]?._id === chat?.participants[1]?._id) {
         participant = chat?.participants[0];
     }
-    let address = participant?._id;
+    let address = chat?.type === "group" ? chat?.creator : participant?._id;
     let isNew = false
     if (account?.startsWith('nano_')) {
         address = account;

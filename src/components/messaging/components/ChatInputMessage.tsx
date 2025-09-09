@@ -107,7 +107,6 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [newMessage, setNewMessage] = useState('');
     const navigate = useNavigate();
     const {activeAccount, activeAccountPk} = useWallet()
-    const {data: messagesHistory} = useSWR<Message[]>(`/messages?chatId=${account}&limit=1`, fetcherMessages);
     const {chat, mutateChats} = useChats(account);
     const { mutate: mutateMessages} = useChat(account);
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
@@ -242,28 +241,46 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
    }
 
-
+   const getOrCreateNewChatIfNotExist = async (account) => {
+    debugger
+    if (chat == undefined && account.startsWith('nano_')) {
+        const newChat = await createNewChat(account);
+        navigate(`/chat/${newChat.id}`, {replace: true}); 
+        return {
+          height: 0,
+          chatId: newChat.id
+        }
+      }
+      else {
+        return {
+          height: chat?.height + 1, // only used for the local mutate, it might be not always accurate
+          chatId: account,
+        }
+      }
+   }
+    const createNewChat = async (account: string) => {
+      const newChat = await fetcherMessagesPost('/chat', {
+        type: "private",
+        participants: [activeAccount, account],
+      });
+      
+      console.log("created chat", newChat);
+      
+      await mutateChats(currentChats => {
+        const newChats = [...(currentChats || [])];
+        newChats.unshift(newChat);
+        return newChats;
+      }, false);
+      
+      return newChat;
+    };
     // useEffect(scrollToBottom, [messages]);
     const sendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
-      let chatId = account;
-      // debugger
-      let height = chat?.height + 1 // only used for the local mutate, it might be not always accurate
       if (!newMessage.trim()) return;
-      if (messagesHistory?.length === 0 && account.startsWith('nano_')) {
-        let r = await fetcherMessagesPost('/chat', {
-          type: "private",
-          participants: [activeAccount, account],
-        })
-        console.log("created chat", r);
-        await mutateChats( currentChats => {
-          const newChats = [...(currentChats || [])];
-          newChats.unshift(r);
-          return newChats;
-        }, false);
-        chatId = r.id;
-        height = 0;
-      }
+      
+      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+
       const message: Message = {
         content: newMessage,
         fromAccount: activeAccount,
@@ -305,17 +322,11 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
      if (!defaultNewMessage){ // defautlNewMessage is used to share from webiew popup, don't need to open keyboard by focus
          messageInputRef.current?.focus();
       }
-     if (account !== chatId){
-      // redirect to chat id when initial message
-      // mutateChats()
-       navigate(`/chat/${chatId}`); 
-     }
-
     };
     messageInputRef.send = sendMessage;
 
     const sendTipMessage = async (ticker: string, hash: string, destinationAddress: string) => {
-      let chatId = account;
+      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
         content: "Transfer",
@@ -323,7 +334,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
-        height: chat?.height + 1,
+        height: height,
         tip: {ticker, hash, toAccount: destinationAddress},
         _id: Math.random().toString()
       };
@@ -339,7 +350,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     messageInputRef.sendTip = sendTipMessage;
     
     const sendRedPacketMessage = async (ticker: string, hash: string, mode: "normal" | "lucky", quantity: number, messageContent, stickerId) => {
-      let chatId = account;
+      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       let encryptedMessageContent = ""
      
@@ -349,7 +361,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
-        height: chat?.height + 1,
+        height: height,
         redPacket: {ticker, hash, mode, quantity, message: messageContent, stickerId},
         _id: Math.random().toString()
       };
@@ -378,7 +390,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     messageInputRef.sendRedPacketMessage = sendRedPacketMessage;
 
     const sendStickerMessage = async (stickerId: string) => {
-      let chatId = account;
+      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
         content: "Sticker",
@@ -386,7 +399,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
-        height: chat?.height + 1,
+        height: height,
         stickerId: stickerId,
         _id: Math.random().toString()
       };
@@ -406,7 +419,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
      socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
     }
     const sendFileMessage = async (file) => {
-      let chatId = account;
+      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
         content: "File",
@@ -414,7 +428,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         // toAccount: account,
         timestamp: new Date(),
         chatId: chatId,
-        height: chat?.height + 1,
+        height: height,
         _id: Math.random().toString(),
         file: {
           url: file.url,

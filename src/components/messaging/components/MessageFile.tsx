@@ -322,7 +322,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     return (
         <div key={message._id} className={``}>
             <div className={``}>
-                <p> 
+                <div> 
                     {fileType?.startsWith('image') && 
                         <img
                             onClick={() => {
@@ -382,7 +382,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                             </div>
                         </Card>
                     }
-                </p>
+                </div>
             </div>
         </div>
     )

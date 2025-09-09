@@ -23,6 +23,19 @@ import {
     }
   };
 
+  export let setDataString = async (key: string, value: string): Promise<boolean> => {
+    await initSqlStore();
+    try {
+      await sqlStore.set({ key: key, value: value });
+      console.log("set data", value)
+      inMemoryMap.set(key, value);
+      return true;
+    } catch (err) {
+      console.log(`Error setting ${key}: ${value}`);
+      console.log(err);
+      return false;
+    }
+  }
   export let setData = async (key: string, value: any): Promise<boolean> => {
     await initSqlStore();
     let valueJson = JSON.stringify(value);
@@ -51,6 +64,24 @@ import {
       let value = JSON.parse(valueJson.value);
         inMemoryMap.set(key, value)
       return value;
+    } catch (err) {
+      console.log(`Error restoring key ${key}`);
+      console.log(err);
+      return null;
+    }
+  }
+  export let restoreDataString = async (key: string): Promise<any> => {
+    await initSqlStore();
+    try {
+        if (inMemoryMap.has(key)) {
+            console.log("hit data from memory", key)
+            return inMemoryMap.get(key)
+        }
+      let exists = await sqlStore.iskey({ key: key });
+      if (!exists.result) return null;
+      let valueSring = (await sqlStore.get({ key: key})).value
+        inMemoryMap.set(key, valueSring)
+      return valueSring;
     } catch (err) {
       console.log(`Error restoring key ${key}`);
       console.log(err);

@@ -23,7 +23,7 @@ import { decrypt, encrypt } from "../worker/crypto";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { AddressBookFill, BellOutline, DeleteOutline, DownlandOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UploadOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
-import { LedgerContext } from "./Popup";
+import { LedgerContext, useWallet } from "./Popup";
 import { BiHistory } from "react-icons/bi";
 import { FiAtSign } from "react-icons/fi";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
@@ -222,6 +222,7 @@ export const showLogoutSheet = async () => {
       
 export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean, setNavOpen: Function }) {
   const {ledger, setLedger} = useContext(LedgerContext);
+  const {activeAccount} = useWallet()
   const [isPasswordEncrypted, setIsPasswordEncrypted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [address, setAddress] = useState<string | null>(null);
@@ -609,20 +610,21 @@ className="mb-24"
                 // clean all history cache
                 let count = 0
                 for (var key in localStorage) {
-                  if (key.startsWith("history-") || key.startsWith("work-") || key.startsWith("message-") || key.startsWith("chat_")) {
+                  if (key.startsWith("history-") || key.startsWith("work-") || key.startsWith("message-") || key.startsWith("chat_") || key.startsWith("lastSyncChat")) {
                     localStorage.removeItem(key)
                     count++
                   }
                 }
                 localStorage.removeItem("app-cache")
                 localStorage.removeItem('lastSync');
+                localStorage.removeItem('lastSyncChat');
                 sessionStorage.removeItem('app-initialized')
                 mutate(
                   key => true, // which cache keys are updated
                   undefined, // update cache data to `undefined`
                   { revalidate: false } // do not revalidate
                 )
-                mutate("/chats") // preload chats
+                mutate("/chats-"+activeAccount) // preload chats
                 mutate("/stickers") // preload stickers
                 Toast.show({
                   icon: "success",

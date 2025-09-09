@@ -17,7 +17,7 @@ import { AiOutlineSwap } from "react-icons/ai";
 import useMessageDecryption from "../../messaging/hooks/use-message-decryption";
 import Sticker from "../../messaging/components/Sticker";
 import { useNavigate } from "react-router-dom";
-import { cacheKeyPrefix, fetcherChat, fetcherMessages, openRedPacket } from "../../messaging/fetcher";
+import { cacheKeyPrefix, fetcherChat, fetcherMessages, openRedPacket, saveMessageCache } from "../../messaging/fetcher";
 import packetOpenedIcon from "../../../../public/icons/red_envelope_opened.png"
 import { useChat } from "../../messaging/hooks/useChat";
 import { inMemoryMap } from "../../../services/database.service";
@@ -36,6 +36,7 @@ export const useMessageRedpacket = ({message}) => {
     redPacketMessage.type = message?.type
     redPacketMessage.chatId = message?.chatId
     redPacketMessage.isLocal = message?.isLocal
+    redPacketMessage.decrypted = message?.redPacket?.decrypted
 
     // delete redPacketMessage.redPacket // this is to allow message decryption as it will be threated as not special message
     const messageDecrypted = useMessageDecryption({ message: redPacketMessage });
@@ -92,7 +93,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
     const {state, isOpen, isExpired} = useRedpacketState(data)
     const navigate = useNavigate()
     const {mutate: mutateMessages} = useChat(message.chatId)
-    const {activeAccount} = useWallet()
+    const {activeAccount, activeAccountPk} = useWallet()
     const navigateToResult = () => {
         navigate(`/red-packet-result?id=${message._id}`, {viewTransition: false})
     }
@@ -100,7 +101,6 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
         if (isOpen && data && !data?.error) {
             mutateMessages(currentPages => {
                 if (!currentPages) return currentPages;
-                const key = cacheKeyPrefix(message.chatId) + message.height
                 return currentPages.map(page => {
                     // Check if this page contains the message we want to update
                     const messageIndex = page.findIndex(m => m._id === message._id);
@@ -109,8 +109,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                         // This page contains our message, update it
                         const updatedPage = [...page];
                         updatedPage[messageIndex] = data;
-                        inMemoryMap.set(key, data)
-                        localStorage.setItem(key, JSON.stringify(data)); // update localstorage cache
+                        saveMessageCache(message.chatId, data, activeAccount, activeAccountPk)
                         return updatedPage;
                     }
                     
@@ -210,17 +209,17 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
 }
 
 const MessageRedPacket = ({ message, side, hash }) => {
-
+    // return "packet"
     const redpacket = message.redPacket;
     const ticker = redpacket?.ticker;
     const [modalVisible, setModalVisible] = useState(false);
-    console.log("message gift", message);
+    // console.log("message gift", message);
     const {message: messageDecrypted, sticker} = useMessageRedpacket({ message: message });
     const {activeAccount} = useWallet()
     const {state, isOpen, isExpired} = useRedpacketState(message)
      const isGroup = message.type === "group"
 
-    console.log("message gift", message);
+    // console.log("message gift", message);
     
 
     //    const messageDecrypted = useMessageDecryption({message: redPacketMessage})

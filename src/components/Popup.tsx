@@ -13,7 +13,7 @@ import { ConfigProvider, Modal, Toast } from "antd-mobile";
 import { Wallet } from "../nano/wallet";
 import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
-import useSWR, { preload, useSWRConfig } from "swr";
+import useSWR, { preload, SWRConfig, useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { getSeed } from "../utils/storage";
 import { Capacitor, PluginListenerHandle } from "@capacitor/core";
@@ -26,275 +26,107 @@ import enUS from 'antd-mobile/es/locales/en-US'
 import { defaultContacts } from "./messaging/utils";
 import { fetchPrices } from "../nanswap/swap/service";
 import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
+import WalletApp from "./app/WalletProvider";
+import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@piotr-cz/swr-idb-cache'
 
+
+const blacklistStorageHandler = {
+  ...timestampStorageHandler,
+  _rateLimitCache: new Map(),
+  
+  replace: (key, value) => {
+    
+    // Rate limiter - check if key was accessed in last 30 seconds
+    const now = Date.now();
+    const lastAccess = blacklistStorageHandler._rateLimitCache.get(key);
+    
+    if (lastAccess && (now - lastAccess) < 10000) {
+      return undefined;
+    }
+    console.log(key)
+    
+    if (value && value?.data){ // set the timer only if contains value
+      // Update rate limit cache
+      blacklistStorageHandler._rateLimitCache.set(key, now);
+    }
+    
+    // Skip all messages except the first page
+    if (key.startsWith('/messages') && !key.includes('&page=0')) {
+      return undefined;
+    }
+    
+    // Handle infinite messages - only keep first page
+    if (key.startsWith('$inf$/messages')) { 
+      if (value.data == undefined) return undefined
+      let filteredValue = {...value}; // shallow clone
+      filteredValue.data = [filteredValue.data[0]]; // only keep first message page
+      filteredValue['_l'] = 1; // set length to 1 to prevent swr fetching all pages
+
+      return timestampStorageHandler.replace(key, filteredValue);
+    }
+    
+    if (key.startsWith('/chats-')){
+      const account = key.split('-')[1]
+      // debugger
+      if (value && value?.data && value?.data[0]?.updatedAt != undefined){
+        const latstUpdatedChat = value?.data[0]?.updatedAt
+        localStorage.setItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) 
+      }
+    }
+    // For all other keys, use the wrapped handler
+    return timestampStorageHandler.replace(key, value);
+  },
+}
 export const LedgerContext = createContext(null);
 export const WalletContext = createContext(null);
 
-function walletsReducer(state, action) {
-  // console.log("walletsReducer", action);
-  switch (action.type) {
-    case "ADD_WALLET":
-      // if (state.wallets[action.payload.ticker]) return state;
-      if (action.payload.ticker === "XNO") {
-        localStorage.setItem('activeAddress', action.payload.wallet.getActiveAccount());
-      }
-      return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };
-    case "USE_LEDGER":
-      return {
-        ...state,
-        oldWallets: { ...state.oldWallets, [action.payload.ticker]: state.wallets[action.payload.ticker] },
-        oldAccounts: state.accounts,
-        wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet }
-      };
-    case "DISCONNECT_LEDGER":
-      return { ...state, wallets: { ...state.oldWallets }, oldWallets: {}, accounts: state.oldAccounts, oldAccounts: [] };
-    case "SET_ACTIVE_INDEX":
-      for (let ticker of Object.keys(state.wallets)) {
-        state.wallets[ticker].setActiveIndex(action.payload);
-        state.wallets[ticker].receiveAllActiveAccount();
-      }
-      localStorage.setItem('activeIndex', action.payload);
-      localStorage.setItem('activeAddress', state.wallets['XNO'].getActiveAccount());
-      return { ...state, activeIndex: action.payload };
-    case "SYNC_WALLET":
-      return { ...state, wallets: { ...state.wallets, [action.payload.ticker]: action.payload.wallet } };
-    case "REMOVE_ACCOUNT":
-      let hiddenIndexesSorted = [...state.hiddenIndexes, action.payload].sort((a, b) => a - b);
-      localStorage.setItem('hiddenIndexes', JSON.stringify(hiddenIndexesSorted));
-      return { ...state, accounts: state.accounts.filter((account) => account.accountIndex !== action.payload), hiddenIndexes: [...state.hiddenIndexes, action.payload].sort((a, b) => a - b) };
-    case "ADD_ACCOUNTS":
-      localStorage.setItem('activeAddresses', JSON.stringify(action.payload.map((account) => account.address)));
-      return { ...state, accounts: action.payload };
-    // , lastAccountIndex: +localStorage.getItem('lastAccountIndex') };
-    case "ADD_ACCOUNT":
-      return state
-      let indexToAdd = state.lastAccountIndex + 1;
-      if (state.hiddenIndexes.length > 0) {
-        indexToAdd = state.hiddenIndexes[0];
-        localStorage.setItem('hiddenIndexes', JSON.stringify(state.hiddenIndexes.slice(1)));
-      }
-      else {
-        localStorage.setItem('lastAccountIndex', indexToAdd);
-      }
-
-      for (let ticker of Object.keys(state.wallets)) {
-        state.wallets[ticker].createAccounts(indexToAdd - 1, 1);
-      }
-      return { ...state, lastAccountIndex: indexToAdd, hiddenIndexes: state.hiddenIndexes.filter((i) => i !== indexToAdd) };
-    case "HIDE_INDEX":
-      hiddenIndexesSorted = [...state.hiddenIndexes, action.payload].sort((a, b) => a - b);
-      localStorage.setItem('hiddenIndexes', JSON.stringify(hiddenIndexesSorted));
-      return { ...state, hiddenIndexes: hiddenIndexesSorted };
-    case "ADD_MESSAGE":
-      return { ...state, messages: { ...state.messages, [action.payload._id]: action.payload.content } };
-    default:
-      return state;
-  }
-}
 export const useWallet = () => {
   const { wallet, dispatch } = useContext(WalletContext)
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
   const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
   return { wallet, activeAccount, activeAccountPk, dispatch };
 }
-let appListener: PluginListenerHandle;
 
-const WalletProvider = ({ children, setWalletState, walletState }) => {
-  const { mutate, cache } = useSWRConfig()
-  const [wallet, dispatch] = useReducer(walletsReducer, initialState);
-  const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", { defaultValue: [0] });
-  const [authVisible, setAuthVisible] = useState(true);
-  const [hasWallet, setHasWallet] = useState(localStorage.getItem('hasWallet') === 'true');
-  const { mutate: mutatePrice } = useSWR("prices", fetchPrices);
-  const {mutate: mutateMinReceive} = useSWR("/min-receive", fetcherMessages);
-  useEffect(() => {
-    function updateBiometryInfo(info: CheckBiometryResult): void {
-      if (info.isAvailable) {
-        // Biometry is available, info.biometryType will tell you the primary type.
 
-      } else if (localStorage.getItem('confirmation-method') === '"enabled"' && Capacitor.isNativePlatform()) {
-        // Biometry is not available, info.reason and info.code will tell you why.
-      
-        setWalletState("loading");
-        Modal.show({
-          title: "Biometry changed",
-          closeOnMaskClick: false,
-          closeOnAction: false,
-          content: 'It seems that biometry settings have changed. Please re-enable biometry in your device settings or sign out of your wallet and restore it using your secret recovery phrase.',
-          actions: [
-            {
-              key: "settings", text: "Open settings", onClick: async () => {
-                NativeSettings.open({
-                  optionAndroid: AndroidSettings.ApplicationDetails,
-                  optionIOS: IOSSettings.App
-                })
-              }
-            },
-            {
-              danger: true,
-              key: "signout", text: "Sign out", onClick: async () => {
-                await showLogoutSheet()
-              }
-            },
-          ]
-        })
-      }
-    }
-
-    async function updateBiometry() {
-      updateBiometryInfo(await BiometricAuth.checkBiometry())
-
-      try {
-        appListener = await BiometricAuth.addResumeListener(updateBiometryInfo)
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(error.message)
-        }
-      }
-    }
-    updateBiometry();
-    if (!hasWallet) {
-      setWalletState("no-wallet");
-    }
-
-  }, []);
-  return (
-    <WalletContext.Provider value={{ wallet, dispatch }}>
-      { hasWallet && 
-      <PinAuthPopup
-        location={"launch"}
-        description={"Unlock your wallet"} visible={authVisible} setVisible={setAuthVisible} onAuthenticated={async () => {
-          const seed = await getSeed()
-          if (seed?.seed && !seed?.isPasswordEncrypted) {
-            setWalletState("unlocked");
-          }
-          else if (seed?.seed && seed?.isPasswordEncrypted) {
-            setWalletState("locked");
-          }
-          else {
-            setWalletState("no-wallet");
-          }
-          SplashScreen.hide();
-          // setWalletState("unlocked");
-          // setSeed(localStorage.getItem('seed'));
-          // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
-          let [prices, minReceive] = 
-          await Promise.all([
-            mutatePrice(),
-            mutateMinReceive()
-          ]);
-          console.log({prices})
-          console.log({minReceive})
-          for (let ticker of Object.keys(networks)) {
-            if (wallet.wallets[ticker]) continue;
-            // let newWallet = initWallet("XNO", "0", mutate, dispatch)
-            // console.log({})
-            let minAmountMega = 0;
-            if (minReceive > 0) {
-              if (!prices[ticker]?.usd) {
-                console.log("no price for ticker", ticker);
-                Toast.show({
-                  icon: "fail",
-                  content: <div className="text-center">
-                    Cannot initialize wallet for {ticker}.
-                    <br />
-                    No price for {ticker} found but minimum receive is set.
-                  </div>,
-                  duration: 3000,
-                })
-                return;
-              }
-              minAmountMega = minReceive / prices[ticker]?.usd;
-              console.log("minAmountMega", minAmountMega, ticker)
-            }
-            
-            dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, seed.seed, mutate, dispatch, minAmountMega) } });
-            // dispatch({ type: "ADD_WALLET", payload: { ticker: ticker, seed: localStorage.getItem('seed'), mutate: mutate } });
-          }
-        }} />}
-      {children}
-    </WalletContext.Provider>
-  );
-}
 preload('/networks', fetcherChat)
 
 export default function InitialPopup() {
   const [walletState, setWalletState] = useState<"locked" | "pin-locked" | "unlocked" | "no-wallet" | "loading">("loading");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [showConfetti, setShowConfetti] = useState<boolean>(false);
-  const [confettiCount, setConfettiCount] = useState<number>(50);
   const [callback, setCallback] = useState(null);
-  const [ledger, setLedger] = useState(null);
+     const cacheProvider = useCacheProvider({
+    dbName: 'my-app',
+    storeName: 'swr-cache',
+    storageHandler: blacklistStorageHandler
+  })
+  const initializing = cacheProvider == null
+  console.log("InitialPopup")
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
-  const {data: newNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
-    if (newNetworks) {
-      for (let ticker in newNetworks) {
-        if (!networks[ticker]) {
-          networks[ticker] = newNetworks[ticker]
-        }
-      }
-    }
+  // const {data: newNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+  //   if (newNetworks) {
+  //     for (let ticker in newNetworks) {
+  //       if (!networks[ticker]) {
+  //         networks[ticker] = newNetworks[ticker]
+  //       }
+  //     }
+  //   }
+  //   if (initializing) {
+  //   return null
+  // }
+   if (initializing) return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
+                <HashSpinner size={80} color="#0096FF" loading={true} />
+              </div>
   return (
     <ConfigProvider locale={enUS}>
-    <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
-      <PopupWrapper theme={theme}>
-        <WalletProvider setWalletState={setWalletState} walletState={walletState}>
+    {/* <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}> */}
+    <SWRConfig value={{ provider: cacheProvider }}>
 
-          {
-            walletState === "locked" && <Lockscreen setWalletState={setWalletState} theme={theme} />
-          }
-          {
-            walletState === "unlocked" && <App callback={callback} />
-          }
-          {
-            walletState === "no-wallet" && <InitializeScreen
-              theme={theme}
-              onCreated={(callback) => {
-                setCallback(callback);
-                localStorage.setItem('contacts', JSON.stringify(defaultContacts));
-                localStorage.setItem('hasWallet', 'true');
-                // Toast.show({
-                //   icon: "success",
-                //   content: <div className="text-center">
-                //     Wallet created with success!
-                //   </div>,
-                //   duration: 3000,
-                // })
-                // setShowConfetti(true);
-                // setTimeout(() => {
-                //   setConfettiCount(0);
-                // }, 5000);
-              }}
-              setWalletState={setWalletState} />
-          }
-          {
-            walletState === "loading" && !Capacitor.isNativePlatform() && <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
-              <HashSpinner size={80} color="#0096FF" loading={true} />
-            </div>
-          }
-          {
-            showConfetti &&
-            <Confetti
-              particleCount={confettiCount}
-              shapeSize={8}
-              mode="fall"
-              colors={["#0096FF", "#0047AB", "#FFFF8F", "#301934", "#FFE5B4"]}
-            />
-          }
-        </WalletProvider>
+      <PopupWrapper theme={theme}>
+        <WalletApp initializing={initializing} /> 
       </PopupWrapper>
-    </LedgerContext.Provider>
+      </SWRConfig>
+    {/* </LedgerContext.Provider> */}
     </ConfigProvider>
   );
 }
 
-const initialState = {
-  seed: null,
-  wallets: {},
-  oldWallets: {},
-  activeIndex: localStorage.getItem('activeIndex') ? parseInt(localStorage.getItem('activeIndex')) : 0,
-  lastAccountIndex: localStorage.getItem('lastAccountIndex') ? parseInt(localStorage.getItem('lastAccountIndex')) : 1,
-  hiddenIndexes: localStorage.getItem('hiddenIndexes') ? JSON.parse(localStorage.getItem('hiddenIndexes')) : [],
-  accounts: [],
-  messages: [],
-};

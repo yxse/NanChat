@@ -26,7 +26,7 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
     isLoading, 
     mutate: mutateChats
   } = useSWR<Chat[]>(
-    '/chats', 
+    '/chats-' + activeAccount, 
     () => fetcherChats(chats || [], activeAccount, activeAccountPk, cache),
      {
       revalidateOnFocus: true,

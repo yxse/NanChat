@@ -1,13 +1,61 @@
 import { box } from 'multi-nano-web';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { WalletContext } from '../../Popup';
 import { fetcherChat } from '../fetcher';
 import { decryptGroupMessage, getSharedKey } from '../../../services/sharedkey';
 import { isSpecialMessage } from '../utils';
+import { restoreDataString, setData, setDataString } from '../../../services/database.service';
+
+export const decryptChatMessage = async (message, activeAccount, activeAccountPk) => {
+   if (isSpecialMessage(message) && !message.redPacket) { 
+      return {decrypted: message.content}
+    }
+  const toAccount = message.toAccount;
+  let targetAccount = message.fromAccount === activeAccount ? toAccount : message.fromAccount;
+  const isGroupMessage = message?.type === 'group';
+  if (isGroupMessage) {
+    targetAccount = message.fromAccount;
+  }
+      try {
+        let decryptionKey = activeAccountPk;
+        if (isGroupMessage) {
+          decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
+        }
+        if (decryptionKey == null) { // could happen if clicking on the notification New message, when loading directly the chat and wallet not ready yet
+          console.error('Decryption key not yet ready');
+          return
+        }
+        console.log("decrypt message", message._id)
+        if (message.redPacket){
+                return {
+                decrypted: message.content,
+                decryptedRedPacket: box.decrypt(message.redPacket.message, targetAccount, decryptionKey),
+              }
+        }
+        let decrypted = box.decrypt(message.content, targetAccount, decryptionKey);
+        let decryptedRedPacket, decryptedReply
+        
+        if (message.replyMessage){
+            decryptedReply = (await decryptChatMessage(message.replyMessage, activeAccount, activeAccountPk)).decrypted
+        }
+        return {
+          decrypted: decrypted,
+          decryptedRedPacket: decryptedRedPacket,
+          decryptedReply: decryptedReply
+        }
+        setDataString(`message-${message._id}`, decrypted)
+      } catch (error) {
+        console.error('Message decryption failed:', error, message);
+        return false
+      }
+  };
 
 const useMessageDecryption = ({ message }) => {
   const { wallet } = useContext(WalletContext);
+  const localStorageKey = `message-${message._id}`;
+
   const [decryptedContent, setDecryptedContent] = useState(() => {
+    if (message.decrypted) return message.decrypted
     if (message.isLocal && message.redPacket?.message) {
       console.log("local redpacket message", message)
       return message.redPacket?.message;
@@ -31,19 +79,16 @@ const useMessageDecryption = ({ message }) => {
     if (isSpecialMessage(message)) { 
       return message.content;
     }
-    const localStorageKey = `message-${message._id}`;
-    const cachedContent = localStorage.getItem(localStorageKey);
-    if (cachedContent) {
-      return cachedContent;
-    }
-
-    if (localStorage.getItem("message-" + message.content)) {
-      return localStorage.getItem("message-" + message.content)?.replace('message-', '');
-    }
-
     return null;
   });
-  
+    // Start cache retrieval immediately
+  const cachePromise = useMemo(() => {
+    if (decryptedContent !== null) {
+      return Promise.resolve(decryptedContent);
+    }
+    return restoreDataString(localStorageKey);
+  }, [localStorageKey, decryptedContent]);
+
   const activeAccount = wallet.accounts.find(
     (account) => account.accountIndex === wallet.activeIndex
   )?.address;
@@ -51,7 +96,6 @@ const useMessageDecryption = ({ message }) => {
     (account) => account.accountIndex === wallet.activeIndex
   )?.privateKey;
   const toAccount = message.toAccount;
-  const messageId = message.isLocal ? Math.random().toString() : message._id;
   
   const isGroupMessage = message?.type === 'group';
   let targetAccount = message.fromAccount === activeAccount ? toAccount : message.fromAccount;
@@ -66,6 +110,11 @@ const useMessageDecryption = ({ message }) => {
 
     const decryptMessage = async () => {
       try {
+        const cache = await cachePromise;
+        if (cache) {
+          setDecryptedContent(cache);
+          return;
+        }
         let decryptionKey = activeAccountPk;
         if (isGroupMessage) {
           decryptionKey = await getSharedKey(message.chatId, message.toAccount, activeAccountPk);
@@ -74,18 +123,10 @@ const useMessageDecryption = ({ message }) => {
           console.error('Decryption key not yet ready');
           return
         }
+        console.log("useeffect decrypted message", message.id)
         let decrypted = box.decrypt(message.content, targetAccount, decryptionKey);
-        // message decryption could be done in a worker but need to make sure typing is only hiden after message is shown
-        // but message decryption should be already fast enough
-
-        // Store decrypted content
-        localStorage.setItem(`message-${message._id}`, decrypted);
-        // dispatch({
-        //   type: 'ADD_MESSAGE',
-        //   payload: { _id: messageId, content: decrypted }
-        // });
         setDecryptedContent(decrypted);
-        
+        setDataString(`message-${message._id}`, decrypted)
       } catch (error) {
         console.error('Message decryption failed:', error, message);
         // setDecryptedContent(message.content);
@@ -94,7 +135,7 @@ const useMessageDecryption = ({ message }) => {
     };
 
     decryptMessage();
-  }, [activeAccountPk]);
+  }, [cachePromise, activeAccountPk]);
 
   return decryptedContent;
 };
