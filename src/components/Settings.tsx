@@ -36,6 +36,7 @@ import ExportSecretPhrase from "./app/ExportSecretPhrase";
 import { useTranslation } from 'react-i18next';
 import ChangeLanguage from "./settings/ChangeLanguage";
 import { refreshStatusBarTheme } from "./messaging/utils";
+import { clearDb } from "../services/database.service";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -606,7 +607,7 @@ className="mb-24"
               prefix={
                 <DeleteOutline fontSize={24} />
               }
-              onClick={() => {
+              onClick={async () => {
                 // clean all history cache
                 let count = 0
                 for (var key in localStorage) {
@@ -626,10 +627,12 @@ className="mb-24"
                 )
                 mutate("/chats-"+activeAccount) // preload chats
                 mutate("/stickers") // preload stickers
+                await clearDb()
                 Toast.show({
                   icon: "success",
-                  content: `Cleared ${count} items from cache`
+                  // content: `Cleared ${count} items from cache`
                 })
+
               }}
             >
               {t('clearCache')}

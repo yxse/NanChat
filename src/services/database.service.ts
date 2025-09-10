@@ -151,7 +151,10 @@ console.timeEnd('load in memory')
       return null;
     }
   }
-  
+  export async function clearDb () {
+    await initSqlStore();
+    sqlStore.clear()
+  }
   export async function saveFileInCache(url, meta, base64Data) {
       await initSqlStore();
       // Store the file
