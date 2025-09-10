@@ -125,11 +125,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                     return;
                 }
 
-                if (deleteMode) {
-                    resolve(null);
-                    return;
-                }
-
+                
                 // Mark as being decrypted
                 fileIDsBeingDecrypted.add(fileID);
                 
@@ -311,7 +307,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     )
     
     if (!decrypted && canDecrypt) return <div>
-        {fileMeta.height ? 
+        {fileMeta?.height ? 
         <Skeleton animated style={{"--height": `${heightImage}px`, "--border-radius": "8px", "--width": `${widthImage}px`}}/>
         : 
         <Skeleton animated style={{"--height": `75px`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
