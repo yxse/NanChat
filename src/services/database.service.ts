@@ -56,6 +56,7 @@ import { cacheKeyPrefix } from "../components/messaging/utils";
     if (inMemoryMap.has("loaded")) return
     console.time('load in memory')
     inMemoryMap.set("loaded", true)
+    await initSqlStore()
     let keysvalues = await sqlStore.keysvalues();
 
     for (let entry of keysvalues.keysvalues) {

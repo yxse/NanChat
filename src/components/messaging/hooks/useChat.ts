@@ -1,5 +1,5 @@
 import useSWR, { } from 'swr';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from '../../Popup';
@@ -106,6 +106,19 @@ export function useChat(chatId) {
   const unreadCount = 0;
 
 
+  const reset = () => { 
+    // we use this function to reduce the number of message loaded
+    // for optimization purpose, as when too much messages loaded the DOM becomes slower
+    // todo: use virtualize list instead
+
+    // return
+  // Keep only the first page of messages
+  if (pages && pages.length > 0) {
+    mutate([pages[0]], false); // Keep only first page, no revalidation
+  } 
+  // Reset size back to 1 (first page)
+  setSize(1);
+}
   // Load more messages
   const loadMore = useCallback(() => {
     setSize(size + 1);
@@ -136,6 +149,7 @@ export function useChat(chatId) {
     loadMore,
     unreadCount,
     mutate,
-    hasMore
+    hasMore,
+    reset
   };
 }

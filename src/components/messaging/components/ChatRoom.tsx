@@ -82,8 +82,9 @@ const saveScrollPosition = useCallback(
         isLoadingMore,
         isLoadingInitial,
         hasMore,
+        reset
     } = useChat(account);
-
+    const {isMobile} = useWindowDimensions()
     const {chat, isLoading} = useChats(account);
     console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
@@ -273,9 +274,13 @@ const saveScrollPosition = useCallback(
         , [messages, chat]);
 
     useEffect(() => {
-        scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
-
-    }, [account, width]);
+        // debugger
+        // console.log(location.state)
+        if (!isMobile){
+            scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
+            reset() // on larger screen we force reset as it will not be reseted by the other scrollTop reset
+        }
+    }, [account]);
 
     useHideNavbarOnMobile(account);
     useEffect(() => {
@@ -307,6 +312,7 @@ useEffect(() => {
       // restore scroll position
       const scrollTop = localStorage.getItem(scrollKeyStore);
       if (scrollTop) {
+        // debugger
           const scrollTopInt = parseInt(scrollTop);
           if (!isNaN(scrollTopInt)) {
             // debugger
@@ -316,6 +322,9 @@ useEffect(() => {
                 // }, 0)
               }
           }
+      }
+      else{
+        reset()
       }
       return () => {
       }

@@ -18,6 +18,7 @@ import { networks } from '../../utils/networks';
 import { initWallet } from '../../nano/accounts';
 import App from '.';
 import { ClipLoader as HashSpinner } from "react-spinners";
+import { defaultContacts } from '../messaging/utils';
 
 
 
@@ -225,8 +226,8 @@ function WalletApp({}) {
               theme={"theme"}
               onCreated={(callback) => {
                 setCallback(callback);
-                localStorage.setItem('contacts', JSON.stringify(defaultContacts));
                 localStorage.setItem('hasWallet', 'true');
+                localStorage.setItem('contacts', JSON.stringify(defaultContacts));
                 // Toast.show({
                 //   icon: "success",
                 //   content: <div className="text-center">

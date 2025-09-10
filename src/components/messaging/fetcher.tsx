@@ -222,6 +222,7 @@ console.time('cache')
             if (messages.error) return messages;
             
             // Process all messages in parallel
+            console.time('decrypt new messages')
             const decrypted = await Promise.all(
                 messages.map(async (message) => {
                     const cache = await getMessageCache(chatId, message.height);
@@ -233,8 +234,8 @@ console.time('cache')
                     }
                 })
             );
-
-            debugger;
+            console.timeEnd('decrypt new messages')
+            // debugger;
             return decrypted;
         }
           else {
