@@ -558,7 +558,9 @@ useEffect(() => {
                                         else {
                                             setAutoScroll(false);
                                             // console.log("disable autoscroll");
-                                            infiniteScrollRef.current.className = "scrollableDivAuto";
+                                            if (infiniteScrollRef.current){
+                                                infiniteScrollRef.current.className = "scrollableDivAuto";
+                                            }
                                         }
                                         // if (e.target.scrollTop < 0) {
                                         //     setAutoScroll(false);

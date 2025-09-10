@@ -162,7 +162,7 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
           else {
             setWalletState("no-wallet");
           }
-          SplashScreen.hide();
+          // SplashScreen.hide();
           // setWalletState("unlocked");
           // setSeed(localStorage.getItem('seed'));
           // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});

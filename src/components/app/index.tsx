@@ -94,6 +94,7 @@ import SetBio from "../messaging/components/SetBio";
 import RedPacket from "./redpacket/RedPacket";
 import RedPacketResult from "./redpacket/RedPacketResult";
 import { ClipLoader as HashSpinner } from "react-spinners";
+import { SplashScreen } from "@capacitor/splash-screen";
 
 // reduceMotion()
 
@@ -418,6 +419,7 @@ export default function App({callback}) {
     console.log("index render")
     useEffect(() => {
       if (activeAccount){
+        SplashScreen.hide();
         // getNewChatToken(activeAccount, activeAccountPk).then((r) => {
         //   console.log("got new chat token", r);
         // })
@@ -425,9 +427,10 @@ export default function App({callback}) {
     }
     , [activeAccount, activeAccountPk]);
 
-  if (!activeAccount) return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
+  if (!activeAccount && Capacitor.getPlatform() == "web") return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
                 <HashSpinner size={80} color="#0096FF" loading={true} />
               </div>
+  if (!activeAccount) return
   return (
     <>
     <LockAfterInactivity />

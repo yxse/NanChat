@@ -160,6 +160,14 @@ const saveScrollPosition = useCallback(
   }, 200), // 200ms debounce time - adjust as needed
   []
 );
+
+useEffect(() => {
+  setTimeout(() => {
+    localStorage.removeItem('scrollTop-chat-room') // as sometime it fail to get removed if scrolling on ios and back fast
+    // reseting scroll chat also allow to offload messages
+  }, 300);
+}, [])
+
   // Clean up the debounce on unmount
   useEffect(() => {
     localStorage.removeItem('scrollTop-chat-room') // reset scroll chat room
