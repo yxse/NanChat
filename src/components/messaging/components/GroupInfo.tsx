@@ -32,6 +32,7 @@ import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
 import icon from "../../../../public/icons/nanchat.svg"
 import MuteNotif from "./MuteNotif";
+import GroupParticipants from "./group/GroupParticipants";
 
 export const AccountCard = ({ account }) => {
 const navigate = useNavigate();
@@ -63,11 +64,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
     const [contacts, setContacts] = useLocalStorageState('contacts', {
         defaultValue: []
     });
-    const {chat, mutateChats: mutate} = useChats(account);
-    const {activeAccountPk, activeAccount} = useWallet()
-    const isAdmin = chat?.creator === activeAccount;
-    const [visibleAdd, setVisibleAdd] = useState(false);
-    const [visibleRemove, setVisibleRemove] = useState(false);
+    const {chat, mutateChats: mutate, isAdmin} = useChats(account);
     const sharedAccount = chat?.sharedAccount?.replace('nano_', 'group_') // replace nano_ prefix just in case to prevent confusion
     useHideNavbarOnMobile(true)
     return (
@@ -86,73 +83,8 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             </div>
             </NavBar>
             <div style={{marginRight: 12, marginLeft: 12, marginTop: 16}}>
-            <Card style={{maxWidth: 576, margin: 'auto'}}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' , alignItems: 'center'}}>
-                    {
-                        chat?.participants.map((participant, index) => {
-                            return (
-                            <AccountCard
-                            key={index}
-                            account={participant}
-                            />
-                        )})
-                    }
-                     {/* add & remove with border dash */}
-                     <Button
-                    style={{width: '58px', height: '58px', display: 'flex', alignItems: 'center', justifyContent: 'center', '--border-style': 'dashed', '--border-width': '2px', borderRadius: 8}}
-                    onClick={() => {
-                        setVisibleAdd(true)
-                    }}
-                    >
-                        <AddOutline fontSize={24} />
-                    </Button>
-                    {
-                        isAdmin &&
-                    
-                    <Button
-                    style={{width: '58px', height: '58px', display: 'flex', alignItems: 'center', justifyContent: 'center', '--border-style': 'dashed', '--border-width': '2px', borderRadius: 8}}
-                    onClick={() => {
-                        setVisibleRemove(true)
-                    }}
-                    >
-                        <MinusOutline fontSize={24} />
-                    </Button>
-                    }
-                </div>
-                <NewChatPopup 
-                alreadySelected={chat?.participants.map((participant) => participant._id)}
-                onAccountSelect={async (accounts) => {
-                    let newParticipants = chat?.participants?.map((participant) => participant._id) || []
-                    newParticipants = newParticipants.concat(accounts)
-                    newParticipants = Array.from(new Set(newParticipants)) // unique
-                    await updateSharedKeys(chat?.id, newParticipants, activeAccountPk) // we generate new shared keys for all the participants, eventually we could reuse the sared key when adding participant                    
-                    let r = await addParticipants(chat?.id, accounts)
-                    if (r.error) {
-                        Toast.show({icon: 'fail', content: r.error})
-                        return
-                    }
-                    mutate()
-                    setVisibleAdd(false)
-                }}
-                visible={visibleAdd} setVisible={setVisibleAdd} title={t('addParticipant')} />
-                <NewChatPopup 
-                hideImportContacts
-                accounts={chat?.participants}
-                onAccountSelect={async (accounts) => {
-                    let newParticipants = chat?.participants?.map((participant) => participant._id) || []
-                    newParticipants = newParticipants.filter((participant) => !accounts.includes(participant))
-                    await updateSharedKeys(chat?.id, newParticipants, activeAccountPk) 
-                    let r = await removeParticipants(chat?.id, accounts)
-                    if (r.error) {
-                        Toast.show({icon: 'fail', content: r.error})
-                        return
-                    }
-                    mutate()
-                    setVisibleRemove(false)
-
-                }}
-                visible={visibleRemove} setVisible={setVisibleRemove} title={t('removeParticipant')} />
-</Card>
+            <GroupParticipants chatId={account} />
+              
 </div>
 <div style={{maxWidth: 600, margin: 'auto', marginTop: 16, paddingBottom: 32}}>
 <List mode="card">

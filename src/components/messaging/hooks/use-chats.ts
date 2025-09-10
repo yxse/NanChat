@@ -4,7 +4,6 @@ import useSWRInfinite from 'swr/infinite';
 import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
 import { useWallet } from '../../Popup';
 import { Toast } from 'antd-mobile';
-import { saveCache } from '../../Wrapper';
 
 interface UseChatsReturn {
   chats: Chat[] | undefined;
@@ -87,15 +86,15 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
     
   // }, [chats])
 
-useEffect(() => {
-  const now = Date.now();
-  if (doSaveCache && (now - lastSaveTime.current) >= 30000) { // force save chats to localstorage cache for improved consistency, fallback if save cache no triggered beforeunload
-    lastSaveTime.current = now;
-    setTimeout(() => {
-      saveCache(cache);
-    }, 1000); // add delay for performances
-  }
-}, [cache, chats]);
+// useEffect(() => {
+//   const now = Date.now();
+//   if (doSaveCache && (now - lastSaveTime.current) >= 30000) { // force save chats to localstorage cache for improved consistency, fallback if save cache no triggered beforeunload
+//     lastSaveTime.current = now;
+//     setTimeout(() => {
+//       saveCache(cache);
+//     }, 1000); // add delay for performances
+//   }
+// }, [cache, chats]);
   // {onError: async (error) => {
   //         console.log("aze error get chats", error)
   //         if (error === 401 || error === 403) {
@@ -158,10 +157,12 @@ async function muteNotifChat(mute) {
   }
 }
     // console.log(chats[0])
+  const isAdmin = chat?.creator === activeAccount;
 
   return { 
     chats, 
     chat, 
+    isAdmin,
     isLoading, 
     profilePictures,
     clearCache,
