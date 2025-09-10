@@ -3,20 +3,32 @@ import { fetcherAccount } from "../../fetcher";
 import { DotLoading, Image, ImageViewer } from "antd-mobile";
 import { accountIconUrl } from "../../../app/Home";
 import { NoAvatar } from "../icons/NoAvatar";
+import { useChats } from "../../hooks/use-chats";
 
 const getDevicePixelRatioCeiled = () => Math.ceil(window.devicePixelRatio || 1);
 const imgProxy = (src, width) => `https://i.nanwallet.com/unsafe/rs::${width}/dpr:${getDevicePixelRatioCeiled()}/plain/${encodeURI(src)}` 
 
 const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = null }) => {
+    const {chats} = useChats();
+   
     let isLoading = false
     if (src == null){
-        const { data, isLoading: isLoadingData } = useSWR(address, fetcherAccount, {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        });
-        src = data?.profilePicture?.url
-        isLoading = isLoadingData
+         for (const chat of chats) {
+            const participant = chat.participants.find(p => p._id === address);
+            if (participant) {
+                src = participant?.profilePicture?.url;
+            break;
+            }
+        }
+        if (src == null){
+            const { data, isLoading: isLoadingData } = useSWR(address, fetcherAccount, {
+                revalidateIfStale: false,
+                revalidateOnFocus: false,
+                revalidateOnReconnect: false,
+            });
+            src = data?.profilePicture?.url
+            isLoading = isLoadingData
+        }
     }
     let icon
     if (src == null || src == false) {

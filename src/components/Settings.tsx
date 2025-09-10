@@ -236,7 +236,7 @@ const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defa
     label: "XNO",
     hex: "#6495ED",
   });
-  const { mutate } = useSWRConfig()
+  const { mutate, cache } = useSWRConfig()
   useHideNavbarOnMobile(true)
   const options = [
     { value: "XNO", label: "XNO", hex: "#6495ED" },
@@ -625,6 +625,16 @@ className="mb-24"
                   undefined, // update cache data to `undefined`
                   { revalidate: false } // do not revalidate
                 )
+                const keys = cache.keys()
+                for (const key of keys) {
+                  debugger
+                  cache.delete(key)
+                }
+                try {
+                  cache.clear()
+                } catch (error) {
+                    console.log('cannot clear cache swr', error)                  
+                }
                 mutate("/chats-"+activeAccount) // preload chats
                 mutate("/stickers") // preload stickers
                 await clearDb()
