@@ -153,7 +153,9 @@ export const saveMessageCache = async (chatId, msg, account, accountPk) => {
     let cacheKey = cacheKeyPrefix(chatId) + msg.height;
     // localStorage.setItem(cacheKey, JSON.stringify(msg));
     const decryptedMessage = {...msg}
+    console.time('decrypt-' + msg._id)
     const {decrypted, decryptedRedPacket, decryptedReply} = await decryptChatMessage(msg, account, accountPk)
+    console.timeEnd('decrypt-' + msg._id)
     decryptedMessage["decrypted"] = decrypted
     if (!isSpecialMessage(msg)){
         delete decryptedMessage["content"] // no need to keep the encrypted content
@@ -164,7 +166,7 @@ export const saveMessageCache = async (chatId, msg, account, accountPk) => {
     if (decryptedMessage["redPacket"]){
         decryptedMessage["redPacket"]["decrypted"] = decryptedRedPacket
     }
-    await setData(cacheKey, decryptedMessage)
+    setData(cacheKey, decryptedMessage)
     return decryptedMessage
 }
 export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().then(async (token) => {
@@ -223,17 +225,17 @@ console.time('cache')
             
             // Process all messages in parallel
             console.time('decrypt new messages')
-            const decrypted = await Promise.all(
-                messages.map(async (message) => {
-                    const cache = await getMessageCache(chatId, message.height);
-                    if (cache == null) {
-                        // Only save if not already existing
-                        return await saveMessageCache(chatId, message, account, accountPk);
-                    } else {
-                        return cache;
-                    }
-                })
-            );
+            const decrypted = [];
+            for (const message of messages) {
+                const cache = await getMessageCache(chatId, message.height); // Remove await
+                if (cache == null) {
+                    // Only save if not already existing
+                    let d = await saveMessageCache(chatId, message, account, accountPk)
+                    decrypted.push(d); // Remove await
+                } else {
+                    decrypted.push(cache);
+                }
+            }
             console.timeEnd('decrypt new messages')
             // debugger;
             return decrypted;

@@ -1,4 +1,4 @@
-import useSWR, { } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { useCallback, useEffect, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
@@ -115,9 +115,12 @@ export function useChat(chatId) {
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
     mutate([pages[0]], false); // Keep only first page, no revalidation
+    // Reset size back to 1 (first page)
+    if (size > 1){
+      setSize(1);
+    }
   } 
-  // Reset size back to 1 (first page)
-  setSize(1);
+  
 }
   // Load more messages
   const loadMore = useCallback(() => {
