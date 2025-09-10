@@ -6,7 +6,8 @@ import { fetchBalance } from "./Network";
 import useLocalStorageState from "use-local-storage-state";
 import { Form, Input } from "antd-mobile";
 import { CgArrowsExchangeV } from "react-icons/cg";
-import { convertAddress } from "../../utils/format";
+import { convertAddress, formatAmountMega } from "../../utils/format";
+import BigNumber from "bignumber.js";
 
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send", label = "", rulesMinMax}) => {
   const { t } = useTranslation();
@@ -58,8 +59,8 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
     if (prices?.[ticker] == null) return "..";
     const fiatAmount = (balance * prices[ticker]?.usd * fiatRate).toFixed(2);
     return isAmountFiat
-      ? `${fiatAmount} ${selected} (${balance} ${ticker})`
-      : `${balance} ${ticker}`;
+      ? `${fiatAmount} ${selected} (${formatAmountMega(balance, ticker)} ${ticker})`
+      : `${formatAmountMega(balance, ticker)} ${ticker}`;
   };
 
   const updateOtherAmountField = (value) => {
@@ -105,9 +106,14 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       required: true,
       message: t('availableAmount', { amount: getAvailableAmount() }),
       type: "number",
-      transform: (value) => parseFloat(value),
+      // transform: (value) => parseFloat(value),
       min: 0,
-      max: isAmountFiat ? balance * prices[ticker].usd * getFiatRate() : balance,
+      validator: async (rule, value) => {
+        if (new BigNumber(value).isGreaterThan(balance)) {
+          throw new Error("Not enough balance");
+        }
+      },
+      // max: isAmountFiat ? +balance * prices[ticker].usd * getFiatRate() : +balance,
   });
 }
 if (type === "airdrop"){

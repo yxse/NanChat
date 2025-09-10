@@ -45,6 +45,7 @@ import { convertAddress, formatAmountMega } from "../../utils/format";
 import { Scanner } from "./Scanner";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Buy from "./Buy";
+import BigNumber from "bignumber.js";
 
 const SelectTicker = ({ side, visible, setVisible, allCurrencies,  isLoading, selected, setSelected}) => {
 
@@ -296,7 +297,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
                 {
                   amount != undefined && amount !== "" 
                   && networks.hasOwnProperty(selectedFrom) && allCurrencies?.[selectedFrom]?.feeless == true
-                  && !balanceLoading && amount > balance && <div
+                  && !balanceLoading && BigNumber(amount).gt(balance) && <div
                     onClick={() => {
                       setAmount(balance)
                     }}
