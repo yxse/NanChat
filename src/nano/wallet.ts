@@ -210,6 +210,7 @@ export class Wallet {
     
         return
       }
+      // todo: store (encrypted) accounts instead of re creating them
       accounts = functionToUse(
         this.seed,
         index,
@@ -324,7 +325,9 @@ export class Wallet {
       console.log("Verifying history...", account, this.ticker)
       console.time("fetching & verifyHistory " + account + " head: " + head)
       let history = await this.rpc.acocunt_history(account, "-1", "0", true, head);
-      
+      if (!head && history?.error === "Account not found"){
+          throw new Error("Account not yet opened") // to show error on frontier verif page
+      }
       if (!head && history.history[0].previous !== "0".repeat(64)){ // if head not used, the history 0 should be the open block
         throw new Error("Warning: Invalid open block " + JSON.stringify(history.history[0]))
       }
