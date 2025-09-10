@@ -2,10 +2,11 @@ import { tools } from "multi-nano-web";
 import { getChatToken, setChatToken } from "../../utils/storage";
 import { accountIconUrl } from "../app/Home";
 import { Toast } from "antd-mobile";
-import { inMemoryMap, restoreData, setData } from "../../services/database.service";
+import { inMemoryMap, loadAllMessagesInMemoryMap, loadInMemoryMap, restoreData, restoreMessages, setData } from "../../services/database.service";
 import { saveCache } from "../Wrapper";
 import { decryptChatMessage } from "./hooks/use-message-decryption";
-import { isSpecialMessage } from "./utils";
+import { cacheKeyPrefix, isSpecialMessage } from "./utils";
+import { Capacitor } from "@capacitor/core";
 
 
 export const signMessage = (privateKey, message) => {
@@ -143,10 +144,9 @@ const cacheAllMessagesChat = async (chatId, height) => {
 
 }
 
-export const cacheKeyPrefix = (chatId) => `chat_${chatId}_msg_`;
 export const getMessageCache = async (chatId, height) => {
     let cacheKey = cacheKeyPrefix(chatId) + height;
-    return await restoreData(cacheKey)
+    return await restoreMessages(cacheKey, chatId)
     return localStorage.getItem(cacheKey);
 }
 export const saveMessageCache = async (chatId, msg, account, accountPk) => {
@@ -155,7 +155,9 @@ export const saveMessageCache = async (chatId, msg, account, accountPk) => {
     const decryptedMessage = {...msg}
     const {decrypted, decryptedRedPacket, decryptedReply} = await decryptChatMessage(msg, account, accountPk)
     decryptedMessage["decrypted"] = decrypted
-    delete decryptedMessage["message"] // no need to keep the encrypted content
+    if (!isSpecialMessage(msg)){
+        delete decryptedMessage["content"] // no need to keep the encrypted content
+    }
     if (decryptedMessage["replyMessage"]){
         decryptedMessage["replyMessage"]["decrypted"] = decryptedReply
     }
@@ -166,7 +168,7 @@ export const saveMessageCache = async (chatId, msg, account, accountPk) => {
     return decryptedMessage
 }
 export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().then(async (token) => {
-    console.time('cache')
+    
 
     console.log("fetch message cache", url)
     // Parse params from the URL
@@ -182,18 +184,28 @@ export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().
       let cachedMaxHeight = 0;
     //   debugger
     
-      for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--){
-          let cachedData = await getMessageCache(chatId, i)
-          if (cachedData){
-              cachedMessages = cachedMessages.concat(cachedData);
-          }
-      }
+    if (Capacitor.getPlatform() == "web"){
+         // on web, capgo/capacitor-data-storage-sqlite use localforage, which renders any filtering very inefficient as need to load all keys each time
+         // so for now we just load all messages in memory
+        await loadAllMessagesInMemoryMap()
+    }
+    else{
+        // on native it uses sqlite which should be able to efficintly filter by chat id
+        await loadInMemoryMap(chatId)
+    }
+      const promises = [];
+        for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--) {
+            promises.push(getMessageCache(chatId, i));
+        }
+console.time('cache')
+        const results = await Promise.all(promises);
+        cachedMessages = results.filter(data => data).flat();
+      console.timeEnd('cache')
       // if all messages are cached, return them
     //   debugger
       if (cachedMessages.length == requestedLimit 
         || (cachedMessages.length > 0 && cachedMessages.length == requestedHeight+1)  // for the first page
     ){
-        console.timeEnd('cache')
           return cachedMessages;
       }
       // else fetch the missing messages

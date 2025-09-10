@@ -17,7 +17,7 @@ import { AiOutlineSwap } from "react-icons/ai";
 import useMessageDecryption from "../../messaging/hooks/use-message-decryption";
 import Sticker from "../../messaging/components/Sticker";
 import { useNavigate } from "react-router-dom";
-import { cacheKeyPrefix, fetcherChat, fetcherMessages, openRedPacket, saveMessageCache } from "../../messaging/fetcher";
+import {  fetcherChat, fetcherMessages, openRedPacket, saveMessageCache } from "../../messaging/fetcher";
 import packetOpenedIcon from "../../../../public/icons/red_envelope_opened.png"
 import { useChat } from "../../messaging/hooks/useChat";
 import { inMemoryMap } from "../../../services/database.service";

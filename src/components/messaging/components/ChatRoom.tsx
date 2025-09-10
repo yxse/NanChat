@@ -589,7 +589,7 @@ useEffect(() => {
                                             // ref={index === messages.length - 1 ? messagesEndRef : null}
                                             >
                                                 <Message
-                                                    key={message._id + message.status}
+                                                    key={`${message._id}-${message.status}`}
                                                     message={message}
                                                     prevMessage={messages[index + 1]}
                                                     nextMessage={messages[index - 1]}

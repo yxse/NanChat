@@ -245,3 +245,4 @@ export  const findNanoAddress = (addresses) => {
     }
     return convertAddress(addresses[0].address, 'XNO');
 }
+export const cacheKeyPrefix = (chatId) => `chat_${chatId}_msg_`;

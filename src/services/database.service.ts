@@ -2,6 +2,7 @@ import {
     CapgoCapacitorDataStorageSqlite,
     capOpenStorageOptions,
   } from "@capgo/capacitor-data-storage-sqlite";
+import { cacheKeyPrefix } from "../components/messaging/utils";
   
   export let sqlStore = CapgoCapacitorDataStorageSqlite;
   export let inMemoryMap = new Map<string, any>();
@@ -50,17 +51,78 @@ import {
       return false;
     }
   }
-  
-  export let restoreData = async (key: string): Promise<any> => {
-    await initSqlStore();
-    try {
-        if (inMemoryMap.has(key)) {
-            console.log("hit data from memory", key)
-            return inMemoryMap.get(key)
+  export let loadAllMessagesInMemoryMap = async (): Promise<void> => {
+  try {    
+    if (inMemoryMap.has("loaded")) return
+    console.time('load in memory')
+    inMemoryMap.set("loaded", true)
+    let keysvalues = await sqlStore.keysvalues();
+
+    for (let entry of keysvalues.keysvalues) {
+      let key = entry.key;
+      if (key.startsWith('chat')){
+        let value 
+        if (key.startsWith('chat')){
+          value = JSON.parse(entry.value);
         }
-      let exists = await sqlStore.iskey({ key: key });
-      if (!exists.result) return null;
+        else{
+          value = entry.value
+        }
+        inMemoryMap.set(key, value);
+      }
+    }
+console.timeEnd('load in memory')
+  } catch (err) {
+    console.log("Error loading table to in memory map.");
+    console.log(err);
+    return;
+  }
+}
+  export let loadInMemoryMap = async (chatId): Promise<void> => {
+  try {
+    if (inMemoryMap.has(chatId)) return
+    console.time('load in memory')
+    inMemoryMap.set(chatId, true) // to prevent loading muliple times
+    let chatMessages = await sqlStore.filtervalues({filter: `%chat_${chatId}`})
+    const prefix = cacheKeyPrefix(chatId)
+    chatMessages.values.forEach(chatMessage => {
+        let message = JSON.parse(chatMessage);
+        const key = prefix + message.height
+        inMemoryMap.set(key, message);
+    });
+    console.log("loaded ", chatMessages.values.length, " messages in memory, chat id:", chatId)
+    console.timeEnd('load in memory')
+  } catch (err) {
+    console.log("Error loading table to in memory map.");
+    console.log(err);
+    return;
+  }
+}
+  export let restoreMessages = async (key: string, chatId: string): Promise<any> => {
+    try {
+      if (inMemoryMap.has(key)) {
+        console.log("hit data from memory", key)
+        return inMemoryMap.get(key)
+      }
+      return null;
+    } catch (err) {
+      console.log(`Error restoring key ${key}`);
+      console.log(err);
+      return null;
+    }
+  }
+  export let restoreData = async (key: string): Promise<any> => {
+    try {
+      if (inMemoryMap.has(key)) {
+        console.log("hit data from memory", key)
+        return inMemoryMap.get(key)
+      }
+      await initSqlStore();
+      // let exists = await sqlStore.iskey({ key: key });
+      // if (!exists.result) return null;
+      console.time('get sql' + key)
       let valueJson = await sqlStore.get({ key: key});
+      console.timeEnd('get sql' + key)
       let value = JSON.parse(valueJson.value);
         inMemoryMap.set(key, value)
       return value;
@@ -71,16 +133,16 @@ import {
     }
   }
   export let restoreDataString = async (key: string): Promise<any> => {
+    if (inMemoryMap.has(key)) {
+        console.log("hit data from memory", key)
+        return inMemoryMap.get(key)
+    }
     await initSqlStore();
     try {
-        if (inMemoryMap.has(key)) {
-            console.log("hit data from memory", key)
-            return inMemoryMap.get(key)
-        }
       let exists = await sqlStore.iskey({ key: key });
       if (!exists.result) return null;
       let valueSring = (await sqlStore.get({ key: key})).value
-        inMemoryMap.set(key, valueSring)
+      inMemoryMap.set(key, valueSring)
       return valueSring;
     } catch (err) {
       console.log(`Error restoring key ${key}`);
