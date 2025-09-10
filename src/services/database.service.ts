@@ -83,7 +83,7 @@ console.timeEnd('load in memory')
     if (inMemoryMap.has(chatId)) return
     console.time('load in memory')
     inMemoryMap.set(chatId, true) // to prevent loading muliple times
-    let chatMessages = await sqlStore.filtervalues({filter: `%chat_${chatId}`})
+    let chatMessages = await sqlStore.filtervalues({filter: `chat_${chatId}`})
     const prefix = cacheKeyPrefix(chatId)
     chatMessages.values.forEach(chatMessage => {
         let message = JSON.parse(chatMessage);
