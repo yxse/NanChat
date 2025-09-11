@@ -1,14 +1,15 @@
 import { box } from "multi-nano-web";
 import { memo, useContext, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
-import { useWallet, WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
+import { useWallet } from "../../useWallet";
 import { Button, Card, Divider, DotLoading, List, Modal, NavBar } from "antd-mobile";
-import { convertAddress, formatAmountMega, formatAmountRaw } from "../../../utils/format";
+import { formatAmountMega, formatAmountRaw } from "../../../utils/format";
+import { convertAddress } from "../../../utils/convertAddress";
 import { networks } from "../../../utils/networks";
 import useSWR from "swr";
 import { fetchAccountInfo, fetchBlock } from "../Network";
 import { rawToMega } from "../../../nano/accounts";
-import { ConvertToBaseCurrency, FormatBaseCurrency } from "../Home";
 import { openHashInExplorer } from "../../messaging/utils";
 import { GiftOutline, RightOutline } from "antd-mobile-icons";
 import ProfileName from "../../messaging/components/profile/ProfileName";

@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect } from "react";
 import useMessageDecryption from "../hooks/use-message-decryption";
-import { WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
 import ProfileName from "./profile/ProfileName";
 import { CloseCircleFill } from "antd-mobile-icons";
 import MessageFile from "./MessageFile";

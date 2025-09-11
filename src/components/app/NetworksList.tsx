@@ -10,24 +10,25 @@ import { BiPlus } from "react-icons/bi";
 import { fetchPrices, fetcher } from "../../nanswap/swap/service";
 import { CopyToClipboard, ResponsivePopup } from "../Settings";
 import { getRepresentative } from "../getRepresentative";
-import { convertAddress, formatAddress, formatAmountMega } from "../../utils/format";
+import { formatAddress, formatAmountMega } from "../../utils/format";
+import { convertAddress } from "../../utils/convertAddress";
 import { FaExchangeAlt, FaSortAmountDown } from "react-icons/fa";
 import { FaCheck, FaCopy, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { TbWorldQuestion } from "react-icons/tb";
 import useLocalStorageState from "use-local-storage-state";
-import { ConvertToBaseCurrency } from "./Home";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { getAccount } from "../getAccount";
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineSend, AiOutlineSwap } from "react-icons/ai";
 import { CopyIcon } from "./Icons";
-import { WalletContext } from "../Popup";
+import { WalletContext } from "../useWallet";
 import { fetcherChat } from "../messaging/fetcher";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Swap from "./Swap";
 import { Capacitor } from "@capacitor/core";
 import { useTranslation } from 'react-i18next'
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { ConvertToBaseCurrency } from "../messaging/utils";
 
 
 

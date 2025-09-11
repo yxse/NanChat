@@ -2,7 +2,7 @@ import useSWR, { mutate, useSWRConfig } from 'swr';
 import { useCallback, useEffect, useRef } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
-import { useWallet } from '../../Popup';
+import { useWallet } from "../../useWallet";
 import { Toast } from 'antd-mobile';
 
 interface UseChatsReturn {

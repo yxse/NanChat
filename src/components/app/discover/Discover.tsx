@@ -3,8 +3,9 @@ import { DotLoading, List, NavBar, Popup, Button, Space, Toast, CheckList, Ellip
 import { fetcherMessages, fetcherMessagesNoAuth } from "../../messaging/fetcher";
 import useSWR from "swr";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useWallet, WalletContext } from "../../Popup";
-import { convertAddress } from "../../../utils/format";
+import { WalletContext } from "../../useWallet";
+import { useWallet } from "../../useWallet";
+import { convertAddress } from "../../../utils/convertAddress";
 import { InAppBrowser } from "@capacitor/inappbrowser";
 
 import { WebviewOverlay, IWebviewOverlayPlugin,   } from '@teamhive/capacitor-webview-overlay';

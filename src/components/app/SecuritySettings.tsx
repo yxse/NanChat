@@ -13,7 +13,7 @@ import { Capacitor } from "@capacitor/core";
 import { CreatePin } from "../Lock/CreatePin";
 import { PinAuthPopup } from "../Lock/PinLock";
 import { PasswordForm } from "../Initialize/create/Password";
-import { WalletContext } from "../Popup";
+import { WalletContext } from "../useWallet";
 import PrivacySettings from "./BlockedChats";
 import { ChatWrongOutline, DeleteOutline, LeftOutline } from "antd-mobile-icons";
 import { deleteAccount, fetcherMessages, setMinReceive } from "../messaging/fetcher";

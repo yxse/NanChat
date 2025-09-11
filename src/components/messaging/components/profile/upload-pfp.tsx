@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ImageUploader, Toast, Button, Avatar, Divider } from 'antd-mobile';
 import { AddCircleOutline, CameraOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
-import { WalletContext } from '../../../Popup';
-import { convertAddress } from '../../../../utils/format';
+import { WalletContext } from "../../../useWallet";
+import { convertAddress } from "../../../../utils/convertAddress";
 import useSWR from 'swr';
 import { fetcherAccount, fetcherMessages, fetcherMessagesPost } from '../../fetcher';
 import { accountIconUrl } from '../../../app/Home';

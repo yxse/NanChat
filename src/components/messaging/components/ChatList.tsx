@@ -4,8 +4,11 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
 import { socket } from "../socket";
-import { LedgerContext, useWallet, WalletContext } from "../../Popup";
-import { convertAddress, formatAddress, ShareModal } from "../../../utils/format";
+import { LedgerContext } from "../../LedgerContext";
+import { WalletContext } from "../../useWallet";
+import { useWallet } from "../../useWallet";
+import { formatAddress, ShareModal } from "../../../utils/format";
+import { convertAddress } from "../../../utils/convertAddress";
 import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
 import useSWR from "swr";
 import SetName from "./SetName";
@@ -29,7 +32,8 @@ import MessageRaw from "./MessageRaw";
 import { CopyButton } from "../../app/Icons";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
-import { showAccountQRCode } from "../utils";
+import { showAccountQRCode } from "../showAccountQRCode";
+import { AccountAvatar } from "../AccountAvatar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import BackupContacts from "./contacts/BackupContacts";
 import { useChats } from "../hooks/use-chats";
@@ -483,17 +487,6 @@ useEffect(() => {
     );
 };
 
-export const AccountAvatar = ({ width=48, account, src = null}) => {
-    let icon
-    if (account == null) {
-        // url = "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D" + account + "%26outline%3Dtrue"
-        icon = <NoAvatar height={width} width={width} />
-    }
-    else{
-        icon = <ProfilePicture address={account} width={width} src={src}/>
-        //  <img style={{borderRadius: 8}} src={url} alt="account-pfp" width={width} />
-    }
-    return icon
-}
+
 
 export default ChatList;

@@ -17,13 +17,16 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { DownOutline, ScanCodeOutline } from "antd-mobile-icons";
 import { MdOutlineCheck, MdOutlineRefresh, MdOutlineUsb } from "react-icons/md";
 import { DisconnectLedger, resetLedger } from "../Initialize/Start";
-import { LedgerContext, useWallet, WalletContext } from "../Popup";
+import { LedgerContext } from "../LedgerContext";
+import { WalletContext } from "../useWallet";
+import { useWallet } from "../useWallet";
 import useLocalStorageState from "use-local-storage-state";
 import { FaExchangeAlt } from "react-icons/fa";
 import {SetOutline} from "antd-mobile-icons";
 import getSymbolFromCurrency from "currency-symbol-map";
 import { cryptoBaseCurrencies, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
-import { convertAddress, parseURI } from "../../utils/format";
+import { parseURI } from "../../utils/format";
+import { convertAddress } from "../../utils/convertAddress";
 import PasteAction from "./PasteAction";
 import { CopyIcon } from "./Icons";
 import CopyAddressPopup from "./CopyAddressPopup";
@@ -47,81 +50,11 @@ import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
 import { LocalNotifications } from "@capacitor/local-notifications";
-
-export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined, isLoading = false}) => {
-  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
-
-  let formatted = null
-  try {
-    if (selected === "XNO") {
-      formatted = "Ӿ" + new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency);
-    }
-    else if (selected.startsWith("X") || cryptoBaseCurrencies.includes(selected)) {
-      // without this it would always show 2 decimal places for X.. currencies
-      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
-    }
-    else if (selected === "NYANO"){
-      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 0 }).format(amountInBaseCurrency) + " " + selected;
-    }
-    else if (maximumSignificantDigits === undefined) {
-      formatted = new Intl.NumberFormat("en-US", { 
-        style: 'currency', 
-        currency: selected,
-       }).format(amountInBaseCurrency);
-    }
-    else {
-      formatted = new Intl.NumberFormat("en-US", { 
-        style: 'currency', 
-        currency: selected,
-        maximumSignificantDigits: maximumSignificantDigits,
-       }).format(amountInBaseCurrency);
-    }
-
-  }
-  catch (e) {
-    console.log(e);
-    if (maximumSignificantDigits === undefined) {
-      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
-    }
-    else {
-      formatted = new Intl.NumberFormat("en-US", {maximumSignificantDigits: maximumSignificantDigits }).format(amountInBaseCurrency) + " " + selected;
-    }
-    // +amountInBaseCurrency.toPrecision(6) + " " + selected;
-  }
-  if (isLoading) {
-    return <DotLoading />
-  }
-  return (
-    <>
-      {formatted}
-    </>
-  );
-}
+import { FormatBaseCurrency } from "../messaging/utils";
 
 
-export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits = undefined }) => {
-  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
-  const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
-  const { data: prices, isLoading: isLoadingPrices } = useSWR(
-    "prices",
-    fetchPrices,
-  );
 
-  if (isLoadingPrices) return <DotLoading />;
-  if (prices?.[ticker] === undefined) {
-    return "--"
-  }
-  let converted = 0
-  if (selected === ticker) {
-    converted = amount;
-  }
-  else{
-    converted = amount * (+prices?.[ticker]?.usd * +data?.[selected] ) ;
-  }
-  return (
-    <FormatBaseCurrency amountInBaseCurrency={converted} maximumSignificantDigits={maximumSignificantDigits} />
-  );
-}
+
 
 export const accountIconUrl = (account) => {
   if (!account?.startsWith("nano_")){

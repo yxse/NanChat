@@ -8,16 +8,6 @@ import { ImpactStyle } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 import { t } from "i18next";
 
-export const convertAddress = (address, ticker) => {
-  if (address == null) {
-    return "";
-  }
-    // if (address.startsWith("nano_")) {
-    //   return address.replace("nano_", networks[ticker]?.prefix + "_");
-    // }
-    return networks[ticker]?.prefix + "_" + address.split("_")[1];
-  }
-
 export const formatAddress = (address, start = 10, end = 6) => {
     if (!address) return "";
     return address.slice(0, start) + "..." + address.slice(-end);

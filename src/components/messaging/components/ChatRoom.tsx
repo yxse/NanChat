@@ -5,14 +5,15 @@ import { FiMoreHorizontal } from "react-icons/fi";
 import { IoSendOutline } from "react-icons/io5";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { socket } from "../socket";
-import { WalletContext } from "../../Popup";
-import { convertAddress, formatAddress, ShareModal } from "../../../utils/format";
+import { WalletContext } from "../../useWallet";
+import { formatAddress, ShareModal } from "../../../utils/format";
+import { convertAddress } from "../../../utils/convertAddress";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, DotLoading, Input, List, Modal, NavBar, SafeArea, Skeleton, Space, Toast } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherAccount, fetcherMessages, joinRequest } from "../fetcher";
+import { fetcherAccount, fetcherMessages, joinRequest, saveMessageCache } from "../fetcher";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
@@ -37,6 +38,7 @@ import { useChats } from "../hooks/use-chats";
 import { useSWRConfig } from "swr"
 import { unstable_serialize } from 'swr/infinite'
 import { debounce } from 'lodash';
+import { removeData } from "../../../services/database.service";
 
 const ChatRoom: React.FC<{}> = ({  }) => {
     const {mutate: mutateInifinite} = useSWRConfig();
@@ -211,16 +213,22 @@ const saveScrollPosition = useCallback(
                 const messageIndex = newPages[0].findIndex(message => message._id === newMessage._id);
                 if (messageIndex !== -1) {
                     newPages[0][messageIndex] = newMessage;
+                    saveMessageCache(newMessage.chatId, newMessage, activeAccount, activeAccountPk)
                 }
                 return newPages;
 
             }, false);
         });
-        socket.on('delete-message', ({chatId, height}) => {
+        socket.on('delete-message', ({chatId, height, messageSystem}) => {
             console.log("recalled message", height); // best effort is to remove message from local cache, but not guaranteed to be removed by everyone cache
             mutate(currentPages => {
                 const newPages = [...(currentPages || [])];
-                newPages[0] = newPages[0].filter(message => message.height !== height && message.chatId === chatId);
+                const messageIndex = newPages[0].findIndex(message => message.height === height);
+                if (messageIndex !== -1) {
+                    debugger
+                    newPages[0][messageIndex] = messageSystem;
+                    saveMessageCache(chatId, messageSystem, activeAccount, activeAccountPk)
+                }
                 return newPages;
             }, false);
         });

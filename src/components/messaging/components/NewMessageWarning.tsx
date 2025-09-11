@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatAddress } from '../../../utils/format';
 import { useChats } from '../hooks/use-chats';
 import { ChatCheckOutline, ChatWrongOutline } from 'antd-mobile-icons';
-import { useWallet } from '../../Popup';
+import { useWallet } from "../../useWallet";
 import { useTranslation } from 'react-i18next';
 import { ChatName } from './ItemChat';
 

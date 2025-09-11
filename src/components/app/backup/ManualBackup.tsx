@@ -4,7 +4,7 @@ import React, { useContext, useState } from 'react'
 import { MdOutlineSettingsBackupRestore } from 'react-icons/md'
 import { MnemonicWords } from '../../Initialize/create/Mnemonic';
 import useLocalStorageState from 'use-local-storage-state';
-import { WalletContext } from '../../Popup';
+import { WalletContext } from "../../useWallet";
 import { PinAuthPopup } from '../../Lock/PinLock';
 import { ResponsivePopup } from '../../Settings';
 import { ExclamationCircleOutline } from 'antd-mobile-icons';

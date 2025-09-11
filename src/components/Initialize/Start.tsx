@@ -3,7 +3,9 @@ import Navbar from "../Lock/Navbar";
 import { Dispatch, useContext, useEffect, useState } from "react";
 import { LedgerService, LedgerStatus } from "../../ledger.service";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LedgerContext, useWallet, WalletContext } from "../Popup";
+import { LedgerContext } from "../LedgerContext";
+import { WalletContext } from "../useWallet";
+import { useWallet } from "../useWallet";
 
 import { mutate, useSWRConfig } from "swr";
 import { networks } from "../../utils/networks";

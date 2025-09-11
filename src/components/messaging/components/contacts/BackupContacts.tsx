@@ -17,7 +17,7 @@ import { LockFill } from 'antd-mobile-icons';
 import useSWR from 'swr';
 import { fetcherMessages, fetcherMessagesPost } from '../../fetcher';
 import { box } from 'multi-nano-web';
-import { useWallet } from '../../../Popup';
+import { useWallet } from "../../../useWallet";
 import { useSWRConfig } from "swr"
 import { defaultContacts } from '../../utils';
 

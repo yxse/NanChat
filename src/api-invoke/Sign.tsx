@@ -2,7 +2,7 @@ import { BiX } from "react-icons/bi";
 import { tools } from 'multi-nano-web'
 import { useContext, useEffect, useState } from "react";
 import { Button, Result, TextArea, Toast } from "antd-mobile";
-import { WalletContext } from "../components/Popup";
+import { WalletContext } from "../components/useWallet";
 import { redirect, useNavigate, useSearchParams } from "react-router-dom";
 import { AccountIcon } from "../components/app/Home";
 import SelectAccount from "../components/app/SelectAccount";

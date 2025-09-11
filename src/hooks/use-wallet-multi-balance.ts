@@ -2,9 +2,9 @@ import useSWR, { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { fetcher, fetchFiatRates, fetchPrices } from "../nanswap/swap/service";
 import { useContext } from "react";
-import { WalletContext } from "../components/Popup";
+import { WalletContext } from "../components/useWallet";
 import { networks } from "../utils/networks";
-import { convertAddress } from "../utils/format";
+import { convertAddress } from "../utils/convertAddress";
 import { fetchBalance } from "../components/app/Network";
 
 export const useWalletMultiBalance = () => {

@@ -2,7 +2,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import { useCallback, useEffect, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
-import { useWallet } from '../../Popup';
+import { useWallet } from "../../useWallet";
 import { useChats } from './use-chats';
 import { Badge } from '@capawesome/capacitor-badge';
 import { SeedVerifiedBadge } from '../utils';

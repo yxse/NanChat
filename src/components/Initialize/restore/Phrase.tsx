@@ -15,7 +15,7 @@ import { Button, Card, Divider, Form, Input, List, Modal, NavBar, Space, TextAre
 import { networks } from "../../../utils/networks";
 import { initWallet } from "../../../nano/accounts";
 import { useSWRConfig } from "swr";
-import { WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
 import * as bip39 from 'bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { isTauri } from "@tauri-apps/api/core";

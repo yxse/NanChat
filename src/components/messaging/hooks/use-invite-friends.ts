@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { useWallet } from "../../Popup";
+import { useWallet } from "../../useWallet";
 import { fetcherAccount } from "../fetcher";
 import { ShareModal } from "../../../utils/format";
 import { useTranslation } from 'react-i18next';

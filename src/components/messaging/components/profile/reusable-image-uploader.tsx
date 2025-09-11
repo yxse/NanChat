@@ -3,7 +3,7 @@ import { ImageUploader, Toast, Button } from 'antd-mobile';
 import { getChatToken } from '../../../../utils/storage';
 import { ProfilePictureUploadButton } from '../icons/ProfilePictureUploadButton';
 import { fetcherAccount } from '../../fetcher';
-import { useWallet } from '../../../Popup';
+import { useWallet } from "../../../useWallet";
 import useSWR from 'swr';
 
 const ReusableImageUploader = ({ 

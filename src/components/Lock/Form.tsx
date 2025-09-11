@@ -4,7 +4,7 @@ import { decrypt } from "../../worker/crypto";
 import { wallet as walletLib} from "multi-nano-web";
 import { ClipLoader as HashSpinner } from "react-spinners";
 import { networks } from "../../utils/networks";
-import { WalletContext } from "../Popup";
+import { WalletContext } from "../useWallet";
 import { useSWRConfig } from "swr";
 import { initWallet } from "../../nano/accounts";
 import { getSeed } from "../../utils/storage";

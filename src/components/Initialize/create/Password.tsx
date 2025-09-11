@@ -6,7 +6,7 @@ import { IoArrowBack } from "react-icons/io5";
 import storage, { setSeed } from "../../../utils/storage";
 import { Button, Card, Form, Input, List, Modal, ProgressBar, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
-import { WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
 import { LockOutline } from "antd-mobile-icons";
 
 import { zxcvbnOptions, zxcvbnAsync } from '@zxcvbn-ts/core'

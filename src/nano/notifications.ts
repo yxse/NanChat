@@ -1,9 +1,8 @@
 import { useContext } from "react";
 import { getAccounts } from "../components/getAccount";
 import { getAccount } from "../components/getAccount";
-import { WalletContext } from "../components/Popup";
+import { WalletContext } from "../components/useWallet";
 import { networks } from "../utils/networks";
-import { convertAddress } from "../utils/format";
 import { box, wallet } from "multi-nano-web";
 import {
     FirebaseMessaging,
@@ -21,6 +20,7 @@ import {
 import {
     LocalNotifications,
   } from "@capacitor/local-notifications";
+import { convertAddress } from "../components/messaging/utils";
 
 const SERVER_NOTIFICATIONS = import.meta.env.VITE_PUBLIC_BACKEND + "/notifications";
 

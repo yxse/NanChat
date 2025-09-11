@@ -9,7 +9,13 @@ const getDevicePixelRatioCeiled = () => Math.ceil(window.devicePixelRatio || 1);
 const imgProxy = (src, width) => `https://i.nanwallet.com/unsafe/rs::${width}/dpr:${getDevicePixelRatioCeiled()}/plain/${encodeURI(src)}` 
 
 const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = null }) => {
-    const {chats} = useChats();
+    let chats  = []
+    try {
+        const {chats: allChats} = useChats();
+        chats = allChats
+    } catch (error) { // it can fail if loaded in modal, like in Group qr code
+        console.log("cannot load chats in profilepicture", error)
+    }
    
     let isLoading = false
     if (src == null){

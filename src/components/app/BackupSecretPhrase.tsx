@@ -6,7 +6,8 @@ import { CopyButton } from './Icons';
 import { MnemonicWords } from '../Initialize/create/Mnemonic';
 import { saveAs } from 'file-saver';
 import useLocalStorageState from 'use-local-storage-state';
-import { useWallet, WalletContext } from '../Popup';
+import { WalletContext } from "../useWallet";
+import { useWallet } from "../useWallet";
 import { authenticate } from '../../utils/biometrics';
 import { PinAuthPopup } from '../Lock/PinLock';
 import { ResponsivePopup } from '../Settings';
@@ -23,7 +24,7 @@ import { PasswordImport } from '../Initialize/restore/PasswordImport';
 import { ImportFromGoogleDrive } from '../Initialize/restore/ImportFromGoogleDrive';
 import { ImportFromICloud } from '../Initialize/restore/ImportFromICloud';
 import { SeedVerifiedBadge } from '../messaging/utils';
-import { convertAddress } from '../../utils/format';
+import { convertAddress } from "../../utils/convertAddress";
 import { useTranslation } from 'react-i18next';
 
 function getTimestampFilename() {

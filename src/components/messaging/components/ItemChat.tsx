@@ -1,6 +1,6 @@
 import { List } from "antd-mobile";
 import { ChatAvatar } from "./ChatList";
-import { useWallet } from "../../Popup";
+import { useWallet } from "../../useWallet";
 
 export const ItemChat = ({ chat, onClick }) => {
     return (

@@ -11,7 +11,7 @@ import storage, { setSeed } from "../../../utils/storage";
 import { Button, Card, DotLoading, Modal, NavBar, Toast } from "antd-mobile";
 import { CopyButton } from "../../app/Icons";
 import { saveAs } from 'file-saver';
-import { WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
 import { networks } from "../../../utils/networks";
 import { useSWRConfig } from "swr";
 import { initWallet } from "../../../nano/accounts";

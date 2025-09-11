@@ -15,12 +15,12 @@ import { FaCheck, FaCopy, FaSortDown, FaSortUp } from "react-icons/fa6";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { TbWorldQuestion } from "react-icons/tb";
 import useLocalStorageState from "use-local-storage-state";
-import { AccountIcon, ConvertToBaseCurrency, FormatBaseCurrency } from "./Home";
+import { AccountIcon } from "./Home";
 import { SlArrowDownCircle, SlArrowUpCircle } from "react-icons/sl";
 import { getAccount } from "../getAccount";
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineSend, AiOutlineSwap } from "react-icons/ai";
 import { CopyIcon } from "./Icons";
-import { WalletContext } from "../Popup";
+import { WalletContext } from "../useWallet";
 import React from 'react'
 import { DownOutline, EditSOutline, EyeFill, EyeInvisibleFill } from "antd-mobile-icons";
 import ProfileName from "../messaging/components/profile/ProfileName";
@@ -30,6 +30,7 @@ import { HapticsImpact } from "../../utils/haptic";
 import { useWalletMultiBalance } from "../../hooks/use-wallet-multi-balance";
 import { isTouchDevice } from "../../utils/isTouchDevice";
 import { useChats } from "../messaging/hooks/use-chats";
+import { FormatBaseCurrency } from "../messaging/utils";
 
 const MAX_ACCOUNTS = 10;
 function SelectAccount({ }) {

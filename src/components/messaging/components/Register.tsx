@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-route
 import ChatRoom from './ChatRoom';
 import ChatList, { LedgerNotCompatible } from './ChatList';
 import { socket } from '../socket';
-import { LedgerContext, useWallet, WalletContext } from '../../Popup';
-import { convertAddress } from '../../../utils/format';
+import { LedgerContext } from "../../LedgerContext";
+import { WalletContext } from "../../useWallet";
+import { useWallet } from "../../useWallet";
+import { convertAddress } from "../../../utils/convertAddress";
 import { AccountIcon } from '../../app/Home';
 import { Button, Form, ImageUploader, Input, Modal, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';

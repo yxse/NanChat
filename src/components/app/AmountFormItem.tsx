@@ -1,12 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { useWallet } from "../Popup";
+import { useWallet } from "../useWallet";
 import useSWR from "swr";
 import { fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
 import { fetchBalance } from "./Network";
 import useLocalStorageState from "use-local-storage-state";
 import { Form, Input } from "antd-mobile";
 import { CgArrowsExchangeV } from "react-icons/cg";
-import { convertAddress, formatAmountMega } from "../../utils/format";
+import { formatAmountMega } from "../../utils/format";
+import { convertAddress } from "../../utils/convertAddress";
 import BigNumber from "bignumber.js";
 
 export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type="send", label = "", rulesMinMax}) => {

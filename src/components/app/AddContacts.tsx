@@ -4,7 +4,7 @@ import { AiOutlineDelete, AiOutlineExport, AiOutlineImport, AiOutlineMenu, AiOut
 import useLocalStorageState from 'use-local-storage-state';
 import NetworkList from './NetworksList';
 import { networks } from '../../utils/networks';
-import { convertAddress, formatAddress, pasteFromClipboard } from '../../utils/format';
+import { formatAddress, pasteFromClipboard } from '../../utils/format';
 import { saveAs } from 'file-saver';
 import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
@@ -12,7 +12,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AddOutline, DownlandOutline, LockFill, MessageOutline, UploadOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
-import { useWallet } from '../Popup';
+import { useWallet } from "../useWallet";
 import ProfileName from '../messaging/components/profile/ProfileName';
 import { ResponsivePopup } from '../Settings';
 import { Scanner } from './Scanner';
@@ -22,7 +22,7 @@ import { useInviteFriends } from '../messaging/hooks/use-invite-friends';
 import ImportContactsFromShare, { useContacts } from '../messaging/components/contacts/ImportContactsFromShare';
 import BackupContacts, { useBackupContacts } from '../messaging/components/contacts/BackupContacts';
 import ChatInputTip from '../messaging/components/ChatInputTip';
-import { defaultContacts } from '../messaging/utils';
+import { convertAddress, defaultContacts } from '../messaging/utils';
 import { Capacitor } from '@capacitor/core';
 import { InputAddressAndNetwork } from '../messaging/components/contacts/AddNewContact';
 

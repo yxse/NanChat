@@ -1,6 +1,4 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import InitializeScreen from '../Initialize';
-import Lockscreen from '../Lock';
 import useSWR, { useSWRConfig } from 'swr';
 import { fetchPrices } from '../../nanswap/swap/service';
 import useLocalStorageState from 'use-local-storage-state';
@@ -10,15 +8,14 @@ import { Modal, Toast } from 'antd-mobile';
 import { showLogoutSheet } from '../Settings';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
-import { LedgerContext, WalletContext } from '../Popup';
+import { WalletContext } from "../useWallet";
 import { PinAuthPopup } from '../Lock/PinLock';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { getSeed } from '../../utils/storage';
 import { networks } from '../../utils/networks';
 import { initWallet } from '../../nano/accounts';
-import App from '.';
 import { ClipLoader as HashSpinner } from "react-spinners";
-import { defaultContacts } from '../messaging/utils';
+import { WalletApp } from './WalletApp';
 
 
 
@@ -87,7 +84,7 @@ function walletsReducer(state, action) {
 let appListener: PluginListenerHandle;
 
 
-const WalletProvider = ({ children, setWalletState, walletState }) => {
+export const WalletProvider = ({ children, setWalletState, walletState }) => {
   const { mutate, cache } = useSWRConfig()
   const [wallet, dispatch] = useReducer(walletsReducer, initialState);
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", { defaultValue: [0] });
@@ -204,50 +201,6 @@ const WalletProvider = ({ children, setWalletState, walletState }) => {
     </WalletContext.Provider>
   );
 }
-
-function WalletApp({}) {
-      const [walletState, setWalletState] = useState<"locked" | "pin-locked" | "unlocked" | "no-wallet" | "loading">("loading");
-      const [callback, setCallback] = useState(null);
-      const [ledger, setLedger] = useState(null);
-
-     
-  return (
-    <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
-    <WalletProvider setWalletState={setWalletState} walletState={walletState}>
-
-          {
-            walletState === "locked" && <Lockscreen setWalletState={setWalletState} theme={"theme"} />
-          }
-          {
-            walletState === "unlocked" && <App callback={callback} />
-          }
-          {
-            walletState === "no-wallet" && <InitializeScreen
-              theme={"theme"}
-              onCreated={(callback) => {
-                setCallback(callback);
-                localStorage.setItem('hasWallet', 'true');
-                localStorage.setItem('contacts', JSON.stringify(defaultContacts));
-                // Toast.show({
-                //   icon: "success",
-                //   content: <div className="text-center">
-                //     Wallet created with success!
-                //   </div>,
-                //   duration: 3000,
-                // })
-                // setShowConfetti(true);
-                // setTimeout(() => {
-                //   setConfettiCount(0);
-                // }, 5000);
-              }}
-              setWalletState={setWalletState} />
-          }
-        </WalletProvider>
-        </LedgerContext.Provider>
-  )
-}
-
-export default WalletApp
 
 const initialState = {
   seed: null,

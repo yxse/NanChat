@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import { Preferences } from "@capacitor/preferences";
 import { networks } from "../../utils/networks";
-import { useWallet } from "../Popup";
-import { convertAddress } from "../../utils/format";
+import { useWallet } from "../useWallet";
+import { convertAddress } from "../messaging/utils";
 
 function VerifyOpenBlock() {
     const navigate = useNavigate();
@@ -48,7 +48,7 @@ useEffect(() => {
     return (
     <div className="pb-4">
       <div className="p-4" style={{wordBreak: "break-all"}}>
-            Verify open block hashes on trusted nodes to verify {activeAccount} integrity:
+          Verify open block hashes on trusted nodes to verify {activeAccount} integrity:
           <br />
         </div>
        {

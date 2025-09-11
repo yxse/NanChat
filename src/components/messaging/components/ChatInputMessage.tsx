@@ -2,7 +2,7 @@ import { AddCircleOutline } from "antd-mobile-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
-import { useWallet } from "../../Popup";
+import { useWallet } from "../../useWallet";
 import { Button, TextArea, Toast } from "antd-mobile";
 import useSWR, { useSWRConfig } from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
@@ -302,13 +302,13 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
-      localStorage.setItem("message-" + messageEncrypted['content'], newMessage); // save decrypted message cache, encrypted content is the key, because we don't have yet the message id, eventually we could refact with a POST
+      // localStorage.setItem("message-" + messageEncrypted['content'], newMessage); // save decrypted message cache, encrypted content is the key, because we don't have yet the message id, eventually we could refact with a POST
       }
       else if (chat.type === "group") {
         let sharedAccount = chat.sharedAccount;
         messageEncrypted['content'] = box.encrypt(newMessage, sharedAccount, activeAccountPk);
         messageEncrypted['toAccount'] = sharedAccount;
-        localStorage.setItem("message-" + messageEncrypted['content'], newMessage);
+        // localStorage.setItem("message-" + messageEncrypted['content'], newMessage);
       }
       else{
         console.error("Chat type not supported", chat.type);
@@ -376,7 +376,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           encryptedMessageContent = box.encrypt(messageContent, sharedAccount, activeAccountPk);
           message.toAccount = sharedAccount;
         }
-        localStorage.setItem("message-" + encryptedMessageContent, messageContent);
+        // localStorage.setItem("message-" + encryptedMessageContent, messageContent);
       }
       const messageEncrypted = { 
         ...message,

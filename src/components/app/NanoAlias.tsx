@@ -10,7 +10,7 @@ import { fetchAliasIdentifierMulti, fetchAliasInternet } from "../../nanswap/swa
 import useSWR from "swr";
 import { AliasInternetIdentifier } from "./History";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
-import { WalletContext } from "../Popup";
+import { WalletContext } from "../useWallet";
 
 function NanoAlias() {
     const navigate = useNavigate();

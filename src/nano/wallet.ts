@@ -5,7 +5,7 @@ import AsyncLock from "async-lock";
 import { Modal, Toast } from "antd-mobile";
 import { rawToMega } from "./accounts";
 import { getRepresentative, setRepresentative } from "../components/getRepresentative";
-import { convertAddress } from "../utils/format";
+import { convertAddress } from "../utils/convertAddress";
 import { sendNotificationTauri } from "./notifications";
 import { Preferences } from '@capacitor/preferences';
 

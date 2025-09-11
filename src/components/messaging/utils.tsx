@@ -1,15 +1,17 @@
-import { Badge, Modal } from "antd-mobile";
+import { Badge, DotLoading, Modal } from "antd-mobile";
 import { QRCodeSVG } from "qrcode.react";
-import icon from "../../../public/icons/nanchat.svg";
 import useLocalStorageState from "use-local-storage-state";
-import { AccountAvatar } from "./components/ChatList";
 import { useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 import { networks } from "../../utils/networks";
 import { Device } from "@capacitor/device";
 import { StatusBar, Style } from "@capacitor/status-bar";
-import { convertAddress } from "../../utils/format";
+import { NoAvatar } from "./components/icons/NoAvatar";
+import ProfilePicture from "./components/profile/ProfilePicture";
+import { cryptoBaseCurrencies, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
+import useSWR from "swr";
+import { AccountAvatar } from "./AccountAvatar";
 
 export const hasLink = (message: string) => {
     return String(message)?.match(/(https?:\/\/[^\s]+)/g)
@@ -80,45 +82,6 @@ export function extractMetadata() {
 
 // https://filesec.io/
 export const dangerousExtensions = [".7z",".a3x",".appinstaller",".applescript",".application",".appref",".appx",".appxbundle",".arj",".asd",".bat",".bgi",".bz2",".cab",".chm",".cmd",".com",".cpl",".cs",".daa",".desktopthemepackfile",".diagcab",".dll",".dmg",".doc",".docm",".dot",".dotm",".eml",".exe",".gadget",".gz",".hta",".htm",".html",".hwpx",".ics",".img",".iqy",".iso",".jar",".jnlp",".js",".jse",".library",".lnk",".mam",".mht",".mhtml",".mof",".msc",".msi",".msrcincident",".ocx",".odt",".oxps",".pdf",".pif",".pot",".potm",".ppa",".ppam",".ppkg",".pps",".ppsm",".ppt",".pptm",".ps1",".pub",".py",".pyc",".pyo",".pyw",".pyz",".pyzw",".rar",".reg",".rtf",".scf",".scpt",".scr",".sct",".searchConnector",".service",".settingcontent",".sh",".sldm",".slk",".so",".svg",".tar",".theme",".themepack",".timer",".url",".uue",".vb",".vbe",".vbs",".vhd",".vhdx",".wbk",".website",".wim",".wiz",".ws",".wsf",".wsh",".xlam",".xll",".xlm",".xls",".xlsb",".xlsm",".xlt",".xltm",".xps",".xsl",".xz",".z",".zip"]
-
-
-export const showAccountQRCode = (me) => {
-  Modal.show({
-      showCloseButton: true,
-      closeOnMaskClick: true,
-      content: (
-        <div className="flex justify-start items-center flex-col">
-          <div className="text-xl mb-4 flex justify-start gap-2" style={{width: '200px'}}>
-          <AccountAvatar
-          account={me?._id}
-          // url={me?.profilePicture?.url}
-          width={42}
-          />
-          {me?.name}
-          </div>
-          {/* <div className="text-sm mb-2">
-          {formatAddress(me?._id)}
-          </div> */}
-          <QRCodeSVG
-            id="qrcode"
-            imageSettings={{
-              src: icon,
-              height: 24,
-              width: 24,
-              excavate: false,
-            }}
-            includeMargin
-            value={`https://nanchat.com/chat/${me?._id}`}
-            size={200}
-            style={{borderRadius: 8}}
-          />
-          <div className="text-base mt-4 text-center mb-4" style={{ color: 'var(--adm-color-text-secondary)' }}>
-            Scan to start an end-to-end encrypted chat with me
-          </div>
-        </div>
-      )
-    })
-}
 
 
 export const SeedVerifiedBadge = ({children, icon = false, count=0}) => {
@@ -246,3 +209,88 @@ export  const findNanoAddress = (addresses) => {
     return convertAddress(addresses[0].address, 'XNO');
 }
 export const cacheKeyPrefix = (chatId) => `chat_${chatId}_msg_`;
+
+export const ConvertToBaseCurrency = ({ ticker, amount, maximumSignificantDigits = undefined }) => {
+  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+  const {data, isLoading, error} = useSWR('fiat', fetchFiatRates)
+  const { data: prices, isLoading: isLoadingPrices } = useSWR(
+    "prices",
+    fetchPrices,
+  );
+
+  if (isLoadingPrices) return <DotLoading />;
+  if (prices?.[ticker] === undefined) {
+    return "--"
+  }
+  let converted = 0
+  if (selected === ticker) {
+    converted = amount;
+  }
+  else{
+    converted = amount * (+prices?.[ticker]?.usd * +data?.[selected] ) ;
+  }
+  return (
+    <FormatBaseCurrency amountInBaseCurrency={converted} maximumSignificantDigits={maximumSignificantDigits} />
+  );
+}
+
+
+export const FormatBaseCurrency = ({amountInBaseCurrency, maximumSignificantDigits = undefined, isLoading = false}) => {
+  const [selected] = useLocalStorageState("baseCurrency", {defaultValue: "USD"})
+
+  let formatted = null
+  try {
+    if (selected === "XNO") {
+      formatted = "Ӿ" + new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency);
+    }
+    else if (selected.startsWith("X") || cryptoBaseCurrencies.includes(selected)) {
+      // without this it would always show 2 decimal places for X.. currencies
+      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
+    }
+    else if (selected === "NYANO"){
+      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 0 }).format(amountInBaseCurrency) + " " + selected;
+    }
+    else if (maximumSignificantDigits === undefined) {
+      formatted = new Intl.NumberFormat("en-US", { 
+        style: 'currency', 
+        currency: selected,
+       }).format(amountInBaseCurrency);
+    }
+    else {
+      formatted = new Intl.NumberFormat("en-US", { 
+        style: 'currency', 
+        currency: selected,
+        maximumSignificantDigits: maximumSignificantDigits,
+       }).format(amountInBaseCurrency);
+    }
+
+  }
+  catch (e) {
+    console.log(e);
+    if (maximumSignificantDigits === undefined) {
+      formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 7 }).format(amountInBaseCurrency) + " " + selected;
+    }
+    else {
+      formatted = new Intl.NumberFormat("en-US", {maximumSignificantDigits: maximumSignificantDigits }).format(amountInBaseCurrency) + " " + selected;
+    }
+    // +amountInBaseCurrency.toPrecision(6) + " " + selected;
+  }
+  if (isLoading) {
+    return <DotLoading />
+  }
+  return (
+    <>
+      {formatted}
+    </>
+  );
+}
+
+export const convertAddress = (address, ticker) => {
+  if (address == null) {
+    return "";
+  }
+    // if (address.startsWith("nano_")) {
+    //   return address.replace("nano_", networks[ticker]?.prefix + "_");
+    // }
+    return networks[ticker]?.prefix + "_" + address.split("_")[1];
+  }

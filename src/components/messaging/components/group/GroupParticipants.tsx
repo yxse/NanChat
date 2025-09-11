@@ -7,7 +7,7 @@ import { updateSharedKeys } from '../../../../services/sharedkey'
 import { addParticipants } from '../../fetcher'
 import { useChats } from '../../hooks/use-chats'
 import { useTranslation } from 'react-i18next'
-import { useWallet } from '../../../Popup'
+import { useWallet } from "../../../useWallet"
 import { useNavigate } from 'react-router-dom'
 
 function GroupParticipants({chatId}) {

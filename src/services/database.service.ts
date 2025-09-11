@@ -37,6 +37,19 @@ import { cacheKeyPrefix } from "../components/messaging/utils";
       return false;
     }
   }
+  export let removeData = async (key: string): Promise<boolean> => {
+    await initSqlStore();
+    try {
+      await sqlStore.remove({key: key})
+      console.log("remove data", key)
+      inMemoryMap.delete(key)
+      return true;
+    } catch (err) {
+      console.log(`Error deleting ${key}`);
+      console.log(err);
+      return false;
+    }
+  }
   export let setData = async (key: string, value: any): Promise<boolean> => {
     await initSqlStore();
     let valueJson = JSON.stringify(value);

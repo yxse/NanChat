@@ -1,6 +1,6 @@
 import storage from "../utils/storage";
 import { networks } from "../utils/networks";
-import { convertAddress } from "../utils/format";
+import { convertAddress } from "./messaging/utils";
 
 
 export async function getRepresentative(ticker: string) {

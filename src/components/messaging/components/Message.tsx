@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AddCircleOutline, CompassOutline, DeleteOutline, KeyOutline, LockFill, LockOutline, UserAddOutline } from "antd-mobile-icons";
-import { WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
 import useMessageDecryption from "../hooks/use-message-decryption";
 import ProfilePicture from "./profile/ProfilePicture";
 import ProfileName from "./profile/ProfileName";

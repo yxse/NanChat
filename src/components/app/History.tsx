@@ -29,8 +29,9 @@ import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlineContacts, AiOutlineTag, 
 import { fetchAlias, fetchAliasInternet } from "../../nanswap/swap/service";
 import { useLocalStorage } from "../../utils/useLocalStorage";
 import useLocalStorageState from "use-local-storage-state";
-import { WalletContext } from "../Popup";
-import { convertAddress, copyToClipboard, formatAddress, formatAmountMega } from "../../utils/format";
+import { WalletContext } from "../useWallet";
+import { copyToClipboard, formatAddress, formatAmountMega } from "../../utils/format";
+import { convertAddress } from "../../utils/convertAddress";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import CopyAddressPopup from "./CopyAddressPopup";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
@@ -41,8 +42,7 @@ import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrows
 import ProfileName from "../messaging/components/profile/ProfileName";
 import { HapticsImpact } from "../../utils/haptic";
 import AddContacts from "./AddContacts";
-import { ConvertToBaseCurrency } from "./Home";
-import { openHashInExplorer, openInBrowser } from "../messaging/utils";
+import { ConvertToBaseCurrency, openHashInExplorer, openInBrowser } from "../messaging/utils";
 import { useTranslation } from 'react-i18next';
 
 export function askForReview(delay = 500) {

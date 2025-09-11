@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-route
 import ChatRoom from '../ChatRoom';
 import ChatList from '../ChatList';
 import { socket } from '../../socket';
-import { WalletContext } from '../../../Popup';
-import { convertAddress } from '../../../../utils/format';
+import { WalletContext } from "../../../useWallet";
+import { convertAddress } from "../../../../utils/convertAddress";
 import { AccountIcon } from '../../../app/Home';
 import { Button, Form, Input, Modal, NavBar, Toast } from 'antd-mobile';
 import { tools } from 'multi-nano-web';

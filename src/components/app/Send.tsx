@@ -32,18 +32,18 @@ import { megaToRaw, send } from "../../nano/accounts";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR, { useSWRConfig } from "swr";
 import { MdContentPaste, MdCurrencyExchange } from "react-icons/md";
-import { convertAddress, formatAddress, formatAmountMega, parseURI, pasteFromClipboard } from "../../utils/format";
+import { formatAddress, formatAmountMega, parseURI, pasteFromClipboard } from "../../utils/format";
+import { convertAddress } from "../../utils/convertAddress";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { CgArrowsExchangeV } from "react-icons/cg";
 import { fetchAliasInternet, fetchFiatRates, fetchPrices } from "../../nanswap/swap/service";
-import { ConvertToBaseCurrency } from "./Home";
 import useLocalStorageState from "use-local-storage-state";
 import { Alias, AliasContact, AliasInternetIdentifier, askForReview } from "./History";
 import { FaAddressBook } from "react-icons/fa6";
 import { SelectContact } from "./Contacts";
 import { fetchBalance } from "./Network";
 import { CopyButton, CopyIcon, PasteIcon } from "./Icons";
-import { WalletContext } from "../Popup";
+import { WalletContext } from "../useWallet";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
@@ -58,6 +58,7 @@ import { Keyboard } from "@capacitor/keyboard";
 import { useTranslation } from 'react-i18next';
 import { sendTransaction } from "./SendTransaction";
 import { AmountFormItem } from "./AmountFormItem";
+import { ConvertToBaseCurrency } from "../messaging/utils";
 
 
 const useFocus = () => {

@@ -9,15 +9,17 @@ import { tools } from 'multi-nano-web';
 import ProfilePictureUpload from './profile/upload-pfp';
 import useSWR from 'swr';
 import { fetcherAccount, fetcherMessages } from '../../fetcher';
-import { WalletContext } from '../../../Popup';
-import { convertAddress, copyToClipboard, formatAddress } from '../../../../utils/format';
+import { WalletContext } from "../../../useWallet";
+import { copyToClipboard, formatAddress } from '../../../../utils/format';
+import { convertAddress } from "../../../../utils/convertAddress";
 import { QRCodeSVG } from 'qrcode.react';
 import icon from "../../../../../public/icons/icon.png";
 import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import SelectAccount from '../../../app/SelectAccount';
 import Settings, { CopyToClipboard } from '../../../Settings';
-import { SeedVerifiedBadge, showAccountQRCode } from '../../utils';
-import { AccountAvatar } from '../ChatList';
+import { SeedVerifiedBadge } from '../../utils';
+import { showAccountQRCode } from "../../showAccountQRCode";
+import { AccountAvatar } from "../../AccountAvatar";
 import { useTranslation } from 'react-i18next';
 
 const ProfileHome: React.FC = () => {

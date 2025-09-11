@@ -42,7 +42,7 @@ import { CheckCircleOutline } from 'antd-mobile-icons'
 import { GrInProgress } from "react-icons/gr";
 import { fetcher, getOrder } from "../../nanswap/swap/service";
 import useSWRInfinite from "swr/infinite";
-import { useWallet } from "../Popup";
+import { useWallet } from "../useWallet";
 import { Discover } from "./discover/Discover";
 
 export function ArtImages({onImageClick}) {

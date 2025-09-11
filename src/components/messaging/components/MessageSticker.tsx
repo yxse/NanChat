@@ -1,14 +1,14 @@
 import { box } from "multi-nano-web";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
-import { WalletContext } from "../../Popup";
+import { WalletContext } from "../../useWallet";
 import { Card, DotLoading } from "antd-mobile";
-import { convertAddress, formatAmountRaw } from "../../../utils/format";
+import { formatAmountRaw } from "../../../utils/format";
+import { convertAddress } from "../../../utils/convertAddress";
 import { networks } from "../../../utils/networks";
 import useSWR from "swr";
 import { fetchAccountInfo, fetchBlock } from "../../app/Network";
 import { rawToMega } from "../../../nano/accounts";
-import { ConvertToBaseCurrency, FormatBaseCurrency } from "../../app/Home";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
 
 const MessageSticker = ({ message, side, raw = false }) => {

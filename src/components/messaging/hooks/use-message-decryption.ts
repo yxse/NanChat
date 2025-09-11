@@ -1,10 +1,10 @@
 import { box } from 'multi-nano-web';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { WalletContext } from '../../Popup';
 import { fetcherChat } from '../fetcher';
 import { decryptGroupMessage, getSharedKey } from '../../../services/sharedkey';
 import { isSpecialMessage } from '../utils';
 import { restoreDataString, setData, setDataString } from '../../../services/database.service';
+import { useWallet } from "../../useWallet";
 
 export const decryptChatMessage = async (message, activeAccount, activeAccountPk) => {
    if (isSpecialMessage(message) && !message.redPacket) { 
@@ -51,7 +51,7 @@ export const decryptChatMessage = async (message, activeAccount, activeAccountPk
   };
 
 const useMessageDecryption = ({ message }) => {
-  const { wallet } = useContext(WalletContext);
+  const { wallet } = useWallet()
   const localStorageKey = `message-${message._id}`;
 
   const [decryptedContent, setDecryptedContent] = useState(() => {

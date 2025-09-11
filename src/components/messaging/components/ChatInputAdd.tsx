@@ -3,7 +3,8 @@ import { ImageUploader, Toast, Button, Avatar, Divider, Modal } from 'antd-mobil
 import { FileOutline, FolderOutline, LockOutline, PictureOutline, UserOutline } from 'antd-mobile-icons';
 import useSWR from 'swr';
 import { fetcherAccount } from '../fetcher';
-import { useWallet, WalletContext } from '../../Popup';
+import { WalletContext } from "../../useWallet";
+import { useWallet } from "../../useWallet";
 import { box } from 'multi-nano-web';
 import { formatSize } from '../../../utils/format';
 import { saveFileInCache } from '../../../services/database.service';

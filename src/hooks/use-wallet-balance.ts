@@ -2,9 +2,10 @@ import useSWR, { useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { fetchFiatRates, fetchPrices } from "../nanswap/swap/service";
 import { useContext, useMemo } from "react";
-import { WalletContext } from "../components/Popup";
+import { WalletContext } from "../components/useWallet";
 import { networks } from "../utils/networks";
-import { convertAddress, MIN_USD_SWAP } from "../utils/format";
+import { MIN_USD_SWAP } from "../utils/format";
+import { convertAddress } from "../utils/convertAddress";
 import { fetchBalance } from "../components/app/Network";
 import { Capacitor } from "@capacitor/core";
 

@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Route, useNavigate, Routes, useParams } from '
 import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { socket } from '../socket';
-import { WalletContext } from '../../Popup';
-import { convertAddress } from '../../../utils/format';
+import { WalletContext } from "../../useWallet";
+import { convertAddress } from "../../../utils/convertAddress";
 import SetName from './SetName';
 import AccountInfo from './AccountInfo';
 import { askPermission } from '../../../nano/notifications';

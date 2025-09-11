@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 
 import PopupWrapper from "./Wrapper";
 import Lockscreen from "./Lock";
@@ -17,7 +17,6 @@ import useSWR, { preload, SWRConfig, useSWRConfig } from "swr";
 import useLocalStorageState from "use-local-storage-state";
 import { getSeed } from "../utils/storage";
 import { Capacitor, PluginListenerHandle } from "@capacitor/core";
-import { convertAddress } from "../utils/format";
 import { PinAuthPopup } from "./Lock/PinLock";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-settings";
@@ -26,8 +25,8 @@ import enUS from 'antd-mobile/es/locales/en-US'
 import { defaultContacts } from "./messaging/utils";
 import { fetchPrices } from "../nanswap/swap/service";
 import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
-import WalletApp from "./app/WalletProvider";
 import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@piotr-cz/swr-idb-cache'
+import { WalletApp } from "./app/WalletApp";
 
 
 const blacklistStorageHandler = {
@@ -40,8 +39,14 @@ const blacklistStorageHandler = {
     const now = Date.now();
     const lastAccess = blacklistStorageHandler._rateLimitCache.get(key);
     
-    if (lastAccess && (now - lastAccess) < 10000) {
-      return undefined;
+    const hasMessages = key.startsWith('$inf$/messages')  
+    const MIN_DELAY_WRITE = 10*1000
+    const MIN_DELAY_MESSAGE_WRITE = 1*1000 // lower rate limt inf message to update cache in real time when sending message
+    if (!hasMessages && lastAccess && (now - lastAccess) < MIN_DELAY_WRITE) {
+        return undefined;
+    }
+    if (hasMessages && lastAccess && (now - lastAccess) < MIN_DELAY_MESSAGE_WRITE) {
+        return undefined;
     }
     console.log(key)
     
@@ -77,17 +82,6 @@ const blacklistStorageHandler = {
     return timestampStorageHandler.replace(key, value);
   },
 }
-export const LedgerContext = createContext(null);
-export const WalletContext = createContext(null);
-
-export const useWallet = () => {
-  const { wallet, dispatch } = useContext(WalletContext)
-  const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
-  const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-  return { wallet, activeAccount, activeAccountPk, dispatch };
-}
-
-
 preload('/networks', fetcherChat)
 
 export default function InitialPopup() {

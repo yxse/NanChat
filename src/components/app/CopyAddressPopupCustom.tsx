@@ -3,8 +3,9 @@ import React, { useContext } from 'react'
 import NetworkList, { ItemCopyAddress } from './NetworksList';
 import { CopyIcon } from './Icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
-import { WalletContext } from '../Popup';
-import { convertAddress, copyToClipboard } from '../../utils/format';
+import { WalletContext } from "../useWallet";
+import { copyToClipboard } from '../../utils/format';
+import { convertAddress } from "../../utils/convertAddress";
 import { activeNetworks } from '../../utils/networks';
 import { Clipboard } from '@capacitor/clipboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
