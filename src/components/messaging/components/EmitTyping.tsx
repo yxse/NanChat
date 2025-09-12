@@ -104,22 +104,23 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     }, [address, isKeyboardOpen, chat, account]);
 
     useEffect(() => {
-        socket.on('message', (message: Message) => {
-            if (chat?.type === "private"){
-                setLastTypingTimeReceived(0);
+        const handleMessage = (message: Message) => {
+                if (chat?.type === "private"){
+                    setLastTypingTimeReceived(0);
+                }
+                console.log('message', message);
+                console.log('participantsTyping', participantsTyping);
+                setParticipantsTyping((prev) => {
+                    console.log('prev', prev);
+                    return prev.filter(participant => participant.account !== message.fromAccount)
+                })
             }
-            console.log('message', message);
-            console.log('participantsTyping', participantsTyping);
-            setParticipantsTyping((prev) => {
-                console.log('prev', prev);
-                return prev.filter(participant => participant.account !== message.fromAccount)
-            })
-        });
+        socket.on('message', handleMessage);
 
-        // return () => {
-        //     socket.off('message');
-        // };
-    }, [address, chat]);
+        return () => {
+            socket.off('message', handleMessage);
+        };
+    }, [chat]);
 
     // console.log("typing render")
     // return null

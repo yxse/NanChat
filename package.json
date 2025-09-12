@@ -54,7 +54,7 @@
     "@ledgerhq/logs": "^6.12.0",
     "@oasisprotocol/ionic-ledger-hw-transport-ble": "^6.0.0",
     "@passwordless-id/webauthn": "^1.6.1",
-    "@piotr-cz/swr-idb-cache": "^1.1.2",
+    "@benskalz/swr-idb-cache": "^1.1.4",
     "@scure/bip39": "^1.3.0",
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-deep-link": "~2",

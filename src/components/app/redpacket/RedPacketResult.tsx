@@ -1,5 +1,5 @@
 import { box } from "multi-nano-web";
-import { memo, useContext, useMemo, useState } from "react";
+import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { WalletContext } from "../../useWallet";
 import { useWallet } from "../../useWallet";
@@ -22,6 +22,8 @@ import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useMessageRedpacket, useRedpacketState } from "./MessageRedPacket";
 import { fetcherMessages } from "../../messaging/fetcher";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
+import { t } from "i18next";
+import { socket } from "../../messaging/socket";
 // import bluePacketIcon from "../../../../public/icons/blue-packet-small.png"
 
 const RedPacketReward = ({messageDecrypted, sticker, amountRaw, ticker, fromAccount}) => {
@@ -37,7 +39,7 @@ const RedPacketReward = ({messageDecrypted, sticker, amountRaw, ticker, fromAcco
             onClick={() => {
               navigate('/' + ticker)
             }}
-             style={{color: "var(--gold-color)", marginTop: 8}}>
+             style={{color: "var(--gold-color)", marginTop: 8, cursor: "pointer"}}>
                   Red Packet transferred to Wallet <RightOutline style={{display: "inline"}} />
             </div>
         </div> 
@@ -52,13 +54,36 @@ const RedPacketResult = ({ side, hash }) => {
   const id = searchParams.get('id')
   
   // SWR hook
-  const {data: message, isLoading} = useSWR(id ? '/redpacket?id=' + id: null, fetcherMessages)
+  const {data: message, isLoading, mutate} = useSWR(id ? '/redpacket?id=' + id: null, fetcherMessages) //will be mutate when new claim message
   
   // Custom hooks
   const {message: messageDecrypted, sticker} = useMessageRedpacket({message: message})
   const {isFinished, isExpired} = useRedpacketState(message)
   useHideNavbarOnMobile(true)
 
+  useEffect(() => {
+  const handleMessagePacket = async (message: Message) => {
+    try {
+      debugger
+      if (message.type === "system" && message?.content?.includes('opened')) {
+        let redPacketId = message.content.split(' ')[2]
+        if (redPacketId == id) {
+          console.log('new opened detected, mutating redpacket')
+          mutate()
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  socket.on('message', handleMessagePacket)
+  
+  return () => {
+    socket.off('message', handleMessagePacket) 
+  }
+}, [id]) // Include dependencies that are used inside the handler
+  
   // NOW do your conditional logic and early returns
   if (!activeAccount) return <DotLoading />
   if (isLoading) return <DotLoading />
@@ -115,7 +140,11 @@ const RedPacketResult = ({ side, hash }) => {
       </NavBar>
           <div>
             {/* <img src={networks[ticker]?.logo} style={{width: '32px', height: '32px', display: "inline-block"}} />  */}
-            <div style={{display: 'flex', gap: 4, alignItems: 'center', justifyContent: "center", fontWeight: "bold"}}>
+            <div
+            onClick={() => {
+              navigate('/chat/' + message.fromAccount + '/info')
+            }}
+             style={{display: 'flex', gap: 4, alignItems: 'center', justifyContent: "center", fontWeight: "bold", cursor: "pointer"}}>
             <ProfilePicture address={message?.fromAccount} size={32} /> <ProfileName address={message?.fromAccount} />
             </div>
             <div style={{color: "var(--adm-color-text-secondary)"}}>
@@ -150,11 +179,20 @@ const RedPacketResult = ({ side, hash }) => {
             return <List.Item
             arrowIcon={false}
             onClick={() => {
-              openHashInExplorer(claim.hash, ticker)
+              navigate('/chat/' + claim.account + '/info')
             }}
             extra={
-              <div style={{color: "var(--adm-color-text)"}}><span style={{fontWeight: "bold"}}>
-                {formatAmountMega(rawToMega(ticker, claim.amount), ticker)} {ticker}</span>
+              <div 
+              onClick={() => {
+                if (claim.hash){
+                  openHashInExplorer(claim.hash, ticker)
+                }
+              }}
+              style={{color: "var(--adm-color-text)"}}><span style={{fontWeight: "bold"}}>
+                {
+                  claim.amount == 0 ? t('sending') : `${formatAmountMega(rawToMega(ticker, claim.amount), ticker)} ${ticker}`
+                }
+                </span>
                 {isFinished && claim.account === claimLuckiest.account ? <div style={{display: "flex", alignItems: "center", gap: 4, color: "#e5c100"}}>
                   <AiFillCrown />
                   Luckiest </div>

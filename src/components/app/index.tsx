@@ -429,7 +429,12 @@ export default function App({callback}) {
     , [activeAccount, activeAccountPk]);
 
   if (!activeAccount && Capacitor.getPlatform() == "web") return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
+    <div style={{display: "flex", flexDirection: "column"}}>
                 <HashSpinner size={80} color="#0096FF" loading={true} />
+                <div className="text-sm" style={{color: "var(--adm-color-text-secondary)", marginTop: 8}}>
+                  Loading wallet
+                </div>
+    </div>
               </div>
   if (!activeAccount) return
   return (

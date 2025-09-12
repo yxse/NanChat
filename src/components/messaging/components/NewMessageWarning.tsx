@@ -119,10 +119,18 @@ function NewMessageWarning({fromAddress, account, chat}) {
             onClick={async () => {
                 setIsLoading(true)
                 try {
-                    await fetcherMessagesPost('/accept-chat', {
+                    let r = await fetcherMessagesPost('/accept-chat', {
                         chatId: chatId
                     })
-                    await mutate()
+                    if (r.error || ! r?.id !== chatId) return
+                    await mutate( // optimistic update
+          current => {
+              return current.map(chat => 
+                  (chat.id === chatId) ? r : chat
+              )
+          }
+          , false
+      )
                 } catch (error) {
                     console.error(error)                    
                 } finally {

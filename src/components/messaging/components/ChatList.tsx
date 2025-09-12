@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Space, Toast } from "antd-mobile";
+import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Skeleton, Space, Toast } from "antd-mobile";
 import { AddCircleOutline, BellMuteOutline, ChatAddOutline, FillinOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -179,15 +179,7 @@ useEffect(() => {
         saveScrollPosition.cancel();
       };
     }, [saveScrollPosition]);
-
-
-    if (ledger) {
-        return <LedgerNotCompatible />
-    }
-    if (!chats || isLoadingChat) {
-        return <DotLoading />
-    }
-    const right = (
+const right = (
         <div style={{ fontSize: 24, marginTop: 6 }}>
             <Popover.Menu
           mode='dark'
@@ -258,6 +250,33 @@ useEffect(() => {
         <PasteAction mode="scan" text={" "} scanOpen={scanOpen} setScanOpen={setScanOpen}/>
         </div>
       )
+
+    if (ledger) {
+        return <LedgerNotCompatible />
+    }    
+
+  if (!chats || isLoadingChat) {
+      const style = { height: "65px", width: "100%", marginBottom: 5}
+        return  <>
+         <NavBar
+            className="app-navbar "
+            right={right}
+            backArrow={false}>
+          <span className="">NanChat </span>
+        </NavBar>
+        <div className="" style={{}}>
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+                <Skeleton animated style={style} />
+            </div>
+        </>
+    }
+    
 
     //     const onReconnect = () => {
     //     console.log('reconnect socket mutate chat');

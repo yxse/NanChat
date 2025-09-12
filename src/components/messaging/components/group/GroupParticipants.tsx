@@ -1,4 +1,4 @@
-import { Button, Card, List, Toast } from 'antd-mobile'
+import { Button, Card, DotLoading, List, Toast } from 'antd-mobile'
 import React, { useState } from 'react'
 import { AccountCard } from '../GroupInfo'
 import { AddOutline, MinusOutline } from 'antd-mobile-icons'
@@ -19,6 +19,7 @@ function GroupParticipants({chatId}) {
         const navigate = useNavigate()
         const [viewAll, setViewAll] = useState(false)
         const participants = viewAll ? chat?.participants : chat?.participants.slice(0, 18)
+  if (!participants) return <DotLoading />
   return (
     <Card style={{maxWidth: 576, margin: 'auto'}}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' , alignItems: 'center'}}>

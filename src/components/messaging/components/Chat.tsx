@@ -26,7 +26,7 @@ const Chat: React.FC = () => {
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     // const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
     const {isTablet, isMobile} = useWindowDimensions();
-    const {data: me, isLoading} = useSWR(activeAccount, fetcherAccount);
+    const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     //     getChatToken().then((token) => {
     //         socket.auth = { token };
     //         socket.connect();
@@ -44,10 +44,17 @@ const Chat: React.FC = () => {
         
     }, [])
     useEffect(() => {
-        if (me && !me?.name) {
-            navigate('/profile/name'); 
-            return
+        async function navigateToNameIfNotRegistered() {
+            if (me && !me?.name) {
+                debugger
+                await mutate()
+                if (me && !me?.name) {
+                    navigate('/profile/name'); 
+                    return
+                }
+            }
         }
+        navigateToNameIfNotRegistered()
     }
     , [ me]);
     return (

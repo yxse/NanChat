@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 
 import PopupWrapper from "./Wrapper";
 import Lockscreen from "./Lock";
@@ -25,30 +25,44 @@ import enUS from 'antd-mobile/es/locales/en-US'
 import { defaultContacts } from "./messaging/utils";
 import { fetchPrices } from "../nanswap/swap/service";
 import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
-import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@piotr-cz/swr-idb-cache'
+import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@benskalz/swr-idb-cache'
 import { WalletApp } from "./app/WalletApp";
+import { App as CapacitorApp } from "@capacitor/app";
 
 
 const blacklistStorageHandler = {
   ...timestampStorageHandler,
   _rateLimitCache: new Map(),
   
-  replace: (key, value) => {
+  replace: (key, value, force = false) => {
     
     // Rate limiter - check if key was accessed in last 30 seconds
     const now = Date.now();
     const lastAccess = blacklistStorageHandler._rateLimitCache.get(key);
     
-    const hasMessages = key.startsWith('$inf$/messages')  
-    const MIN_DELAY_WRITE = 10*1000
-    const MIN_DELAY_MESSAGE_WRITE = 1*1000 // lower rate limt inf message to update cache in real time when sending message
-    if (!hasMessages && lastAccess && (now - lastAccess) < MIN_DELAY_WRITE) {
+    const isMessages = key.startsWith('$inf$/messages')  
+    const isChats = key.startsWith('/chats')  
+    // since /chats value can contains lot of data, we trottle max write for performance reasons
+    // cache is also saved on App.pause
+    // and else data will be sync from server
+    const MIN_DELAY_WRITE_CHAT = 30 * 1000 
+    const MIN_DELAY_MESSAGE_WRITE = 5 * 1000 
+    const MIN_DELAY_OTHER_WRITE = 5 * 1000
+    debugger
+    if (!force){
+
+    if (isChats && lastAccess && (now - lastAccess) < MIN_DELAY_WRITE_CHAT) {
         return undefined;
     }
-    if (hasMessages && lastAccess && (now - lastAccess) < MIN_DELAY_MESSAGE_WRITE) {
+    else if (isMessages && lastAccess && (now - lastAccess) < MIN_DELAY_MESSAGE_WRITE) {
         return undefined;
     }
-    console.log(key)
+    else if (lastAccess && (now - lastAccess) < MIN_DELAY_OTHER_WRITE) {
+        return undefined;
+    }
+    }
+
+    console.log(key, value)
     
     if (value && value?.data){ // set the timer only if contains value
       // Update rate limit cache
@@ -91,7 +105,7 @@ export default function InitialPopup() {
      const cacheProvider = useCacheProvider({
     dbName: 'my-app',
     storeName: 'swr-cache',
-    storageHandler: blacklistStorageHandler
+    storageHandler: blacklistStorageHandler,
   })
   const initializing = cacheProvider == null
   console.log("InitialPopup")
@@ -104,11 +118,50 @@ export default function InitialPopup() {
         }
       }
     }
+  // Store reference to the cache instance
+  const cacheRef = useRef<any>(null)
+
+  // Update cache reference when provider is ready
+  useEffect(() => {
+    if (cacheProvider) {
+      // Get the cache instance
+      cacheRef.current = cacheProvider(new Map())
+    }
+  }, [cacheProvider])
+
+    useEffect(() => {
+
+      async function saveCache(){
+        if (cacheRef.current && cacheRef.current.saveAllToDb) {
+        try {
+          console.time('save-swr-cache')
+          await cacheRef.current.saveAllToDb()
+          console.timeEnd('save-swr-cache')
+          console.log('Auto-save completed')
+        } catch (error) {
+          console.error('Auto-save failed:', error)
+        }
+      }
+      }
+      window.addEventListener('beforeunload', () => {
+    saveCache()
+  })
+  
+  CapacitorApp.addListener('pause', () => {
+    saveCache()
+  })
+  }, [])
+
   //   if (initializing) {
   //   return null
   // }
    if (initializing) return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
+    <div style={{display: "flex", flexDirection: "column"}}>
                 <HashSpinner size={80} color="#0096FF" loading={true} />
+                <div className="text-sm" style={{color: "var(--adm-color-text-secondary)", marginTop: 8}}>
+                  Loading cache
+                </div>
+    </div>
               </div>
   return (
     <ConfigProvider locale={enUS}>

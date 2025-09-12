@@ -39,7 +39,7 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
   let actionMessage = message.content.split(' ')[1];
   let action = message.content.split(' ')[1];
-  let redPacketId
+  let redPacketId, isAllOpened
   if (message.content.includes('recalled')) {
     actionMessage = 'recalled a message';
   }
@@ -48,6 +48,9 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   }
   else if (message.content.includes('opened')) {
     redPacketId = message.content.split(' ')[2]
+    if (message.content.includes('all received')){
+      isAllOpened = true
+    }
     actionMessage = 'opened red packet from';
   }
   else if (message.content.includes('expired')) {
@@ -89,7 +92,7 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
     }
     if (action === "opened"){ // red packet
     return <div className="text-center m-4" style={{  }}>  <RedPacketIcon width={18} style={{verticalAlign: "baseline"}}/> <ProfileName address={addresses?.[0]} /> opened <RedPacketLink id={redPacketId} /> from {" "}
-          <ProfileName address={addresses?.[1]} />
+          <ProfileName address={addresses?.[1]} />{isAllOpened && ". The red packets are all received."}
       </div>
     }
     return (

@@ -70,8 +70,9 @@ const ChatSocket: React.FC = () => {
         };
     }, [activeAccount, onlineAccount]);
 
+    
     useEffect(() => {
-        socket.on('message', async (message: Message) => {
+        const handleAllMessage = async (message: Message) => {
             try {
                 
             
@@ -158,9 +159,10 @@ const ChatSocket: React.FC = () => {
                     sendNotificationTauri(message.fromAccountName, "New message");
                 }
             }
-        });
+    }
+        socket.on('message', handleAllMessage)
         return () => {
-            socket.off('message');
+            socket.off('message', handleAllMessage);
         };
     }, [activeAccount, chats]);
 
