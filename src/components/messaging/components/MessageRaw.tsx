@@ -7,6 +7,8 @@ import MessageFile from "./MessageFile";
 import Sticker from "./Sticker";
 import MessageSystem from "./MessageSystem";
 import { MetadataCard } from "./antd-mobile-metadata-card";
+import MessageTip from "./MessageTip";
+import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
 
 export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includeProfileName}) => {
     const style = ellipsis ? { 
@@ -24,15 +26,23 @@ export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includePro
         return <div style={style}><MessageSystem raw message={message} /></div>
     }
     
-    if (message.content === "Red Packet"){
-        return <div style={{color: "var(--adm-color-danger)"}}>[Red Packet]</div>
-    }
+    
     if (message.stickerId){
         return <Sticker stickerId={message.stickerId} height={maxHeight}/>
     }
     
     if (message.file){
         return <MessageFile file={message.file} message={message} maxHeight={"42px"} />
+    }
+    // if (message.tip){
+    //     return <MessageTip message={message} hash={message.tip.hash} ticker={message.tip.ticker} />
+    // } // not convinced by ux
+    
+    // if (message.redPacket){
+    //     return <MessageRedPacket message={message} />
+    // } // todo: need to find a way to efficiently update the redpacket state in the reply message
+    if (message.content === "Red Packet"){
+        return <div style={{color: "var(--adm-color-danger)"}}>[Red Packet]</div>
     }
     
     const decrypted = useMessageDecryption({message})

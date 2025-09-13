@@ -72,7 +72,7 @@ export function useChat(chatId) {
   const fetcherWithAccount = (key) => {
     return fetcherMessagesCache(key, activeAccount, activeAccountPk);
   };
-
+  const {cache} = useSWRConfig()
   const {
     data: pages,
     error,
@@ -92,7 +92,7 @@ export function useChat(chatId) {
   });
 
   // Flatten all pages into a single array
-  const messages = pages ? pages.flat() : [];
+  let messages = pages ? pages.flat() : [];
   const isLoadingInitial = !pages && !error;
   // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
   const isLoadingMore = isValidating
@@ -106,7 +106,7 @@ export function useChat(chatId) {
   const unreadCount = 0;
 
 
-  const reset = () => { 
+  const reset = async () => { 
     // we use this function to reduce the number of message loaded
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
     // todo: use virtualize list instead
@@ -114,10 +114,26 @@ export function useChat(chatId) {
     // return
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
-    mutate([pages[0]], false); // Keep only first page, no revalidation
+    // await mutate([pages[0]], false); // Keep only first page, no revalidation
+    // messages = messages.slice(0, 20)
     // Reset size back to 1 (first page)
+    console.log(cache)
+    const keys = cache.keys()
+   for (let key of keys){
+      if (key.startsWith('/messages') && !key.includes('&page=0')) {
+      cache.delete(key)
+    }
+    if (key.startsWith('$inf$/messages')) { 
+      let filteredValue = {...cache.get(key)}
+      filteredValue.data = [filteredValue.data[0]]; // only keep first message page
+      filteredValue['_l'] = 1; // set length to 1 to prevent swr fetching all pages
+      debugger
+      cache.set(key, filteredValue)
+    }
+    
+   }
     if (size > 1){
-      setSize(1);
+      // setSize(0);
     }
   } 
   
@@ -142,7 +158,7 @@ export function useChat(chatId) {
       }, false);
     }
   }, [pages]);
-  // debugger
+  // 
   const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;
   return {
     messages,

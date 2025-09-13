@@ -15,6 +15,12 @@ function saveWorkCache(hash, work) {
   } else {
     cached = JSON.parse(cached);
   }
+  if (Object.keys(cached).length > 50){ 
+    // simple garbage collector
+    // eventually need to store work cache with account key
+    console.log("reseting cache work because too much works in cache")
+    cached  = {}
+  }
   cached[hash] = work;
   localStorage.setItem(keyCache, JSON.stringify(cached));
 }
