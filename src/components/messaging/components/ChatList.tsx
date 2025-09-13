@@ -1,5 +1,5 @@
-import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, Popover, SearchBar, Skeleton, Space, Toast } from "antd-mobile";
-import { AddCircleOutline, BellMuteOutline, ChatAddOutline, FillinOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
+import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, NoticeBar, Popover, SearchBar, Skeleton, Space, Toast } from "antd-mobile";
+import { AddCircleOutline, BellMuteOutline, ChatAddOutline, FillinOutline, InformationCircleOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AccountIcon } from "../../app/Home";
@@ -49,6 +49,7 @@ import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import ProfilePicture from "./profile/ProfilePicture";
 import PasteAction from "../../app/PasteAction";
 import { useTranslation } from "react-i18next";
+import NetworkUnavailable from "./NetworkUnavailable";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -388,7 +389,7 @@ const right = (
                 }
                 // Ellipsis component is laggy when there are many messages
                 // description={<Ellipsis content={decrypted || '...'} />}
-                description={<MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} />}
+                description={<MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} type="chatlist"/>}
             >
                 <div className="flex items-center gap-2">
                     {
@@ -423,6 +424,9 @@ const right = (
           <span className="">NanChat </span>
         </NavBar>
         }
+    
+
+          
             <div className="">
                 <div className="">
                    
@@ -435,6 +439,7 @@ const right = (
             height: (isMobile || isTablet) ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
           // 47px for the header, 58px for the menu
           , overflow: "hidden" }}>
+            <NetworkUnavailable />
             <AutoSizer>
               {({ width, height }) => (
                 <VirtualizedList

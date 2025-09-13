@@ -148,15 +148,33 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                         return
                     }
                     // Toast.show({icon: "loading"})
-                    let r = await openRedPacket({id: message._id})
+                    let messageResult = await openRedPacket({id: message._id})
                     // if (!r?.error){
                     //     await mutate("/redpacket?id=" + message._id, r)
                     // }
                     // else{
                     //     await mutate("/redpacket?id=" + message._id)
                     // }
-                    navigateToResult()
-                    await mutateRedPacket() 
+                    await mutateRedPacket(messageResult, {revalidate: false}) 
+                    await mutateMessages(currentPages => {
+                if (!currentPages) return currentPages;
+                return currentPages.map(async page => {
+                    // Check if this page contains the message we want to update
+                    const messageIndex = page.findIndex(m => m._id === messageResult._id);
+                    debugger
+                    if (messageIndex !== -1) {
+                        // This page contains our message, update it
+                        const updatedPage = [...page];
+                        updatedPage[messageIndex] = messageResult;
+                        await saveMessageCache(messageResult.chatId, messageResult, activeAccount, activeAccountPk)
+                        return updatedPage;
+                    }
+                    
+                    // This page doesn't contain our message, return unchanged
+                    return page;
+                });
+            }, false);
+                    // navigateToResult()
                     // await mutateRedPacket(r) // this is causing navigation glitch on ios
                     // navigate(`/red-packet-result?id=`+ message._id, {state: {message: redPacketMessage, stickerId: message.redPacket.stickerId, id: message._id, ticker: ticker}})
                     // navigateToResult()

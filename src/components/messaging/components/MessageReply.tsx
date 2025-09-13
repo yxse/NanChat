@@ -26,6 +26,8 @@ function MessageReply({message, onClose}) {
     key={message._id}
     includeProfileName={true}
     message={message}
+    ellipsis
+    type="input-reply"
     />
     </div>
   )

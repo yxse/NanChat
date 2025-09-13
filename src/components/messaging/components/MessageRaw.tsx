@@ -9,14 +9,18 @@ import MessageSystem from "./MessageSystem";
 import { MetadataCard } from "./antd-mobile-metadata-card";
 import MessageTip from "./MessageTip";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
+import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
 
-export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includeProfileName}) => {
+export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includeProfileName, type}) => {
     const style = ellipsis ? { 
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
         // containerType: 'inline-size',
     } : {}
+    if (type === "input-reply"){
+        style['containerType'] = 'inline-size'
+    }
     
     // console.log(message)
     // return 'ok'
@@ -34,15 +38,17 @@ export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includePro
     if (message.file){
         return <MessageFile file={message.file} message={message} maxHeight={"42px"} />
     }
-    // if (message.tip){
-    //     return <MessageTip message={message} hash={message.tip.hash} ticker={message.tip.ticker} />
-    // } // not convinced by ux
-    
-    // if (message.redPacket){
-    //     return <MessageRedPacket message={message} />
-    // } // todo: need to find a way to efficiently update the redpacket state in the reply message
-    if (message.content === "Red Packet"){
-        return <div style={{color: "var(--adm-color-danger)"}}>[Red Packet]</div>
+    if (message.tip && !ellipsis){
+        return <MessageTip message={message} hash={message.tip.hash} ticker={message.tip.ticker} />
+    }
+    if (message.redPacket && !ellipsis){
+        return <MessageRedPacket message={message} />
+    } // todo: need to find a way to efficiently update the redpacket state in the reply
+    if (message.content === "Red Packet" && type === "chatlist"){
+        return <div style={{display: "flex", color: "var(--adm-color-danger)"}}>[Red Packet]</div>
+    }
+    else if (message.content === "Red Packet"){
+        return <div style={{display: "flex"}}><RedPacketIcon width={16} /> Red Packet</div>
     }
     
     const decrypted = useMessageDecryption({message})
