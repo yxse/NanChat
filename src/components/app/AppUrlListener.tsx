@@ -13,6 +13,7 @@ import { box, wallet } from 'multi-nano-web';
 import { getSeed } from '../../utils/storage';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { useEmit, useEvent } from '../messaging/components/EventContext';
+import { saveMessageCache } from '../messaging/fetcher';
 
 
 const isContactImport = (url: string) => {
@@ -197,8 +198,8 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let decrypted = message
   try {
     decrypted = box.decrypt(message, targetAccount, decryptionKey);
-    localStorage.setItem(`message-${idMessage}`, decrypted);
-    decrypted 
+    // localStorage.setItem(`message-${idMessage}`, decrypted);
+    // todo save with savemessagecache
   } catch (error) {
     console.error('Message decryption failed:', error); // could happen for sticker or special message
 

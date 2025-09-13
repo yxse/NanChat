@@ -411,7 +411,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
             onClose={() => {
               setSuccessPopupOpen(false)
               onClose()
-              askForReview(0)
+              // askForReview(0)
             }}
             closeOnMaskClick
           ><Card>
@@ -447,7 +447,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 onClick={() => {
                   setSuccessPopupOpen(false);
                   onClose()
-                  askForReview(0)
+                  // askForReview(0)
                 }}
                 >
                 {t('close')}

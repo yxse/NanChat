@@ -44,13 +44,18 @@ import { HapticsImpact } from "../../utils/haptic";
 import AddContacts from "./AddContacts";
 import { ConvertToBaseCurrency, openHashInExplorer, openInBrowser } from "../messaging/utils";
 import { useTranslation } from 'react-i18next';
+import { restoreData, setData } from "../../services/database.service";
 
 export function askForReview(delay = 500) {
-  // ask for review if user has made at least 5 transactions and last review was more than 2 months ago
+  if (!Capacitor.isNativePlatform()) return
   
-  if (Capacitor.isNativePlatform() && 
-     (new Date().getTime() - parseInt(localStorage.getItem("lastReview")) > 1000 * 60 * 60 * 24 * 60) &&
-     Object.keys(localStorage).filter((k) => k.startsWith("history-")).length > 5
+  if (localStorage.getItem("install-date") == null){
+    localStorage.setItem("install-date", new Date().getTime().toString())
+    return
+  }
+  const installDate = parseInt(localStorage.getItem("install-date"))
+  if ((new Date().getTime() - parseInt(localStorage.getItem("lastReview")) > 1000 * 60 * 60 * 24 * 60) &&
+      (new Date().getTime() - parseInt(installDate) > 1000 * 60 * 60 * 24 * 7) // ask for review if user has installed since at least 7 days
     ) {
     localStorage.setItem("lastReview", new Date().getTime().toString())
     setTimeout(() => {
@@ -168,6 +173,7 @@ export const Alias = ({ account, hideNull }) => {
   }
   if (isLoading && !isValidating) return null
   if (data == null && hideNull) return null
+  // not showing names from chats if not saved in contact as it could be used for phishing attack
   if (data == null) return account?.slice(0, 10) + "..." + account?.slice(-6)
   return (
     <div className="flex items-center ">
@@ -260,13 +266,16 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
     })
   }
 
-  const checkIfCached = (fromHeight, toHeight) => {
+  const checkIfCached = async (fromHeight, toHeight) => {
+    let r = []
     for (let i = fromHeight; i <= toHeight; i++) {
-      if (!localStorage.getItem("history-" + ticker + "-" + i + "-" + account)) {
+      let item = await restoreData("history-" + ticker + "-" + i + "-" + account)
+      if (!item) {
         return false
       }
+      r.push(item)
     }
-    return true
+    return r
   }
   const fetchMoreHistory = async (ticker, page = 0, reverse = false) => {
     console.log("fetching more history", ticker, page)
@@ -286,16 +295,19 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
       }
     }
     console.log(`should fetch from block ${offset + 1} to ${offset + count}`)
-    if (checkIfCached(offset + 1, offset + count)) {
+    let isCached = await checkIfCached(offset + 1, offset + count)
+    if (isCached) {
       console.log("cached")
-      let r = []
-      for (let i = offset + 1; i <= offset + count; i++) {
-        r.push(JSON.parse(localStorage.getItem("history-" + ticker + "-" + i + "-" + account)))
-      }
+      let r = isCached
+      // for (let i = offset + 1; i <= offset + count; i++) {
+      //   r.push(await restoreData("history-" + ticker + "-" + i + "-" + account))
+      //   // r.push(JSON.parse(localStorage.getItem("history-" + ticker + "-" + i + "-" + account)))
+      // }
       if (offset == 0) {
         setHasMore(false);
       }
-      return r.reverse()
+      debugger
+      return isCached.reverse()
     }
 
     let history = await new RPC(ticker).acocunt_history(account, count, offset, true);
@@ -312,7 +324,8 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
     for (let i = 0; i < r.length; i++) {
       let tx = r[i];
       let height = tx.height;
-      localStorage.setItem("history-" + ticker + "-" + height + "-" + account, JSON.stringify(tx));
+      // localStorage.setItem("history-" + ticker + "-" + height + "-" + account, JSON.stringify(tx));
+      setData("history-" + ticker + "-" + height + "-" + account, tx)
     }
     return r;
 
@@ -346,7 +359,8 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
     for (let i = 0; i < r.length; i++) {
       let tx = r[i];
       let height = tx.height;
-      localStorage.setItem("history-" + ticker + "-" + height + "-" + account, JSON.stringify(tx));
+      // localStorage.setItem("history-" + ticker + "-" + height + "-" + account, JSON.stringify(tx));
+      setData("history-" + ticker + "-" + height + "-" + account, tx)
     }
     return r;
   };
@@ -405,10 +419,13 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
                 ref={(el) => {
                   if (el == null) return
                   el.nativeElement.onanimationend = () => {
-                    askForReview()
+                    askForReview(500)
                     // console.log("animation end for ", tx.hash)
                     let hashes = JSON.parse(localStorage.getItem("receiveHashesToAnimate"))
-                    hashes = hashes.filter((h) => h !== tx.hash)
+                    hashes = hashes.filter((h) => h !== tx.hash && tx.hash != null)
+                    if (hashes.length > 20){ // simple garbage collector
+                      hashes = []
+                    }
                     localStorage.setItem("receiveHashesToAnimate", JSON.stringify(hashes))
                   }
                 }}

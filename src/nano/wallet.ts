@@ -834,6 +834,8 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         receiveHashesToAnimate = [];
       }
       receiveHashesToAnimate.push(hash);
+      receiveHashesToAnimate = receiveHashesToAnimate.filter((hash) => hash != null)
+      // debugger
       localStorage.setItem("receiveHashesToAnimate", JSON.stringify(receiveHashesToAnimate));
   }
 }

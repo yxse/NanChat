@@ -48,7 +48,7 @@ const blacklistStorageHandler = {
     const MIN_DELAY_WRITE_CHAT = 30 * 1000 
     const MIN_DELAY_MESSAGE_WRITE = 5 * 1000 
     const MIN_DELAY_OTHER_WRITE = 5 * 1000
-    debugger
+    // debugger
     if (!force){
 
     if (isChats && lastAccess && (now - lastAccess) < MIN_DELAY_WRITE_CHAT) {

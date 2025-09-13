@@ -612,7 +612,7 @@ className="mb-24"
                 // clean all history cache
                 let count = 0
                 for (var key in localStorage) {
-                  if (key.startsWith("history-") || key.startsWith("work-") || key.startsWith("message-") || key.startsWith("chat_") || key.startsWith("lastSyncChat")) {
+                  if (key.startsWith("history-") || key.startsWith("works-") || key.startsWith("message-") || key.startsWith("chat_") || key.startsWith("lastSyncChat")) {
                     localStorage.removeItem(key)
                     count++
                   }
