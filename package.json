@@ -105,6 +105,7 @@
     "swr": "^2.2.5",
     "use-local-storage-state": "^19.3.1",
     "use-scroll-restoration": "^1.0.0",
+    "virtua": "^0.43.1",
     "vite-plugin-node-polyfills": "^0.22.0"
   },
   "prettier": {

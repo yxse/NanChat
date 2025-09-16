@@ -89,7 +89,7 @@ const blacklistStorageHandler = {
       // debugger
       if (value && value?.data && value?.data[0]?.updatedAt != undefined){
         const latstUpdatedChat = value?.data[0]?.updatedAt
-        localStorage.setItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) 
+        localStorage.setItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) // need to put this after the db put to ensure it is saves after
       }
     }
     // For all other keys, use the wrapped handler

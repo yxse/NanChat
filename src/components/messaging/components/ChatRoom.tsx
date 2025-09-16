@@ -39,6 +39,8 @@ import { useSWRConfig } from "swr"
 import { unstable_serialize } from 'swr/infinite'
 import { debounce } from 'lodash';
 import { removeData } from "../../../services/database.service";
+import { VirtualizedMessages } from "./VirtualizedMessages";
+import { VirtualizedMessagesVirtua } from "./VirtualizedMessagesVirtua";
 
 const ChatRoom: React.FC<{}> = ({  }) => {
     const {mutate: mutateInifinite} = useSWRConfig();
@@ -282,6 +284,7 @@ const saveScrollPosition = useCallback(
         , [messages, chat]);
 
     useEffect(() => {
+        scrollToBottom(); 
         // debugger
         // console.log(location.state)
         if (!isMobile){
@@ -517,10 +520,10 @@ useEffect(() => {
                         style={{
                             height: "100%",
                             width: '100%',
-                            overflow: 'auto',
-                            display: 'flex',
-                            flexDirection: "column-reverse",
-                            overflowAnchor: 'auto',
+                            // overflow: 'auto',
+                            // display: 'flex',
+                            // flexDirection: "column",
+                            // overflowAnchor: 'auto',
                             // touchAction: 'none', // don't or ios scroll glitch
                         }}
                     >
@@ -540,13 +543,14 @@ useEffect(() => {
 }
                         {
                             isLoadingInitial ? <Skeleton animated /> :
-                                <InfiniteScroll
+                                <div
                                     // scrollThreshold={"800px"}
                                     dataLength={messages.length}
                                     next={() => {
-                                        // if (!isLoadingMore){
-                                        setAutoScroll(false);
-                                        loadMore();
+                                        // console.log('loading more')
+                                        // // if (!isLoadingMore){
+                                        // setAutoScroll(false);
+                                        // loadMore();
                                         // }
                                     }}
 
@@ -555,21 +559,21 @@ useEffect(() => {
                                     inverse={true}
                                     // scrollThreshold={"300px"} // this cause scroll flickering issue
                                     onScroll={(e) => {
-                                        saveScrollPosition(e.target.scrollTop)
-                                        //disable auto scroll when user scrolls up
-                                        // console.log(e.target.scrollTop);
-                                        if (e.target.scrollTop > 0) {
-                                            setAutoScroll(true);
-                                            // console.log("enable autoscroll");
-                                            infiniteScrollRef.current.className = "scrollableDiv";
-                                        }
-                                        else {
-                                            setAutoScroll(false);
-                                            // console.log("disable autoscroll");
-                                            if (infiniteScrollRef.current){
-                                                infiniteScrollRef.current.className = "scrollableDivAuto";
-                                            }
-                                        }
+                                        // saveScrollPosition(e.target.scrollTop)
+                                        // //disable auto scroll when user scrolls up
+                                        // // console.log(e.target.scrollTop);
+                                        // if (e.target.scrollTop > 0) {
+                                        //     setAutoScroll(true);
+                                        //     // console.log("enable autoscroll");
+                                        //     infiniteScrollRef.current.className = "scrollableDiv";
+                                        // }
+                                        // else {
+                                        //     setAutoScroll(false);
+                                        //     // console.log("disable autoscroll");
+                                        //     if (infiniteScrollRef.current){
+                                        //         infiniteScrollRef.current.className = "scrollableDivAuto";
+                                        //     }
+                                        // }
                                         // if (e.target.scrollTop < 0) {
                                         //     setAutoScroll(false);
                                         //     console.log("disable autoscroll");
@@ -592,15 +596,15 @@ useEffect(() => {
                                     scrollableTarget="scrollableDiv"
 
                                 >
-                                    {
+                                    {/* {
                                         hasMore && isLoadingMore && (
                             <div className="text-center m-4">
                                 <DotLoading />
                             </div>
                         )
-                    }
+                    } */}
                     
-                                    {messages.reverse().map((message, index) => {
+                                    {/* {messages.reverse().map((message, index) => {
                                         return (
                                             <div
                                                 key={message._id}
@@ -621,11 +625,22 @@ useEffect(() => {
                                                 />
                                             </div>
                                         )
-                                    })}
-                                    <div
-                                        id="endOfMessages"
+                                    })} */}
+                                   
+                                    <VirtualizedMessagesVirtua
+                                    saveScrollPosition={saveScrollPosition}
+                                    activeAccount={activeAccount}
+                                    activeAccountPk={activeAccountPk}
+                                    chat={chat}
+                                    hasMore={hasMore}
+                                    messages={messages}
+                                    fetchNextPage={loadMore}
+                                    isFetchingNextPage={isLoadingMore}
+                                    />
+                                     <div
+                                        id="endOfMessages2"
                                         ref={messagesEndRef} />
-                                </InfiniteScroll>
+                                </div>
                         }
 
                     </div>

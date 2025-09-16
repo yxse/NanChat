@@ -132,9 +132,6 @@ if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") 
   
   });
   
-  Keyboard.addListener('keyboardDidShow', info => {
-    console.log('keyboard did show with height:', info.keyboardHeight);
-  });
   
   Keyboard.addListener('keyboardWillHide', () => {
     const {height, isMobile} = getWindowDimensions()

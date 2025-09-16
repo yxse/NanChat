@@ -1,5 +1,5 @@
 import useSWR, { useSWRConfig } from 'swr';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from "../../useWallet";
@@ -7,6 +7,7 @@ import { useChats } from './use-chats';
 import { Badge } from '@capawesome/capacitor-badge';
 import { SeedVerifiedBadge } from '../utils';
 import useLocalStorageState from 'use-local-storage-state';
+import { Capacitor } from '@capacitor/core';
 
 
 const sendMessage = async (chatId, content) => {
@@ -50,7 +51,7 @@ export function useUnreadCount() {
   }, [unread, seedVerified]);
   return unread || null; // null to hide the badge
 }
-const LIMIT = 20;
+const LIMIT = Capacitor.getPlatform() === "ios" ? 50 : 25;
 // Custom hook for chat functionality
 
 export const getKey = (pageIndex, previousPageData, chatId, height) => {
@@ -61,7 +62,8 @@ export const getKey = (pageIndex, previousPageData, chatId, height) => {
     return null;
   }
   if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=-1`;
-  return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
+  let limit = Capacitor.getPlatform() === "ios" ? 100 : 50
+  return `/messages?chatId=${chatId}&limit=${limit}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
 };
 export function useChat(chatId) {
   // Get messages using infinite loading
@@ -111,7 +113,7 @@ export function useChat(chatId) {
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
     // todo: use virtualize list instead
 
-    // return
+    return
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
     // await mutate([pages[0]], false); // Keep only first page, no revalidation
@@ -138,10 +140,65 @@ export function useChat(chatId) {
   } 
   
 }
-  // Load more messages
-  const loadMore = useCallback(() => {
-    setSize(size + 1);
-  }, [setSize, size]);
+  // // Load more messages
+  // const loadMore = useCallback(() => {
+  //   setSize(size + 1);
+  // }, [setSize, size]);
+ // Store pending load promises
+  const loadPromisesRef = useRef(new Map());
+  
+  // Effect to resolve load promises when new pages arrive
+  useEffect(() => {
+    if (pages) {
+      const currentPageCount = pages.length;
+      // Check for any pending promises that can now be resolved
+      loadPromisesRef.current.forEach((resolve, expectedSize) => {
+        if (currentPageCount >= expectedSize) {
+          resolve(true);
+          loadPromisesRef.current.delete(expectedSize);
+        }
+      });
+    }
+  }, [pages]);
+
+  // Effect to reject promises on error
+  useEffect(() => {
+    if (error) {
+      // Reject all pending promises
+      loadPromisesRef.current.forEach((resolve, expectedSize) => {
+        resolve(Promise.reject(error));
+        loadPromisesRef.current.delete(expectedSize);
+      });
+    }
+  }, [error]);
+    // Load more messages - now async and resolves when the new page is loaded
+  const loadMore = useCallback(async (limit) => {
+    const newSize = size + 1;
+    
+    // Create promise for this specific load
+    const loadPromise = new Promise((resolve, reject) => {
+      loadPromisesRef.current.set(newSize, resolve);
+      
+      // If we already have enough pages, resolve immediately
+      if (pages && pages.length >= newSize) {
+        resolve(true);
+        loadPromisesRef.current.delete(newSize);
+        return;
+      }
+      
+      // If there's already an error, reject immediately
+      if (error) {
+        reject(error);
+        loadPromisesRef.current.delete(newSize);
+        return;
+      }
+    });
+    
+    // Trigger the fetch
+    setSize(newSize);
+    
+    return loadPromise;
+  }, [setSize, size, pages, error]);
 
   useEffect(() => {
     // mutate unreadCount to 0 when chat is opened

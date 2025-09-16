@@ -18,6 +18,7 @@ import { useSWRConfig } from "swr"
 import { unstable_serialize } from 'swr/infinite'
 import { getKey } from '../hooks/useChat';
 import { useChats } from '../hooks/use-chats';
+import RedPacketResult from '../../app/redpacket/RedPacketResult';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
@@ -60,6 +61,7 @@ const Chat: React.FC = () => {
     return (
         <>
             <Routes>
+                <Route path="/red-packet-result" element={<RedPacketResult  />}/>
                 <Route path="/profile" element={<SetName />} />
                 <Route path="/:account" element={
                     <div key={"chat-account"}

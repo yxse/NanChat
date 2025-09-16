@@ -30,7 +30,7 @@ import ProfileName from "./profile/ProfileName";
 import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
 
 const RedPacketLink = ({id}) => {
-  return <Link to={"/red-packet-result?id=" + id} style={{color: "var(--gold-color)"}}>Red Packet</Link>
+  return <Link to={"/chat/red-packet-result?id=" + id} style={{color: "var(--gold-color)"}}>Red Packet</Link>
 }
 
 const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {

@@ -487,7 +487,6 @@ export default function App({callback}) {
               path="/:ticker/receive"
               element={<Network defaultReceiveVisible={true} defaultAction="receive" />} />
             <Route path="/:ticker/red-packet" element={<RedPacket  />}/>
-            <Route path="/red-packet-result" element={<RedPacketResult  />}/>
             <Route path="/:ticker/send" element={<Send ticker={"XNO"} />} />
             <Route path="/:ticker/representative" element={<ChangeRep />} />
             {/* <Route path="/messages" element={<Messaging />} />

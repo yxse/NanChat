@@ -24,6 +24,7 @@ import { useChat } from "../../messaging/hooks/useChat";
 import { inMemoryMap } from "../../../services/database.service";
 import MessageTip from "../../messaging/components/MessageTip";
 import { RedPacketIcon, RedPacketIconOpened } from "./RedPacketIcon";
+import { createPortal } from "react-dom";
 
 export const useMessageRedpacket = ({message}) => {
    
@@ -96,7 +97,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
     const {mutate: mutateMessages} = useChat(message.chatId)
     const {activeAccount, activeAccountPk} = useWallet()
     const navigateToResult = () => {
-        navigate(`/red-packet-result?id=${message._id}`, {viewTransition: false})
+        navigate(`/chat/red-packet-result?id=${message._id}`, {unstable_viewTransition: false})
     }
     useEffect(() => {
         if (isOpen && data && !data?.error) {
@@ -155,25 +156,26 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                     // else{
                     //     await mutate("/redpacket?id=" + message._id)
                     // }
-                    await mutateRedPacket(messageResult, {revalidate: false}) 
-                    await mutateMessages(currentPages => {
-                if (!currentPages) return currentPages;
-                return currentPages.map(async page => {
-                    // Check if this page contains the message we want to update
-                    const messageIndex = page.findIndex(m => m._id === messageResult._id);
-                    debugger
-                    if (messageIndex !== -1) {
-                        // This page contains our message, update it
-                        const updatedPage = [...page];
-                        updatedPage[messageIndex] = messageResult;
-                        await saveMessageCache(messageResult.chatId, messageResult, activeAccount, activeAccountPk)
-                        return updatedPage;
-                    }
+                    await mutateRedPacket() 
+                    // await mutateRedPacket(messageResult, {revalidate: false}) 
+            //         await mutateMessages(currentPages => {
+            //     if (!currentPages) return currentPages;
+            //     return currentPages.map(async page => {
+            //         // Check if this page contains the message we want to update
+            //         const messageIndex = page.findIndex(m => m._id === messageResult._id);
+            //         debugger
+            //         if (messageIndex !== -1) {
+            //             // This page contains our message, update it
+            //             const updatedPage = [...page];
+            //             updatedPage[messageIndex] = messageResult;
+            //             await saveMessageCache(messageResult.chatId, messageResult, activeAccount, activeAccountPk)
+            //             return updatedPage;
+            //         }
                     
-                    // This page doesn't contain our message, return unchanged
-                    return page;
-                });
-            }, false);
+            //         // This page doesn't contain our message, return unchanged
+            //         return page;
+            //     });
+            // }, false);
                     // navigateToResult()
                     // await mutateRedPacket(r) // this is causing navigation glitch on ios
                     // navigate(`/red-packet-result?id=`+ message._id, {state: {message: redPacketMessage, stickerId: message.redPacket.stickerId, id: message._id, ticker: ticker}})
@@ -183,7 +185,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                 }
                 
             })
-    return  <Modal
+    return createPortal(<Modal
         
         closeOnMaskClick
         showCloseButton
@@ -224,7 +226,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
         </div> 
         }
         // title={}
-        />
+        />, document.body) 
 }
 
 const MessageRedPacket = ({ message, side, hash }) => {
