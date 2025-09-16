@@ -90,8 +90,8 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
   const [accountsIndexes, setAccountsIndexes] = useLocalStorageState("accountsIndexes", { defaultValue: [0] });
   const [authVisible, setAuthVisible] = useState(true);
   const [hasWallet, setHasWallet] = useState(localStorage.getItem('hasWallet') === 'true');
-  const { mutate: mutatePrice } = useSWR("prices", fetchPrices);
-  const {mutate: mutateMinReceive} = useSWR("/min-receive", fetcherMessages);
+  const { mutate: mutatePrice, data: prices } = useSWR("prices", fetchPrices);
+  const {mutate: mutateMinReceive, data: minReceive} = useSWR("/min-receive", fetcherMessages);
   useEffect(() => {
     function updateBiometryInfo(info: CheckBiometryResult): void {
       if (info.isAvailable) {
@@ -163,11 +163,11 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
           // setWalletState("unlocked");
           // setSeed(localStorage.getItem('seed'));
           // setWallet({seed: localStorage.getItem('seed'), accounts: [], wallets: {}});
-          let [prices, minReceive] = 
-          await Promise.all([
-            mutatePrice(),
-            mutateMinReceive()
-          ]);
+          // let [prices, minReceive] = 
+          // await Promise.all([
+          //   mutatePrice(),
+          //   mutateMinReceive()
+          // ]);
           console.log({prices})
           console.log({minReceive})
           for (let ticker of Object.keys(networks)) {
