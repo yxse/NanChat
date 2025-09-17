@@ -164,7 +164,7 @@ const Message = memo(({
           <div 
           className={`chat-message p-2 rounded-md from message text-sm`}
         style={{
-          height: message.file ? 56 : undefined, // reduce content shift virtualizer
+          height: message.replyMessage.file ? 56 : message.replyMessage.stickerId ? 58 : 36, // reduce content shift virtualizer
           color: 'var(--adm-color-text-secondary)',
           marginLeft: isFromCurrentUser ? 0 : 66,
           marginRight: isFromCurrentUser ? 66 : 0,

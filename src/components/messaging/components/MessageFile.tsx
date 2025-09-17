@@ -310,7 +310,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         {file.meta?.height ? 
         <Skeleton animated style={{"--height": `${heightImage}px`, "--border-radius": "8px", "--width": `${widthImage}px`}}/>
         : 
-        <Skeleton animated style={{"--height": `300px`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
+        <Skeleton animated style={{"--height": `${maxHeight}`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
         }
     </div>
 
