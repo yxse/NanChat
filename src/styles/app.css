@@ -884,3 +884,25 @@ input[type=number]::-webkit-outer-spin-button {
   /* for chat list message ellipsis */
   overflow: auto; 
 }
+.chat-container.native ::-webkit-scrollbar {
+    display: none;
+}
+
+
+.fade-button-enter {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+.fade-button-exit {
+  animation: fadeOut 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
+}

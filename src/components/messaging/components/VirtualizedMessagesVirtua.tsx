@@ -8,6 +8,8 @@ import { Keyboard } from '@capacitor/keyboard';
 import { socket } from '../socket';
 import { useEvent } from './EventContext';
 import { Capacitor } from '@capacitor/core';
+import { DownOutline } from 'antd-mobile-icons';
+import { AiOutlineDown } from 'react-icons/ai';
 
 let firstMessageId = {}
 let shouldStickToBottom = true
@@ -25,6 +27,7 @@ export const VirtualizedMessagesVirtua = ({
   const isPrepend = useRef(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [typingHeight, setTypingHeight] = useState(0)
+  const [isCloseToBottomState, setIsCloseToBottomState] = useState(undefined)
   // const [isLoading, setLoading] = useState(false)
   const displayMessages = useMemo(() => {
     return [...messages].reverse();
@@ -185,6 +188,7 @@ const handleScroll = useCallback(
     
     setTimeout(() => {
         shouldStickToBottom = isCloseToBottom
+        setIsCloseToBottomState(isCloseToBottom)
     }, 100)
     
     if (isCloseToBottom){
@@ -192,6 +196,7 @@ const handleScroll = useCallback(
     }
     
     const threshold = Capacitor.getPlatform() === "ios" ? 1 : 500
+    // const threshold = 500
     if (offsetScroll < threshold && hasMore && !isFetchingNextPage) {
       isPrepend.current = true;
       if (Capacitor.getPlatform() === "ios"){
@@ -232,7 +237,7 @@ function debounce(func, delay) {
 
   return (
     <div
-      className="chat-container"
+      className={`chat-container ${Capacitor.getPlatform() === "ios" ? "native": ""}`}
       style={{
         height: `calc(100vh - 45px - 57px - 2px - ${keyboardHeight}px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top) )`,
         display: 'flex',
@@ -245,7 +250,7 @@ function debounce(func, delay) {
       key={"list" + chat?.id}
       id='vlist'
       cache={cache}
-      overscan={25}
+      overscan={4}
         ref={virtuaRef}
         // style={{ flex: 1 }}
         reverse
@@ -260,7 +265,7 @@ function debounce(func, delay) {
           !shouldStickToBottom && isFetchingNextPage &&
         <div style={{textAlign: "center", marginTop: 32, marginBottom: 32}}>
         <DotLoading />  
-        </div> 
+        </div> // this cause re render on files etc
         } */}
         {displayMessages.map((message, index) => {
           const prevMessage = displayMessages[index + 1];
@@ -287,6 +292,37 @@ function debounce(func, delay) {
     
 
       </VList>
+      {
+  typeof isCloseToBottomState === 'boolean' && !isCloseToBottomState && (
+    <Button
+      className="fade-button-enter"
+      style={{
+        position: "absolute", 
+        bottom: 110, 
+        right: 20, 
+        width: 32, 
+        height: 32, 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center", 
+        padding: 0, 
+        paddingTop: 2
+      }}
+      onClick={() => {
+        requestAnimationFrame(() =>
+          virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+            align: 'end',
+            smooth: false // true can cause issue if too much messages loaded
+          })
+        )
+      }}
+      size='large' 
+      shape='rounded'
+    >
+      <AiOutlineDown fontSize={24} style={{height: 16}}/>
+    </Button>
+  )
+}
     </div>
   );
 };
