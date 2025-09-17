@@ -96,7 +96,6 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     const {chat} = useChats(message.chatId)
     const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(null)
-    const [fileMeta, setFileMeta] = useState(file.meta)
     const [canDecrypt, setCanDecrypt] = useState(true)
     const {activeAccount, activeAccountPk} = useWallet()
     
@@ -121,7 +120,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                 // Check if file is already cached first
                 const cachedFile = await readFileToBlobUrl(fileID);
                 if (cachedFile) {
-                    console.log('hit file from file system', fileID);
+                    console.log('blob resolved', fileID);
                     resolve(cachedFile);
                     return;
                 }
@@ -254,24 +253,24 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         };
     }, [isAccepted, activeAccountPk, fileID, createDecryptionPromise]);
 
-    const fileType = fileMeta?.type
-    const fileSize = fileMeta?.size
-    const fileName = fileMeta?.name
+    const fileType = file.meta?.type
+    const fileSize = file.meta?.size
+    const fileName = file.meta?.name
     
     let heightImage = +(maxHeight.split('px')[0])
-    let widthImage = fileMeta?.width
+    let widthImage = file.meta?.width
     let heightConstrained = false
 
     // Check if height needs to be constrained
-    if(fileMeta?.height < heightImage){
-        heightImage = fileMeta?.height
+    if(file.meta?.height < heightImage){
+        heightImage = file.meta?.height
     } else {
         heightConstrained = true
     }
 
     // Calculate width based on aspect ratio if height was constrained
-    if (heightConstrained && fileMeta?.height && fileMeta?.width) {
-        const aspectRatio = fileMeta.width / fileMeta.height
+    if (heightConstrained && file.meta?.height && file.meta?.width) {
+        const aspectRatio = file.meta.width / file.meta.height
         widthImage = heightImage * aspectRatio
     }
 
@@ -283,8 +282,8 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         widthImage = maxWidthAllowed
         
         // If width is constrained, recalculate height to maintain aspect ratio
-        if (fileMeta?.height && fileMeta?.width) {
-            const aspectRatio = fileMeta.height / fileMeta.width
+        if (file.meta?.height && file.meta?.width) {
+            const aspectRatio = file.meta.height / file.meta.width
             heightImage = widthImage * aspectRatio
         }
     }
@@ -293,7 +292,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     if (!isAccepted) return (
         <div>
             <div>
-                {fileMeta?.name} - {formatSize(fileMeta?.size)}
+                {file.meta?.name} - {formatSize(file.meta?.size)}
             </div>
             <div>File blocked because chat not accepted</div>
         </div>
@@ -308,10 +307,10 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     )
     
     if (!decrypted && canDecrypt) return <div>
-        {fileMeta?.height ? 
+        {file.meta?.height ? 
         <Skeleton animated style={{"--height": `${heightImage}px`, "--border-radius": "8px", "--width": `${widthImage}px`}}/>
         : 
-        <Skeleton animated style={{"--height": `600px`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
+        <Skeleton animated style={{"--height": `300px`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
         }
     </div>
 
@@ -385,4 +384,4 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     )
 }   
 
-export default MessageFile;
+export default MessageFile

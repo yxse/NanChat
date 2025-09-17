@@ -320,7 +320,11 @@ export async function writeUint8ArrayToFile(
  * @param {Directory} directory - Capacitor directory to read from (default: Directory.Data)
  * @returns {Promise<String>} - Blob URL of the file
  */
+let blobUrlCache = new Map()
 export async function readFileToBlobUrl(fileId) {
+  if (blobUrlCache.has(fileId)){
+    return blobUrlCache.get(fileId)
+  }
   try {
     if (Capacitor.getPlatform() === 'web') {
       try {
@@ -330,6 +334,7 @@ export async function readFileToBlobUrl(fileId) {
         });
         let url = URL.createObjectURL(fileInfo.data);
         console.log('File read successfully:', url);
+        blobUrlCache.set(fileId, url)
         return url;
       } catch (error) {
         return null; 
@@ -345,6 +350,7 @@ export async function readFileToBlobUrl(fileId) {
     
     converted = converted.replace(import.meta.env.VITE_PUBLIC_SERVER_URL, 'https://localhost'); // only usefull when using dev server
     console.log('File read successfully:', uri, converted);
+    blobUrlCache.set(fileId, converted)
     return converted
   } catch (error) {
     console.error('Error reading file:', error);
