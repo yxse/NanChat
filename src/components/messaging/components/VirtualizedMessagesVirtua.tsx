@@ -1,7 +1,7 @@
 import { useMemo, useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import Message from './Message';
 import { firstMessageId, TEAM_ACCOUNT } from '../utils';
-import { Button, DotLoading, Toast } from 'antd-mobile';
+import { Button, DotLoading, SpinLoading, Toast } from 'antd-mobile';
 import { CacheSnapshot, VList, VListHandle } from "virtua";
 import { debounce } from 'lodash';
 import { Keyboard } from '@capacitor/keyboard';
@@ -75,7 +75,7 @@ export const VirtualizedMessagesVirtua = ({
     if (eventStickerVisible){
       setInputStickerHeight(eventStickerVisible)
       if (shouldStickToBottom){
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+        virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, {
           align: 'end',
         })
       }
@@ -90,7 +90,7 @@ export const VirtualizedMessagesVirtua = ({
     if (eventAddVisible){
       setInputAdditionalHeight(eventAddVisible)
       if (shouldStickToBottom){
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+        virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, {
           align: 'end',
         })
       }
@@ -119,7 +119,7 @@ export const VirtualizedMessagesVirtua = ({
       setKeyboardHeight(info.keyboardHeight)
         if (shouldStickToBottom) {
           // setTimeout(() => {
-            virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+            virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, {
               align: 'end',
               smooth: false
             })
@@ -154,19 +154,19 @@ export const VirtualizedMessagesVirtua = ({
     if (!firstMessageId[chat?.id] && !offset){
       // debugger
       requestAnimationFrame(() =>
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+        virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, { // +1 for the div space typing
           align: 'end',
         })
       )
           setTimeout(() => {
             firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
-          }, 500);
+          }, 50);
       return
     }
     // Scroll to the last message (bottom)
     if (displayMessages[displayMessages.length - 1]?._id !== firstMessageId[chat?.id]){
       requestAnimationFrame(() =>
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+        virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, {
           align: 'end',
         })
       )
@@ -220,6 +220,7 @@ const handleScroll = useCallback(
       // Only set to false after we actually fetch
       isFirstLoadMore.current = false;
       try {
+        // Toast.show({content: "loading more"})
         await fetchNextPage(100);
       } catch (error) {
         console.log("cannot load next page", error)        
@@ -259,7 +260,7 @@ function debounce(func, delay) {
         overflow: "hidden"
       }}
     >
-      
+           
       <VList
       key={"list" + chat?.id}
       id='vlist'
@@ -272,6 +273,7 @@ function debounce(func, delay) {
         onScroll={handleScroll}
         // style={{overflow: "hidden"}}
       >
+
         {/* <div style={{textAlign: "center", marginTop: 32, marginBottom: 32}}>
         <DotLoading />  
         </div>  */}
@@ -287,7 +289,7 @@ function debounce(func, delay) {
           
           return (
             <div
-             style={!prevMessage ? {marginBottom: 28.4} : {}}
+            //  style={!prevMessage ? {paddingBottom: 28.4} : {}}
              >
             <Message
               key={`${message._id}-${message.status}`}
@@ -305,6 +307,10 @@ function debounce(func, delay) {
         })}
     
 
+      <div style={{height: 28.4, backgroundColor: "transparent"}}> 
+        {/* div for typing space */}
+
+      </div>
       </VList>
       {
   typeof isCloseToBottomState === 'boolean' && !isCloseToBottomState && (
@@ -324,7 +330,7 @@ function debounce(func, delay) {
       }}
       onClick={() => {
         requestAnimationFrame(() =>
-          virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+          virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, {
             align: 'end',
             smooth: false // true can cause issue if too much messages loaded
           })
@@ -333,7 +339,7 @@ function debounce(func, delay) {
       onTouchEnd={(e) => {
         e.preventDefault()
         requestAnimationFrame(() =>
-          virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+          virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, {
             align: 'end',
             smooth: false // true can cause issue if too much messages loaded
           })

@@ -3,7 +3,7 @@ import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { BiMessageSquare } from "react-icons/bi";
 import { WalletContext } from "../../useWallet";
 import { useWallet } from "../../useWallet";
-import { Button, Card, Divider, DotLoading, List, Modal, NavBar } from "antd-mobile";
+import { Button, Card, Divider, DotLoading, List, Modal, NavBar, SpinLoading } from "antd-mobile";
 import { formatAmountMega, formatAmountRaw } from "../../../utils/format";
 import { convertAddress } from "../../../utils/convertAddress";
 import { networks } from "../../../utils/networks";
@@ -86,7 +86,15 @@ const RedPacketResult = ({ side, hash }) => {
   
   // NOW do your conditional logic and early returns
   if (!activeAccount) return <DotLoading />
-  if (isLoading) return <DotLoading />
+  if (isLoading) return <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+    width: '100%'
+  }}>
+    <SpinLoading style={{width: 48}} />
+  </div>
 
   // Rest of your component logic
   const claim = message?.redPacket?.openedBy?.find((claim) => claim.account === activeAccount)

@@ -92,13 +92,20 @@ export function useChat(chatId) {
     // revalidateIfStale: true,
     revalidateOnMount: true,
   });
+  // const prevSizeRef = useRef(1)
 
   // Flatten all pages into a single array
   let messages = pages ? pages.flat() : [];
-  const isLoadingInitial = !pages && !error;
+  // const isLoadingInitial = !pages && !error;
+  const isLoadingInitial = isLoading
   // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
   const isLoadingMore = isValidating
-  const isLoadingNextPage = isValidating && size > 1
+  const isLoadingNextPage = isValidating
+  // const isLoadingNextPage = isValidating && size > prevSizeRef.current
+ // Update the ref when validation completes
+  // if (!isValidating) {
+  //   prevSizeRef.current = size
+  // }
 
   // Get unread count
   // const { data: unreadCount } = useSWR(

@@ -91,8 +91,8 @@ const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
     );
     }
     if (action === "opened"){ // red packet
-    return <div className="text-center m-4" style={{  }}>  <RedPacketIcon width={18} style={{verticalAlign: "baseline"}}/> <ProfileName address={addresses?.[0]} /> opened <RedPacketLink id={redPacketId} /> from {" "}
-          <ProfileName address={addresses?.[1]} />{isAllOpened && ". The red packets are all received."}
+    return <div className="text-center" style={{marginTop: 6, marginBottom: 6}}>  <RedPacketIcon width={14} style={{verticalAlign: "baseline", marginBottom: -2}}/> <ProfileName address={addresses?.[0]} includeVerified={false} /> opened <RedPacketLink id={redPacketId} /> from {" "}
+          <ProfileName address={addresses?.[1]} includeVerified={false}/>{isAllOpened && ". The red packets are all received."}
       </div>
     }
     return (

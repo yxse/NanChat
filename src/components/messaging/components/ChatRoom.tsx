@@ -551,7 +551,15 @@ useEffect(() => {
     )
 }
                         {
-                            isLoadingInitial ? <Skeleton animated /> :
+                            isLoadingInitial ? <div style={{
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: 'calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+  width: '100%'
+}}>
+  <SpinLoading style={{width: 48}} />
+</div>:
                                 <div
                                     // scrollThreshold={"800px"}
                                     dataLength={messages.length}
