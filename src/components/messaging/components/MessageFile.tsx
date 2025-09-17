@@ -306,7 +306,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         </div>
     )
     
-    if (!decrypted && canDecrypt) return <div>
+    if (!decrypted && canDecrypt) return <div key={message._id + "file"} className={``} >
         {file.meta?.height ? 
         <Skeleton animated style={{"--height": `${heightImage}px`, "--border-radius": "8px", "--width": `${widthImage}px`}}/>
         : 
@@ -316,7 +316,9 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
 
     // Main render - only when decrypted exists
     return (
-        <div key={message._id} className={``}>
+        <div key={message._id + "file"} className={``} style={{
+            height: heightImage // height here fix message shift in the virtualizer
+            }}>
             <div className={``}>
                 <div> 
                     {fileType?.startsWith('image') && 

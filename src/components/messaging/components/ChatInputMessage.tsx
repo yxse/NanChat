@@ -97,7 +97,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     if (defaultChatId !== undefined) {
       account = defaultChatId;
     }
-    const [stickerVisible, setStickerVisible] = useState(false);
+    const [stickerVisible, setStickerVisible] = useState(undefined);
     const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useWindowDimensions()
@@ -140,7 +140,17 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     }
   }, [account]);
 
-
+  useEffect(() => {
+    if (stickerVisible == undefined) return
+    debugger
+    if (stickerVisible){
+      emit('sticker-visible', 300)
+    }
+    else{
+      emit('sticker-visible', 0)
+    }
+  }, [stickerVisible])
+  
       // Debounced save function
   const debouncedSave = useCallback(
     debounce((id, text) => {

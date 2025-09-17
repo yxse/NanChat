@@ -50,6 +50,7 @@ import ProfilePicture from "./profile/ProfilePicture";
 import PasteAction from "../../app/PasteAction";
 import { useTranslation } from "react-i18next";
 import NetworkUnavailable from "./NetworkUnavailable";
+import { firstMessageId } from '../utils';
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -167,6 +168,9 @@ const saveScrollPosition = useCallback(
 );
 
 useEffect(() => {
+  sessionStorage.clear() // reset scroll chat room 
+Object.keys(firstMessageId).forEach(key => delete firstMessageId[key]); // to reset scroll chat room 
+
   setTimeout(() => {
     localStorage.removeItem('scrollTop-chat-room') // as sometime it fail to get removed if scrolling on ios and back fast
     // reseting scroll chat also allow to offload messages

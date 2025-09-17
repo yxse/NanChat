@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import Message from './Message';
-import { TEAM_ACCOUNT } from '../utils';
+import { firstMessageId, TEAM_ACCOUNT } from '../utils';
 import { Button, DotLoading, Toast } from 'antd-mobile';
 import { CacheSnapshot, VList, VListHandle } from "virtua";
 import { debounce } from 'lodash';
@@ -11,7 +11,6 @@ import { Capacitor } from '@capacitor/core';
 import { DownOutline } from 'antd-mobile-icons';
 import { AiOutlineDown } from 'react-icons/ai';
 
-let firstMessageId = {}
 let shouldStickToBottom = true
 
 export const VirtualizedMessagesVirtua = ({ 
@@ -26,8 +25,12 @@ export const VirtualizedMessagesVirtua = ({
   const virtuaRef = useRef(null);
   const isPrepend = useRef(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const [inputStickerHeight, setInputStickerHeight] = useState(0)
+  const [inputAdditionalHeight, setInputAdditionalHeight] = useState(0)
   const [typingHeight, setTypingHeight] = useState(0)
   const [isCloseToBottomState, setIsCloseToBottomState] = useState(undefined)
+  const eventStickerVisible = useEvent("sticker-visible")
+  const eventAddVisible = useEvent("add-visible")
   // const [isLoading, setLoading] = useState(false)
   const displayMessages = useMemo(() => {
     return [...messages].reverse();
@@ -51,6 +54,7 @@ export const VirtualizedMessagesVirtua = ({
     const handle = virtuaRef.current;
 
     if (offset) {
+      // debugger
       handle.scrollTo(offset);
     }
   
@@ -65,6 +69,37 @@ export const VirtualizedMessagesVirtua = ({
   }, [chat?.id]);
 
 
+  useEffect(() => {
+    if (eventStickerVisible == undefined) return
+    debugger
+    if (eventStickerVisible){
+      setInputStickerHeight(eventStickerVisible)
+      if (shouldStickToBottom){
+        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+          align: 'end',
+        })
+      }
+    }
+    else{
+      setInputStickerHeight(0)
+    }
+  }, [eventStickerVisible])
+  useEffect(() => {
+    if (eventAddVisible == undefined) return
+    debugger
+    if (eventAddVisible){
+      setInputAdditionalHeight(eventAddVisible)
+      if (shouldStickToBottom){
+        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+          align: 'end',
+        })
+      }
+    }
+    else{
+      setInputAdditionalHeight(0)
+    }
+  }, [eventAddVisible])
+  
   // Reset prepend flag after each render
   useLayoutEffect(() => {
     // debugger
@@ -72,17 +107,24 @@ export const VirtualizedMessagesVirtua = ({
   });
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {
-      if (!shouldStickToBottom) return
+
       // Toast.show({content: info.keyboardHeight})
+      const safeAreaBottomValue = parseInt(
+  getComputedStyle(document.documentElement)
+    .getPropertyValue('--safe-area-inset-bottom')
+) || 0;
+
       console.log('keyboard will show with height:', info.keyboardHeight);
       // keyboardHeight.current = info.keyboardHeight
       setKeyboardHeight(info.keyboardHeight)
-      setTimeout(() => {
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
-            align: 'end',
-          })
-        
-      }, 0);
+        if (shouldStickToBottom) {
+          // setTimeout(() => {
+            virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+              align: 'end',
+              smooth: false
+            })
+          // }, 0);
+        }
 
     })
     Keyboard.addListener('keyboardWillHide', info => {
@@ -101,7 +143,7 @@ export const VirtualizedMessagesVirtua = ({
     return () => {
       shouldStickToBottom = true
     }
-  }, [chat?.id])
+  }, [chat?.id, shouldStickToBottom])
   
 
   // Auto-scroll to bottom for new messages (similar to the demo)
@@ -110,7 +152,7 @@ export const VirtualizedMessagesVirtua = ({
     // debugger
     if (!shouldStickToBottom) return;
     if (!firstMessageId[chat?.id] && !offset){
-      debugger
+      // debugger
       requestAnimationFrame(() =>
         virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
           align: 'end',
@@ -185,11 +227,19 @@ const handleScroll = useCallback(
     const { scrollSize, viewportSize } = virtuaRef.current;
     let fixedViewPortInitial = viewportSize == 0 ? document?.body?.clientHeight - 45 - 57 - 2 - 100: viewportSize;
     let isCloseToBottom =  offsetScroll - scrollSize + fixedViewPortInitial>= -100;
-    
+    // Toast.show({content: offsetScroll - scrollSize + fixedViewPortInitial})
     setTimeout(() => {
         shouldStickToBottom = isCloseToBottom
         setIsCloseToBottomState(isCloseToBottom)
     }, 100)
+    if (offsetScroll - scrollSize + fixedViewPortInitial > 150){ // if scrolled 100 px "above" bottom, do the trick to refresh the scroll
+      if (Capacitor.getPlatform() === "ios"){
+        document.querySelector('#vlist').style.overflow = "hidden"
+        setTimeout(() => {
+          document.querySelector('#vlist').style.overflow = "auto"
+        }, 10);
+      }
+    }
     
     if (isCloseToBottom){
       isPrepend.current = false
@@ -239,7 +289,7 @@ function debounce(func, delay) {
     <div
       className={`chat-container ${Capacitor.getPlatform() === "ios" ? "native": ""}`}
       style={{
-        height: `calc(100vh - 45px - 57px - 2px - ${keyboardHeight}px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top) )`,
+        height: `calc(100vh - 45px - 57px - 2px - ${keyboardHeight}px - var(--safe-area-inset-top) - ${inputStickerHeight}px - ${inputAdditionalHeight}px - ${(keyboardHeight <= 0)? `var(--safe-area-inset-bottom)`: `0px`})`,
         display: 'flex',
         flexDirection: 'column',
         overflow: "hidden"
@@ -250,7 +300,7 @@ function debounce(func, delay) {
       key={"list" + chat?.id}
       id='vlist'
       cache={cache}
-      overscan={4}
+      overscan={8}
         ref={virtuaRef}
         // style={{ flex: 1 }}
         reverse
@@ -298,7 +348,7 @@ function debounce(func, delay) {
       className="fade-button-enter"
       style={{
         position: "absolute", 
-        bottom: 110, 
+        bottom: 110 + inputAdditionalHeight + inputStickerHeight, 
         right: 20, 
         width: 32, 
         height: 32, 
@@ -309,6 +359,15 @@ function debounce(func, delay) {
         paddingTop: 2
       }}
       onClick={() => {
+        requestAnimationFrame(() =>
+          virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+            align: 'end',
+            smooth: false // true can cause issue if too much messages loaded
+          })
+        )
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault()
         requestAnimationFrame(() =>
           virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
             align: 'end',

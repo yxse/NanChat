@@ -12,13 +12,27 @@ import { AiOutlineSwap } from 'react-icons/ai';
 import ChatInputFile from './ChatInputFile';
 import ChatInputTip from './ChatInputTip';
 import ChatInputRedPacket from './ChatInputRedPacket';
+import { useEmit } from './EventContext';
 
 const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat }) => {
+    const inputAddRef = useRef()
+    const emit = useEmit()
+    const marginTop = 32
+    useEffect(() => {
+      if (visible && inputAddRef && inputAddRef.current){
+        emit("add-visible", inputAddRef.current.scrollHeight + marginTop)
+      }
+      else{
+        emit("add-visible", 0)
+      }
+      
+    }, [visible])
+    
     // console.log("render input add")
     return (
-                <div style={{
+                <div ref={inputAddRef} style={{
                     display: visible ? "flex" : "none",
-                    justifyContent: "center", flexWrap: "wrap", gap: 32, marginTop: 32}}>
+                    justifyContent: "center", flexWrap: "wrap", gap: 32, marginTop: marginTop}}>
                     <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="media"/>
                     <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="file" allowPaste/>
                     {

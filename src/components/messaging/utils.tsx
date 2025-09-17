@@ -294,3 +294,4 @@ export const convertAddress = (address, ticker) => {
     // }
     return networks[ticker]?.prefix + "_" + address.split("_")[1];
   }
+export let firstMessageId = {};
