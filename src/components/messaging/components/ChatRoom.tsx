@@ -11,7 +11,7 @@ import { convertAddress } from "../../../utils/convertAddress";
 import { CopyToClipboard } from "../../Settings";
 import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
-import { Button, DotLoading, Input, List, Modal, NavBar, SafeArea, Skeleton, Space, Toast } from "antd-mobile";
+import { Button, DotLoading, Input, List, Modal, NavBar, SafeArea, Skeleton, Space, SpinLoading, Toast } from "antd-mobile";
 import useSWR from "swr";
 import { fetcherAccount, fetcherMessages, joinRequest, saveMessageCache } from "../fetcher";
 import { box } from "multi-nano-web";
@@ -85,6 +85,7 @@ const saveScrollPosition = useCallback(
         mutate,
         isLoadingMore,
         isLoadingInitial,
+        isLoadingNextPage,
         hasMore,
         reset
     } = useChat(account);
@@ -391,8 +392,12 @@ useEffect(() => {
                     <h2 className="flex items-center justify-center gap-2">
                     <ProfileName address={address} fallback={formatAddress(address)} />
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
+                    {/* <DotLoading /> */}
+                    {
+                        (isLoadingNextPage) && 
+                    <SpinLoading style={{width: 24}} />
+                    }
                     </h2>
-                    <HeaderStatus lastOnline={participant?.lastOnline} />
                 </div>
                 </NavBar>
                 
@@ -429,6 +434,10 @@ useEffect(() => {
                     <h2 className="flex items-center justify-center gap-2">
                     {chat?.name || 'Group Chat'} ({chat?.participants.length})
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
+                    {
+                      isLoadingNextPage && 
+                    <SpinLoading style={{width: 24}} />
+                    }
                     </h2>
                 </div>
                 </NavBar>

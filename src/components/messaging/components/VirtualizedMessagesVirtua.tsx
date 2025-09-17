@@ -71,7 +71,7 @@ export const VirtualizedMessagesVirtua = ({
 
   useEffect(() => {
     if (eventStickerVisible == undefined) return
-    debugger
+    // debugger
     if (eventStickerVisible){
       setInputStickerHeight(eventStickerVisible)
       if (shouldStickToBottom){
@@ -86,7 +86,7 @@ export const VirtualizedMessagesVirtua = ({
   }, [eventStickerVisible])
   useEffect(() => {
     if (eventAddVisible == undefined) return
-    debugger
+    // debugger
     if (eventAddVisible){
       setInputAdditionalHeight(eventAddVisible)
       if (shouldStickToBottom){
@@ -173,50 +173,9 @@ export const VirtualizedMessagesVirtua = ({
       firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
       return
     }
-
-  
     // debugger
     
   }, [displayMessages, displayMessages.length, chat?.id]);
-
-
-  // useEffect(() => {
-  //   // const handleTyping = (typing) => {
-  //   //           const { chatId, account: accountTyping} = typing;
-  //   //           // setTimeout(() => {
-  //   //           //     // window.scrollTo(0, document.body.scrollHeight);
-  //   //           //   }
-  //   //           //   , 10);
-  //   //           console.log('typing', chatId, accountTyping);
-  //   //           if (chatId !== chat.id) return // show typing only for current chat
-  //   //           Toast.show({content: "typing"})
-  //   //           setTypingHeight(24)
-  //   //           setTimeout(() => {
-  //   //     virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
-  //   //         align: 'end',
-  //   //       })
-        
-  //   //   }, 100);
-
-  //   //       }
-  //   //       socket.on('typing', handleTyping);
-  
-  //   //       return () => {
-  //   //           socket.off('typing', handleTyping);
-  //   //       };
-  //   if (participants?.length > 0 && shouldStickToBottom){
-  //     // setTypingHeight(24)
-  //     // virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
-  //     //       align: 'end',
-  //     //     })
-  //   }
-  //   else{
-  //   //  setTypingHeight(0) 
-  //   }
-  //   // Toast.show({content: participants?.length})
-  //   //   }, [participants]);
-
-  
 
 
 const isFirstLoadMore = useRef(true);
@@ -260,10 +219,15 @@ const handleScroll = useCallback(
       
       // Only set to false after we actually fetch
       isFirstLoadMore.current = false;
-      
-      await fetchNextPage(100);
-      if (Capacitor.getPlatform() === "ios"){
-        document.querySelector('#vlist').style.overflow = "auto"
+      try {
+        await fetchNextPage(100);
+      } catch (error) {
+        console.log("cannot load next page", error)        
+      }
+      finally {
+        if (Capacitor.getPlatform() === "ios"){
+          document.querySelector('#vlist').style.overflow = "auto"
+        }
       }
       setTimeout(() => {
         isPrepend.current = false

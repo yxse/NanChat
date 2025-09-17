@@ -98,6 +98,7 @@ export function useChat(chatId) {
   const isLoadingInitial = !pages && !error;
   // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
   const isLoadingMore = isValidating
+  const isLoadingNextPage = isValidating && size > 1
 
   // Get unread count
   // const { data: unreadCount } = useSWR(
@@ -226,6 +227,7 @@ export function useChat(chatId) {
     unreadCount,
     mutate,
     hasMore,
-    reset
+    reset,
+    isLoadingNextPage
   };
 }
