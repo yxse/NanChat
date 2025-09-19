@@ -62,7 +62,7 @@ const blacklistStorageHandler = {
     }
     }
 
-    console.log(key, value)
+    // console.log(key, value)
     
     if (value && value?.data){ // set the timer only if contains value
       // Update rate limit cache
@@ -143,15 +143,27 @@ export default function InitialPopup() {
         }
       }
       }
-      window.addEventListener('beforeunload', () => {
-    saveCache()
-  })
-  
-  CapacitorApp.addListener('pause', () => {
-    saveCache()
-  })
+
+      let appStateListener
+  CapacitorApp.addListener('pause', saveCache).then(listener => {
+          appStateListener = listener
+        })
+
+  return () => {
+    if (appStateListener) {
+        appStateListener.remove()
+      }
+  }
   }, [])
 
+
+useEffect(() => {
+  if (initializing) {
+    console.time('Initialization Duration');
+  } else {
+    console.timeEnd('Initialization Duration');
+  }
+}, [initializing]);
   //   if (initializing) {
   //   return null
   // }

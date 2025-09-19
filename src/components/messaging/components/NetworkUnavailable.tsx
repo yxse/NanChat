@@ -1,7 +1,7 @@
 import { NoticeBar } from 'antd-mobile'
 import { InformationCircleOutline } from 'antd-mobile-icons'
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { socket } from '../socket'
 import { App } from '@capacitor/app'
 
@@ -9,60 +9,67 @@ function NetworkUnavailable() {
   const [isSocketConnected, setIsSocketConnected] = useState(socket.connected)
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [showNotice, setShowNotice] = useState(false)
+  const timeoutRef = useRef(null)
+  const mountedRef = useRef(false)
 
   useEffect(() => {
-    let timeoutId
+   
+    function clearExistingTimeout() {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
 
     function checkConnectionStatus() {
+      // Don't show notice immediately on mount
+      
       const shouldShowNotice = !isSocketConnected || !isOnline
+      
+      clearExistingTimeout()
       
       if (shouldShowNotice && !showNotice) {
         // Start timer to show notice after 4 seconds
-        timeoutId = setTimeout(() => {
-          setShowNotice(true)
+        timeoutRef.current = setTimeout(() => {
+          // Double-check the connection status when timer fires
+          const currentShouldShow = !socket.connected || !navigator.onLine
+          if (currentShouldShow) {
+            setShowNotice(true)
+          }
         }, 4000)
-      } else if (!shouldShowNotice) {
-        // Hide notice immediately and clear timeout
+      } else if (!shouldShowNotice && showNotice) {
+        // Hide notice immediately when connection is restored
         setShowNotice(false)
-        if (timeoutId) {
-          clearTimeout(timeoutId)
-          timeoutId = null
-        }
       }
     }
 
     function resetTimer() {
-      // Clear existing timeout and restart the check
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-        timeoutId = null
-      }
+      clearExistingTimeout()
       setShowNotice(false)
-      checkConnectionStatus()
+      // Small delay before rechecking to avoid flashing
+      setTimeout(checkConnectionStatus, 100)
     }
 
     function onConnect() {
       setIsSocketConnected(true)
-      checkConnectionStatus()
     }
 
     function onDisconnect() {
       setIsSocketConnected(false)
-      checkConnectionStatus()
     }
 
     function onOnline() {
       setIsOnline(true)
-      checkConnectionStatus()
     }
 
     function onOffline() {
       setIsOnline(false)
-      checkConnectionStatus()
     }
 
     function onAppResume() {
-      // Reset timer when app resumes from background
+      // Update connection states first
+      setIsSocketConnected(socket.connected)
+      setIsOnline(navigator.onLine)
       resetTimer()
     }
 
@@ -77,32 +84,45 @@ function NetworkUnavailable() {
     // Capacitor app state listener
     let appStateListener
     if (typeof App !== 'undefined') {
-      App.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) {
-          onAppResume()
-        }
-      }).then(listener => {
+      App.addListener('resume', onAppResume).then(listener => {
         appStateListener = listener
       })
     }
 
-    // Check initial state
-    checkConnectionStatus()
-
     return () => {
+      clearExistingTimeout()
+      
       socket.off('connect', onConnect)
       socket.off('disconnect', onDisconnect)
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOffline)
       
-      // Remove Capacitor listener
       if (appStateListener) {
         appStateListener.remove()
       }
-      
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
+    }
+  }, []) // Remove showNotice from dependencies
+
+  // Separate effect to handle connection status changes
+  useEffect(() => {
+    // if (!mountedRef.current) return
+    
+    const shouldShowNotice = !isSocketConnected || !isOnline
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+    
+    if (shouldShowNotice && !showNotice) {
+      timeoutRef.current = setTimeout(() => {
+        const currentShouldShow = !socket.connected || !navigator.onLine
+        if (currentShouldShow) {
+          setShowNotice(true)
+        }
+      }, 4000)
+    } else if (!shouldShowNotice && showNotice) {
+      setShowNotice(false)
     }
   }, [isSocketConnected, isOnline, showNotice])
 
@@ -117,6 +137,7 @@ function NetworkUnavailable() {
       icon={<InformationCircleOutline />}
       content="Network unavailable. Check network."
       color="alert"
+      onClose={() => setShowNotice(false)}
     />
   )
 }
