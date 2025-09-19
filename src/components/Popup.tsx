@@ -155,7 +155,7 @@ export default function InitialPopup() {
   //   if (initializing) {
   //   return null
   // }
-   if (initializing  && Capacitor.getPlatform() == "web") return <div style={{
+   if (initializing) return <div style={{
      display: 'flex',
      justifyContent: 'center',
      alignItems: 'center',
