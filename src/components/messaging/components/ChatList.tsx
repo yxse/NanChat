@@ -50,7 +50,7 @@ import ProfilePicture from "./profile/ProfilePicture";
 import PasteAction from "../../app/PasteAction";
 import { useTranslation } from "react-i18next";
 import NetworkUnavailable from "./NetworkUnavailable";
-import { firstMessageId } from '../utils';
+import { firstMessageId, shouldStickToBottom } from '../utils';
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -169,13 +169,19 @@ const saveScrollPosition = useCallback(
 
 useEffect(() => {
   sessionStorage.clear() // reset scroll chat room 
-Object.keys(firstMessageId).forEach(key => delete firstMessageId[key]); // to reset scroll chat room 
-
+  Object.keys(firstMessageId).forEach(key => delete firstMessageId[key]); // to reset scroll chat room 
+  localStorage.removeItem('scrollTop-chat-room')
   setTimeout(() => {
     localStorage.removeItem('scrollTop-chat-room') // as sometime it fail to get removed if scrolling on ios and back fast
     // reseting scroll chat also allow to offload messages
   }, 300);
-}, [])
+  try {
+    shouldStickToBottom.current = true
+    
+  } catch (error) {
+    console.log("cannot set stick to bottom", error)
+  }
+}, [account])
 
   // Clean up the debounce on unmount
   useEffect(() => {

@@ -22,7 +22,7 @@ import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-settings";
 import { showLogoutSheet } from "./Settings";
 import enUS from 'antd-mobile/es/locales/en-US'
-import { defaultContacts } from "./messaging/utils";
+import { defaultContacts, safeSetItem } from "./messaging/utils";
 import { fetchPrices } from "../nanswap/swap/service";
 import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
 import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@benskalz/swr-idb-cache'
@@ -89,7 +89,7 @@ const blacklistStorageHandler = {
       // debugger
       if (value && value?.data && value?.data[0]?.updatedAt != undefined){
         const latstUpdatedChat = value?.data[0]?.updatedAt
-        localStorage.setItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) // need to put this after the db put to ensure it is saves after
+        safeSetItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) // need to put this after the db put to ensure it is saves after
       }
     }
     // For all other keys, use the wrapped handler

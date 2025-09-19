@@ -47,6 +47,7 @@ import { Scanner } from "./Scanner";
 import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Buy from "./Buy";
 import BigNumber from "bignumber.js";
+import { safeSetItem } from "../messaging/utils";
 
 const SelectTicker = ({ side, visible, setVisible, allCurrencies,  isLoading, selected, setSelected}) => {
 
@@ -173,7 +174,7 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
         return;
       }
       let history = JSON.parse(localStorage.getItem('history_exchanges') || '[]')
-      localStorage.setItem('history_exchanges', JSON.stringify([{
+      safeSetItem('history_exchanges', JSON.stringify([{
         id: exchange.id,
         link: exchange.fullLink,
         createdAt: new Date(),

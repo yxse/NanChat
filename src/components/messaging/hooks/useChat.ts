@@ -51,7 +51,9 @@ export function useUnreadCount() {
   }, [unread, seedVerified]);
   return unread || null; // null to hide the badge
 }
-const LIMIT = Capacitor.getPlatform() === "ios" ? 50 : 25;
+// const LIMIT = Capacitor.getPlatform() === "ios" ? 50 : 25;
+const LIMIT = 40;
+const LIMIT_INITIAL = 20;
 // Custom hook for chat functionality
 
 export const getKey = (pageIndex, previousPageData, chatId, height) => {
@@ -61,9 +63,8 @@ export const getKey = (pageIndex, previousPageData, chatId, height) => {
     // debugger
     return null;
   }
-  if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=-1`;
-  let limit = Capacitor.getPlatform() === "ios" ? 100 : 50
-  return `/messages?chatId=${chatId}&limit=${limit}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
+  if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT_INITIAL}&cursor=-1`;
+  return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
 };
 export function useChat(chatId) {
   // Get messages using infinite loading
@@ -101,6 +102,7 @@ export function useChat(chatId) {
   // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
   const isLoadingMore = isValidating
   const isLoadingNextPage = isValidating
+  const isLoadingFirstPage = (isValidating && size <= 1) && !isLoadingInitial
   // const isLoadingNextPage = isValidating && size > prevSizeRef.current
  // Update the ref when validation completes
   // if (!isValidating) {
@@ -120,8 +122,7 @@ export function useChat(chatId) {
     // we use this function to reduce the number of message loaded
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
     // todo: use virtualize list instead
-
-    return
+    if (Capacitor.getPlatform() !== "ios") return // we reset only for ios since not using virtualizer
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
     // await mutate([pages[0]], false); // Keep only first page, no revalidation
@@ -235,6 +236,7 @@ export function useChat(chatId) {
     mutate,
     hasMore,
     reset,
-    isLoadingNextPage
+    isLoadingNextPage,
+    isLoadingFirstPage
   };
 }

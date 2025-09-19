@@ -31,7 +31,7 @@ import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
-import { TEAM_ACCOUNT } from "../utils";
+import { shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import { useChats } from "../hooks/use-chats";
@@ -39,8 +39,12 @@ import { useSWRConfig } from "swr"
 import { unstable_serialize } from 'swr/infinite'
 import { debounce } from 'lodash';
 import { removeData } from "../../../services/database.service";
-import { VirtualizedMessages } from "./VirtualizedMessages";
+import { Capacitor } from "@capacitor/core";
 import { VirtualizedMessagesVirtua } from "./VirtualizedMessagesVirtua";
+import InfiniteScrollingMessages from "./messages/InfiniteScrollingMessages";
+import { DelayedSpinner } from "./DelayedSpinner";
+import { App } from "@capacitor/app";
+
 
 const ChatRoom: React.FC<{}> = ({  }) => {
     const {mutate: mutateInifinite} = useSWRConfig();
@@ -63,7 +67,7 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     //   const { ref: messagesEndRef, setScroll } = useScrollRestoration('contacts', {
     //     persist: 'localStorage',
     //   });
-    
+    const virtuaRef = useRef(null);
     const scrollKeyStore = `scrollTop-chat-room`
     // const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
 
@@ -85,12 +89,14 @@ const saveScrollPosition = useCallback(
         mutate,
         isLoadingMore,
         isLoadingInitial,
-        isLoadingNextPage,
+        isLoadingFirstPage,
         hasMore,
         reset
     } = useChat(account);
     const {isMobile} = useWindowDimensions()
     const {chat, isLoading} = useChats(account);
+    const safeMutate = useImmediateSafeMutate(mutate);
+
     console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
@@ -137,9 +143,28 @@ const saveScrollPosition = useCallback(
             }
         }
     }, [])
+
+    useEffect(() => { 
+    let listener;
+    
+    const setupListener = async () => {
+        listener = await App.addListener('resume', () => {
+            console.log('app resume, mutate messages');
+            safeMutate()
+        });
+    };
+    
+    setupListener();
+    
+    return () => {
+        if (listener) {
+            listener.remove();
+        }
+    };
+}, [])
     const onReconnect = () => {
         console.log('reconnect socket mutate messages');
-        mutate()
+        safeMutate()
     }
      useEffect(() => {
             socket.io.on('reconnect', onReconnect)
@@ -245,6 +270,7 @@ const saveScrollPosition = useCallback(
 
 
     const scrollToBottom = () => {
+        if (Capacitor.getPlatform() !== "ios") return
         // return
         // debugger
         // messagesEndRef.current?.
@@ -285,7 +311,6 @@ const saveScrollPosition = useCallback(
         , [messages, chat]);
 
     useEffect(() => {
-        scrollToBottom(); 
         // debugger
         // console.log(location.state)
         if (!isMobile){
@@ -314,6 +339,13 @@ const saveScrollPosition = useCallback(
     setTimeout(() => {
         scrollToBottom();
     }, 0);
+    if (virtuaRef && virtuaRef.current){
+        shouldStickToBottom.current = true
+        virtuaRef.current.scrollToIndex(messages.length - 1, {
+          align: 'end',
+          smooth: false
+        })
+    }
 }, [scrollToBottom]); 
   useEffect(() => {
       return () => {
@@ -329,7 +361,7 @@ useEffect(() => {
           if (!isNaN(scrollTopInt)) {
             // debugger
               if (infiniteScrollRef.current) {
-                  (infiniteScrollRef.current as any).scrollTo(0, scrollTopInt);
+                //   (infiniteScrollRef.current as any).scrollTo(0, scrollTopInt);
                 // setTimeout(() => {
                 // }, 0)
               }
@@ -393,10 +425,7 @@ useEffect(() => {
                     <ProfileName address={address} fallback={formatAddress(address)} />
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     {/* <DotLoading /> */}
-                    {
-                        (isLoadingNextPage) && 
-                    <SpinLoading style={{width: 24}} />
-                    }
+                    <DelayedSpinner isLoading={isLoadingFirstPage} delay={400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
                 </div>
                 </NavBar>
@@ -434,10 +463,7 @@ useEffect(() => {
                     <h2 className="flex items-center justify-center gap-2">
                     {chat?.name || 'Group Chat'} ({chat?.participants.length})
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
-                    {
-                      isLoadingNextPage && 
-                    <SpinLoading style={{width: 24}} />
-                    }
+                    <DelayedSpinner isLoading={isLoadingFirstPage} delay={400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
                 </div>
                 </NavBar>
@@ -501,10 +527,10 @@ useEffect(() => {
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'auto',
-                    // height: '100%', 
-                    width: '100%',
-                    flexGrow: 1,
-                    justifyContent: "space-between"
+                    // // height: '100%', 
+                    // width: '100%',
+                    // flexGrow: 1,
+                    // justifyContent: "space-between"
                     // animation: "slide-in 0.4s",
                     // animationIterationCount: "1",
                     // animationFillMode: "forwards",
@@ -515,10 +541,10 @@ useEffect(() => {
                     style={{
                         // position: 'absolute', top: '0', bottom: '0',
                         overflow: 'hidden',
-                        width: '100%',
-                        //  marginTop: '9vh',
-                        // marginBottom: 92, 
-                        display: 'flex',
+                        // width: '100%',
+                        // //  marginTop: '9vh',
+                        // // marginBottom: 92, 
+                        // display: 'flex',
                         //   flexGrow: 1,
                     }}
                 >
@@ -529,9 +555,10 @@ useEffect(() => {
                         style={{
                             height: "100%",
                             width: '100%',
-                            // overflow: 'auto',
-                            // display: 'flex',
-                            // flexDirection: "column",
+                            overflow: Capacitor.getPlatform() === "ios" ? "scroll": "hidden",
+                            display: 'flex',
+                            // flexDirection: "column-reverse",
+                            flexDirection: Capacitor.getPlatform() === "ios" ? "column-reverse": "column",
                             // overflowAnchor: 'auto',
                             // touchAction: 'none', // don't or ios scroll glitch
                         }}
@@ -560,91 +587,32 @@ useEffect(() => {
 }}>
   <SpinLoading style={{width: 48}} />
 </div>:
-                                <div
-                                    // scrollThreshold={"800px"}
-                                    dataLength={messages.length}
-                                    next={() => {
-                                        // console.log('loading more')
-                                        // // if (!isLoadingMore){
-                                        // setAutoScroll(false);
-                                        // loadMore();
-                                        // }
-                                    }}
-
-                                    hasMore={hasMore}
-                                    // loader={<Skeleton animated />}
-                                    inverse={true}
-                                    // scrollThreshold={"300px"} // this cause scroll flickering issue
-                                    onScroll={(e) => {
-                                        // saveScrollPosition(e.target.scrollTop)
-                                        // //disable auto scroll when user scrolls up
-                                        // // console.log(e.target.scrollTop);
-                                        // if (e.target.scrollTop > 0) {
-                                        //     setAutoScroll(true);
-                                        //     // console.log("enable autoscroll");
-                                        //     infiniteScrollRef.current.className = "scrollableDiv";
-                                        // }
-                                        // else {
-                                        //     setAutoScroll(false);
-                                        //     // console.log("disable autoscroll");
-                                        //     if (infiniteScrollRef.current){
-                                        //         infiniteScrollRef.current.className = "scrollableDivAuto";
-                                        //     }
-                                        // }
-                                        // if (e.target.scrollTop < 0) {
-                                        //     setAutoScroll(false);
-                                        //     console.log("disable autoscroll");
-                                        // }
-                                        // else {
-                                        //     setAutoScroll(true);
-                                        //     console.log("enable autoscroll");
-                                        // }
-                                    }}
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        userSelect: 'none',
-
-                                        //  overflowAnchor: 'none',
-                                    }} //To put endMessage and loader to the top.
-                                    endMessage={
-                                        null
-                                    }
-                                    scrollableTarget="scrollableDiv"
-
-                                >
+                                <div>
                                     {/* {
+
                                         hasMore && isLoadingMore && (
-                            <div className="text-center m-4">
-                                <DotLoading />
+                            <div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
+                                <SpinLoading />
                             </div>
                         )
                     } */}
+                    {/* 
                     
-                                    {/* {messages.reverse().map((message, index) => {
-                                        return (
-                                            <div
-                                                key={message._id}
-                                            // id={index == messages.length - 1 ? "endOfMessages" : ""}
-                                            // ref={index === messages.length - 1 ? messagesEndRef : null}
-                                            >
-                                                <Message
-                                                    key={`${message._id}-${message.status}`}
-                                                    message={message}
-                                                    prevMessage={messages[index + 1]}
-                                                    nextMessage={messages[index - 1]}
-                                                    activeAccount={activeAccount}
-                                                    activeAccountPk={activeAccountPk}
-                                                    type={chat?.type}
-                                                    hasMore={hasMore}
-                                                    isFromTeam={chat?.creator === TEAM_ACCOUNT}
-                                                // toAccount={names?.find(participant => participant._id !== message.fromAccount)?._id}
-                                                />
-                                            </div>
-                                        )
-                                    })} */}
-                                   
+                    on ios not using virtualizer as already good performances without it and scroll much smoother,
+                    lot of scroll intertia issue with ios/webkit, see: 
+                        https://github.com/inokawa/virtua/issues/473
+                        https://github.com/inokawa/virtua/issues/403#issuecomment-1978126177
+                    */}
+                    {
+                        Capacitor.getPlatform() === "ios" ? 
+                        <InfiniteScrollingMessages 
+                        saveScrollPosition={saveScrollPosition}
+                        loadMore={loadMore} chat={chat} isLoadingMore={isLoadingMore} hasMore={hasMore} 
+                        messages={messages.reverse()}
+                         infiniteScrollRef={infiniteScrollRef} isLoadingInitial={isLoadingInitial} setAutoScroll={setAutoScroll} />
+                                 :   
                                     <VirtualizedMessagesVirtua
+                                    virtuaRef={virtuaRef}
                                     saveScrollPosition={saveScrollPosition}
                                     activeAccount={activeAccount}
                                     activeAccountPk={activeAccountPk}
@@ -654,8 +622,9 @@ useEffect(() => {
                                     fetchNextPage={loadMore}
                                     isFetchingNextPage={isLoadingMore}
                                     />
+}
                                      <div
-                                        id="endOfMessages2"
+                                        id="endOfMessages"
                                         ref={messagesEndRef} />
                                 </div>
                         }
@@ -689,6 +658,11 @@ useEffect(() => {
                     // mutateChats={mutateChats}
                         messageInputRef={messageInputRef}
                         onSent={onSent}
+                        onTouch={() => {
+                            if (Capacitor.getPlatform() === "ios")
+                                onSent()
+                            // scroll bottom when focus input
+                        }} 
                     />
                 </div>
                

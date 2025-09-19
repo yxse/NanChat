@@ -21,6 +21,7 @@ import { unstable_serialize } from 'swr/infinite';
 import { Capacitor } from "@capacitor/core";
 import useLocalStorageState from "use-local-storage-state";
 import { useTranslation } from "react-i18next";
+import { safeSetItem } from "../utils";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -89,7 +90,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
         </div>
     }
     
-const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined, hideInput = false }) => {
+const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMessage, defaultChatId = undefined, hideInput = false, onTouch }) => {
     const { t } = useTranslation();
     let {
         account
@@ -142,7 +143,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
 
   useEffect(() => {
     if (stickerVisible == undefined) return
-    debugger
+    // debugger
     if (stickerVisible){
       emit('sticker-visible', 300)
     }
@@ -155,7 +156,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
   const debouncedSave = useCallback(
     debounce((id, text) => {
         console.log('saving draft', id, text)
-        localStorage.setItem(id, text);
+        safeSetItem(id, text)
     }, 500), // Save after 500ms of inactivity
     []
   );
@@ -252,7 +253,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
    }
 
    const getOrCreateNewChatIfNotExist = async (account) => {
-    debugger
+    // debugger
     if (chat == undefined && account.startsWith('nano_')) {
         const newChat = await createNewChat(account);
         navigate(`/chat/${newChat.id}`, {replace: true}); 
@@ -483,6 +484,11 @@ const onStickerSelect = useCallback((stickerId) => {
     // console.log("message input render")
     return (
         <div 
+        onTouchEnd={() => {
+          if (onTouch){
+            onTouch()
+          }
+        }}
         style={{
           borderTop: '1px solid var(--adm-color-border)',
            width: '100%',
@@ -529,6 +535,7 @@ const onStickerSelect = useCallback((stickerId) => {
           }}
           className="flex items-center gap-2 border border-solid input-message">
             <TextArea 
+            id="message-input"
             enterKeyHint={enterToSend ? "send" : "enter"}
             onFocus={() => {
               if (isMobile){

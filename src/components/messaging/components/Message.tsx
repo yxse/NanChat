@@ -153,7 +153,9 @@ const Message = memo(({
         decrypted={decrypted}
         isFromTeam={isFromTeam}
       />
-        {message?.replyMessage && <div style={{display: "flex", justifyContent: isFromCurrentUser ? "flex-end" : "flex-start"}}>
+        {message?.replyMessage && <div style={{
+          height: message.replyMessage.file ? 56 : message.replyMessage.stickerId ? 58 : 36, // reduce content shift virtualizer
+          display: "flex", justifyContent: isFromCurrentUser ? "flex-end" : "flex-start"}}>
            <Popover
            mode="dark"
           content={<div style={{maxWidth: 300}}><MessageRaw key={"full" + message.replyMessage._id} message={message.replyMessage} ellipsis={false} maxHeight={"75px"} includeProfileName={false}/></div>}
@@ -164,7 +166,6 @@ const Message = memo(({
           <div 
           className={`chat-message p-2 rounded-md from message text-sm`}
         style={{
-          height: message.replyMessage.file ? 56 : message.replyMessage.stickerId ? 58 : 36, // reduce content shift virtualizer
           color: 'var(--adm-color-text-secondary)',
           marginLeft: isFromCurrentUser ? 0 : 66,
           marginRight: isFromCurrentUser ? 66 : 0,
@@ -179,7 +180,7 @@ const Message = memo(({
         ref={ref}
         {...onLongPress}
         onContextMenu={handleRightClick}
-        key={message._id}
+        
         style={{ alignItems: "start" }}
         className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mb-2 mx-2`}
       >

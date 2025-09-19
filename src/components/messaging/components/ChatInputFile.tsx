@@ -13,6 +13,7 @@ import { writeUint8ArrayToFile } from '../../../services/capacitor-chunked-file-
 import { getChatToken } from '../../../utils/storage';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
+import { Keyboard } from '@capacitor/keyboard';
 
 const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
@@ -28,6 +29,13 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
       }
         const handlePaste = (e) => {
             if (e.clipboardData && e.clipboardData.items) {
+              try {
+                if (Capacitor.getPlatform() !== "web") {
+                  document.querySelector('#message-input').blur()
+                }
+              } catch (error) {
+                
+              }
                 const items = e.clipboardData.items;
                 
                 for (let i = 0; i < items.length; i++) {

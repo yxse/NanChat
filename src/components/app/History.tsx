@@ -407,7 +407,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
               marginTop: 8,
             }}
             status="empty"
-            title={t('transactionsAppearHere', { network: networks[ticker].name })}
+            title={t('transactionsAppearHere', { network: networks[ticker]?.name })}
             description=""
           />
         )}

@@ -884,9 +884,6 @@ input[type=number]::-webkit-outer-spin-button {
   /* for chat list message ellipsis */
   overflow: auto; 
 }
-.chat-container.native ::-webkit-scrollbar {
-    display: none;
-}
 
 
 .fade-button-enter {

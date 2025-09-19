@@ -1,7 +1,7 @@
-import { Badge, DotLoading, Modal } from "antd-mobile";
+import { Badge, DotLoading, Modal, Toast } from "antd-mobile";
 import { QRCodeSVG } from "qrcode.react";
 import useLocalStorageState from "use-local-storage-state";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
 import { networks } from "../../utils/networks";
@@ -294,4 +294,74 @@ export const convertAddress = (address, ticker) => {
     // }
     return networks[ticker]?.prefix + "_" + address.split("_")[1];
   }
+
+export function clearLocalStorage(){
+
+   let count = 0
+    localStorage.removeItem("app-cache")
+                  localStorage.removeItem('lastSync');
+                  localStorage.removeItem('lastSyncChat');
+                  sessionStorage.removeItem('app-initialized')
+                  for (var key in localStorage) {
+                    if (
+                      key.startsWith("draft-") || 
+                      key.startsWith("history-") || 
+                      key.startsWith("works-") || 
+                      key.startsWith("message-") ||
+                      key.startsWith("chat_") ||
+                      key.startsWith("lastSyncChat") ||
+                      key.startsWith("receiveHashesToAnimate") ||
+                      key.startsWith("history_exchanges")
+
+                    ) {
+                      localStorage.removeItem(key)
+                      count++
+                    }
+                  }
+                 
+  }
+
+  // simple wrapper localstorage to handle quota exceed error
+  // usefull for old version that stored cache in localstorage
+  export function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    if (error.name === 'QuotaExceededError' || error.code === 22 || error.code === 1014) {
+      clearLocalStorage()
+      Toast.show({content: "QuotaExceededError. Clearing cache"})
+      return false; // Quota exceeded
+    }
+    throw error; // Re-throw other errors
+  }
+}
 export let firstMessageId = {};
+
+
+export let shouldStickToBottom = {};
+shouldStickToBottom['current'] = true
+
+
+export const useImmediateSafeMutate = (mutate) => {
+  // deduplicate and thottle mutate
+  const isMutatingRef = useRef(false);
+  
+  return useCallback(async () => {
+    if (isMutatingRef.current) {
+      console.log('mutate already in progress, skipping');
+      return;
+    }
+    
+    isMutatingRef.current = true;
+    try {
+      console.log('executing immediate mutate');
+      await mutate();
+    } finally {
+      // Reset flag after a brief moment to prevent rapid duplicates
+      setTimeout(() => {
+        isMutatingRef.current = false;
+      }, 5000); // 5s throttle
+    }
+  }, [mutate]);
+};
