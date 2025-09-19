@@ -2,6 +2,7 @@
 
 import { Toast } from "antd-mobile";
 import { networks } from "../utils/networks";
+import { safeSetItem } from "../components/messaging/utils";
 
 /**
  * Simple RPC client for Nano node
@@ -22,7 +23,7 @@ function saveWorkCache(hash, work) {
     cached  = {}
   }
   cached[hash] = work;
-  localStorage.setItem(keyCache, JSON.stringify(cached));
+  safeSetItem(keyCache, JSON.stringify(cached))
 }
 function removeWork(work){
   const keyCache = "works-cache";
