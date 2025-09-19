@@ -3,6 +3,7 @@ import { InformationCircleOutline } from 'antd-mobile-icons'
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { socket } from '../socket'
+import { App } from '@capacitor/app'
 
 function NetworkUnavailable() {
   const [isSocketConnected, setIsSocketConnected] = useState(socket.connected)
@@ -30,6 +31,16 @@ function NetworkUnavailable() {
       }
     }
 
+    function resetTimer() {
+      // Clear existing timeout and restart the check
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
+      setShowNotice(false)
+      checkConnectionStatus()
+    }
+
     function onConnect() {
       setIsSocketConnected(true)
       checkConnectionStatus()
@@ -50,6 +61,11 @@ function NetworkUnavailable() {
       checkConnectionStatus()
     }
 
+    function onAppResume() {
+      // Reset timer when app resumes from background
+      resetTimer()
+    }
+
     // Socket.IO event listeners
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
@@ -57,6 +73,18 @@ function NetworkUnavailable() {
     // Navigator online/offline event listeners
     window.addEventListener('online', onOnline)
     window.addEventListener('offline', onOffline)
+
+    // Capacitor app state listener
+    let appStateListener
+    if (typeof App !== 'undefined') {
+      App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          onAppResume()
+        }
+      }).then(listener => {
+        appStateListener = listener
+      })
+    }
 
     // Check initial state
     checkConnectionStatus()
@@ -66,6 +94,12 @@ function NetworkUnavailable() {
       socket.off('disconnect', onDisconnect)
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOffline)
+      
+      // Remove Capacitor listener
+      if (appStateListener) {
+        appStateListener.remove()
+      }
+      
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
@@ -79,7 +113,7 @@ function NetworkUnavailable() {
 
   return (
     <NoticeBar
-    closeable
+      closeable
       icon={<InformationCircleOutline />}
       content="Network unavailable. Check network."
       color="alert"
