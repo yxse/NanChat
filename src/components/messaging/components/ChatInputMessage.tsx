@@ -493,9 +493,10 @@ const onStickerSelect = useCallback((stickerId) => {
           borderTop: '1px solid var(--adm-color-border)',
            width: '100%',
           paddingBottom: 8,
-          paddingTop: 4,
+          paddingTop: 8,
           backgroundColor: 'var(--adm-color-background)',
           display: hideInput ? 'none' : 'block', // hide input when sharing from webview and for tranfer from account info
+          position: "relative"
         }}
         onSubmit={sendMessage} className=" px-4">
           {replyMessage && <MessageReply message={replyMessage} onClose={() => {

@@ -46,7 +46,7 @@ export const VirtualizedMessagesVirtua = ({
    const scrollToBottom = (force = true) => {
     if (true){
       requestAnimationFrame(() =>
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+        virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1, {
           align: 'end',
           smooth: false // true can cause issue if too much messages loaded
         })
@@ -273,8 +273,8 @@ function debounce(func, delay) {
       className={`chat-container`}
       style={{
         height: `calc(100vh - 45px - 57px - 3px - ${keyboardHeight}px - var(--safe-area-inset-top) - ${inputStickerHeight}px - ${inputAdditionalHeight}px - ${(keyboardHeight <= 0)? `var(--safe-area-inset-bottom)`: `0px`} - ${isTablet ? '57.8px' : '0px'})`,
-        display: 'flex',
-        flexDirection: 'column',
+        // display: 'flex',
+        // flexDirection: 'column',
         // overflow: "hidden"
       }}
     >
@@ -289,29 +289,26 @@ function debounce(func, delay) {
         reverse
         shift={isPrepend.current}
         onScroll={handleScroll}
-        style={{overflow: "auto"}}
+        style={{overflow: "auto", display: "block"}}
       >
 
         {/* <div style={{textAlign: "center", marginTop: 32, marginBottom: 32}}>
         <DotLoading />  
         </div>  */}
-         {
+        {/* {
          
          isPrepend.current && isFetchingNextPage && 
           <div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
-          {/* <DotLoading /> */}
           <SpinLoading />
-          </div>// this cause re render on files etc
+          </div>
          
-        }
+        } */}
         {displayMessages.map((message, index) => {
           const prevMessage = displayMessages[index + 1];
           const nextMessage = displayMessages[index - 1];
           
           return (
-            <div
-             style={!prevMessage ? {paddingBottom: 28.4} : {}}
-             >
+            <div>
             <Message
               key={`${message._id}-${message.status}`}
               message={message}
@@ -327,7 +324,7 @@ function debounce(func, delay) {
           );
         })}
     
-
+<div style={{height: 28.4}}>{" "}</div>
       
       </VList>
       {/* {

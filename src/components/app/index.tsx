@@ -34,7 +34,7 @@ import Art from "./Art";
 import Swap from "./Swap";
 import History from "./History";
 import Network, { ModalReceive } from "./Network";
-import { Badge, CapsuleTabs, Popup, reduceMotion, SafeArea, SideBar, TabBar, Toast } from "antd-mobile";
+import { Badge, CapsuleTabs, Popup, reduceMotion, SafeArea, SideBar, SpinLoading, TabBar, Toast } from "antd-mobile";
 import Send from "./Send";
 import Protocol_handler from "./protocol_handler";
 import Sign from "../../api-invoke/Sign";
@@ -428,14 +428,18 @@ export default function App({callback}) {
     }
     , [activeAccount, activeAccountPk]);
 
-  if (!activeAccount && Capacitor.getPlatform() == "web") return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
-    <div style={{display: "flex", flexDirection: "column"}}>
-                <HashSpinner size={80} color="#0096FF" loading={true} />
-                <div className="text-sm" style={{color: "var(--adm-color-text-secondary)", marginTop: 8}}>
-                  Loading wallet
-                </div>
-    </div>
-              </div>
+  if (!activeAccount && Capacitor.getPlatform() == "web") return <div style={{
+       display: 'flex',
+       justifyContent: 'center',
+       alignItems: 'center',
+       height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+       width: '100%'
+     }}>
+      <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+         <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
+         <span className="text-sm">Loading wallet</span>
+      </div>
+     </div>
   if (!activeAccount) return
   return (
     <>

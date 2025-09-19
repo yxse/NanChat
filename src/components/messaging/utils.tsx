@@ -365,3 +365,6 @@ export const useImmediateSafeMutate = (mutate) => {
     }
   }, [mutate]);
 };
+
+
+export const LIMIT_INITIAL = 20;

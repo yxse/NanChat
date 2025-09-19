@@ -124,29 +124,23 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
 
     // console.log("typing render")
     // return null
+    if (participantsTyping.length <= 0) return null
     return (
-        <div
-            style={{
-                // boxShadow: '0px 5px 34px 25px rgba(0,0,0,0.75)',
-                // position: 'fixed', bottom: '128px', width: '100%'
-                position: "relative",
-            }}
-            className="flex items-center">
+   
                 <div
                     // style={{position: 'fixed', bottom: '128px', width: '100%'}}
-                    className="flex items-center gap-2 mb-1"
-                >
-                    <AccountsAreTyping participantsTyping={participantsTyping} />
+                    style={{ backgroundColor: 'var(--adm-color-background)', width: '100%', padding: 4, paddingLeft: 12, paddingTop: 8}}
+                    className={"flex items-center gap-2 mb-1  typing-placeholder"}
+                ><AccountsAreTyping participantsTyping={participantsTyping} />
                 </div>
-        </div>
     )
 };
 
 const AccountsAreTyping = ({ participantsTyping }) => {
 
-    if (participantsTyping.length === 0) {
-        return null;
-    }
+    // if (participantsTyping.length === 0) {
+    //     return <div>{" "}</div>;
+    // }
     if (participantsTyping.length > 2) {
         return (
             <div style={{ display: 'flex', alignItems: 'center' }}>

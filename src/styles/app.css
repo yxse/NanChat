@@ -884,6 +884,9 @@ input[type=number]::-webkit-outer-spin-button {
   /* for chat list message ellipsis */
   overflow: auto; 
 }
+/* .chat-container.native ::-webkit-scrollbar {
+    display: none;
+} */
 
 
 .fade-button-enter {
@@ -902,4 +905,21 @@ input[type=number]::-webkit-outer-spin-button {
 @keyframes fadeOut {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(10px); }
+}
+#vlist > div { 
+  /* allows to display initial "message are e2ee..." on top of the chat */
+  display: block !important;
+
+}
+
+
+
+.typing-placeholder {
+  position: absolute;
+  bottom: 70;
+  top: -33px;
+  left: 0;
+  right: 0;
+  border-top: solid 1px var(--adm-border-color);
+  /* This won't push other content */
 }

@@ -31,7 +31,7 @@ import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
-import { shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
+import { LIMIT_INITIAL, shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import { useChats } from "../hooks/use-chats";
@@ -110,6 +110,7 @@ const saveScrollPosition = useCallback(
         address = account;
         isNew = true;
     }
+    const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_INITIAL) && isLoadingMore && Capacitor.getPlatform() !== "ios" // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
     const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
     const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
@@ -341,7 +342,7 @@ const saveScrollPosition = useCallback(
     }, 0);
     if (virtuaRef && virtuaRef.current){
         shouldStickToBottom.current = true
-        virtuaRef.current.scrollToIndex(messages.length - 1, {
+        virtuaRef.current.scrollToIndex(messages.length - 1 + 1, {
           align: 'end',
           smooth: false
         })
@@ -353,6 +354,7 @@ const saveScrollPosition = useCallback(
       };
     }, [saveScrollPosition]);
 useEffect(() => {
+    if (Capacitor.getPlatform() !== "ios") return
       // restore scroll position
       const scrollTop = localStorage.getItem(scrollKeyStore);
       if (scrollTop) {
@@ -361,7 +363,7 @@ useEffect(() => {
           if (!isNaN(scrollTopInt)) {
             // debugger
               if (infiniteScrollRef.current) {
-                //   (infiniteScrollRef.current as any).scrollTo(0, scrollTopInt);
+                  (infiniteScrollRef.current as any).scrollTo(0, scrollTopInt);
                 // setTimeout(() => {
                 // }, 0)
               }
@@ -425,7 +427,7 @@ useEffect(() => {
                     <ProfileName address={address} fallback={formatAddress(address)} />
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     {/* <DotLoading /> */}
-                    <DelayedSpinner isLoading={isLoadingFirstPage} delay={400} spinnerProps={{style:{width: 24}}}/>
+                    <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 0 : 400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
                 </div>
                 </NavBar>
@@ -463,7 +465,7 @@ useEffect(() => {
                     <h2 className="flex items-center justify-center gap-2">
                     {chat?.name || 'Group Chat'} ({chat?.participants.length})
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
-                    <DelayedSpinner isLoading={isLoadingFirstPage} delay={400} spinnerProps={{style:{width: 24}}}/>
+                    <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 0 : 400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
                 </div>
                 </NavBar>
@@ -556,7 +558,7 @@ useEffect(() => {
                             height: "100%",
                             width: '100%',
                             overflow: Capacitor.getPlatform() === "ios" ? "scroll": "hidden",
-                            display: 'flex',
+                            display: Capacitor.getPlatform() === "ios" ? "flex": "block",
                             // flexDirection: "column-reverse",
                             flexDirection: Capacitor.getPlatform() === "ios" ? "column-reverse": "column",
                             // overflowAnchor: 'auto',

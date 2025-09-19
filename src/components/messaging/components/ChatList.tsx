@@ -464,7 +464,7 @@ const right = (
                       return 70;
                     }
                   }
-                  overscanRowCount={10}
+                  overscanRowCount={4}
                 //   isScrolling={isScrolling}
                 onScroll={({ scrollTop }) => {
                     // setScrollTop(scrollTop);

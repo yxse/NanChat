@@ -9,7 +9,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 
 import App from "./app";
 import Confetti from "react-confetti-boom";
-import { ConfigProvider, Modal, Toast } from "antd-mobile";
+import { ConfigProvider, Modal, SpinLoading, Toast } from "antd-mobile";
 import { Wallet } from "../nano/wallet";
 import { initWallet } from "../nano/accounts";
 import { networks } from "../utils/networks";
@@ -155,14 +155,18 @@ export default function InitialPopup() {
   //   if (initializing) {
   //   return null
   // }
-   if (initializing) return <div className="absolute inset-0 !z-50 flex !h-screen !w-screen items-center justify-center ">
-    <div style={{display: "flex", flexDirection: "column"}}>
-                <HashSpinner size={80} color="#0096FF" loading={true} />
-                <div className="text-sm" style={{color: "var(--adm-color-text-secondary)", marginTop: 8}}>
-                  Loading cache
-                </div>
+   if (initializing  && Capacitor.getPlatform() == "web") return <div style={{
+     display: 'flex',
+     justifyContent: 'center',
+     alignItems: 'center',
+     height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+     width: '100%'
+   }}>
+    <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+       <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
+       <span className="text-sm">Loading cache</span>
     </div>
-              </div>
+   </div>
   return (
     <ConfigProvider locale={enUS}>
     {/* <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}> */}

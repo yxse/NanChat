@@ -7,17 +7,7 @@ import { TEAM_ACCOUNT } from '../../utils';
 
 function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAutoScroll, infiniteScrollRef, isLoadingMore, chat, loadMore, saveScrollPosition}) {
     const {activeAccount, activeAccountPk} = useWallet()
-  return (
-    
-    isLoadingInitial ?<div style={{
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: 'calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
-  width: '100%'
-}}>
-  <SpinLoading style={{width: 48}} />
-</div>: <div
+  return (<div
  style={{}}
 ><InfiniteScroll
                                     // scrollThreshold={"800px"}
@@ -63,16 +53,17 @@ function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAuto
                                     scrollableTarget="scrollableDiv"
 
                                 >
-                                    {/* {
+                                    {
                                         hasMore && isLoadingMore && (<div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
                                 <SpinLoading />
                             </div>)
-                    } */}
+                    }
                     
                    {messages.map((message, index) => {
                             return (
                                             <div
                                                 key={message._id}
+                                                style={index == messages.length - 1 ? {marginBottom: 28.4} : {}}
                                             // id={index == messages.length - 1 ? "endOfMessages" : ""}
                                             // ref={index === messages.length - 1 ? messagesEndRef : null}
                                             >
@@ -90,8 +81,11 @@ function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAuto
                                                 />
                                             </div>
                                         )
-                                    }) 
+                                    })
+                                     
 }
+
+
                                 </InfiniteScroll></div>
   )
 }
