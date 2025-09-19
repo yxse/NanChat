@@ -111,6 +111,7 @@ const saveScrollPosition = useCallback(
         isNew = true;
     }
     const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_INITIAL) && isLoadingMore && Capacitor.getPlatform() !== "ios" // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
+    // const showSpinnerLoadingMoreInHeader = false
     const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
     const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();

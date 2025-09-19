@@ -45,6 +45,11 @@ export const VirtualizedMessagesVirtua = ({
 
    const scrollToBottom = (force = true) => {
     if (true){
+      // debugger
+      // virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1, {
+      //     align: 'end',
+      //     smooth: false // true can cause issue if too much messages loaded
+      //   })
       requestAnimationFrame(() =>
         virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1, {
           align: 'end',
@@ -127,14 +132,12 @@ export const VirtualizedMessagesVirtua = ({
     Keyboard.addListener('keyboardWillShow', info => {
 
       // Toast.show({content: info.keyboardHeight})
-      const safeAreaBottomValue = parseInt(
-  getComputedStyle(document.documentElement)
-    .getPropertyValue('--safe-area-inset-bottom')
-) || 0;
+      const safeAreaBottomValue = parseInt(window.getComputedStyle(document.body).getPropertyValue('--android-inset-bottom-buttons').split('px')[0] || 0)
 
+// Toast.show({content: safeAreaBottomValue})
       console.log('keyboard will show with height:', info.keyboardHeight);
       // keyboardHeight.current = info.keyboardHeight
-      setKeyboardHeight(info.keyboardHeight)
+      setKeyboardHeight(info.keyboardHeight - safeAreaBottomValue)
         // if (shouldStickToBottom.current) {
           // setTimeout(() => {
             scrollToBottom(false)
@@ -164,11 +167,13 @@ export const VirtualizedMessagesVirtua = ({
   // Auto-scroll to bottom for new messages (similar to the demo)
   useEffect(() => {
     if (!virtuaRef.current) return;
-    debugger
+    // debugger
     if (!shouldStickToBottom.current) return;
     if (!firstMessageId[chat?.id] && !offset){
       // debugger
       scrollToBottom()
+      firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
+      return
       // requestAnimationFrame(() =>
       //   firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
       // )
@@ -195,9 +200,11 @@ export const VirtualizedMessagesVirtua = ({
 
 
 const isFirstLoadMore = useRef(true);
+const timeoutRef = useRef(null); // Add this ref to store timeout ID
 
-const handleScroll = async (offsetScroll) => {
-    if (!virtuaRef.current) return;
+    const handleScroll = useCallback(
+  debounce(async (offsetScroll) => {
+  if (!virtuaRef.current) return;
     const { scrollSize, viewportSize } = virtuaRef.current;
     let fixedViewPortInitial = viewportSize == 0 ? document?.body?.clientHeight - 45 - 57 - 2 - 100: viewportSize;
     let isCloseToBottom =  offsetScroll - scrollSize + fixedViewPortInitial>= -100;
@@ -208,22 +215,23 @@ const handleScroll = async (offsetScroll) => {
         // setIsCloseToBottomState(isCloseToBottom)
     }, 100)
     if (offsetScroll - scrollSize + fixedViewPortInitial > 150){ // if scrolled 100 px "above" bottom, do the trick to refresh the scroll
-      if (Capacitor.getPlatform() === "ios"){
-        document.querySelector('#vlist').style.overflow = "hidden"
-        setTimeout(() => {
-          document.querySelector('#vlist').style.overflow = "auto"
-        }, 10);
-      }
+      // if (Capacitor.getPlatform() === "ios"){
+      //   document.querySelector('#vlist').style.overflow = "hidden"
+      //   setTimeout(() => {
+      //     document.querySelector('#vlist').style.overflow = "auto"
+      //   }, 10);
+      // }
     }
     
     if (isCloseToBottom){
       isPrepend.current = false
     }
-    
+
     const threshold = Capacitor.getPlatform() === "ios" ? 1 : 500
     // const threshold = 500
     shouldStickToBottom.current = isCloseToBottom
     setIsCloseToBottomState(isCloseToBottom)
+    // Toast.show({content: threshold + " " + offsetScroll})
     if (offsetScroll < threshold && hasMore && !isFetchingNextPage) {
       isPrepend.current = true;
       if (Capacitor.getPlatform() === "ios"){
@@ -231,6 +239,10 @@ const handleScroll = async (offsetScroll) => {
         setTimeout(() => {
           document.querySelector('#vlist').style.overflow = "auto"
         }, 10);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
       // virtuaRef.current.
       console.log("loading more at top via scroll");
@@ -240,7 +252,11 @@ const handleScroll = async (offsetScroll) => {
       try {
         // Toast.show({content: "loading more"})
         await fetchNextPage(100);
-        
+        // Toast.show({content: "loaded"})
+        timeoutRef.current = setTimeout(() => {
+        isPrepend.current = false
+        timeoutRef.current = null; // Clear the ref when timeout completes
+      }, 1000)
       } catch (error) {
         console.log("cannot load next page", error)        
       }
@@ -250,13 +266,11 @@ const handleScroll = async (offsetScroll) => {
         }
         
       }
-      setTimeout(() => {
-        isPrepend.current = false
-        
-      }, 1000)
+     
     }
-  }
-
+  }, isFirstLoadMore.current ? 0 : 10), // No delay for first load, 10ms for subsequent
+  [hasMore, isFetchingNextPage, fetchNextPage]
+);
 // Standard debounce function
 function debounce(func, delay) {
   let timeoutId;
@@ -276,9 +290,17 @@ function debounce(func, delay) {
         // display: 'flex',
         // flexDirection: 'column',
         // overflow: "hidden"
+        overflowAnchor: "none"
       }}
     >
-           
+               {/* {
+         
+         isPrepend.current && isFetchingNextPage && 
+          <div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
+          <SpinLoading />
+          </div>
+         
+        } */}
       <VList
       key={"list" + chat?.id}
       id='vlist'
@@ -295,14 +317,7 @@ function debounce(func, delay) {
         {/* <div style={{textAlign: "center", marginTop: 32, marginBottom: 32}}>
         <DotLoading />  
         </div>  */}
-        {/* {
-         
-         isPrepend.current && isFetchingNextPage && 
-          <div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
-          <SpinLoading />
-          </div>
-         
-        } */}
+    
         {displayMessages.map((message, index) => {
           const prevMessage = displayMessages[index + 1];
           const nextMessage = displayMessages[index - 1];
