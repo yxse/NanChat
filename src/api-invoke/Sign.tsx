@@ -98,7 +98,7 @@ export default function Sign({uri, onClose}) {
                 {/** image placeholder */}
                
               </div>
-              <p className="text-slate-200 text-lg font-semibold">
+              <p className="text-lg font-semibold">
               Signature request
               </p>
                 <p className="text-slate-500 hover:text-slate-400 cursor-pointer transition-colors text-sm mt-1 justify-end">
@@ -108,14 +108,14 @@ export default function Sign({uri, onClose}) {
           </div>
           {
             hostname && <><p>Submit to:</p>
-          <div className="p-3 bg-slate-800/70 rounded-md ">
+          <div className="p-3  rounded-md " style={{backgroundColor: "var(--main-background-color)"}}>
           {hostname}
           </div>
             </>
           }
           {
             callback && <><p>Callback:</p>
-          <div className="p-3 bg-slate-800/70 rounded-md ">
+          <div className="p-3  rounded-md " style={{backgroundColor: "var(--main-background-color)"}}>
           {hostnameCallback}
           </div>
             </>
@@ -125,7 +125,8 @@ export default function Sign({uri, onClose}) {
           // autoSize={{ minRows: 3}}
             // value={message}
             // onChange={(e) => setMessage(e)}
-            className="p-3 bg-slate-800/70 rounded-md "
+            style={{backgroundColor: "var(--main-background-color)"}}
+            className="p-3 rounded-md "
           >
             {message}
           </div>

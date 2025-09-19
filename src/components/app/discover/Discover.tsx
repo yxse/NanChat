@@ -281,11 +281,11 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
             }}
             style={{
                 width: '100%',
-                height: 'calc(100vh - 40px - var(--safe-area-inset-top) - var(--android-inset-top, 0px))',
+                height: 'calc(100vh - 40px - var(--safe-area-inset-top))',
                 // height: '400px',
                 position: 'fixed',
                 zIndex: -1,
-                bottom: 0,
+                bottom: 'calc(-1 * var(--android-inset-top, 0px))',
                 left: 0,
             }}
         ></div>  
