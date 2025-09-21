@@ -122,7 +122,7 @@ export function useChat(chatId) {
     // we use this function to reduce the number of message loaded
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
     // todo: use virtualize list instead
-    if (Capacitor.getPlatform() !== "ios") return // we reset only for ios since not using virtualizer
+    // if (Capacitor.getPlatform() !== "ios") return // we reset only for ios since not using virtualizer
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
     // await mutate([pages[0]], false); // Keep only first page, no revalidation
@@ -138,7 +138,7 @@ export function useChat(chatId) {
       let filteredValue = {...cache.get(key)}
       filteredValue.data = [filteredValue.data[0]]; // only keep first message page
       filteredValue['_l'] = 1; // set length to 1 to prevent swr fetching all pages
-      debugger
+      // debugger
       cache.set(key, filteredValue)
     }
     

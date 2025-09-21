@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import Message, { HeaderMessage } from './Message';
-import { firstMessageId, shouldStickToBottom, TEAM_ACCOUNT } from '../utils';
+import { firstMessageId, TEAM_ACCOUNT } from '../utils';
 import { Button, DotLoading, SpinLoading, Toast } from 'antd-mobile';
 import { CacheSnapshot, VList, VListHandle } from "virtua";
 import { debounce } from 'lodash';
@@ -23,10 +23,13 @@ export const VirtualizedMessagesVirtua = ({
   fetchNextPage, 
   isFetchingNextPage,
   saveScrollPosition,
+  isLoadingFirstPage,
   virtuaRef
 }) => {
   
   const isPrepend = useRef(false);
+  const [mountTimestamp, setMountTimestamp] = useState(null);
+
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [inputStickerHeight, setInputStickerHeight] = useState(0)
   const [inputAdditionalHeight, setInputAdditionalHeight] = useState(0)
@@ -34,7 +37,7 @@ export const VirtualizedMessagesVirtua = ({
   const [isCloseToBottomState, setIsCloseToBottomState] = useState(undefined)
   const eventStickerVisible = useEvent("sticker-visible")
   const eventAddVisible = useEvent("add-visible")
-    // const shouldStickToBottom = useRef(true);
+    const shouldStickToBottom = useRef(true);
   const {isMobile, isTablet} = useWindowDimensions()
   // const [isLoading, setLoading] = useState(false)
   const displayMessages = useMemo(() => {
@@ -45,13 +48,14 @@ export const VirtualizedMessagesVirtua = ({
 
    const scrollToBottom = (force = true) => {
     if (true){
-      // debugger
+      console.log("scroll to bottom", displayMessages.length)
+      //// debugger
       // virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1, {
       //     align: 'end',
       //     smooth: false // true can cause issue if too much messages loaded
       //   })
       requestAnimationFrame(() =>
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1, {
+        virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1 + 1, {
           align: 'end',
           smooth: false // true can cause issue if too much messages loaded
         })
@@ -75,30 +79,40 @@ export const VirtualizedMessagesVirtua = ({
     }
   }, [chat?.id]);
 
+  const [hasRestored, setHasRestored] = useState(false)
   useLayoutEffect(() => {
     if (!virtuaRef.current) return;
     const handle = virtuaRef.current;
 
     if (offset) {
-      // debugger
+      //// debugger
       // Toast.show({content: "Restoring scroll" + offset})
+      shouldStickToBottom.current = false
+      setHasRestored(true)
       handle.scrollTo(offset);
     }
   
 
     return () => {
       // shouldStickToBottom.current = true
+      if (isMobile || isTablet) {
       sessionStorage.setItem(
         cacheKey,
         JSON.stringify([handle.scrollOffset, handle.cache])
       );
+    }
     };
   }, [chat?.id]);
 
+  useEffect(() => {
+    setMountTimestamp(Date.now())
+    //debugger
+  }, [chat?.id])
+  
 
   useEffect(() => {
     if (eventStickerVisible == undefined) return
-    // debugger
+    //// debugger
     if (eventStickerVisible){
       setInputStickerHeight(eventStickerVisible)
       // if (shouldStickToBottom.current){
@@ -111,7 +125,7 @@ export const VirtualizedMessagesVirtua = ({
   }, [eventStickerVisible])
   useEffect(() => {
     if (eventAddVisible == undefined) return
-    // debugger
+    //// debugger
     if (eventAddVisible){
       setInputAdditionalHeight(eventAddVisible)
       // if (shouldStickToBottom.current){
@@ -125,7 +139,7 @@ export const VirtualizedMessagesVirtua = ({
   
   // Reset prepend flag after each render
   useLayoutEffect(() => {
-    // debugger
+    //// debugger
     // isPrepend.current = false;
   });
   useEffect(() => {
@@ -159,18 +173,25 @@ export const VirtualizedMessagesVirtua = ({
   
   useEffect(() => {
     return () => {
-      // shouldStickToBottom.current = true
+      if (!offset){
+        shouldStickToBottom.current = true
+      }
     }
-  }, [chat?.id, shouldStickToBottom.current])
+  }, [chat?.id])
   
 
   // Auto-scroll to bottom for new messages (similar to the demo)
   useEffect(() => {
     if (!virtuaRef.current) return;
-    // debugger
+    debugger
     if (!shouldStickToBottom.current) return;
-    if (!firstMessageId[chat?.id] && !offset){
-      // debugger
+    if (offset && !hasRestored) return;
+    // if (!firstMessageId[chat?.id] && !offset){
+    scrollToBottom()
+    return
+
+    if (!firstMessageId[chat?.id]){
+      //// debugger
       scrollToBottom()
       firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
       return
@@ -194,7 +215,7 @@ export const VirtualizedMessagesVirtua = ({
       firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
       return
     }
-    // debugger
+    //// debugger
     
   }, [displayMessages, displayMessages.length, chat?.id]);
 
@@ -202,18 +223,33 @@ export const VirtualizedMessagesVirtua = ({
 const isFirstLoadMore = useRef(true);
 const timeoutRef = useRef(null); // Add this ref to store timeout ID
 
-    const handleScroll = useCallback(
-  debounce(async (offsetScroll) => {
+    const handleScroll = async (offsetScroll) => {
+    if (!mountTimestamp) return;
   if (!virtuaRef.current) return;
     const { scrollSize, viewportSize } = virtuaRef.current;
     let fixedViewPortInitial = viewportSize == 0 ? document?.body?.clientHeight - 45 - 57 - 2 - 100: viewportSize;
+    // let fixedViewPortInitial = viewportSize
     let isCloseToBottom =  offsetScroll - scrollSize + fixedViewPortInitial>= -100;
+    console.log("scroll", offsetScroll, scrollSize, viewportSize, isCloseToBottom, fixedViewPortInitial)
+    // Toast.show({content: isCloseToBottom ? "true": "false"})
+    // saveScrollPosition( offsetScroll) // just used for reset scroll detection
+    // if (!isCloseToBottom && isLoadingFirstPage){
+    if (!isCloseToBottom){
     // Toast.show({content: (offsetScroll - scrollSize + fixedViewPortInitial).toFixed(0) + " " + (isCloseToBottom ? "true": "false")})
-    saveScrollPosition( offsetScroll) // just used for reset scroll detection
-    setTimeout(() => {
-        // shouldStickToBottom.current = isCloseToBottom
+      // Toast.show({content: "not setting stick to bottom yet"})
+      // shouldStickToBottom.current = true
+    }
+    else{
+      // Toast.show({content: Date.now() - mountTimestamp})
+
+      // shouldStickToBottom.current = isCloseToBottom
+    }
+    shouldStickToBottom.current = isCloseToBottom
+    // setTimeout(() => {
+      // if (virtuaRef.current){
+      // }
         // setIsCloseToBottomState(isCloseToBottom)
-    }, 100)
+    // }, 1000)
     if (offsetScroll - scrollSize + fixedViewPortInitial > 150){ // if scrolled 100 px "above" bottom, do the trick to refresh the scroll
       // if (Capacitor.getPlatform() === "ios"){
       //   document.querySelector('#vlist').style.overflow = "hidden"
@@ -227,19 +263,15 @@ const timeoutRef = useRef(null); // Add this ref to store timeout ID
       isPrepend.current = false
     }
 
-    const threshold = Capacitor.getPlatform() === "ios" ? 1 : 500
-    // const threshold = 500
-    shouldStickToBottom.current = isCloseToBottom
-    setIsCloseToBottomState(isCloseToBottom)
+    // let screenHeight = window.screen.availHeight
+    // const threshold = Math.min(500, screenHeight / 3)
+    const threshold = 500
+    
+    // setIsCloseToBottomState(isCloseToBottom)
     // Toast.show({content: threshold + " " + offsetScroll})
     if (offsetScroll < threshold && hasMore && !isFetchingNextPage) {
       isPrepend.current = true;
-      if (Capacitor.getPlatform() === "ios"){
-        document.querySelector('#vlist').style.overflow = "hidden"
-        setTimeout(() => {
-          document.querySelector('#vlist').style.overflow = "auto"
-        }, 10);
-      }
+  
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
@@ -260,17 +292,8 @@ const timeoutRef = useRef(null); // Add this ref to store timeout ID
       } catch (error) {
         console.log("cannot load next page", error)        
       }
-      finally {
-        if (Capacitor.getPlatform() === "ios"){
-          document.querySelector('#vlist').style.overflow = "auto"
-        }
-        
-      }
-     
     }
-  }, isFirstLoadMore.current ? 0 : 10), // No delay for first load, 10ms for subsequent
-  [hasMore, isFetchingNextPage, fetchNextPage]
-);
+  }
 // Standard debounce function
 function debounce(func, delay) {
   let timeoutId;
@@ -323,7 +346,7 @@ function debounce(func, delay) {
           const nextMessage = displayMessages[index - 1];
           
           return (
-            <div>
+            <div key={message._id + "-vlist"}>
             <Message
               key={`${message._id}-${message.status}`}
               message={message}
@@ -339,7 +362,7 @@ function debounce(func, delay) {
           );
         })}
     
-<div style={{height: 28.4}}>{" "}</div>
+<div style={{height: 28.4}} key={"padding-typing"}>{" "}</div>
       
       </VList>
       {/* {

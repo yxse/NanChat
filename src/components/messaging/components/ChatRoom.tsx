@@ -93,7 +93,7 @@ const saveScrollPosition = useCallback(
         hasMore,
         reset
     } = useChat(account);
-    const {isMobile} = useWindowDimensions()
+    const {isMobile, isTablet} = useWindowDimensions()
     const {chat, isLoading} = useChats(account);
     const safeMutate = useImmediateSafeMutate(mutate);
 
@@ -318,6 +318,7 @@ const saveScrollPosition = useCallback(
         if (!isMobile){
             scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
             reset() // on larger screen we force reset as it will not be reseted by the other scrollTop reset
+            // debugger
         }
     }, [account]);
 
@@ -355,6 +356,12 @@ const saveScrollPosition = useCallback(
       };
     }, [saveScrollPosition]);
 useEffect(() => {
+    if (
+        (!isMobile && !isTablet) ||
+        (!sessionStorage.getItem("list-cache-" + chat?.id))){
+        debugger
+        reset()
+    }
     if (Capacitor.getPlatform() !== "ios") return
       // restore scroll position
       const scrollTop = localStorage.getItem(scrollKeyStore);
@@ -372,6 +379,7 @@ useEffect(() => {
       }
       else{
         reset()
+        // debugger
       }
       return () => {
       }
@@ -615,6 +623,7 @@ useEffect(() => {
                          infiniteScrollRef={infiniteScrollRef} isLoadingInitial={isLoadingInitial} setAutoScroll={setAutoScroll} />
                                  :   
                                     <VirtualizedMessagesVirtua
+                                    isLoadingFirstPage={isLoadingFirstPage}
                                     virtuaRef={virtuaRef}
                                     saveScrollPosition={saveScrollPosition}
                                     activeAccount={activeAccount}

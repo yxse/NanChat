@@ -123,7 +123,7 @@ const useMessageDecryption = ({ message }) => {
           console.error('Decryption key not yet ready');
           return
         }
-        console.log("useeffect decrypted message", message.id)
+        console.log("useeffect decrypted message", message)
         let decrypted = box.decrypt(message.content, targetAccount, decryptionKey);
         setDecryptedContent(decrypted);
         setDataString(`message-${message._id}`, decrypted)
