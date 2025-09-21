@@ -8,7 +8,7 @@ function MessageReply({message, onClose}) {
     const emit = useEmit()
     if (!message) return null
   return (
-    <div style={{}}>
+    <div style={{marginBottom: 6}}>
         <div style={{
             float: 'right',
             marginTop: 4,

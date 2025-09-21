@@ -129,7 +129,7 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
    
                 <div
                     // style={{position: 'fixed', bottom: '128px', width: '100%'}}
-                    style={{ backgroundColor: 'var(--adm-color-background)', width: '100%', padding: 4, paddingLeft: 12, paddingTop: 8}}
+                    style={{ backgroundColor: 'var(--adm-color-background)', width: '100%', paddingLeft: 12, paddingTop: 4, paddingBottom: 3}}
                     className={"flex items-center gap-2 mb-1  typing-placeholder"}
                 ><AccountsAreTyping participantsTyping={participantsTyping} />
                 </div>

@@ -917,7 +917,7 @@ input[type=number]::-webkit-outer-spin-button {
 .typing-placeholder {
   position: absolute;
   bottom: 70;
-  top: -33px;
+  top: -31px;
   left: 0;
   right: 0;
   border-top: solid 1px var(--adm-border-color);

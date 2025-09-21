@@ -29,13 +29,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
       }
         const handlePaste = (e) => {
             if (e.clipboardData && e.clipboardData.items) {
-              try {
-                if (Capacitor.getPlatform() !== "web") {
-                  document.querySelector('#message-input').blur()
-                }
-              } catch (error) {
-                
-              }
+             
                 const items = e.clipboardData.items;
                 
                 for (let i = 0; i < items.length; i++) {
@@ -52,6 +46,13 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                             // Set the file to state and handle upload
                             setFileList([pastedFile]);
                             confirmSend({droppedFiles: [file]});
+                             try {
+                if (Capacitor.getPlatform() !== "web") {
+                  document.querySelector('#message-input').blur()
+                }
+              } catch (error) {
+                
+              }
                             break;
                         }
                     }
