@@ -43,6 +43,8 @@ export const VirtualizedMessagesVirtua = ({
   const displayMessages = useMemo(() => {
     return [...messages].reverse();
   }, [messages]);
+const isFirstLoadMore = useRef(true);
+const timeoutRef = useRef(null); // Add this ref to store timeout ID
 
    const cacheKey = "list-cache-" + chat?.id;
 
@@ -96,6 +98,8 @@ export const VirtualizedMessagesVirtua = ({
     return () => {
       // shouldStickToBottom.current = true
       if (isMobile || isTablet) {
+      clearTimeout(timeoutRef.current);
+      isPrepend.current = false
       sessionStorage.setItem(
         cacheKey,
         JSON.stringify([handle.scrollOffset, handle.cache])
@@ -220,8 +224,6 @@ export const VirtualizedMessagesVirtua = ({
   }, [displayMessages, displayMessages.length, chat?.id]);
 
 
-const isFirstLoadMore = useRef(true);
-const timeoutRef = useRef(null); // Add this ref to store timeout ID
 
     const handleScroll = async (offsetScroll) => {
     if (!mountTimestamp) return;
@@ -289,7 +291,7 @@ const timeoutRef = useRef(null); // Add this ref to store timeout ID
         timeoutRef.current = setTimeout(() => {
         isPrepend.current = false
         timeoutRef.current = null; // Clear the ref when timeout completes
-        }, 100) // should fix issue stuck on top when loading more
+        }, 1000) // should fix issue stuck on top when loading more
       } catch (error) {
         console.log("cannot load next page", error)        
       }
