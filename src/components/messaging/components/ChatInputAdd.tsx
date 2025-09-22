@@ -44,7 +44,7 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat, hi
 
     // Cleanup function if needed
     // return () => emit("add-visible", 0);
-  }, [visible, hideInput, emit, marginTop]);
+  }, [visible]);
   
   if (hideInput) return null;
 
