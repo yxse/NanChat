@@ -31,7 +31,7 @@ import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
-import { LIMIT_INITIAL, shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
+import { LIMIT_MESSAGES, LIMIT_MESSAGES_INITIAL, shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import { useChats } from "../hooks/use-chats";
@@ -110,7 +110,7 @@ const saveScrollPosition = useCallback(
         address = account;
         isNew = true;
     }
-    const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_INITIAL) && isLoadingMore && Capacitor.getPlatform() !== "ios" // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
+    const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_MESSAGES_INITIAL) && isLoadingMore && Capacitor.getPlatform() !== "ios" // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
     // const showSpinnerLoadingMoreInHeader = false
     const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
     const nameOrAccount = participant?.name || formatAddress(address);
@@ -343,13 +343,18 @@ const saveScrollPosition = useCallback(
         scrollToBottom();
     }, 0);
     if (virtuaRef && virtuaRef.current){
-        shouldStickToBottom.current = true
-        virtuaRef.current.scrollToIndex(messages.length - 1 + 1, {
+        // debugger
+        requestAnimationFrame(() =>
+        // shouldStickToBottom.current = true
+        
+        virtuaRef.current.scrollToIndex(messages.length + LIMIT_MESSAGES, { // idk why but need to add LIMIT_MESSAGES to scroll to bottom
           align: 'end',
-          smooth: false
+          smooth: false // true can cause issue if too much messages loaded
         })
+      )
+        
     }
-}, [scrollToBottom]); 
+}, [scrollToBottom, messages.length]); 
   useEffect(() => {
       return () => {
         saveScrollPosition.cancel();
@@ -359,7 +364,7 @@ useEffect(() => {
     if (
         (!isMobile && !isTablet) ||
         (!sessionStorage.getItem("list-cache-" + chat?.id))){
-        debugger
+        // debugger
         reset()
     }
     if (Capacitor.getPlatform() !== "ios") return
@@ -538,7 +543,7 @@ useEffect(() => {
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'auto',
-                    // // height: '100%', 
+                    height: '100vh', 
                     // width: '100%',
                     // flexGrow: 1,
                     // justifyContent: "space-between"
@@ -657,7 +662,7 @@ useEffect(() => {
                 <div
                     style={(account == null
                         || (!accountExists)
-                    ) ? { display: 'none' } : {}}
+                    ) ? { display: 'none' } : {flex: 1}}
                 >
                      {
                     chat &&

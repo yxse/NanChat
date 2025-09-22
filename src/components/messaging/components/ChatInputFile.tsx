@@ -374,7 +374,7 @@ const getImageDimensions = (file) => {
                               >
                               <Button
                   className='input-file-button'
-                  style={{borderRadius: 12}}
+                  style={{"--border-radius": "12px", "--background-color": isHovering ? "var(--adm-color-primary)" : "var(--adm-color-border)"}}
                   size='large'
                   loading={loading}
                   disabled={loading}

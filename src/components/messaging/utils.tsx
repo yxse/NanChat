@@ -367,4 +367,5 @@ export const useImmediateSafeMutate = (mutate) => {
 };
 
 
-export const LIMIT_INITIAL = 20;
+export const LIMIT_MESSAGES_INITIAL = 20;
+export const LIMIT_MESSAGES = 40;

@@ -14,37 +14,91 @@ import ChatInputTip from './ChatInputTip';
 import ChatInputRedPacket from './ChatInputRedPacket';
 import { useEmit } from './EventContext';
 
-const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat }) => {
-    const inputAddRef = useRef()
-    const emit = useEmit()
-    const marginTop = 32
-    useEffect(() => {
-      if (visible && inputAddRef && inputAddRef.current){
-        emit("add-visible", inputAddRef.current.scrollHeight + marginTop)
-      }
-      else{
-        emit("add-visible", 0)
-      }
-      
-    }, [visible])
-    
-    // console.log("render input add")
-    return (
-                <div ref={inputAddRef} style={{
-                    display: visible ? "flex" : "none",
-                    justifyContent: "center", flexWrap: "wrap", gap: 32, marginTop: marginTop}}>
-                    <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="media"/>
-                    <ChatInputFile accountTo={toAddress} onUploadSuccess={onUploadSuccess} type="file" allowPaste/>
-                    {
-                        chat?.type === "group" ?
-                    <ChatInputTip toAddress={undefined} onTipSent={onTipSent} type="transfer" chat={chat}/>
-                    : 
-                    <ChatInputTip toAddress={toAddress} onTipSent={onTipSent}/>
-                    }
-                    <ChatInputRedPacket chat={chat} />
 
-                </div>
-    );
+const ActionWrapper = ({ children }) => {
+  return (
+    <div style={{
+      textAlign: 'center', 
+      width: 58, 
+      display: "flex", 
+      justifyContent: "center"
+    }}>
+      {children}
+    </div>
+  );
+};
+
+const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat, hideInput }) => {
+  const inputAddRef = useRef();
+  const emit = useEmit();
+  const marginTop = 32;
+
+  useEffect(() => {
+    if (!inputAddRef?.current || hideInput) return;
+    
+    if (visible) {
+      emit("add-visible", inputAddRef.current.scrollHeight + marginTop);
+    } else {
+      emit("add-visible", 0);
+    }
+
+    // Cleanup function if needed
+    // return () => emit("add-visible", 0);
+  }, [visible, hideInput, emit, marginTop]);
+  
+  if (hideInput) return null;
+
+  return (
+    <div style={{ maxWidth: 400, margin: "0 auto" }}>
+      <div 
+        ref={inputAddRef} 
+        style={{
+          display: visible ? "flex" : "none",
+          justifyContent: "space-around", 
+          flexWrap: "wrap", 
+          gap: 16,
+          marginTop: marginTop
+        }}
+      >
+        <ActionWrapper>
+          <ChatInputFile 
+            accountTo={toAddress} 
+            onUploadSuccess={onUploadSuccess} 
+            type="media" 
+          />
+        </ActionWrapper>
+
+        <ActionWrapper>
+          <ChatInputFile 
+            accountTo={toAddress} 
+            onUploadSuccess={onUploadSuccess} 
+            type="file" 
+            allowPaste 
+          />
+        </ActionWrapper>
+
+        <ActionWrapper>
+          {chat?.type === "group" ? (
+            <ChatInputTip 
+              toAddress={undefined} 
+              onTipSent={onTipSent} 
+              type="transfer" 
+              chat={chat} 
+            />
+          ) : (
+            <ChatInputTip 
+              toAddress={toAddress} 
+              onTipSent={onTipSent} 
+            />
+          )}
+        </ActionWrapper>
+
+        <ActionWrapper>
+          <ChatInputRedPacket chat={chat} />
+        </ActionWrapper>
+      </div>
+    </div>
+  );
 };
 
 export default memo(ChatInputAdd);

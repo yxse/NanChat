@@ -5,7 +5,7 @@ import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from "../../useWallet";
 import { useChats } from './use-chats';
 import { Badge } from '@capawesome/capacitor-badge';
-import { SeedVerifiedBadge } from '../utils';
+import { LIMIT_MESSAGES, LIMIT_MESSAGES_INITIAL, SeedVerifiedBadge } from '../utils';
 import useLocalStorageState from 'use-local-storage-state';
 import { Capacitor } from '@capacitor/core';
 
@@ -52,8 +52,6 @@ export function useUnreadCount() {
   return unread || null; // null to hide the badge
 }
 // const LIMIT = Capacitor.getPlatform() === "ios" ? 50 : 25;
-const LIMIT = 40;
-const LIMIT_INITIAL = 20;
 // Custom hook for chat functionality
 
 export const getKey = (pageIndex, previousPageData, chatId, height) => {
@@ -63,8 +61,8 @@ export const getKey = (pageIndex, previousPageData, chatId, height) => {
     // debugger
     return null;
   }
-  if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT_INITIAL}&cursor=-1`;
-  return `/messages?chatId=${chatId}&limit=${LIMIT}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
+  if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES_INITIAL}&cursor=-1`;
+  return `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
 };
 export function useChat(chatId) {
   // Get messages using infinite loading

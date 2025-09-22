@@ -150,6 +150,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     else{
       emit('sticker-visible', 0)
     }
+    return () => emit('sticker-visible', 0)
   }, [stickerVisible])
   
       // Debounced save function
@@ -492,6 +493,7 @@ const onStickerSelect = useCallback((stickerId) => {
         style={{
           borderTop: '1px solid var(--adm-color-border)',
            width: '100%',
+           height: '100%',
           paddingBottom: 8,
           paddingTop: 8,
           backgroundColor: 'var(--adm-color-background)',
@@ -600,6 +602,7 @@ const onStickerSelect = useCallback((stickerId) => {
             onStickerSelect={onStickerSelect} />
           }
         <ChatInputAdd 
+        hideInput={hideInput}
         key={address + chat?.id + replyMessage} // adding replyMessage here fix bug replying message with pasting a file
         visible={inputAdditionVisible}
         toAddress={

@@ -35,7 +35,7 @@ const ButtonAirdrop = ({onClick}) => {
       return <div
       style={{textAlign: 'center'}}>
         <Button
-        style={{borderRadius: 12}}
+        style={{"--border-radius": "12px", "--background-color": "var(--adm-color-border)"}}
         size='large'
         onClick={() => {
           onClick();
@@ -46,7 +46,7 @@ const ButtonAirdrop = ({onClick}) => {
 
         </div>
         </Button>
-        <div className='mt-2'>
+        <div className='mt-2' style={{textWrap: "nowrap", textAlign: "center"}}>
         {t('redPacket')}
         </div>
         </div>
@@ -65,6 +65,9 @@ const ChatInputRedPacket = ({ filterTickers =[], chat }) => {
     const onClick = () => {
       if (activeMainNetworks.length + activeCustomNetworks.length === 1) {  // directly show the action if only one active network
         let ticker = activeMainNetworks.length > 0 ? activeMainNetworks[0] : activeCustomNetworks[0];
+        if (isMobile || isTablet) {
+              navigate(`/${ticker}/red-packet?chatId=${chat.id}`);
+        }
         setActiveTicker(ticker);
           setVisibleSend(true);
         }
@@ -75,7 +78,7 @@ const ChatInputRedPacket = ({ filterTickers =[], chat }) => {
    
     // console.log("tip rendered")
     return (
-        <>
+        <div>
         <ButtonAirdrop onClick={onClick} /> 
         <ResponsivePopup
         bodyClassName="disable-keyboard-resize"
@@ -145,7 +148,7 @@ const ChatInputRedPacket = ({ filterTickers =[], chat }) => {
           </div>
         </ResponsivePopup>
 
-        </>
+        </div>
     );
   };
 

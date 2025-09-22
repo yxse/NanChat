@@ -29,9 +29,9 @@ import Swap from "../../app/Swap";
 
  const ButtonTransfer = ({onClick}) => {
       return <div
-      style={{textAlign: 'center'}}>
+      style={{}}>
         <Button
-        style={{borderRadius: 12}}
+        style={{"--border-radius": "12px", "--background-color": "var(--adm-color-border)"}}
         size='large'
         onClick={() => {
           onClick();

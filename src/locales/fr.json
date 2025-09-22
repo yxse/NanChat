@@ -1,5 +1,5 @@
 {
-  "sendRedPackets": "Envoyer des Enveloppes Rouges",
+  "sendRedPackets": "Envoyer des paquets rouges",
   "voting": "Vote",
   "notVoting": "Ne vote pas",
   "currentlyRepresentedBy": "Actuellement représenté par",
@@ -295,12 +295,12 @@
   "contactsForNetwork": "Contacts pour {{networkName}}",
   "bio": "Bio",
   "setBio": "Définir la bio",
-  "redPacket": "Enveloppe Rouge",
+  "redPacket": "Paquet rouge",
   "randomAmount": "Montant Aléatoire",
   "amountEach": "Montant par personne",
   "identicalAmount": "Montant Identique",
   "total": "Total",
   "securedByNanPay": "Sécurisé par NanPay.",
-  "redPacketNotOpenedWillBeRefunded": "Les enveloppes rouges non ouvertes dans les 24 heures seront remboursées.",
+  "redPacketNotOpenedWillBeRefunded": "Les paquets rouges non ouvertes dans les 24 heures seront remboursées.",
   "transfer": "Transfert"
 }
