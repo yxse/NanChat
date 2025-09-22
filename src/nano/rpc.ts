@@ -180,7 +180,7 @@ export default class RPC {
       });
     } catch (error) {
       console.error("RPC error", error);
-      Toast.show({content: `Cannot connect to ${url}. Please try again later. (${error})`, icon: 'fail'});
+      // Toast.show({content: `Cannot connect to ${url}. Please try again later. (${error})`, icon: 'fail'});
       throw new Error(`RPC error: ${error}`);
     }
 
