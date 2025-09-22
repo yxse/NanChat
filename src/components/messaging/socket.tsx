@@ -24,6 +24,8 @@ import { getKey } from './hooks/useChat';
 import { sendNotificationTauri } from '../../nano/notifications';
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { Modal } from 'antd-mobile';
+import Sticker from './components/Sticker';
 
 const ChatSocket: React.FC = () => {
     const navigate = useNavigate();
@@ -192,6 +194,27 @@ const ChatSocket: React.FC = () => {
                 socket.off('chat');
             };
         }, [activeAccount, chats]);
+     useEffect(() => {
+        const stickersId = ['14544', '2786']
+        const handleError = (error) => {
+            console.log('Socket error:', error);
+            if (error.error === 'Rate limit exceeded') {
+            Modal.clear()
+            Modal.alert({
+                content: <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
+                    <Sticker stickerId={stickersId[Math.floor(Math.random() * stickersId.length)]} width={96} />
+                    <br />
+                    Rate limited. Please slow down a bit.
+                </div>,
+                confirmText: 'OK',
+            })
+            }
+        }
+        socket.on('error', handleError);
+            return () => {
+                socket.off('error', handleError);
+            };
+        }, [activeAccount]);
 
     return (
         <>
