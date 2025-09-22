@@ -284,12 +284,12 @@ const timeoutRef = useRef(null); // Add this ref to store timeout ID
       try {
         // Toast.show({content: "loading more"})
         await fetchNextPage(100);
-        isPrepend.current = false
-        // Toast.show({content: "loaded"})
-        // timeoutRef.current = setTimeout(() => {
         // isPrepend.current = false
-        // timeoutRef.current = null; // Clear the ref when timeout completes
-        // }, 1000)
+        // Toast.show({content: "loaded"})
+        timeoutRef.current = setTimeout(() => {
+        isPrepend.current = false
+        timeoutRef.current = null; // Clear the ref when timeout completes
+        }, 100) // should fix issue stuck on top when loading more
       } catch (error) {
         console.log("cannot load next page", error)        
       }
