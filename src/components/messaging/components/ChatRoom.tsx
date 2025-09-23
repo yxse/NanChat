@@ -362,8 +362,10 @@ const saveScrollPosition = useCallback(
     }, [saveScrollPosition]);
 useEffect(() => {
     if (
-        (!isMobile && !isTablet) ||
-        (!sessionStorage.getItem("list-cache-" + chat?.id))){
+        ((!isMobile && !isTablet) ||
+        (!sessionStorage.getItem("list-cache-" + chat?.id)))
+        && Capacitor.getPlatform() !== "ios"
+    ){
         // debugger
         reset()
     }
