@@ -13,7 +13,6 @@ import { AiOutlineDown } from 'react-icons/ai';
 import { DateHeader, shouldShowDate } from './date-header-component';
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
 
-
 export const VirtualizedMessagesVirtua = ({ 
   messages, 
   activeAccount, 
@@ -37,39 +36,41 @@ export const VirtualizedMessagesVirtua = ({
   const [isCloseToBottomState, setIsCloseToBottomState] = useState(undefined)
   const eventStickerVisible = useEvent("sticker-visible")
   const eventAddVisible = useEvent("add-visible")
-    const shouldStickToBottom = useRef(true);
+  const shouldStickToBottom = useRef(true);
   const {isMobile, isTablet} = useWindowDimensions()
-  // const [isLoading, setLoading] = useState(false)
+  
+  // Add these new refs to manage state better
+  const isRestoringScroll = useRef(false);
+  const pendingShouldStick = useRef(null);
+  const scrollTimeoutRef = useRef(null);
+  
   const displayMessages = useMemo(() => {
     return [...messages].reverse();
   }, [messages]);
-const isFirstLoadMore = useRef(true);
-const timeoutRef = useRef(null); // Add this ref to store timeout ID
+  
+  const isFirstLoadMore = useRef(true);
+  const timeoutRef = useRef(null);
 
-   const cacheKey = "list-cache-" + chat?.id;
+  const cacheKey = "list-cache-" + chat?.id;
 
-   const scrollToBottom = (force = true) => {
+  const scrollToBottom = (force = true) => {
     if (true){
       console.log("scroll to bottom", displayMessages.length)
-      //// debugger
-      // virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1, {
-      //     align: 'end',
-      //     smooth: false // true can cause issue if too much messages loaded
-      //   })
+      const to = displayMessages.length + 999
       requestAnimationFrame(() =>
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1 + 1 + 1, {
+        virtuaRef.current?.scrollToIndex(to, {
           align: 'end',
-          smooth: false // true can cause issue if too much messages loaded
+          smooth: false
         })
       )
     }
     else{
-        virtuaRef.current.scrollToIndex(displayMessages.length - 1, {
+        virtuaRef.current?.scrollToIndex(displayMessages.length - 1, {
           align: 'end',
-          smooth: false // true can cause issue if too much messages loaded
+          smooth: false
         })
     }
-   }
+  }
 
   const [offset, cache] = useMemo(() => {
     const serialized = sessionStorage.getItem(cacheKey);
@@ -82,330 +83,246 @@ const timeoutRef = useRef(null); // Add this ref to store timeout ID
   }, [chat?.id]);
 
   const [hasRestored, setHasRestored] = useState(false)
+  
   useLayoutEffect(() => {
     if (!virtuaRef.current) return;
     const handle = virtuaRef.current;
 
     if (offset) {
-      //// debugger
+      isRestoringScroll.current = true;
       // Toast.show({content: "Restoring scroll" + offset})
+      console.log("restoring scroll", offset)
       shouldStickToBottom.current = false
       setHasRestored(true)
-      handle.scrollTo(offset);
+      
+      // Multiple attempts to ensure restoration works
+      const attemptRestore = () => {
+        if (handle) {
+          handle.scrollTo(offset);
+        }
+      };
+      
+      // Immediate attempt
+      attemptRestore();
+      
+      // Backup attempts with delays
+      setTimeout(attemptRestore, 50);
+      setTimeout(attemptRestore, 100);
+      
+      // Clear the restoration flag after all attempts
+      setTimeout(() => {
+        isRestoringScroll.current = false;
+      }, 500);
+    } else {
+      // No restoration needed, allow normal behavior immediately
+      isRestoringScroll.current = false;
+      setHasRestored(true);
     }
-  
 
     return () => {
-      // shouldStickToBottom.current = true
       if (isMobile || isTablet) {
-      clearTimeout(timeoutRef.current);
-      isPrepend.current = false
-      sessionStorage.setItem(
-        cacheKey,
-        JSON.stringify([handle.scrollOffset, handle.cache])
-      );
-    }
+        clearTimeout(timeoutRef.current);
+        clearTimeout(scrollTimeoutRef.current);
+        isPrepend.current = false
+        sessionStorage.setItem(
+          cacheKey,
+          JSON.stringify([handle.scrollOffset, handle.cache])
+        );
+      }
     };
   }, [chat?.id]);
 
   useEffect(() => {
-    setMountTimestamp(Date.now())
-    //debugger
+    // Reset state when chat changes
+    shouldStickToBottom.current = true;
+    isRestoringScroll.current = false;
+    pendingShouldStick.current = null;
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = null;
+    }
   }, [chat?.id])
-  
 
   useEffect(() => {
     if (eventStickerVisible == undefined) return
-    //// debugger
     if (eventStickerVisible){
       setInputStickerHeight(eventStickerVisible)
-      // if (shouldStickToBottom.current){
-        scrollToBottom(false)
-      // }
+      scrollToBottom(false)
     }
     else{
       setInputStickerHeight(0)
     }
   }, [eventStickerVisible])
+  
   useEffect(() => {
     if (eventAddVisible == undefined) return
-    //// debugger
     if (eventAddVisible){
       setInputAdditionalHeight(eventAddVisible)
-      // if (shouldStickToBottom.current){
-        scrollToBottom(false)
-      // }
+      scrollToBottom(false)
     }
     else{
       setInputAdditionalHeight(0)
     }
   }, [eventAddVisible])
-  
-  // Reset prepend flag after each render
-  useLayoutEffect(() => {
-    //// debugger
-    // isPrepend.current = false;
-  });
+
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {
-
-      // Toast.show({content: info.keyboardHeight})
       const safeAreaBottomValue = parseInt(window.getComputedStyle(document.body).getPropertyValue('--android-inset-bottom-buttons').split('px')[0] || 0)
-
-// Toast.show({content: safeAreaBottomValue})
       console.log('keyboard will show with height:', info.keyboardHeight);
-      // keyboardHeight.current = info.keyboardHeight
       setKeyboardHeight(info.keyboardHeight - safeAreaBottomValue)
-        // if (shouldStickToBottom.current) {
-          // setTimeout(() => {
-            scrollToBottom(false)
-          // }, 0);
-        // }
-
+      scrollToBottom(false)
     })
+    
     Keyboard.addListener('keyboardWillHide', info => {
-      // Toast.show({content: info.keyboardHeight})
-      // keyboardHeight.current = 0
       setKeyboardHeight(0)
-      // setTimeout(() => {
-      //   virtuaRef.current.scrollTo(info.keyboardHeight)
-        
-      // }, 500);
-
     })
   }, [virtuaRef, displayMessages.length])
-  
-  useEffect(() => {
-    return () => {
-      if (!offset){
-        shouldStickToBottom.current = true
-      }
-    }
-  }, [chat?.id])
-  
 
-  // Auto-scroll to bottom for new messages (similar to the demo)
+  // Auto-scroll to bottom for new messages (improved logic)
   useEffect(() => {
     if (!virtuaRef.current) return;
-    debugger
-    if (!shouldStickToBottom.current) return;
-    if (offset && !hasRestored) return;
-    // if (!firstMessageId[chat?.id] && !offset){
-    scrollToBottom()
-    return
-
-    if (!firstMessageId[chat?.id]){
-      //// debugger
-      scrollToBottom()
-      firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
-      return
-      // requestAnimationFrame(() =>
-      //   firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
-      // )
-        //   setTimeout(() => {
-        //     // firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
-        //     virtuaRef.current.scrollToIndex(displayMessages.length +1 - 1, { // +1 for the div space typing
-        //   align: 'end',
-        // })
-        //   }, 40);
-      // return
-    }
-    // Scroll to the last message (bottom)
-    if (
-      (displayMessages[displayMessages.length - 1]?._id !== firstMessageId[chat?.id]) ||
-      (!isMobile)
-    ){
-      scrollToBottom()
-      firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
-      return
-    }
-    //// debugger
     
-  }, [displayMessages, displayMessages.length, chat?.id]);
+    // Don't auto-scroll if we're restoring scroll position
+    if (isRestoringScroll.current) {
+      console.log("Skipping auto-scroll during restoration");
+      return;
+    }
+    
+    // Don't auto-scroll if we have an offset to restore and haven't restored yet
+    if (offset && !hasRestored) {
+      console.log("Skipping auto-scroll - waiting for restoration");
+      return;
+    }
+    
+    // Always scroll to bottom when there are new messages and we should stick to bottom
+    if (shouldStickToBottom.current) {
+      console.log("Auto-scrolling to bottom for new messages");
+      scrollToBottom()
+      firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
+    }
+  }, [displayMessages, virtuaRef, hasRestored, offset]);
 
-
-
-    const handleScroll = async (offsetScroll) => {
-    if (!mountTimestamp) return;
-  if (!virtuaRef.current) return;
+  const handleScroll = async (offsetScroll) => {
+    if (!virtuaRef.current) return;
+    
+    // Skip scroll handling during restoration
+    if (isRestoringScroll.current) {
+      console.log("Skipping scroll handling during restoration");
+      return;
+    }
+    
     const { scrollSize, viewportSize } = virtuaRef.current;
-    let fixedViewPortInitial = viewportSize == 0 ? document?.body?.clientHeight - 45 - 57 - 2 - 100: viewportSize;
-    // let fixedViewPortInitial = viewportSize
-    let isCloseToBottom =  offsetScroll - scrollSize + fixedViewPortInitial>= -100;
+    if (viewportSize == 0) return;
+    
+    let fixedViewPortInitial = viewportSize
+    let isCloseToBottom = offsetScroll - scrollSize + fixedViewPortInitial >= -100;
+    
     console.log("scroll", offsetScroll, scrollSize, viewportSize, isCloseToBottom, fixedViewPortInitial)
-    // Toast.show({content: isCloseToBottom ? "true": "false"})
-    // saveScrollPosition( offsetScroll) // just used for reset scroll detection
-    // if (!isCloseToBottom && isLoadingFirstPage){
-    if (!isCloseToBottom){
-    // Toast.show({content: (offsetScroll - scrollSize + fixedViewPortInitial).toFixed(0) + " " + (isCloseToBottom ? "true": "false")})
-      // Toast.show({content: "not setting stick to bottom yet"})
-      // shouldStickToBottom.current = true
+    
+    // Clear any pending timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
     }
-    else{
-      // Toast.show({content: Date.now() - mountTimestamp})
-
-      // shouldStickToBottom.current = isCloseToBottom
-    }
-    shouldStickToBottom.current = isCloseToBottom
-    // setTimeout(() => {
-      // if (virtuaRef.current){
-      // }
-        // setIsCloseToBottomState(isCloseToBottom)
-    // }, 1000)
-    if (offsetScroll - scrollSize + fixedViewPortInitial > 150){ // if scrolled 100 px "above" bottom, do the trick to refresh the scroll
-      // if (Capacitor.getPlatform() === "ios"){
-      //   document.querySelector('#vlist').style.overflow = "hidden"
-      //   setTimeout(() => {
-      //     document.querySelector('#vlist').style.overflow = "auto"
-      //   }, 10);
-      // }
-    }
+    
+    // Update shouldStickToBottom immediately for better responsiveness
+    // but also set a delayed update for stability
+    shouldStickToBottom.current = isCloseToBottom;
+    pendingShouldStick.current = isCloseToBottom;
+    
+    scrollTimeoutRef.current = setTimeout(() => {
+      // Only apply the pending update if it hasn't been overridden
+      if (pendingShouldStick.current !== null) {
+        shouldStickToBottom.current = pendingShouldStick.current;
+        pendingShouldStick.current = null;
+      }
+      scrollTimeoutRef.current = null;
+    }, 100);
     
     if (isCloseToBottom){
       isPrepend.current = false
     }
 
-    // let screenHeight = window.screen.availHeight
-    // const threshold = Math.min(500, screenHeight / 3)
-    const threshold = 500
+    let threshold = 500
+    if (scrollSize < 2000){
+      threshold = 100
+    }
     
-    // setIsCloseToBottomState(isCloseToBottom)
-    // Toast.show({content: threshold + " " + offsetScroll})
-    if (offsetScroll < threshold && hasMore && !isFetchingNextPage) {
+    if (offsetScroll < threshold && hasMore && !isFetchingNextPage) { 
       isPrepend.current = true;
   
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-      // virtuaRef.current.
-      console.log("loading more at top via scroll");
       
-      // Only set to false after we actually fetch
+      console.log("loading more at top via scroll");
       isFirstLoadMore.current = false;
+      
       try {
-        // Toast.show({content: "loading more"})
         await fetchNextPage(100);
-        // isPrepend.current = false
-        // Toast.show({content: "loaded"})
         timeoutRef.current = setTimeout(() => {
-        isPrepend.current = false
-        timeoutRef.current = null; // Clear the ref when timeout completes
-        }, 1000) // should fix issue stuck on top when loading more
+          isPrepend.current = false
+          timeoutRef.current = null;
+        }, 1000)
       } catch (error) {
         console.log("cannot load next page", error)        
       }
     }
   }
-// Standard debounce function
-function debounce(func, delay) {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func.apply(this, args), delay);
-  };
-}
 
-
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
       className={`chat-container`}
       style={{
         height: `calc(100vh - 45px - 57px - 3px - ${keyboardHeight}px - var(--safe-area-inset-top) - ${inputStickerHeight}px - ${inputAdditionalHeight}px - ${(keyboardHeight <= 0)? `var(--safe-area-inset-bottom)`: `0px`} - ${isTablet ? '57.8px' : '0px'})`,
-        // display: 'flex',
-        // flexDirection: 'column',
-        // overflow: "hidden"
         overflowAnchor: "none"
       }}
     >
-               {/* {
-         
-         isPrepend.current && isFetchingNextPage && 
-          <div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
-          <SpinLoading />
-          </div>
-         
-        } */}
       <VList
-      key={"list" + chat?.id}
-      id='vlist'
-      cache={cache}
-      overscan={4}
+        key={"list" + chat?.id}
+        id='vlist'
+        cache={cache}
+        overscan={4}
         ref={virtuaRef}
-        // style={{ flex: 1 }}
         reverse
         shift={isPrepend.current}
         onScroll={handleScroll}
         style={{overflow: "auto", display: "block"}}
       >
-
-        {/* <div style={{textAlign: "center", marginTop: 32, marginBottom: 32}}>
-        <DotLoading />  
-        </div>  */}
-    
         {displayMessages.map((message, index) => {
           const prevMessage = displayMessages[index + 1];
           const nextMessage = displayMessages[index - 1];
           
           return (
             <div key={message._id + "-vlist"}>
-            <Message
-              key={`${message._id}-${message.status}`}
-              message={message}
-              prevMessage={prevMessage}
-              nextMessage={nextMessage}
-              activeAccount={activeAccount}
-              activeAccountPk={activeAccountPk}
-              type={chat?.type}
-              hasMore={hasMore}
-              isFromTeam={chat?.creator === TEAM_ACCOUNT}
-            />
+              <Message
+                key={`${message._id}-${message.status}`}
+                message={message}
+                prevMessage={prevMessage}
+                nextMessage={nextMessage}
+                activeAccount={activeAccount}
+                activeAccountPk={activeAccountPk}
+                type={chat?.type}
+                hasMore={hasMore}
+                isFromTeam={chat?.creator === TEAM_ACCOUNT}
+              />
             </div>
           );
         })}
-    
-<div style={{height: 28.4}} key={"padding-typing"}>{" "}</div>
-      
+        <div style={{height: 29}} key={"padding-typing" + chat?.id}>{" "}</div>
       </VList>
-      {/* {
-  typeof isCloseToBottomState === 'boolean' && !isCloseToBottomState && (
-    <Button
-      className="fade-button-enter"
-      style={{
-        position: "absolute", 
-        bottom: 
-        `calc(58.4px + ${inputAdditionalHeight}px + ${inputStickerHeight}px + var(--safe-area-inset-bottom) + 16px` // 16px margin
-        , 
-        // right: 17, 
-        width: 32, 
-        height: 32, 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "center", 
-        padding: 0, 
-        paddingTop: 2,
-        // left: "50%",
-        // transform: "translateX(-50%)",
-        left: 0,
-        right: 0,
-        margin: "0 auto",
-
-      }}
-      onClick={() => {
-       scrollToBottom()
-      }}
-      onTouchEnd={(e) => {
-        e.preventDefault()
-       scrollToBottom()
-      }}
-      size='large' 
-      shape='rounded'
-    >
-      <AiOutlineDown fontSize={24} style={{height: 16}}/>
-    </Button>
-  )
-} */}
     </div>
   );
 };
