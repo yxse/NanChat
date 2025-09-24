@@ -64,7 +64,7 @@ const SetName: React.FC = () => {
             mode='card'
             onFinish={(values) => {
                 fetcherMessagesPost('/set-name', {
-                    name: values.name,
+                    name: values.name.trim(),
                     account: activeAccount
                 }, activeAccountPk).then((res) => {
                     console.log(res);
@@ -100,7 +100,9 @@ const SetName: React.FC = () => {
                 </Form.Header>
                 }
                 <Form.Item
-                rules={[{required: true, min: 1, max: 24, message: t('nameMustBeBetween', {min: 1, max: 24})}]}
+                rules={[{
+                    transform: (value) => value?.trim(),
+                    required: true, min: 1, max: 24, message: t('nameMustBeBetween', {min: 1, max: 24})}]}
                  extra='' name={'name'}>
                     <Input
                     enterKeyHint='done'
