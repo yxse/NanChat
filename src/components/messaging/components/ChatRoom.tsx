@@ -110,6 +110,7 @@ const saveScrollPosition = useCallback(
         address = account;
         isNew = true;
     }
+    const isNewChat = chat && !chat?.accepted && activeAccount !== chat?.creator
     const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_MESSAGES_INITIAL) && isLoadingMore && Capacitor.getPlatform() !== "ios" // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
     // const showSpinnerLoadingMoreInHeader = false
     const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
@@ -546,6 +547,7 @@ useEffect(() => {
                     flexDirection: 'column',
                     overflow: 'auto',
                     height: '100vh', 
+                    justifyContent: 'space-between',
                     // width: '100%',
                     // flexGrow: 1,
                     // justifyContent: "space-between"
@@ -630,6 +632,7 @@ useEffect(() => {
                          infiniteScrollRef={infiniteScrollRef} isLoadingInitial={isLoadingInitial} setAutoScroll={setAutoScroll} />
                                  :   
                                     <VirtualizedMessagesVirtua
+                                    isNewChat={isNewChat}
                                     isLoadingFirstPage={isLoadingFirstPage}
                                     virtuaRef={virtuaRef}
                                     saveScrollPosition={saveScrollPosition}
@@ -664,12 +667,10 @@ useEffect(() => {
                 <div
                     style={(account == null
                         || (!accountExists)
-                    ) ? { display: 'none' } : {flex: 1}}
+                    ) ? { display: 'none' } : {}}
                 >
                      {
-                    chat &&
-                    !chat?.accepted &&
-                    activeAccount !== chat?.creator &&
+                    isNewChat &&
                     <NewMessageWarning fromAddress={address} account={activeAccount} chat={chat} />
                 }
                     <ChatInputMessage

@@ -195,7 +195,7 @@ const ChatSocket: React.FC = () => {
             };
         }, [activeAccount, chats]);
      useEffect(() => {
-        const stickersId = ['14544', '2786']
+        const stickersId = ['14544', '2786', 'duck-2']
         const handleError = (error) => {
             console.log('Socket error:', error);
             if (error.error === 'Rate limit exceeded') {

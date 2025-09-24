@@ -493,7 +493,7 @@ const onStickerSelect = useCallback((stickerId) => {
         style={{
           borderTop: '1px solid var(--adm-color-border)',
            width: '100%',
-           height: '100%',
+          //  height: '100%',
           paddingBottom: 8,
           paddingTop: 8,
           backgroundColor: 'var(--adm-color-background)',

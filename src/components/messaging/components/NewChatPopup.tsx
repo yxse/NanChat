@@ -19,6 +19,7 @@ import { AccountAvatar } from "../AccountAvatar";
 import { useContacts } from './contacts/ImportContactsFromShare';
 import { useInviteFriends } from '../hooks/use-invite-friends';
 import { ResponsivePopup } from '../../Settings';
+import { t } from 'i18next';
 
 
 
@@ -312,6 +313,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
         if (previousPageData && !previousPageData.length) return null // reached the end
         return `/accounts?page=${pageIndex}${searchText ? `&search=${searchText}` : ''}`
     }
+    const {inviteFriends} = useInviteFriends();
     const { data: pages, size, setSize, isLoading, isValidating} = useSWRInfinite<string[]>(
         getKey, fetcherMessages, {keepPreviousData: true});
     if (!pages) {
@@ -403,7 +405,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                                     //     setVisible(false);
                                     // }}
                                     accounts={accounts} badgeColor="gray" /> : 
-                            
+                            searchText ? 
                             <AccountListItems
                             title={searchText ? "Search results" : "Verified Accounts"}
                             alreadySelected={alreadySelected}
@@ -415,7 +417,21 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                                 //     setVisible(false);
                                 // }}
                                 accounts={all} badgeColor="gray" />
+                                : null
                             }
+                            <List>
+                            <List.Item
+                            prefix={<MailOutline fontSize={48} style={{padding: 8}}/>}
+                                                onClick={() => inviteFriends()}
+                                                 arrowIcon>
+                                        <div
+                                        >
+                                            {t('inviteFriends')}
+                                        </div>
+                                        </List.Item></List>
+                            <div
+                            style={{height: "var(--safe-area-inset-bottom)"}}
+                            >{" "}</div>
                         </InfiniteScroll>
     )
 }

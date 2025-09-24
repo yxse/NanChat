@@ -12,6 +12,7 @@ import { DownOutline } from 'antd-mobile-icons';
 import { AiOutlineDown } from 'react-icons/ai';
 import { DateHeader, shouldShowDate } from './date-header-component';
 import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
+import NewMessageWarning from './NewMessageWarning';
 
 export const VirtualizedMessagesVirtua = ({ 
   messages, 
@@ -23,7 +24,8 @@ export const VirtualizedMessagesVirtua = ({
   isFetchingNextPage,
   saveScrollPosition,
   isLoadingFirstPage,
-  virtuaRef
+  virtuaRef,
+  isNewChat
 }) => {
   
   const isPrepend = useRef(false);
@@ -286,7 +288,12 @@ export const VirtualizedMessagesVirtua = ({
     <div
       className={`chat-container`}
       style={{
-        height: `calc(100vh - 45px - 57px - 3px - ${keyboardHeight}px - var(--safe-area-inset-top) - ${inputStickerHeight}px - ${inputAdditionalHeight}px - ${(keyboardHeight <= 0)? `var(--safe-area-inset-bottom)`: `0px`} - ${isTablet ? '57.8px' : '0px'})`,
+        height: 
+        `calc(
+        100vh - 45px - 57px - 3px - ${keyboardHeight}px - var(--safe-area-inset-top) 
+        - ${inputStickerHeight}px - ${inputAdditionalHeight}px - ${(keyboardHeight <= 0)? `var(--safe-area-inset-bottom)`: `0px`} - ${isTablet ? '57.8px' : '0px'}
+        - ${isNewChat ? '202px' : '0px'}
+        )`,
         overflowAnchor: "none"
       }}
     >
