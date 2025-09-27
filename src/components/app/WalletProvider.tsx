@@ -92,8 +92,8 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
   const [hasWallet, setHasWallet] = useState(localStorage.getItem('hasWallet') === 'true');
   const { mutate: mutatePrice, data: prices } = useSWR("prices", fetchPrices);
   const {mutate: mutateMinReceive, data: minReceive} = useSWR("/min-receive", fetcherMessages);
-  const {data: newNetworks, mutate: mutateNewNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
-     
+  const {data: dataNewNetworks, mutate: mutateNewNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+  let newNetworks = dataNewNetworks;
   useEffect(() => {
     function updateBiometryInfo(info: CheckBiometryResult): void {
       if (info.isAvailable) {
@@ -173,7 +173,7 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
           console.log({prices})
           console.log({minReceive})
           if (!newNetworks){
-            await mutateNewNetworks();
+            newNetworks = await mutateNewNetworks();
           }
            if (newNetworks) {
         for (let ticker in newNetworks) {

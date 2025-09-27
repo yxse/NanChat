@@ -142,9 +142,16 @@ export default function InitialPopup() {
           appStateListener = listener
         })
 
+      if (Capacitor.getPlatform() === 'web') {
+        // save cache on 
+          window.addEventListener('beforeunload', saveCache)
+      }
   return () => {
     if (appStateListener) {
         appStateListener.remove()
+      }
+    if (Capacitor.getPlatform() === 'web') {
+        window.removeEventListener('beforeunload', saveCache)
       }
   }
   }, [])
