@@ -37,7 +37,7 @@ export const useContact = () => {
 export const useContacts = () => {
     const {backupContacts} = useBackupContacts()
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
-    const { data: contactsOnNanChat, isLoading } = useSWR<Chat[]>(
+    const { data: contactsOnNanChat, isLoading, mutate: mutateContacts } = useSWR<Chat[]>(
         `/names?accounts=${contacts.map((contact) => convertAddress(contact.addresses[0].address, 'XNO')).join(',')}`, 
         fetcherMessages, {
             focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
@@ -177,7 +177,8 @@ export const useContacts = () => {
         contactsOnNanChat,
         contactsNotOnNanChat,
         contactsOnNanChatMergedWithLocalContacts,
-        isLoading
+        isLoading,
+        mutateContacts
     }
 }
 

@@ -38,6 +38,7 @@ import { useTranslation } from 'react-i18next';
 import ChangeLanguage from "./settings/ChangeLanguage";
 import { refreshStatusBarTheme } from "./messaging/utils";
 import { clearDb } from "../services/database.service";
+import { useContacts } from "./messaging/components/contacts/ImportContactsFromShare";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -231,7 +232,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
   const navigate = useNavigate();
 const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
   const { t } = useTranslation();
-
+  const {mutateContacts} = useContacts()
   const [option, setSelectedOption] = useState({
     value: "XNO",
     label: "XNO",
@@ -637,6 +638,7 @@ className="mb-24"
                     console.log('cannot clear cache swr', error)                  
                 }
                 mutate("/chats-"+activeAccount) // preload chats
+                mutateContacts() // preload contacts
                 mutate("/stickers") // preload stickers
                 await clearDb()
                 Toast.show({
