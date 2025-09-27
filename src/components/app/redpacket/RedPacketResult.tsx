@@ -191,9 +191,10 @@ const RedPacketResult = ({ side, hash }) => {
             }}
             extra={
               <div 
-              onClick={() => {
+              onClick={(e) => {
                 if (claim.hash){
                   openHashInExplorer(claim.hash, ticker)
+                  e.stopPropagation()
                 }
               }}
               style={{color: "var(--adm-color-text)"}}><span style={{fontWeight: "bold"}}>
