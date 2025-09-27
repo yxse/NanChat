@@ -167,6 +167,18 @@ useEffect(() => {
   //   if (initializing) {
   //   return null
   // }
+  if (!newNetworks) return <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+    width: '100%'
+  }}>
+   <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+      <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
+      <span className="text-sm">Loading networks</span>
+   </div>
+  </div>
    if (initializing) return <div style={{
      display: 'flex',
      justifyContent: 'center',
