@@ -3,7 +3,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import { fetchPrices } from '../../nanswap/swap/service';
 import useLocalStorageState from 'use-local-storage-state';
 import { Capacitor } from '@capacitor/core';
-import { fetcherMessages } from '../messaging/fetcher';
+import { fetcherChat, fetcherMessages } from '../messaging/fetcher';
 import { Modal, Toast } from 'antd-mobile';
 import { showLogoutSheet } from '../Settings';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
@@ -92,6 +92,8 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
   const [hasWallet, setHasWallet] = useState(localStorage.getItem('hasWallet') === 'true');
   const { mutate: mutatePrice, data: prices } = useSWR("prices", fetchPrices);
   const {mutate: mutateMinReceive, data: minReceive} = useSWR("/min-receive", fetcherMessages);
+  const {data: newNetworks, mutate: mutateNewNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+     
   useEffect(() => {
     function updateBiometryInfo(info: CheckBiometryResult): void {
       if (info.isAvailable) {
@@ -170,6 +172,16 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
           // ]);
           console.log({prices})
           console.log({minReceive})
+          if (!newNetworks){
+            await mutateNewNetworks();
+          }
+           if (newNetworks) {
+        for (let ticker in newNetworks) {
+          if (!networks[ticker]) {
+            networks[ticker] = newNetworks[ticker]
+          }
+        }
+      }
           for (let ticker of Object.keys(networks)) {
             if (wallet.wallets[ticker]) continue;
             // let newWallet = initWallet("XNO", "0", mutate, dispatch)

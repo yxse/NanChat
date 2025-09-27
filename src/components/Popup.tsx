@@ -110,14 +110,7 @@ export default function InitialPopup() {
   const initializing = cacheProvider == null
   console.log("InitialPopup")
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
-  const {data: newNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
-    if (newNetworks) {
-      for (let ticker in newNetworks) {
-        if (!networks[ticker]) {
-          networks[ticker] = newNetworks[ticker]
-        }
-      }
-    }
+  
   // Store reference to the cache instance
   const cacheRef = useRef<any>(null)
 
@@ -167,30 +160,31 @@ useEffect(() => {
   //   if (initializing) {
   //   return null
   // }
-  if (!newNetworks) return <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
-    width: '100%'
-  }}>
-   <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-      <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
-      <span className="text-sm">Loading networks</span>
-   </div>
-  </div>
-   if (initializing) return <div style={{
-     display: 'flex',
-     justifyContent: 'center',
-     alignItems: 'center',
-     height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
-     width: '100%'
-   }}>
-    <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-       <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
-       <span className="text-sm">Loading cache</span>
-    </div>
-   </div>
+  // if (!newNetworks) return <div style={{
+  //   display: 'flex',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+  //   width: '100%'
+  // }}>
+  //  <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+  //     <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
+  //     <span className="text-sm">Loading networks</span>
+  //  </div>
+  // </div>
+  //  if (initializing) return <div style={{
+  //    display: 'flex',
+  //    justifyContent: 'center',
+  //    alignItems: 'center',
+  //    height: 'calc(100vh - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+  //    width: '100%'
+  //  }}>
+  //   <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+  //      <SpinLoading style={{"--size": "48px", marginBottom: 16}} />
+  //      <span className="text-sm">Loading cache</span>
+  //   </div>
+  //  </div>
+  if (initializing) return null
   return (
     <ConfigProvider locale={enUS}>
     {/* <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}> */}
