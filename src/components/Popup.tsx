@@ -84,19 +84,12 @@ const blacklistStorageHandler = {
       return timestampStorageHandler.replace(key, filteredValue);
     }
     
-    if (key.startsWith('/chats-')){
-      const account = key.split('-')[1]
-      // debugger
-      if (value && value?.data && value?.data[0]?.updatedAt != undefined){
-        const latstUpdatedChat = value?.data[0]?.updatedAt
-        safeSetItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) // need to put this after the db put to ensure it is saves after
-      }
-    }
     // For all other keys, use the wrapped handler
     return timestampStorageHandler.replace(key, value);
   },
 }
 preload('/networks', fetcherChat)
+
 
 export default function InitialPopup() {
   const [walletState, setWalletState] = useState<"locked" | "pin-locked" | "unlocked" | "no-wallet" | "loading">("loading");
@@ -122,6 +115,19 @@ export default function InitialPopup() {
     }
   }, [cacheProvider])
 
+function saveChatsLastSync(){
+  if (!cacheRef.current) return
+  const keysChats = Array.from(cacheRef.current.keys()).filter((key) => key.startsWith('/chats-'))
+  for (let key of keysChats) {
+    const value = cacheRef.current.get(key)
+      const account = key.split('-')[1]
+      // debugger
+      if (value && value?.data && value?.data[0]?.updatedAt != undefined){
+        const latstUpdatedChat = value?.data[0]?.updatedAt
+        safeSetItem('lastSyncChat-' + account, new Date(latstUpdatedChat).getTime().toString()) // need to put this after the db put to ensure it is saves after
+      }
+  }
+}
     useEffect(() => {
 
       async function saveCache(){
@@ -131,6 +137,7 @@ export default function InitialPopup() {
           await cacheRef.current.saveAllToDb()
           console.timeEnd('save-swr-cache')
           console.log('Auto-save completed')
+          saveChatsLastSync()
         } catch (error) {
           console.error('Auto-save failed:', error)
         }
