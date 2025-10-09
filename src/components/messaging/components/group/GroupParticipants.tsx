@@ -4,7 +4,7 @@ import { AccountCard } from '../GroupInfo'
 import { AddOutline, MinusOutline } from 'antd-mobile-icons'
 import NewChatPopup from '../NewChatPopup'
 import { updateSharedKeys } from '../../../../services/sharedkey'
-import { addParticipants } from '../../fetcher'
+import { addParticipants, removeParticipants } from '../../fetcher'
 import { useChats } from '../../hooks/use-chats'
 import { useTranslation } from 'react-i18next'
 import { useWallet } from "../../../useWallet"
