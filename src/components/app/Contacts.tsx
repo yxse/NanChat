@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AddOutline, DownlandOutline, LinkOutline, LockFill, MailOutline, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, UploadOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
+import { AddOutline, DownlandOutline, LinkOutline, LockFill, MailOutline, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamFill, UploadOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
 import { useWallet } from "../useWallet";
@@ -415,6 +415,17 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                 {t('inviteFriends')}
             </div>
             </List.Item>
+               <List.Item
+                    onClick={() => navigate('/contacts/groups')}
+                     arrowIcon
+                     prefix={
+                     <TeamFill 
+style={{fontSize: 48, marginRight: 4, backgroundColor: 'var(--adm-color-primary)', borderRadius: 8, padding: 4, marginTop: 8, marginBottom: 8
+
+}} />}
+                     >
+                        {t('groupsChat')}
+            </List.Item>
             <div 
             
             style={{ backgroundColor: 'var(--main-background-color)'}} className='adm-list-header'
@@ -530,7 +541,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                                   rowHeight={
                     ({ index }) => {
                       if (index === mergedList?.length) return 500 // footer import buttons
-                      if (index == 0) return 65 + 38.5 + 50.5; // item + list header + invite friend 
+                      if (index == 0) return 65 + 38.5 + 50.5 + 65; // item + list header + invite friend  + groups chat
                       if (index === contactsOnNanChatMergedWithLocalContacts?.length) return 65 + 38.5; //  item + list header 
                       return 65;
                     }}

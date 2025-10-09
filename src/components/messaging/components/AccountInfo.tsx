@@ -1,4 +1,4 @@
-import { EditSOutline, InformationCircleOutline, LockFill, LockOutline, MessageOutline, PhoneFill, QuestionCircleOutline, SendOutline, UserOutline } from "antd-mobile-icons";
+import { EditSOutline, InformationCircleOutline, LockFill, LockOutline, MessageOutline, PhoneFill, QuestionCircleOutline, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -116,16 +116,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     {t('name')}: <ProfileName address={convertAddress(account, 'XNO')} fromContact={false} /> 
                     {/* this shows the original name */}
                 </div>
-                {
-                    chatsInCommonLength > 0 ?
-                <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
-                    {chatsInCommonLength} {t('group')}{chatsInCommonLength > 1 ? 's' : ''} {t('inCommon')}
-                </div>
-                :
-                <div style={{color: 'var(--adm-color-warning)'}} className="text-base">
-                    {t('noGroupInCommon')}
-                </div>
-                }
+                
                 </div>
                 </div>
                 </div>
@@ -275,7 +266,28 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             >
                                 <LockOutline style={{display: 'inline-block', marginRight: 8}} />
                                 {t('address')}
-                    </List.Item></List>
+                    </List.Item>
+                    <List.Item
+                    prefix={<TeamOutline />}
+                    arrowIcon={chatsInCommonLength > 0 ? true : false}
+                    onClick={() => {
+                        if (chatsInCommonLength > 0) {
+                            navigate(`/chat/${account}/info/groups`);
+                        }
+                    }}
+                    >
+                        {
+                    chatsInCommonLength > 0 ?
+                <div>
+                    {chatsInCommonLength} {t('group')}{chatsInCommonLength > 1 ? 's' : ''} {t('inCommon')}
+                </div>
+                :
+                <div>
+                    {t('noGroupInCommon')}
+                </div>
+                }
+                    </List.Item>
+                    </List>
                    
               <div style={{ marginBottom: 16}}>
                     

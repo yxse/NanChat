@@ -19,6 +19,7 @@ import { unstable_serialize } from 'swr/infinite'
 import { getKey } from '../hooks/useChat';
 import { useChats } from '../hooks/use-chats';
 import RedPacketResult from '../../app/redpacket/RedPacketResult';
+import GroupsInCommon from './group/GroupsInCommon';
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
@@ -80,7 +81,6 @@ const Chat: React.FC = () => {
 
                             }}>
                         <ChatList
-                            onlineAccount={onlineAccount}
                             onChatSelect={(chatId) => {
                                 if (isTablet && document.startViewTransition) {
                                     document.startViewTransition(() => {
@@ -106,8 +106,9 @@ const Chat: React.FC = () => {
                         </div>
                     </div>
                 } />
-                <Route path="/:account/group" element={<GroupInfo onlineAccount={onlineAccount} />} />
-                <Route path="/:account/info" element={<AccountInfo onlineAccount={onlineAccount} />} />
+                <Route path="/:account/group" element={<GroupInfo />} />
+                <Route path="/:account/info" element={<AccountInfo />} />
+                <Route path="/:account/info/groups" element={<GroupsInCommon />} />
                 <Route path="/" element={<div key={"chat"} className="flex flex-row has-nav" style={{ overflow: "auto", height: "100%" }}>
                         <div
                         className='full-width-on-mobile'

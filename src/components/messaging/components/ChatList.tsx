@@ -1,56 +1,38 @@
-import { Avatar, Badge, Button, Card, DotLoading, Ellipsis, Input, List, Modal, NavBar, NoticeBar, Popover, SearchBar, Skeleton, Space, Toast } from "antd-mobile";
-import { AddCircleOutline, BellMuteOutline, ChatAddOutline, FillinOutline, InformationCircleOutline, LockFill, LockOutline, MailOutline, MessageFill, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamOutline, UserCircleOutline, UserContactOutline, UserOutline, UserSetOutline } from "antd-mobile-icons";
+import { Button, List, Modal, NavBar, Popover, Skeleton, Space, Toast } from "antd-mobile";
+import { AddCircleOutline, BellMuteOutline, LockFill, MailOutline, MessageFill, ScanCodeOutline, SystemQRcodeOutline } from "antd-mobile-icons";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { FiMoreHorizontal } from "react-icons/fi";
-import { AccountIcon } from "../../app/Home";
-import { socket } from "../socket";
 import { LedgerContext } from "../../LedgerContext";
 import { WalletContext } from "../../useWallet";
 import { useWallet } from "../../useWallet";
-import { formatAddress, ShareModal } from "../../../utils/format";
 import { convertAddress } from "../../../utils/convertAddress";
-import { fetcherAccount, fetcherMessages, fetcherMessagesPost, getNewChatToken } from "../fetcher";
+import { fetcherAccount, fetcherMessagesPost } from "../fetcher";
 import useSWR from "swr";
-import SetName from "./SetName";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { box } from "multi-nano-web";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import GroupAvatar from "./group-avatar";
-import Contacts from "../../app/Contacts";
-import useLocalStorageState from "use-local-storage-state";
-import { AiOutlinePlusCircle } from "react-icons/ai";
 import NewChatPopup from "./NewChatPopup";
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
-import { QRCodeSVG } from "qrcode.react";
-import icon from "../../../../public/icons/icon.png";
 import { DisconnectLedger } from "../../Initialize/Start";
-import SelectAccount from "../../app/SelectAccount";
-import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { Scanner } from "../../app/Scanner";
 import isValid from 'nano-address-validator';
-import useMessageDecryption from "../hooks/use-message-decryption";
 import MessageRaw from "./MessageRaw";
-import { CopyButton } from "../../app/Icons";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
 import { showAccountQRCode } from "../showAccountQRCode";
 import { AccountAvatar } from "../AccountAvatar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
-import BackupContacts from "./contacts/BackupContacts";
 import { useChats } from "../hooks/use-chats";
 import {
-    List as VirtualizedList,
-    AutoSizer,
-    WindowScroller,
-  } from 'react-virtualized'
+  List as VirtualizedList,
+  AutoSizer
+} from 'react-virtualized';
 import { updateSharedKeys } from "../../../services/sharedkey";
-import { NoAvatar } from "./icons/NoAvatar";
 import { debounce } from 'lodash';
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
-import ProfilePicture from "./profile/ProfilePicture";
 import PasteAction from "../../app/PasteAction";
 import { useTranslation } from "react-i18next";
 import NetworkUnavailable from "./NetworkUnavailable";
-import { firstMessageId, shouldStickToBottom } from '../utils';
+import { shouldStickToBottom } from '../utils';
+import GroupName from "./group/GroupName";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -401,11 +383,18 @@ const right = (
                 // description={<Ellipsis content={decrypted || '...'} />}
                 description={<MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} type="chatlist"/>}
             >
-                <div className="flex items-center gap-2">
+                <div
+                style={{
+  "whiteSpace": "nowrap",
+  "textOverflow": "ellipsis",
+  "overflow": "hidden",
+  "display": "flow"
+}}
+                 >
                     {
                         chat.type === 'group' ?
                             <>
-                                {chat.name || "Group Chat"}
+                               <GroupName chat={chat} />
                             </>
                             :
                             <>

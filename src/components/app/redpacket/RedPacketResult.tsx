@@ -45,7 +45,7 @@ const RedPacketReward = ({messageDecrypted, sticker, amountRaw, ticker, fromAcco
         </div> 
 }
 
-const RedPacketResult = ({ side, hash }) => {
+const RedPacketResult = ({  }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate()
   const {activeAccount} = useWallet()

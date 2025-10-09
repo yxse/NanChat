@@ -96,6 +96,7 @@ import RedPacket from "./redpacket/RedPacket";
 import RedPacketResult from "./redpacket/RedPacketResult";
 import { ClipLoader as HashSpinner } from "react-spinners";
 import { SplashScreen } from "@capacitor/splash-screen";
+import GroupsChats from "../messaging/components/group/GroupsChats";
 
 // reduceMotion()
 
@@ -482,6 +483,7 @@ export default function App({callback}) {
             <Route path="/swap/:id" element={<SwapTransaction />} />
             <Route path="/history" element={<History />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/contacts/groups" element={<GroupsChats />} />
             <Route path="/add-network" element={<AddNetwork />} />
             <Route path="/sign" element={<Sign />} />
             <Route path="/art" element={<Art />} />
