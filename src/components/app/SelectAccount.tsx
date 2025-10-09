@@ -191,8 +191,15 @@ function SelectAccount({ }) {
           }
           indexToAdd = wallet.accounts.length;
         }
-        let newAccount = await wallet.wallets['XNO'].createAccounts(indexToAdd, 1);
-        console.log(newAccount);
+        for (let ticker of Object.keys(wallet.wallets)) {
+          try {
+            let newAccount = await wallet.wallets[ticker].createAccounts(indexToAdd, 1);
+            console.log(newAccount);
+          } catch (error) {
+            console.error(error);
+          }
+        }
+
         // update ls
         // let activeAddresses = JSON.parse(localStorage.getItem('activeAddresses'));
         // activeAddresses.push(newAccount[0].address);

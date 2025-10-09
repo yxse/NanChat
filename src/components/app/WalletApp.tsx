@@ -5,6 +5,9 @@ import Lockscreen from '../Lock';
 import { defaultContacts } from '../messaging/utils';
 import { LedgerContext } from "../LedgerContext";
 import { WalletProvider } from './WalletProvider';
+import useSWR from 'swr';
+import { fetcherChat } from '../messaging/fetcher';
+import { networks } from '../../utils/networks';
 
 export function WalletApp({ }) {
     const [walletState, setWalletState] = useState<"locked" | "pin-locked" | "unlocked" | "no-wallet" | "loading">("loading");
@@ -12,6 +15,15 @@ export function WalletApp({ }) {
     const [ledger, setLedger] = useState(null);
 
 
+    const {data: dataNewNetworks} = useSWR("/networks", fetcherChat); // dynamic add networks
+  let newNetworks = dataNewNetworks;
+if (newNetworks) {
+          for (let ticker in newNetworks) {
+            if (!networks[ticker]) {
+              networks[ticker] = newNetworks[ticker]
+            }
+          }
+        }
     return (
         <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
             <WalletProvider setWalletState={setWalletState} walletState={walletState}>
