@@ -8,6 +8,9 @@ import { Button, Modal, Popup, Toast } from 'antd-mobile';
 import { CloseCircleOutline, ScanCodeOutline } from 'antd-mobile-icons';
 import { cloneElement, useEffect, useState } from 'react';
 import { Scanner as ScannerWeb } from '@yudiel/react-qr-scanner';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+
+import "barcode-detector/polyfill";
 
 const defaultScanButton = <ScanCodeOutline
 fontSize={24}
@@ -91,6 +94,27 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
                 <div className="m-4 text-sm text-center" style={{userSelect: "none", WebkitUserSelect: "none", marginTop: "220px"}}>
                   Scan QR Code
                 </div>
+                <div 
+                onClick={() => {
+                  readBarcodeFromImage().then((result) => {
+                    if (result) {
+                      if (onScan) {
+                        onScan(result.displayValue);
+                      }
+                      setVisible(false)
+                      stopScan();
+                    }
+                  }).catch((e) => {
+                    console.error(e);
+                    Toast.show({icon: 'fail', content: 'Failed to read image'});
+                  });
+                }}
+                className="m-4 text-sm text-center" style={{userSelect: "none", WebkitUserSelect: "none", marginTop: "220px"}}>
+                 <Button>
+                   Scan From Image
+                  </Button>
+                </div>
+                
                 </div>
               </div>
         </Popup>
@@ -146,6 +170,7 @@ const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen,
 }
 
 export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = false, onClose}) => {
+  return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
     if (Capacitor.isNativePlatform()) {
         return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
     } else {
@@ -159,33 +184,50 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
     // You can find an example in our demo repository.
     // In this case we set a class `barcode-scanner-active`, which then contains certain CSS rules for our app.
     document.querySelector('body')?.classList.add('barcode-scanner-active');
+    const videoElement = document.createElement('video');
+  videoElement.style.position = 'fixed';
+  videoElement.style.top = '50%';
+  videoElement.style.left = '50%';
+  videoElement.style.transform = 'translate(-50%, -50%)';
+  videoElement.style.width = '80%';  // 80% of viewport width
+  videoElement.style.maxWidth = '600px';  // optional: set a maximum size
+  videoElement.style.height = 'auto';
+  videoElement.style.visibility = 'visible';
+
+    if (Capacitor.getPlatform() === 'web') {
+      document.body.appendChild(videoElement);
+    }
     
     // Add the `barcodeScanned` listener
     const listener = await BarcodeScanner.addListener(
-      'barcodeScanned',
+      'barcodesScanned',
       async result => {
         // Make all elements in the WebView visible again
+        console.log(result.barcodes[0]);
         document
           .querySelector('body')
           ?.classList.remove('barcode-scanner-active');
         if (onScan) {
-            onScan(result.barcode.displayValue);
+            onScan(result.barcodes[0].displayValue);
           }
           
         stopScan();
         setVisible(false);
-        console.log(result.barcode);
       },
     );
   
     // Start the barcode scanner
-    await BarcodeScanner.startScan({formats: [BarcodeFormat.QrCode]});
-    await setZoomRatio();
+    await BarcodeScanner.startScan({
+      formats: [BarcodeFormat.QrCode],
+      videoElement: Capacitor.getPlatform() === 'web' ? videoElement : undefined,
+    });
+    // await setZoomRatio();
   };
   
   const stopScan = async () => {
     // Make all elements in the WebView visible again
     document.querySelector('body')?.classList.remove('barcode-scanner-active');
+    // document.querySelector('video')?.remove();
   
     // Remove all listeners
     await BarcodeScanner.removeAllListeners();
@@ -292,3 +334,19 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
     return camera;
   };
 
+
+    const readBarcodeFromImage = async () => {
+    const { files } = await FilePicker.pickFiles({ limit: 1 });
+    const path = files[0]?.path;
+    if (!path) {
+      return;
+    }
+    console.log('Reading image...' + path);
+    Toast.show({ content: 'Reading image...' + path });
+    return
+    const { barcodes } = await BarcodeScanner.readBarcodesFromImage({
+      path,
+      formats: [BarcodeFormat.QrCode],
+    });
+    return barcodes[0];
+  }
