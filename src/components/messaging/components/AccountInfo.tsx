@@ -1,4 +1,4 @@
-import { EditSOutline, InformationCircleOutline, LockFill, LockOutline, MessageOutline, PhoneFill, QuestionCircleOutline, SendOutline } from "antd-mobile-icons";
+import { EditSOutline, InformationCircleOutline, LockFill, LockOutline, MessageOutline, PhoneFill, QuestionCircleOutline, SendOutline, UserOutline } from "antd-mobile-icons";
 import { useContext, useEffect, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -106,9 +106,15 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     <div style={{display: "flex", alignItems: "center", gap: 8}} className="text-2xl">
                 <ProfilePicture address={convertAddress(account, 'XNO')} width={72} clickable/>
                 <div style={{display: "flex", flexDirection: "column", gap: 4}}>
-                <ProfileName address={convertAddress(account, 'XNO')} />
+                    <div style={{display: "flex", alignItems: "center", gap: 8}}>
+                <ProfileName address={convertAddress(account, 'XNO')} includeVerified={inContacts ? false : true}  /> {inContacts  &&  <UserOutline  />}
+                </div>
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
                     {t('nanChatId')}: {name?.username}
+                </div>
+                <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
+                    {t('name')}: <ProfileName address={convertAddress(account, 'XNO')} fromContact={false} /> 
+                    {/* this shows the original name */}
                 </div>
                 {
                     chatsInCommonLength > 0 ?

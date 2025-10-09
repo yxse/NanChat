@@ -45,7 +45,7 @@ export const useProfile = (address) => {
     return data
 }
 
-const ProfileName = memo(({ address, fallback, includeVerified = true }) => {
+const ProfileName = memo(({ address, fallback, includeVerified = true, fromContact = true }) => {
     const {chats, isLoading} = useChats();
     const {getContact} = useContact();
     const contact = getContact(address);
@@ -62,8 +62,8 @@ const ProfileName = memo(({ address, fallback, includeVerified = true }) => {
     if (data == null) { // first try to get the name from the chats (without new request) then fallback to the request
         return <ProfileNameLookup address={address} fallback={fallback} />
     }
-    if (data?.verified && includeVerified) return <span className="">{contact?.name || data?.name} <RiVerifiedBadgeFill style={{marginLeft: 4, display: "inline", marginBottom: 4}}/></span>
-    return contact?.name || data?.name;
+    if (data?.verified && includeVerified) return <span className="">{(fromContact ? contact?.name || data?.name : data?.name)} <RiVerifiedBadgeFill style={{marginLeft: 4, display: "inline", marginBottom: 4}}/></span>
+    return fromContact ? contact?.name || data?.name : data?.name;
 })
 
 export default ProfileName;
