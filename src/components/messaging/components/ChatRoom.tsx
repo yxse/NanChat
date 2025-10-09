@@ -472,15 +472,27 @@ useEffect(() => {
                 }
                 >
                    <div 
-                   style={{cursor: "pointer"}}
+                   style={{
+                    cursor: "pointer", 
+                }}
                    onClick={() => {
                     navigate(`/chat/${
                         account
                     }/group`);
                 }}
-                   className="flex-1 text-center">
-                    <h2 className="flex items-center justify-center gap-2">
-                    {chat?.name || 'Group Chat'} ({chat?.participants.length})
+                   className="text-center">
+                    <h2 
+                    
+                    className="flex items-center justify-center gap-2">
+                    <span
+                    style={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        maxWidth: width - 160 - 28
+                    }}
+                    >{chat?.name || 'Group Chat'}</span>
+                    ({chat?.participants.length})
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 0 : 400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
