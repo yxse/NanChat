@@ -43,11 +43,11 @@ const GroupAvatar = ({ chat }) => {
   return (
     <div className=""
      style={{
-      borderRadius: 8,
+      borderRadius: 4,
       backgroundColor: 'var(--text-color-primary)',
       width: widthTotal, height: widthTotal, display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: gap, alignContent: 'center'}}>
       {participants?.map((participant, index) => (
-        <ProfilePicture address={participant?._id} key={index} width={width} borderRadius={8} src={participant?.profilePicture?.url || false}/>
+        <ProfilePicture address={participant?._id} key={index} width={width} borderRadius={4} src={participant?.profilePicture?.url || false}/>
       ))}
     </div>
   );

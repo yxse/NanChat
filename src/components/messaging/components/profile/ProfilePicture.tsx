@@ -58,7 +58,7 @@ const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = nu
     // Render logic
     let icon;
     if (finalSrc == null || finalSrc == false) {
-        icon = <NoAvatar width={width} height={width} />
+        icon = <NoAvatar width={width} height={width} borderRadius={borderRadius} />
     } else {
         icon = (
             <div style={{width: width, height: width}}>
