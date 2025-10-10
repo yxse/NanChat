@@ -80,7 +80,7 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
   };
 
   if (isLoading) return <div>{t('loading', 'Loading...')}</div>;
-  if (error) return <div>{t('errorLoadingFiatRates', 'Error loading fiat rates')}</div>;
+  // if (error) return <div>{t('errorLoadingFiatRates', 'Error loading fiat rates')}</div>;
 
   const rules = [
     
