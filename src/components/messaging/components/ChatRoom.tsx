@@ -44,6 +44,7 @@ import { VirtualizedMessagesVirtua } from "./VirtualizedMessagesVirtua";
 import InfiniteScrollingMessages from "./messages/InfiniteScrollingMessages";
 import { DelayedSpinner } from "./DelayedSpinner";
 import { App } from "@capacitor/app";
+import ChatLocked from "./group/ChatLocked";
 
 
 const ChatRoom: React.FC<{}> = ({  }) => {
@@ -117,6 +118,7 @@ const saveScrollPosition = useCallback(
     const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
     const accountExists = isLoadingNanwalletAccount || nanwalletAccount?.error === undefined;
+    const chatLocked = (chat == null && (!account?.startsWith('nano_') && account != null)) // show chat locked only for group chat
     // useEffect(() => {
     //     if (pages) {
     //         setMessages(messagesHistory);
@@ -124,28 +126,29 @@ const saveScrollPosition = useCallback(
     // }, [pages, messagesEndRef]);
 
     useEffect(() => {
-        if (!isLoading && chat == null && !account?.startsWith('nano_')) {
-            setTimeout(() => { // this somehow fix huge performance issue on iphone when selecting chat and coming back multiple times
-                // navigate('/chat');
-              }, 0);
-            if (searchParams.has('join')) {
-                Modal.confirm({
-                    title: 'Join the group?',
-                    onConfirm: () => {
-                        joinRequest(account).then((res) => {
-                            if (res.error) {
-                                Toast.show({ content: res.error , icon: "fail" });
-                                return;
-                            }
-                            Toast.show({ content: 'Request sent', icon: "success"});
-                        })
-                    },
-                    confirmText: 'Ask to join',
-                    cancelText: 'Cancel',
-                });   
-            }
-        }
-    }, [])
+        // if (!isLoading && chat == null && !account?.startsWith('nano_')) {
+        //     setTimeout(() => { // this somehow fix huge performance issue on iphone when selecting chat and coming back multiple times
+        //         // navigate('/chat');
+        //       }, 0);
+        //     if (searchParams.has('join')) {
+        //         Modal.clear()
+        //         Modal.confirm({
+        //             title: 'Join the group?',
+        //             onConfirm: () => {
+        //                 joinRequest(account).then((res) => {
+        //                     if (res.error) {
+        //                         Toast.show({ content: res.error , icon: "fail" });
+        //                         return;
+        //                     }
+        //                     Toast.show({ content: 'Request sent', icon: "success"});
+        //                 })
+        //             },
+        //             confirmText: 'Ask to join',
+        //             cancelText: 'Cancel',
+        //         });   
+        //     }
+        // }
+    }, [chat]);
 
     useEffect(() => { 
     let listener;
@@ -504,6 +507,9 @@ useEffect(() => {
     }
 
     // console.log("messages", messages);
+    if (chatLocked) {
+        return <ChatLocked />
+    }
     return (
         <div
             style={{
