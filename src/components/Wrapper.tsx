@@ -78,6 +78,17 @@ const firebaseConfig = {
 if (Capacitor.getPlatform() === "ios" || Capacitor.getPlatform() === "android") {
   Keyboard.setResizeMode({mode: KeyboardResize.None});
   Keyboard.addListener('keyboardWillShow', info => {
+    try {
+      if (location.pathname.startsWith('/discover')) {
+        if (document.getElementById('webview-overlay')?.style.zIndex === "-1"){
+        // we skip resize on /discover to prevent the menu bar jumping up and down
+        // skip only if webview not open to still allow resizing on wallet sending etc within the opened webview
+          return
+      }
+    }
+      } catch (error) {
+        
+      }
     console.log('keyboard will show with height:', info.keyboardHeight);
     // const app: HTMLElement = document.querySelector('.app');
     // app.style.paddingBottom = info.keyboardHeight - 30 + 'px';

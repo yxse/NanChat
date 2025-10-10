@@ -38,17 +38,18 @@ export function extractMetadata() {
       title: null,
       description: null,
       image: null,
-      url: window.location.href
+      url: window.location.href,
+      favicon: null
     };
     
     // Extract title (in order of preference)
     metadata.title = 
+    // Standard HTML title
+    document.querySelector('title')?.textContent ||
       // Open Graph
       document.querySelector('meta[property="og:title"]')?.content ||
       // Twitter
       document.querySelector('meta[name="twitter:title"]')?.content ||
-      // Standard HTML title
-      document.querySelector('title')?.textContent ||
       null;
     
     // Extract description (in order of preference)
@@ -74,6 +75,12 @@ export function extractMetadata() {
       document.querySelector('meta[name="twitter:image:src"]')?.content ||
       // Article specific (some sites use these)
       document.querySelector('meta[property="article:image"]')?.content ||
+      null;
+
+      metadata.favicon =
+      document.querySelector('link[rel="icon"]')?.href ||
+      document.querySelector('link[rel="shortcut icon"]')?.href ||
+      document.querySelector('link[rel="apple-touch-icon"]')?.href ||
       null;
     
     return JSON.stringify(metadata);

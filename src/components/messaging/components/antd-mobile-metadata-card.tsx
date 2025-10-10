@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Avatar, Card, Divider, DotLoading, Ellipsis, Image, List } from 'antd-mobile';
 import useSWR from 'swr';
-import { hasLink } from '../utils';
+import { hasLink, openInBrowser } from '../utils';
 import { CompassOutline } from 'antd-mobile-icons';
 import { fetcherMessagesNoAuth } from '../fetcher';
 import { useNavigate } from 'react-router-dom';
@@ -32,11 +32,16 @@ export const MetadataCard = ({ message  }) => {
 
   const {data, isLoading} = useSWR(isWhiteListed ? `https://link-preview.b3nskalz.workers.dev/?q=${url}` : null, async (url) => {const res = await fetch(url); return res.json();});
   if (isLoading) return <DotLoading />;
-  if (!isWhiteListed) {return null}
-  
   return (<>
        <Card
-       onClick={() => setOpenUrl(true)}
+       onClick={() => {
+        if (isWhiteListed){
+          setOpenUrl(true)
+        }
+        else {
+          openInBrowser(url)
+        }
+       }}
         style={{maxWidth: 300, marginTop: 0, cursor: "pointer"}}>
         <div style={{ display: 'flex', gap: 8 }}>
           {
@@ -63,7 +68,7 @@ export const MetadataCard = ({ message  }) => {
             <div className='text-xs' style={{color: 'var(--adm-color-text-secondary)'}}>
               <Divider style={{margin: '8px 0'}}/>
               <CompassOutline style={{display: "inline", marginRight: 4}}/>
-              Nano App
+              {isWhiteListed ? "Nano" : "Web"} App
             </div>
         </Card>
         {
