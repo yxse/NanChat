@@ -13,6 +13,7 @@ interface UseChatsReturn {
   mutateChats: typeof mutate;
   profilePictures: any;
   blockChat: (chatId: string) => Promise<void>;
+  removeChat: (chatId: string) => Promise<void>;
 }
 
 export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChatsReturn {
@@ -128,6 +129,17 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
       throw new Error(r.error)
   }
   }
+  async function removeChat(chatId: string) {
+    // this is used to remove chat when no longer have access to it (removed from group)
+    await mutateChats(
+      current => {
+          return current.filter((chat) => 
+            chat.id !== chatId)
+      }
+      , false
+  )
+  }
+
 async function muteNotifChat(mute) {
         await mutateChats( // optimistic update
           current => {
@@ -168,7 +180,8 @@ async function muteNotifChat(mute) {
     clearCache,
     mutateChats,
     blockChat,
-    muteNotifChat
+    muteNotifChat,
+    removeChat
     // isLoadingChat, 
     
   };

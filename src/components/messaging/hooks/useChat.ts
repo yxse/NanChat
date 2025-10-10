@@ -66,7 +66,7 @@ export const getKey = (pageIndex, previousPageData, chatId, height) => {
 };
 export function useChat(chatId) {
   // Get messages using infinite loading
-  const {mutateChats, chat} = useChats(chatId);
+  const {mutateChats, chat, removeChat} = useChats(chatId);
 
   const {activeAccount, activeAccountPk} = useWallet()
 
@@ -95,6 +95,7 @@ export function useChat(chatId) {
 
   // Flatten all pages into a single array
   let messages = pages ? pages.flat() : [];
+  console.log('messages fetch', pages, error)
   // const isLoadingInitial = !pages && !error;
   const isLoadingInitial = isLoading
   // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
@@ -222,6 +223,14 @@ export function useChat(chatId) {
       }, false);
     }
   }, [pages]);
+
+  useEffect(() => {
+    if (error === 404){
+      // if chat not found, remove it from the list
+      removeChat(chatId);
+    }
+  }, [error])
+  
   // 
   const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;
   return {
