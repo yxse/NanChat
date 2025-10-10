@@ -5,7 +5,7 @@ import {
   } from '@capacitor-mlkit/barcode-scanning';
 import { Capacitor } from '@capacitor/core';
 import { Button, Modal, Popup, Toast } from 'antd-mobile';
-import { CloseCircleOutline, ScanCodeOutline } from 'antd-mobile-icons';
+import { CloseCircleOutline, PicturesOutline, ScanCodeOutline } from 'antd-mobile-icons';
 import { cloneElement, useEffect, useState } from 'react';
 import { Scanner as ScannerWeb } from '@yudiel/react-qr-scanner';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
@@ -94,28 +94,47 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
                 <div className="m-4 text-sm text-center" style={{userSelect: "none", WebkitUserSelect: "none", marginTop: "220px"}}>
                   Scan QR Code
                 </div>
-                <div 
+                </div>
+                {
+                  Capacitor.getPlatform() === 'web' ? null :
+                  <div 
+                  style={{
+                    position: 'absolute',
+                    bottom: "calc(32px + var(--safe-area-inset-bottom))",
+                  right: 32,
+                }}
                 onClick={() => {
                   readBarcodeFromImage().then((result) => {
                     if (result) {
                       if (onScan) {
-                        onScan(result.displayValue);
+                        try {
+                          onScan(result.displayValue);
+                        } catch (error) {
+                          console.error('Error in onScan callback:', error);
+                        }
                       }
                       setVisible(false)
                       stopScan();
+                    }
+                    else{
+                      Toast.show({icon: 'fail', content: 'No QR code found in image'});
                     }
                   }).catch((e) => {
                     console.error(e);
                     Toast.show({icon: 'fail', content: 'Failed to read image'});
                   });
                 }}
-                className="m-4 text-sm text-center" style={{userSelect: "none", WebkitUserSelect: "none", marginTop: "220px"}}>
-                 <Button>
-                   Scan From Image
+                >
+                  <div style={{ }}>
+                 <Button size='large' shape='rounded'>
+                    <PicturesOutline fontSize={24} />
                   </Button>
+                  <div className='text-sm text-center' style={{marginTop: 4, userSelect: "none", WebkitUserSelect: "none"}}>
+                   Photos
+                  </div>
+                  </div>
                 </div>
-                
-                </div>
+                }
               </div>
         </Popup>
             {/* On clone l'élément enfant en lui ajoutant le onClick */}
@@ -127,55 +146,55 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
     );
 };
 
-const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen, onClose}) => {
-    let isScanning = false;
-    const handleScanClick = () => {
-        let modal = Modal.show({
-          onClose: () => { if (onClose) onClose(); },
-            closeOnMaskClick: true,
-            title: "Scan QR Code",
-            content: (
-                <div>
-                    <div style={{ height: 256 }}>
-                        <ScannerWeb
-                            onScan={(result) => {
-                                onScan(result[0].rawValue);
-                                modal.close();
-                            }}
-                        />
-                    </div>
-                    {/* <div className="text-gray-400 m-4 text-sm text-center">
+// const ScannerWebComponent = ({onScan, children = defaultScanButton, defaultOpen, onClose}) => {
+//     let isScanning = false;
+//     const handleScanClick = () => {
+//         let modal = Modal.show({
+//           onClose: () => { if (onClose) onClose(); },
+//             closeOnMaskClick: true,
+//             title: "Scan QR Code",
+//             content: (
+//                 <div>
+//                     <div style={{ height: 256 }}>
+//                         <ScannerWeb
+//                             onScan={(result) => {
+//                                 onScan(result[0].rawValue);
+//                                 modal.close();
+//                             }}
+//                         />
+//                     </div>
+//                     {/* <div className="text-gray-400 m-4 text-sm text-center">
 
-                    </div> */}
-                </div>
-            )
-        });
-    }
+//                     </div> */}
+//                 </div>
+//             )
+//         });
+//     }
 
-    useEffect(() => {
-        if (!isScanning && defaultOpen) {
-            handleScanClick();
-            isScanning = true; // Prevent multiple opening
-        }
-    }, []);
+//     useEffect(() => {
+//         if (!isScanning && defaultOpen) {
+//             handleScanClick();
+//             isScanning = true; // Prevent multiple opening
+//         }
+//     }, []);
 
-    return (
-        <div className='scanner' onClick={handleScanClick}>
-            {/* {cloneElement(children, {
-                onClick: handleScanClick
-            })} */}
-            {children}
-        </div>
-    );
-}
+//     return (
+//         <div className='scanner' onClick={handleScanClick}>
+//             {/* {cloneElement(children, {
+//                 onClick: handleScanClick
+//             })} */}
+//             {children}
+//         </div>
+//     );
+// }
 
 export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = false, onClose}) => {
   return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
-    if (Capacitor.isNativePlatform()) {
-        return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
-    } else {
-        return <ScannerWebComponent onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
-    }
+    // if (Capacitor.isNativePlatform()) {
+    //     return <ScannerNative onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
+    // } else {
+    //     return <ScannerWebComponent onScan={onScan} children={children} defaultOpen={defaultOpen} onClose={onClose} />;
+    // }
 };
   const startScan = async (onScan, setVisible) => {
     
@@ -208,7 +227,11 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
           .querySelector('body')
           ?.classList.remove('barcode-scanner-active');
         if (onScan) {
+          try {
             onScan(result.barcodes[0].displayValue);
+          } catch (error) {
+            console.error('Error in onScan callback:', error);            
+          }
           }
           
         stopScan();
@@ -336,14 +359,12 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
 
 
     const readBarcodeFromImage = async () => {
-    const { files } = await FilePicker.pickFiles({ limit: 1 });
+    const { files } = await FilePicker.pickImages({ limit: 1 });
     const path = files[0]?.path;
     if (!path) {
       return;
     }
-    console.log('Reading image...' + path);
-    Toast.show({ content: 'Reading image...' + path });
-    return
+
     const { barcodes } = await BarcodeScanner.readBarcodesFromImage({
       path,
       formats: [BarcodeFormat.QrCode],

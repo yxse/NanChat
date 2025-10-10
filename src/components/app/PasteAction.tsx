@@ -9,7 +9,6 @@ import { ScanCodeOutline } from 'antd-mobile-icons';
 import { Scanner } from './Scanner';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { SignPopup } from '../../api-invoke/Sign';
-// import { Scanner } from '@yudiel/react-qr-scanner';
 
 function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanOpen}) {
   const [visible, setVisible] = React.useState(false);

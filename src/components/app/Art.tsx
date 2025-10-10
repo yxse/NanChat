@@ -32,7 +32,6 @@ import { QRCodeSVG } from "qrcode.react";
 import { CopyToClipboard } from "../Settings";
 import { getAccount } from "../getAccount";
 import { send } from "../../nano/accounts";
-import { Scanner } from "@yudiel/react-qr-scanner";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import NetworkList from "./NetworksList";
