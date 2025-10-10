@@ -7,7 +7,7 @@ import { Capacitor } from '@capacitor/core';
 import { Button, Modal, Popup, Toast } from 'antd-mobile';
 import { CloseCircleOutline, PicturesOutline, ScanCodeOutline } from 'antd-mobile-icons';
 import { cloneElement, useEffect, useState } from 'react';
-import { Scanner as ScannerWeb } from '@yudiel/react-qr-scanner';
+// import { Scanner as ScannerWeb } from '@yudiel/react-qr-scanner';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 
 import "barcode-detector/polyfill";
