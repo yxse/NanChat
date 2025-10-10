@@ -150,6 +150,10 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                     }
                     // Toast.show({icon: "loading"})
                     let messageResult = await openRedPacket({id: message._id})
+                    if (messageResult?.error){
+                        Toast.show({icon: 'fail', content: messageResult.error, duration: 2000})
+                        return
+                    }
                     // if (!r?.error){
                     //     await mutate("/redpacket?id=" + message._id, r)
                     // }
