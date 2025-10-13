@@ -253,7 +253,12 @@ WebviewOverlay.onPageLoaded(() => {
         }
     };
     async function closeNanoApp(save = true) {
-        const metaData = await WebviewOverlay.evaluateJavaScript(extractMetadata.toString() + " extractMetadata();");
+        let metaData = "{}";
+        try {
+            metaData = await WebviewOverlay.evaluateJavaScript(`(${extractMetadata.toString()})()`);
+        } catch (error) {
+            console.error("Error extracting metadata:", error);
+        }
         // Toast.show({
         //     content: "meta: " + JSON.stringify(metaData),
         //     duration: 7000,

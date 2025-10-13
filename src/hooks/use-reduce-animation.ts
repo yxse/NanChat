@@ -7,7 +7,7 @@ import useLocalStorageState from "use-local-storage-state";
 export const useReduceAnimation = () => {
     // on low power mode, request animation frames are often reduced by system on mobile which might cause slow animations
     // so we disable animation by default on power saving mode
-    const [reduceAnimation, setReduceAnimation] = useLocalStorageState('reduceAnimation', { defaultValue: Capacitor.getPlatform() === "web" ? 'never' : 'onPowerSaving' }); 
+    const [reduceAnimation, setReduceAnimation] = useLocalStorageState('reduceAnimation', { defaultValue: Capacitor.getPlatform() === "web" ? 'always' : 'onPowerSaving' }); 
     useEffect(() => {
        const applySetting = async () => {
          if (reduceAnimation === 'always') {
