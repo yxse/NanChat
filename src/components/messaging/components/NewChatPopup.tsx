@@ -327,7 +327,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
     const accountsToInvite = contactsNotOnNanChat
         .filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
     const contactsOnNanChatFiltered = contactsOnNanChat?.filter(contact => (searchText ? contact.name.toLowerCase().includes(searchText.toLowerCase()) : true))
-
+    const accountsFiltered = accounts?.filter(account => (searchText ? account.name.toLowerCase().includes(searchText.toLowerCase()) || account.username?.toLowerCase().includes(searchText.toLowerCase()) : true))
     return (
            <InfiniteScroll
                         height={'calc(90vh - 57px - 44px - 8px - 50px)'}
@@ -342,7 +342,8 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                             hasMore={true}
                             loader={(isValidating || isLoading) && <SkeletonAccountListItems />}
                         >
-                           
+                           {
+                            !hideImportContacts && 
                     <AccountListItems
                     alreadySelected={alreadySelected}
                         selectedAccounts={selectedAccounts}
@@ -354,9 +355,10 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                         }}
                         accounts={contactsOnNanChatFiltered}
                         badgeColor={"gray"} />
+                    }
 
 {
-    accountsToInvite.length > 0 &&
+    accountsToInvite.length > 0 && !hideImportContacts && 
                     <AccountListItems
                     mode="invite"
                     // title="Invite to NanChat"
@@ -404,7 +406,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                                     //     onAccountSelect && onAccountSelect(account)
                                     //     setVisible(false);
                                     // }}
-                                    accounts={accounts} badgeColor="gray" /> : 
+                                    accounts={accountsFiltered} badgeColor="gray" /> : 
                             searchText ? 
                             <AccountListItems
                             title={searchText ? "Search results" : "Verified Accounts"}
@@ -419,16 +421,19 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                                 accounts={all} badgeColor="gray" />
                                 : null
                             }
+                            {
+                                !hideImportContacts && 
                             <List>
                             <List.Item
                             prefix={<MailOutline fontSize={48} style={{padding: 8}}/>}
-                                                onClick={() => inviteFriends()}
+                            onClick={() => inviteFriends()}
                                                  arrowIcon>
                                         <div
                                         >
                                             {t('inviteFriends')}
                                         </div>
                                         </List.Item></List>
+                                        }
                             <div
                             style={{height: "var(--safe-area-inset-bottom)"}}
                             >{" "}</div>
