@@ -65,6 +65,9 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 include ':capawesome-capacitor-badge'
 project(':capawesome-capacitor-badge').projectDir = new File('../node_modules/@capawesome/capacitor-badge/android')
 
+include ':capawesome-capacitor-file-picker'
+project(':capawesome-capacitor-file-picker').projectDir = new File('../node_modules/@capawesome/capacitor-file-picker/android')
+
 include ':capgo-capacitor-data-storage-sqlite'
 project(':capgo-capacitor-data-storage-sqlite').projectDir = new File('../node_modules/@capgo/capacitor-data-storage-sqlite/android')
 
@@ -82,3 +85,6 @@ project(':capacitor-secure-storage-plugin').projectDir = new File('../node_modul
 
 include ':capacitor-share-extension'
 project(':capacitor-share-extension').projectDir = new File('../node_modules/capacitor-share-extension/android')
+
+include ':power-mode'
+project(':power-mode').projectDir = new File('../node_modules/power-mode/android')
