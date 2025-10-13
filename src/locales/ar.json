@@ -303,5 +303,22 @@
   "total": "المجموع",
   "securedByNanPay": "مؤمن بواسطة NanPay.",
   "redPacketNotOpenedWillBeRefunded": "الأظرف الحمراء التي لم تُفتح خلال 24 ساعة سيتم ردها.",
-  "transfer": "تحويل"
+  "transfer": "تحويل",
+  "discoverNanoApps": "اكتشف تطبيقات النانو",
+  "photos": "الصور",
+  "groupInCommon": "{{count}} مجموعة مشتركة",
+  "groupsInCommon": "{{count}} مجموعات مشتركة",
+  "searchResults": "نتائج البحث",
+  "verifiedAccounts": "الحسابات الموثقة",
+  "selectOneOrMoreContacts": "اختر جهة اتصال واحدة أو أكثر",
+  "selectParticipant": "اختر مشاركًا",
+  "searchNanChatIdNameAddress": "ابحث عن معرف NanChat / الاسم / العنوان",
+  "reduceAnimations": "تقليل الحركات",
+  "reduceAnimationsDescription": "تقليل الحركات قد يحسن الأداء ويوفر عمر البطارية.",
+  "searchOrEnterUrl": "ابحث أو أدخل رابط URL",
+  "groupsChat": "دردشة المجموعات",
+  "invite": "دعوة",
+  "always": "دائمًا",
+  "onPowerSavingMode": "عند تفعيل وضع توفير الطاقة",
+  "never": "أبدًا"
 } 

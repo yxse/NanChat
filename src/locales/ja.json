@@ -304,5 +304,22 @@
   "total": "合計",
   "securedByNanPay": "NanPayによって保護されています。",
   "redPacketNotOpenedWillBeRefunded": "24時間以内に開封されなかった赤い封筒は返金されます。",
-  "transfer": "送金"
+  "transfer": "送金",
+  "discoverNanoApps": "nanoアプリを探す",
+  "photos": "写真",
+  "groupInCommon": "{{count}}件の共通グループ",
+  "groupsInCommon": "{{count}}件の共通グループ",
+  "searchResults": "検索結果",
+  "verifiedAccounts": "認証済みアカウント",
+  "selectOneOrMoreContacts": "1人以上の連絡先を選択",
+  "selectParticipant": "参加者を選択",
+  "searchNanChatIdNameAddress": "NanChat ID/名前/アドレスで検索",
+  "reduceAnimations": "アニメーションを減らす",
+  "reduceAnimationsDescription": "アニメーションを減らすとパフォーマンスが向上し、バッテリー消費を抑えられます。",
+  "searchOrEnterUrl": "URLを検索または入力",
+  "groupsChat": "グループチャット",
+  "invite": "招待",
+  "always": "常に",
+  "onPowerSavingMode": "省電力モード中",
+  "never": "しない"
 } 

@@ -67,7 +67,7 @@ style={{color: 'var(--adm-color-primary)', cursor: 'pointer'}}
 onClick={() => {
     inviteFriends()
 }}>
-    Invite
+    {t('invite')}
 </div>
     const uniqueAccounts = accounts?.filter((v, i, a) => a.findIndex(t => (t._id === v._id)) === i)
     const selectedIcon = active => 
@@ -163,7 +163,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                     setVisible(false)
                  }}
                  className='text-base' color='default'>
-                    Cancel
+                    {t('cancel')}
                 </div>
                     {title}
                     
@@ -178,7 +178,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                  size='small' 
                  color={selectedAccounts.length === 0 ? 'default' : 'primary'}
                  >
-                    Done {selectedAccounts.length > 0 && `(${selectedAccounts.length})`}
+                    {t('done')} {selectedAccounts.length > 0 && `(${selectedAccounts.length})`}
                 </Button>
                 </div>
                
@@ -187,7 +187,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                 </div>
                 <div className={"searchBarContainer"}>
                     <SearchBar
-                        placeholder='Search NanChat ID / Name / Address'
+                        placeholder={t('searchNanChatIdNameAddress')}
                         value={searchText}
                         onChange={v => {
                             setSearchText(v)
@@ -196,7 +196,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
                 </div>
                 <List>
                 <List.Item>
-                    Select one or more contacts
+                    {t('selectOneOrMoreContacts')}
                     </List.Item>
                     </List>
                 <div style={{  }}>
@@ -266,7 +266,7 @@ export function SelectParticipant({visible, setVisible, participants, onAccountS
                     onClose && onClose()
                  }}
                  className='text-base' color='default'>
-                    Cancel
+                    {t('cancel')}
                 </div>
                     Select a participant
                 </div>
@@ -276,7 +276,7 @@ export function SelectParticipant({visible, setVisible, participants, onAccountS
                 </div>
                 <div className={"searchBarContainer"}>
                     <SearchBar
-                        placeholder='Search NanChat ID / Name / Address'
+                        placeholder={t('searchNanChatIdNameAddress')}
                         value={searchText}
                         onChange={v => {
                             setSearchText(v)
@@ -384,7 +384,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                                 setPopupImportContactsVisible(true);
                             }}
                             >
-                                Import Contacts
+                                {t('importContacts')}
                             </List.Item>
                             </List>
                             <ResponsivePopup
@@ -409,7 +409,7 @@ const InfiniteScrollAccounts = ({ accounts, alreadySelected, selectedAccounts, s
                                     accounts={accountsFiltered} badgeColor="gray" /> : 
                             searchText ? 
                             <AccountListItems
-                            title={searchText ? "Search results" : "Verified Accounts"}
+                            title={searchText ? t('searchResults') : ''}
                             alreadySelected={alreadySelected}
                                 selectedAccounts={selectedAccounts}
                                 setSelectedAccounts={setSelectedAccounts}

@@ -307,7 +307,7 @@ WebviewOverlay.onPageLoaded(() => {
                <HistoryApps history={history} handleServiceClick={handleServiceClick} setHistory={setHistory} />
             }
                 <List mode="card" header={
-                    searchText.length > 0 ? t('searchResults') :"Discover nano apps"
+                    searchText.length > 0 ? t('searchResults') : t('discoverNanoApps')
                 }></List>
 {Object.entries(groupedServices || {}).map(([category, categoryServices]) => (
     <div key={category} style={{ marginBottom: 8 }}>

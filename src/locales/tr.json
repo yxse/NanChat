@@ -304,5 +304,22 @@
   "total": "Toplam",
   "securedByNanPay": "NanPay tarafından güvence altına alınmıştır.",
   "redPacketNotOpenedWillBeRefunded": "24 saat içinde açılmayan kırmızı zarflar iade edilecektir.",
-  "transfer": "Transfer"
+  "transfer": "Transfer",
+  "discoverNanoApps": "Nano uygulamalarını keşfet",
+  "photos": "Fotoğraflar",
+  "groupInCommon": "{{count}} ortak grup",
+  "groupsInCommon": "{{count}} ortak grup",
+  "searchResults": "Arama sonuçları",
+  "verifiedAccounts": "Doğrulanmış Hesaplar",
+  "selectOneOrMoreContacts": "Bir veya daha fazla kişiyi seçin",
+  "selectParticipant": "Bir katılımcı seçin",
+  "searchNanChatIdNameAddress": "NanChat ID / İsim / Adres Ara",
+  "reduceAnimations": "Animasyonları Azalt",
+  "reduceAnimationsDescription": "Animasyonları azaltmak performansı artırabilir ve pil ömrünü koruyabilir.",
+  "searchOrEnterUrl": "URL Ara veya Gir",
+  "groupsChat": "Grup Sohbeti",
+  "invite": "Davet et",
+  "always": "Her zaman",
+  "onPowerSavingMode": "Güç Tasarrufu Modunda",
+  "never": "Asla"
 } 

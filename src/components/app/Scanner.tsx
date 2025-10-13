@@ -11,6 +11,7 @@ import { cloneElement, useEffect, useState } from 'react';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 
 import "barcode-detector/polyfill";
+import { useTranslation } from 'react-i18next';
 
 const defaultScanButton = <ScanCodeOutline
 fontSize={24}
@@ -18,6 +19,7 @@ className="cursor-pointer text-gray-200 mr-4 mt-4"
 />;
 
 const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClose}) => {
+    const { t } = useTranslation();
     const [visible, setVisible] = useState(defaultOpen);
     let isScanning = false;
 
@@ -92,7 +94,7 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
                 <div className="square">
 
                 <div className="m-4 text-sm text-center" style={{userSelect: "none", WebkitUserSelect: "none", marginTop: "220px"}}>
-                  Scan QR Code
+                  {t('scanQrCode')}
                 </div>
                 </div>
                 {
@@ -130,7 +132,7 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
                     <PicturesOutline fontSize={24} />
                   </Button>
                   <div className='text-sm text-center' style={{marginTop: 4, userSelect: "none", WebkitUserSelect: "none"}}>
-                   Photos
+                   {t('photos')}
                   </div>
                   </div>
                 </div>

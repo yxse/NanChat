@@ -304,5 +304,22 @@
   "total": "Suma",
   "securedByNanPay": "Zabezpieczone przez NanPay.",
   "redPacketNotOpenedWillBeRefunded": "Czerwone koperty nieotwarte w ciągu 24 godzin zostaną zwrócone.",
-  "transfer": "Przelew"
+  "transfer": "Przelew",
+  "discoverNanoApps": "Odkrywaj aplikacje nano",
+  "photos": "Zdjęcia",
+  "groupInCommon": "{{count}} wspólna grupa",
+  "groupsInCommon": "{{count}} wspólnych grup",
+  "searchResults": "Wyniki wyszukiwania",
+  "verifiedAccounts": "Zweryfikowane konta",
+  "selectOneOrMoreContacts": "Wybierz jeden lub więcej kontaktów",
+  "selectParticipant": "Wybierz uczestnika",
+  "searchNanChatIdNameAddress": "Szukaj NanChat ID / Imienia / Adresu",
+  "reduceAnimations": "Ogranicz animacje",
+  "reduceAnimationsDescription": "Ograniczenie animacji może poprawić wydajność i zaoszczędzić baterię.",
+  "searchOrEnterUrl": "Szukaj lub wpisz URL",
+  "groupsChat": "Czaty grupowe",
+  "invite": "Zaproś",
+  "always": "Zawsze",
+  "onPowerSavingMode": "W trybie oszczędzania energii",
+  "never": "Nigdy"
 }

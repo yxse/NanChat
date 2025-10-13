@@ -14,6 +14,8 @@ import itTranslations from './locales/it.json';
 import ptTranslations from './locales/pt.json';
 import nlTranslations from './locales/nl.json';
 import plTranslations from './locales/pl.json';
+import ukTranslations from './locales/uk.json';
+import zhHantTranslations from './locales/zh-Hant.json';
 
 const languageDetector = new LanguageDetector(null, {
   
@@ -62,9 +64,15 @@ i18n
       pl: {
         translation: plTranslations
       },
+      uk: {
+        translation: ukTranslations
+      },
+      'zh-Hant': {
+        translation: zhHantTranslations
+      },
     },
     fallbackLng: 'en',
-    debug: true,
+    debug: false,
   });
 
 export default i18n;

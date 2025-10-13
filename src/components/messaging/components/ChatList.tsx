@@ -480,6 +480,7 @@ const right = (
       
 
         <NewChatPopup
+        title={t('newChat')}
         onAccountSelect={async (accounts) => {
             if (accounts.length === 1) {
                 navigate(`/chat/${accounts[0]}`, { viewTransition: false, replace: true })

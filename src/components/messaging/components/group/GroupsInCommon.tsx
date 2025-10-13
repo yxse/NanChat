@@ -34,13 +34,9 @@ const GroupsInCommon: React.FC<{}> = ({  }) => {
                     navigate('/chat', { replace: true });
                  }
             }}
-            >{t('groupsInCommon')}
+            >{chatsInCommon?.length > 1 ? t('groupsInCommon', {count: chatsInCommon?.length}) : t('groupInCommon', {count: chatsInCommon?.length})}
             </NavBar>
             <GroupList groups={chatsInCommon} />
-            
-<div style={{textAlign: 'center', color: 'var(--adm-color-text-secondary)', marginTop: 16, marginBottom: 16}}>
-        {`${chatsInCommon.length} ${t('groupsInCommon')}`}
-</div>
         </div>
     );
 };

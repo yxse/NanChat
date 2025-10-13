@@ -59,6 +59,14 @@ function ChangeLanguage() {
         key: 'zh',
         label: '中文',
       },
+      {
+        key: 'uk',
+        label: 'Українська',
+      },
+      {
+        key: 'zh-Hant',
+        label: '繁體中文',
+      },
     ]
   return (
         <List.Item 

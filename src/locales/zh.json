@@ -304,5 +304,22 @@
   "total": "总计",
   "securedByNanPay": "由 NanPay 保护。",
   "redPacketNotOpenedWillBeRefunded": "24小时内未打开的红包将被退还。",
-  "transfer": "转账"
+  "transfer": "转账",
+  "discoverNanoApps": "发现 nano 应用",
+  "photos": "照片",
+  "groupInCommon": "{{count}} 个共同群组",
+  "groupsInCommon": "{{count}} 个共同群组",
+  "searchResults": "搜索结果",
+  "verifiedAccounts": "已验证账户",
+  "selectOneOrMoreContacts": "选择一个或多个联系人",
+  "selectParticipant": "选择参与者",
+  "searchNanChatIdNameAddress": "搜索 NanChat ID / 姓名 / 地址",
+  "reduceAnimations": "减少动画",
+  "reduceAnimationsDescription": "减少动画有助于提升性能并节省电量。",
+  "searchOrEnterUrl": "搜索或输入 URL",
+  "groupsChat": "群组聊天",
+  "invite": "邀请",
+  "always": "总是",
+  "onPowerSavingMode": "在省电模式下",
+  "never": "从不"
 } 

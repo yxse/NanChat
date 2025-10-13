@@ -304,5 +304,22 @@
   "total": "Всего",
   "securedByNanPay": "Защищено NanPay.",
   "redPacketNotOpenedWillBeRefunded": "Красные конверты, не открытые в течение 24 часов, будут возвращены.",
-  "transfer": "Перевод"
+  "transfer": "Перевод",
+  "discoverNanoApps": "Открывайте приложения Nano",
+  "photos": "Фотографии",
+  "groupInCommon": "{{count}} общая группа",
+  "groupsInCommon": "{{count}} общих групп",
+  "searchResults": "Результаты поиска",
+  "verifiedAccounts": "Проверенные аккаунты",
+  "selectOneOrMoreContacts": "Выберите один или несколько контактов",
+  "selectParticipant": "Выберите участника",
+  "searchNanChatIdNameAddress": "Поиск NanChat ID / Имени / Адреса",
+  "reduceAnimations": "Уменьшить анимацию",
+  "reduceAnimationsDescription": "Снижение анимации может повысить производительность и сэкономить заряд аккумулятора.",
+  "searchOrEnterUrl": "Поиск или ввод URL",
+  "groupsChat": "Групповой чат",
+  "invite": "Пригласить",
+  "always": "Всегда",
+  "onPowerSavingMode": "В режиме энергосбережения",
+  "never": "Никогда"
 } 

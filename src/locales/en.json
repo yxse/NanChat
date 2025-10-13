@@ -1,4 +1,18 @@
 {
+  "discoverNanoApps": "Discover nano apps",
+  "photos": "Photos",
+  "groupInCommon": "{{count}} group in common",
+  "groupsInCommon": "{{count}} groups in common",
+  "searchResults": "Search results",
+  "verifiedAccounts": "Verified Accounts",
+  "selectOneOrMoreContacts": "Select one or more contacts",
+  "selectParticipant": "Select a participant",
+  "searchNanChatIdNameAddress": "Search NanChat ID / Name / Address",
+  "reduceAnimations": "Reduce Animations",
+  "reduceAnimationsDescription": "Reduce animations can improve performance and save battery life.",
+  "searchOrEnterUrl": "Search or enter a URL",
+  "groupsChat": "Groups Chat",
+  "invite": "Invite",
   "sendRedPackets": "Send Red Packets",
   "redPacket": "Red Packet",
   "randomAmount": "Random Amount",
@@ -178,7 +192,6 @@
   "message": "Message",
   "edit": "Edit",
   "group": "Group",
-  "inCommon": "in common",
   "noGroupInCommon": "No group in common",
   "notOnNanChat": "Not on NanChat",
   "createNewContact": "Create new contact",
@@ -302,5 +315,8 @@
 "deleteContactConfirmTitle": "Delete {{name}}?",
 "deleteContactConfirmContent": "Are you sure you want to delete this contact?",
 "noContacts": "No contacts",
-"contactsForNetwork": "Contacts for {{networkName}}"
+"contactsForNetwork": "Contacts for {{networkName}}",
+"always": "Always",
+"onPowerSavingMode": "On Power Saving Mode",
+"never": "Never"
 }

@@ -279,7 +279,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                         {
                     chatsInCommonLength > 0 ?
                 <div>
-                    {chatsInCommonLength} {t('group')}{chatsInCommonLength > 1 ? 's' : ''} {t('inCommon')}
+                    {chatsInCommonLength > 1 ? t('groupsInCommon', {count: chatsInCommonLength}) : t('groupInCommon', {count: chatsInCommonLength})}
                 </div>
                 :
                 <div>

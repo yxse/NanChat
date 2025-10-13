@@ -302,5 +302,22 @@
   "total": "Total",
   "securedByNanPay": "Sécurisé par NanPay.",
   "redPacketNotOpenedWillBeRefunded": "Les paquets rouges non ouvertes dans les 24 heures seront remboursées.",
-  "transfer": "Transfert"
+  "transfer": "Transfert",
+  "groupInCommon": "{{count}} groupe en commun",
+  "groupsInCommon": "{{count}} groupes en commun",
+  "searchResults": "Résultats de recherche",
+  "verifiedAccounts": "Comptes vérifiés",
+  "selectOneOrMoreContacts": "Sélectionnez un ou plusieurs contacts",
+  "selectParticipant": "Sélectionner un participant",
+  "searchNanChatIdNameAddress": "Rechercher ID NanChat / Nom / Adresse",
+  "reduceAnimations": "Réduire les animations",
+  "reduceAnimationsDescription": "La réduction des animations peut améliorer les performances et économiser de la batterie.",
+  "searchOrEnterUrl": "Rechercher ou saisir une URL",
+  "groupsChat": "Discussions de groupe",
+  "photos": "Photos",
+  "discoverNanoApps": "Découvrez les applications nano",
+  "invite": "Inviter",
+  "always": "Toujours",
+  "onPowerSavingMode": "En mode économie d'énergie",
+  "never": "Jamais"
 }

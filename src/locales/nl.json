@@ -304,5 +304,22 @@
   "total": "Totaal",
   "securedByNanPay": "Beveiligd door NanPay.",
   "redPacketNotOpenedWillBeRefunded": "Rode enveloppen die binnen 24 uur niet worden geopend, worden terugbetaald.",
-  "transfer": "Overdragen"
+  "transfer": "Overdragen",
+  "discoverNanoApps": "Ontdek nano-apps",
+  "photos": "Foto's",
+  "groupInCommon": "{{count}} gezamenlijke groep",
+  "groupsInCommon": "{{count}} gezamenlijke groepen",
+  "searchResults": "Zoekresultaten",
+  "verifiedAccounts": "Geverifieerde accounts",
+  "selectOneOrMoreContacts": "Selecteer een of meer contacten",
+  "selectParticipant": "Deelnemer selecteren",
+  "searchNanChatIdNameAddress": "Zoek NanChat ID / Naam / Adres",
+  "reduceAnimations": "Animaties verminderen",
+  "reduceAnimationsDescription": "Animaties verminderen kan de prestaties verbeteren en batterij besparen.",
+  "searchOrEnterUrl": "Zoek of voer een URL in",
+  "groupsChat": "Groepschat",
+  "invite": "Uitnodigen",
+  "always": "Altijd",
+  "onPowerSavingMode": "In energiebesparende modus",
+  "never": "Nooit"
 } 

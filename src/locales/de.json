@@ -303,5 +303,22 @@
   "total": "Gesamt",
   "securedByNanPay": "Gesichert durch NanPay.",
   "redPacketNotOpenedWillBeRefunded": "Rote Pakete, die innerhalb von 24 Stunden nicht geöffnet werden, werden erstattet.",
-  "transfer": "Überweisen"
+  "transfer": "Überweisen",
+  "discoverNanoApps": "Entdecke Nano-Apps",
+  "photos": "Fotos",
+  "groupInCommon": "{{count}} gemeinsame Gruppe",
+  "groupsInCommon": "{{count}} gemeinsame Gruppen",
+  "searchResults": "Suchergebnisse",
+  "verifiedAccounts": "Verifizierte Accounts",
+  "selectOneOrMoreContacts": "Wählen Sie einen oder mehrere Kontakte",
+  "selectParticipant": "Teilnehmer auswählen",
+  "searchNanChatIdNameAddress": "NanChat-ID / Name / Adresse suchen",
+  "reduceAnimations": "Animationen reduzieren",
+  "reduceAnimationsDescription": "Reduzierte Animationen können die Leistung verbessern und den Akku schonen.",
+  "searchOrEnterUrl": "URL suchen oder eingeben",
+  "groupsChat": "Gruppenchat",
+  "invite": "Einladen",
+  "always": "Immer",
+  "onPowerSavingMode": "Im Energiesparmodus",
+  "never": "Nie"
 } 

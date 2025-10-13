@@ -17,14 +17,14 @@ function ReduceAnimation() {
     const reduceAnimationSettings = [
       {
         key: 'always',
-        label: 'Always'
+        label: t('always')
       },
       {
         key: 'onPowerSaving',
-        label: 'On Power Saving Mode'
+        label: t('onPowerSavingMode')
       },
         {   key: 'never',
-            label: 'Never'
+            label: t('never')
         }
     ]
     if (Capacitor.getPlatform() === 'web') {
