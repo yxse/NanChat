@@ -11,27 +11,6 @@ export const networks = {
     icon: "https://i.nanwallet.com/u/plain/https%3A%2F%2Fnatricon.com%2Fapi%2Fv1%2Fnano%3Faddress%3D",
     rank: 1,
   },
-  // "BTC-NANSWAP": {
-  //   name: "NanBitcoin",
-  //   id: "nanbtc",
-  //   ticker: "btc",
-  //   decimals: 29,
-  //   prefix: "nanbtc",
-  //   logo: "https://cdn.discordapp.com/attachments/1057888614618505226/1291757371374174279/btc_nanswap.svg?ex=6701424d&is=66fff0cd&hm=9f3fb196e07a2b50dae33d53c1216db23ab08b14465ce29b4bfcb6d89ac627cc&",
-  //   defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq",
-  //   rpc: "https://nodes.nanwallet.com/BAN",
-  
-  // },
-  // USDC: {
-  //   name: "NanUSDC",
-  //   id: "nanusdc",
-  //   decimals: 29,
-  //   prefix: "nanusdc",
-  //   logo: "https://cdn.discordapp.com/attachments/1057888614618505226/1291770469342511104/usdc_nanswap.svg?ex=67014e7f&is=66fffcff&hm=232cacaa94b59132bcabcbf539d2283d7c711426ea413c72891e0fdf9246c4ba&",
-  //   defaultRep: "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq",
-  //   rpc: "https://nodes.nanwallet.com/BAN",
-  
-  // },
   BAN: {
     name: "Banano",
     id: "banano",
@@ -63,6 +42,7 @@ export const networks = {
     logo: "https://bucket.nanwallet.com/logo/ANA.png",
     defaultRep: "ana_1nanswapnscbjjr6nd8bjbyp7o3gby1r8m18rbmge3mj8y5bihh71sura9dx",
     rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/ANA",
+    hideIfEmpty: true, // hide from the list if no balance
   },
   XRO: {
     name: "RaiblocksOne",
@@ -74,6 +54,7 @@ export const networks = {
     logo: "https://bucket.nanwallet.com/logo/XRO.png",
     defaultRep: "xro_1nanswapnscbjjr6nd8bjbyp7o3gby1r8m18rbmge3mj8y5bihh71sura9dx",
     rpc: import.meta.env.VITE_PUBLIC_BACKEND + "/nodes/XRO",
+    hideIfEmpty: true, // hide from the list if no balance
   },
   ...JSON.parse(localStorage.getItem("newNetworks")),
     ...JSON.parse(localStorage.getItem("customNetworks")),

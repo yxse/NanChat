@@ -389,14 +389,17 @@ export const ItemCopyAddress = ({ address, ticker, onClick }) => {
     </div>
     </List.Item>
 }
-export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = true, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker, hideZeroBalance, noPadding = false}) {
+export default function NetworkList({ onClick, hidePrice, showRepresentative = false, hideActions = true, hideBalance = false, filterTickers = [], customAddress = false , selectedTicker, hideZeroBalance, noPadding = false, hideZeroBalanceIfNotFeatured = false}) {
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
   const [action, setAction] = useState("");
   const {balances} = useWalletBalance()
-  const hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data == 0) : []
+  let hideZeroBalanceNetworks = hideZeroBalance ? Object.keys(balances).filter((ticker) => balances[ticker].data == 0) : []
+  if (hideZeroBalanceIfNotFeatured){ // hide zero balance networks that are not featured (ranked)
+    hideZeroBalanceNetworks = Object.keys(balances).filter((ticker) => balances[ticker].data == 0).filter((ticker) => networks[ticker]?.hideIfEmpty)
+  }
   const { t } = useTranslation()
 
   const filteredActiveMainNetworks = activeMainNetworks.filter((ticker) => !hideZeroBalanceNetworks.includes(ticker)).filter((ticker) => {

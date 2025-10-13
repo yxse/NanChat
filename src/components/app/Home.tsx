@@ -122,7 +122,7 @@ console.log("balance 2", totalBalance);
   // const addressPfp = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address
 
   const onRefresh = async () => {
-    await mutate((key) => key.startsWith("balance-") || key === "prices");
+    await mutate((key) => (key && key.startsWith("balance-")) || key === "prices");
   }
 
   return   <div className="m-3 mb-5">
@@ -162,12 +162,12 @@ export default function Home({ }) {
   const { wallet, dispatch } = useContext(WalletContext);
   const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const icon = seedVerified || ledger ? <SetOutline fontSize={20} /> : <Badge content={Badge.dot}><SetOutline fontSize={20} /></Badge>
-  const {isMobile} = useWindowDimensions()
+  const {isMobile, isDesktop} = useWindowDimensions()
   const onRefresh = async () => {
     HapticsImpact({
       style: ImpactStyle.Medium
     });
-    await mutate((key) => key.startsWith("balance-") || key === "prices");
+    await mutate((key) => (key && key.startsWith("balance-")) || key === "prices");
   }
  
   return (
@@ -236,6 +236,7 @@ export default function Home({ }) {
       <div className="pb-10" style={{ height: "calc(100vh - 211px + 46px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
         <NetworkList
+        hideZeroBalanceIfNotFeatured={isMobile} // hide zero balance networks that are not featured (hideIfEmpty true in networks.ts), only on mobile 
         noPadding
         hideActions={false}
         selectedTicker={selectedTicker}

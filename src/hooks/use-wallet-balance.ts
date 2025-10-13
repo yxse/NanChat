@@ -75,7 +75,7 @@ export const useWalletBalance = () => {
 
   // Refresh function
   const refreshBalances = async () => {
-    await mutate((key) => key === 'all-balances' || key === "prices");
+    await mutate((key) => key === `all-balances-${currentAccount.address}-${networkTickers.join(",")}` || key === "prices");
   };
 
   const lowBalanceUsd = (totalBalanceUSD < MIN_USD_SWAP && Capacitor.getPlatform() === "ios");

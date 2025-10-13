@@ -202,9 +202,9 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
         await new Promise((resolve) => setTimeout(resolve, 1000));
         mutate("balance-" + selectedTo);
         mutate(`${getOrder}${exchange.id}`);
+        await refreshBalances();
         await mutate((key) => key?.startsWith("history-" + selectedFrom) || key?.startsWith("balance-" + selectedFrom));
         await mutate((key) => key?.startsWith("history-" + selectedTo) || key?.startsWith("balance-" + selectedTo));
-
       }
       else {
         navigate(`/swap/${exchange.id}`);
