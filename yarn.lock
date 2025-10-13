@@ -902,6 +902,13 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
+"@benskalz/swr-idb-cache@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@benskalz/swr-idb-cache/-/swr-idb-cache-1.1.4.tgz#c8d4d6486d4a29b94fe3c02c764114197d7aad05"
+  integrity sha512-9FQDWvQAm9QwfZS3dPiS6fZw/AO6QrsK+PBBVfXWNB93vSmWYHUdCOnxIykPiyK9hS0HcfVJLVt0Mva7GUaCzg==
+  dependencies:
+    idb "^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+
 "@capacitor-community/bluetooth-le@^6.0.0", "@capacitor-community/bluetooth-le@^6.1.0":
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/@capacitor-community/bluetooth-le/-/bluetooth-le-6.1.0.tgz#dba54cdfa137077d2162f702bf6ea1a1cef749d4"
@@ -1083,6 +1090,11 @@
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@capawesome/capacitor-badge/-/capacitor-badge-6.0.0.tgz#8a9468862612a565f27082979d572b29420a76d5"
   integrity sha512-HaRmS1apdlP51SKXKWr0bwhCJy9gSfP+e8UZuhrIxv6EtRujxkYPTTqDv883uwl4gidzedeUHI7YrGNJkKbdbw==
+
+"@capawesome/capacitor-file-picker@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@capawesome/capacitor-file-picker/-/capacitor-file-picker-7.2.0.tgz#f5831df0e402ac33ddd9b7df19346aadab2026bf"
+  integrity sha512-qUNa+Ypem575xSNiJwgiOaaHXzAHaxMtERySRIsIC0HggoCa11xGS3xEVtMooQ3fS0cDXfl4/17DYoHQtkDjXA==
 
 "@capgo/capacitor-data-storage-sqlite@^6.0.59":
   version "6.0.59"
@@ -2127,13 +2139,6 @@
   resolved "https://registry.npmjs.org/@passwordless-id/webauthn/-/webauthn-1.6.2.tgz"
   integrity sha512-52Cna/kaJ6iuYgTko+LuHCY5NUgoJTQ+iLWbvCHWiI0pT+zUeKz1+g22mWGlSi/JDrFGwZTKG/PL2YDaQGo0qQ==
 
-"@piotr-cz/swr-idb-cache@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@piotr-cz/swr-idb-cache/-/swr-idb-cache-1.1.2.tgz#a51d506a403267bfb1b88ff7f1853522760587ff"
-  integrity sha512-30JFSCUtuEpazU1qHsX06qdTq+64PjggaROe8pKXgy7ZVHmpU5Ir1ItbhVBYZq/27U5xlGX+xmL+I44Pp9pIOQ==
-  dependencies:
-    idb "^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
-
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"
@@ -2614,9 +2619,9 @@
   dependencies:
     "@tauri-apps/api" "^2.6.0"
 
-"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a":
+"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#d47955b3ca256b2433d59e1def4fdfb60488150a":
   version "3.1.1"
-  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a"
+  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#d47955b3ca256b2433d59e1def4fdfb60488150a"
   dependencies:
     resize-observer-polyfill "^1.5.1"
 
@@ -2696,15 +2701,10 @@
     "@types/filesystem" "*"
     "@types/har-format" "*"
 
-"@types/dom-webcodecs@^0.1.11":
-  version "0.1.11"
-  resolved "https://registry.npmjs.org/@types/dom-webcodecs/-/dom-webcodecs-0.1.11.tgz"
-  integrity sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==
-
-"@types/emscripten@^1.39.12":
-  version "1.39.13"
-  resolved "https://registry.npmjs.org/@types/emscripten/-/emscripten-1.39.13.tgz"
-  integrity sha512-cFq+fO/isvhvmuP/+Sl4K4jtU6E23DoivtbO4r50e3odaxAiVdbfSYRDdJ4gCdxx+3aRjhphS5ZMwIH4hFy/Cw==
+"@types/emscripten@^1.41.2":
+  version "1.41.2"
+  resolved "https://registry.yarnpkg.com/@types/emscripten/-/emscripten-1.41.2.tgz#40db29188e4ed4c2cc1a3fe709d78afffa908662"
+  integrity sha512-0EVXosRnffZuF+rsMM1ZVbfpwpvL2/hWycYQ/0GaH/VaoSJvcSmMl6fiPel9TZXHL3EhANxzqKOVFC6NFXyn8A==
 
 "@types/estree@0.0.39":
   version "0.0.39"
@@ -2865,14 +2865,6 @@
   version "0.8.10"
   resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.8.10.tgz#a1337ca426aa61cef9fe15b5b28e340a72f6fa99"
   integrity sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==
-
-"@yudiel/react-qr-scanner@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/@yudiel/react-qr-scanner/-/react-qr-scanner-2.0.1.tgz"
-  integrity sha512-2d8ZRBlSgqDmzhlcs1AeWiVwmT099v3HvvW/7HhSw6u0VN7sVCUN5qULe2g31Z5nJDz019t9J7vf7MpasN+Rxw==
-  dependencies:
-    barcode-detector "^2.2.6"
-    webrtc-adapter "9.0.1"
 
 "@zxcvbn-ts/core@^3.0.4":
   version "3.0.4"
@@ -3201,13 +3193,12 @@ balanced-match@^1.0.0:
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
-barcode-detector@^2.2.6:
-  version "2.2.6"
-  resolved "https://registry.npmjs.org/barcode-detector/-/barcode-detector-2.2.6.tgz"
-  integrity sha512-IRXfsqff2V8w/4RAGFpjCoLWrsxG2RMJg3bZK9YHtkZff4YJW/IKrdJcsENNbTSPDNL0qCIDjLKSnx73dpZ/2w==
+barcode-detector@^3.0.6:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/barcode-detector/-/barcode-detector-3.0.6.tgz#87f8ef762acb56a7f761ac91cf6c8d64ad327fe7"
+  integrity sha512-v4xTr6B+FINl/p1RDl38qzIwF+Repfo+k/a/HlKTJKAJpNvACD6v7AH7LSPvfR4AdzXXuwai04huA4TWn02Znw==
   dependencies:
-    "@types/dom-webcodecs" "^0.1.11"
-    zxing-wasm "1.2.10"
+    zxing-wasm "2.2.2"
 
 bare-events@^2.2.0, bare-events@^2.5.4:
   version "2.5.4"
@@ -7006,6 +6997,11 @@ postcss@^8.4.23, postcss@^8.4.32, postcss@^8.4.38:
     picocolors "^1.0.0"
     source-map-js "^1.2.0"
 
+power-mode@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/power-mode/-/power-mode-5.0.0.tgz#48555031ed72a0c6808a99609737680d033f3efe"
+  integrity sha512-8hqYLd2VLmmbO9v2z1X6GeSVv7V7BrFyiRhl9MaBvlko6SjYmJKh14d6tO4E8q+V6V30nYzHFhCCWwaEOHojyQ==
+
 prebuild-install@^7.1.1:
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-7.1.3.tgz#d630abad2b147443f20a212917beae68b8092eec"
@@ -7697,11 +7693,6 @@ screenfull@^5.0.0:
   resolved "https://registry.npmjs.org/screenfull/-/screenfull-5.2.0.tgz"
   integrity sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==
 
-sdp@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.npmjs.org/sdp/-/sdp-3.2.0.tgz"
-  integrity sha512-d7wDPgDV3DDiqulJjKiV2865wKsJ34YI+NDREbm+FySq6WuKOikwyNQcm+doLAZ1O6ltdO0SeKle2xMpN3Brgw==
-
 "semver@2 || 3 || 4 || 5":
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.2.tgz#48d55db737c3287cd4835e17fa13feace1c41ef8"
@@ -8255,6 +8246,11 @@ swr@^2.2.5:
     client-only "^0.0.1"
     use-sync-external-store "^1.2.0"
 
+tagged-tag@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/tagged-tag/-/tagged-tag-1.0.0.tgz#a0b5917c2864cba54841495abfa3f6b13edcf4d6"
+  integrity sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==
+
 tailwindcss@^3.3.6:
   version "3.4.3"
   resolved "https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.3.tgz"
@@ -8548,6 +8544,13 @@ type-fest@^0.8.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
+type-fest@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-5.0.1.tgz#546c87966765f88f4f36e0521be4b3d0215b4cab"
+  integrity sha512-9MpwAI52m8H6ssA542UxSLnSiSD2dsC3/L85g6hVubLSXd82wdI80eZwTWhdOfN67NlA+D+oipAs1MlcTcu3KA==
+  dependencies:
+    tagged-tag "^1.0.0"
+
 typed-array-buffer@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/typed-array-buffer/-/typed-array-buffer-1.0.2.tgz#1867c5d83b20fcb5ccf32649e5e2fc7424474ff3"
@@ -8748,6 +8751,11 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
+virtua@^0.43.0:
+  version "0.43.0"
+  resolved "https://registry.yarnpkg.com/virtua/-/virtua-0.43.0.tgz#93e0c3b6a532dd990958ea07f2512c9cdda53654"
+  integrity sha512-sUjpvYcJ2UBq3RoES65BFt8SQvVllN8JWScGR1ETKW15GgocaDW4+R1ZriYdUGejFfFZkPEF02WsFOMhiyjqEw==
+
 vite-plugin-node-polyfills@^0.22.0:
   version "0.22.0"
   resolved "https://registry.npmjs.org/vite-plugin-node-polyfills/-/vite-plugin-node-polyfills-0.22.0.tgz"
@@ -8802,13 +8810,6 @@ webidl-conversions@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
-
-webrtc-adapter@9.0.1:
-  version "9.0.1"
-  resolved "https://registry.npmjs.org/webrtc-adapter/-/webrtc-adapter-9.0.1.tgz"
-  integrity sha512-1AQO+d4ElfVSXyzNVTOewgGT/tAomwwztX/6e3totvyyzXPvXIIuUUjAmyZGbKBKbZOXauuJooZm3g6IuFuiNQ==
-  dependencies:
-    sdp "^3.2.0"
 
 websocket-driver@>=0.5.1:
   version "0.7.4"
@@ -9260,9 +9261,10 @@ yocto-queue@^0.1.0:
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zxing-wasm@1.2.10:
-  version "1.2.10"
-  resolved "https://registry.npmjs.org/zxing-wasm/-/zxing-wasm-1.2.10.tgz"
-  integrity sha512-hGVjYKKEOzOF8g9w0GEe0uYvowkD64U9ntGGGnXxjIRz8J1mU/tKlO7ntNQJeJhkQUSabubtWgYyLM2sbMFFZw==
+zxing-wasm@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/zxing-wasm/-/zxing-wasm-2.2.2.tgz#b2ad711f3f241757e822baebbc617bac5723898f"
+  integrity sha512-Q9/B9whEwAUABvr7ScHl36wVZTBWVHAaumx45uGQLl2GGRp5ZRtDtwbz5scOwl/xzL07fximIqoQqqmzf9eJJA==
   dependencies:
-    "@types/emscripten" "^1.39.12"
+    "@types/emscripten" "^1.41.2"
+    type-fest "^5.0.1"
