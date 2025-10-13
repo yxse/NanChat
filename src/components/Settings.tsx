@@ -39,6 +39,7 @@ import ChangeLanguage from "./settings/ChangeLanguage";
 import { refreshStatusBarTheme } from "./messaging/utils";
 import { clearDb } from "../services/database.service";
 import { useContacts } from "./messaging/components/contacts/ImportContactsFromShare";
+import ReduceAnimation from "./settings/ReduceAnimation";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -593,6 +594,7 @@ className="mb-24"
           </List>
           <div className="my-4" />
           <List mode="card">
+            <ReduceAnimation />
             <List.Item 
             prefix={<FaKeyboard fontSize={24} />}
             extra={

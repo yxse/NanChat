@@ -28,6 +28,7 @@ import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
 import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@benskalz/swr-idb-cache'
 import { WalletApp } from "./app/WalletApp";
 import { App as CapacitorApp } from "@capacitor/app";
+import { useReduceAnimation } from "../hooks/use-reduce-animation";
 
 
 const blacklistStorageHandler = {
@@ -103,7 +104,7 @@ export default function InitialPopup() {
   const initializing = cacheProvider == null
   console.log("InitialPopup")
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
-  
+  useReduceAnimation();
   // Store reference to the cache instance
   const cacheRef = useRef<any>(null)
 

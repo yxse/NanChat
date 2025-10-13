@@ -88,6 +88,7 @@
     "multi-nano-web": "^1.8.0",
     "nano-address-validator": "^3.0.0",
     "nanocurrency": "^2.5.0",
+    "power-mode": "^5.0.0",
     "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
     "react-circle-flags": "^0.0.20",

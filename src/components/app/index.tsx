@@ -98,15 +98,6 @@ import { ClipLoader as HashSpinner } from "react-spinners";
 import { SplashScreen } from "@capacitor/splash-screen";
 import GroupsChats from "../messaging/components/group/GroupsChats";
 
-// reduceMotion()
-
-
-
-
-
-
-
-
 
 export const MenuBar = () => {
   const { t } = useTranslation();
