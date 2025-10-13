@@ -95,7 +95,7 @@ export function useChat(chatId) {
 
   // Flatten all pages into a single array
   let messages = pages ? pages.flat() : [];
-  console.log('messages fetch', pages, error)
+  // console.log('messages fetch', pages, error)
   // const isLoadingInitial = !pages && !error;
   const isLoadingInitial = isLoading
   // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
@@ -225,11 +225,21 @@ export function useChat(chatId) {
   }, [pages]);
 
   useEffect(() => {
-    if (error === 404){
-      // if chat not found, remove it from the list
-      removeChat(chatId);
+    const handleChatNotFound = async () => {
+      if (pages && pages[0]?.error === "Chat not found" && chatId) {
+        console.log("remove chat", chatId, error, pages)
+        // if chat not found, remove it from the list
+        try {
+          let r = await fetcherMessages(`/messages?chatId=${chatId}&limit=0&cursor=-1`, activeAccountPk); // recheck if no longer have access to this chat, to prevent issue when switching account
+        } catch (error) {
+          if (error.message == "Chat not found"){
+            removeChat(chatId);
+          }
+        }
+      }
     }
-  }, [error])
+    handleChatNotFound();
+  }, [pages])
   
   // 
   const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;

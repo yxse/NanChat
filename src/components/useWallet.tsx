@@ -7,6 +7,7 @@ export const useWallet = () => {
   const { wallet, dispatch } = useContext(WalletContext);
   const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
   const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
-  return { wallet, activeAccount, activeAccountPk, dispatch };
+  const activeIndex = wallet.activeIndex;
+  return { wallet, activeAccount, activeAccountPk, dispatch, activeIndex };
 };
 

@@ -106,7 +106,7 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
 
   async function clearCache() {
     sessionStorage.removeItem('app-initialized');
-    localStorage.removeItem('lastSync');
+    localStorage.removeItem('lastSyncChat-' + activeAccount);
     await mutateChats()
   }
   async function blockChat(chatId: string) {
@@ -130,6 +130,7 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
   }
   }
   async function removeChat(chatId: string) {
+    if (chatId == null) return;
     // this is used to remove chat when no longer have access to it (removed from group)
     await mutateChats(
       current => {

@@ -118,37 +118,15 @@ const saveScrollPosition = useCallback(
     const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
     const accountExists = isLoadingNanwalletAccount || nanwalletAccount?.error === undefined;
-    const chatLocked = (chat == null && (!account?.startsWith('nano_') && account != null)) // show chat locked only for group chat
+    const chatLocked = (chat == null && 
+        (!account?.startsWith('nano_')   // don't show chat locked only for 1:1 chat
+        && account != null)) // don't show chat locked if no chat selected
     // useEffect(() => {
     //     if (pages) {
     //         setMessages(messagesHistory);
     //     }
     // }, [pages, messagesEndRef]);
 
-    useEffect(() => {
-        // if (!isLoading && chat == null && !account?.startsWith('nano_')) {
-        //     setTimeout(() => { // this somehow fix huge performance issue on iphone when selecting chat and coming back multiple times
-        //         // navigate('/chat');
-        //       }, 0);
-        //     if (searchParams.has('join')) {
-        //         Modal.clear()
-        //         Modal.confirm({
-        //             title: 'Join the group?',
-        //             onConfirm: () => {
-        //                 joinRequest(account).then((res) => {
-        //                     if (res.error) {
-        //                         Toast.show({ content: res.error , icon: "fail" });
-        //                         return;
-        //                     }
-        //                     Toast.show({ content: 'Request sent', icon: "success"});
-        //                 })
-        //             },
-        //             confirmText: 'Ask to join',
-        //             cancelText: 'Cancel',
-        //         });   
-        //     }
-        // }
-    }, [chat]);
 
     useEffect(() => { 
     let listener;
@@ -292,29 +270,7 @@ const saveScrollPosition = useCallback(
 
     };
 
-    useEffect(() => {
-        // scrp
-        // debugger
-        // if (document.activeElement === messageInputRef.current?.nativeElement && isKeyboardOpen) {
-        //     messageInputRef.current?.blur();
-        //     messageInputRef.current?.focus(); // probably hacky but fix scroll bottom android when keyboard open, cause maybe by istyping?
-        // }
 
-        // console.log("scrollTop", infiniteScrollRef.current?.scrollTop);
-        // console.log("scrollTop", infiniteScrollRef.current?.scrollHeight);
-        // if (infiniteScrollRef.current?.scrollTop > -400) {
-        if (autoScroll) {
-            // scrollToBottom();
-            // setTimeout(() => {
-            //     scrollToBottom();
-            // }, 1000);
-        }
-        // setTimeout(() => {
-        //     // window.scrollTo(0, 0);
-        // }, 10);
-
-    }
-        , [messages, chat]);
 
     useEffect(() => {
         // debugger
@@ -334,7 +290,7 @@ const saveScrollPosition = useCallback(
     }, [chat, messages])
 
     useEffect(() => {
-        if (messages[0]?.error && messages[0]?.chatId !== null){ // chat already exists
+        if (messages[0]?.error && messages[0]?.chatId !== null && messages[0]?.error == "Chat already exists"){ // chat already exists
             navigate('/chat/' + messages?.[0]?.chatId, { replace: true });
         }
     }, [messages])
