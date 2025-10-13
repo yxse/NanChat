@@ -12,15 +12,19 @@ export const useReduceAnimation = () => {
        const applySetting = async () => {
          if (reduceAnimation === 'always') {
             reduceMotion();
+            document.documentElement.classList.add('no-animation');
         } else if (reduceAnimation === 'never') {
             restoreMotion();
+            document.documentElement.classList.remove('no-animation');
         }
         else if (reduceAnimation === 'onPowerSaving') {
             let isPowerSaving = await PowerMode.lowPowerModeEnabled();
             if (isPowerSaving.lowPowerModeEnabled) {
                 reduceMotion();
+                document.documentElement.classList.add('no-animation');
             } else {
                 restoreMotion();
+                document.documentElement.classList.remove('no-animation');
             }
         }
     }
@@ -28,5 +32,5 @@ export const useReduceAnimation = () => {
         
     }, [reduceAnimation])
             
-    return [reduceAnimation, setReduceAnimation] as const;
+    return [reduceAnimation, setReduceAnimation];
 }

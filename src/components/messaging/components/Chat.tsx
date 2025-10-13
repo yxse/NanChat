@@ -59,6 +59,21 @@ const Chat: React.FC = () => {
         navigateToNameIfNotRegistered()
     }
     , [ me]);
+    function navigateWithTransition(path: string) {
+        if (document.startViewTransition) {
+            let reduceMotion = document.documentElement.classList.contains('no-animation')
+            if (reduceMotion) {
+                navigate(path)
+                return
+            }
+            document.startViewTransition(() => {
+                navigate(path, {unstable_viewTransition: true})
+            })
+        }
+        else {
+            navigate(path)
+        }
+    }
     return (
         <>
             <Routes>
@@ -82,10 +97,8 @@ const Chat: React.FC = () => {
                             }}>
                         <ChatList
                             onChatSelect={(chatId) => {
-                                if (isTablet && document.startViewTransition) {
-                                    document.startViewTransition(() => {
-                                        navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
-                                    })
+                                if (isTablet) {
+                                    navigateWithTransition(`/chat/${chatId}`)
                                 }
                                 else {
                                     navigate(`/chat/${chatId}`)
@@ -123,10 +136,8 @@ const Chat: React.FC = () => {
                         <ChatList
                             
                             onChatSelect={(chatId) => {
-                                if ((isMobile || isTablet) && document.startViewTransition) {
-                                    document.startViewTransition(() => {
-                                        navigate(`/chat/${chatId}`, {unstable_viewTransition: true})
-                                    })
+                                if (isMobile || isTablet) {
+                                    navigateWithTransition(`/chat/${chatId}`)
                                 }
                                 else {
                                     navigate(`/chat/${chatId}`)

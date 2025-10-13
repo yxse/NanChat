@@ -420,7 +420,7 @@ textarea::placeholder, input::placeholder {
 }
 
 /*  animation keyboard ios native */
-.ios .app:not(:has(.chat-list)){
+:root:not(.no-animation) .ios .app:not(:has(.chat-list)){
     padding-bottom: 0;
     transition: padding-bottom 0.25s cubic-bezier(0.25, 0.1, 0.25, 1.0);
   will-change: padding-bottom;
@@ -429,7 +429,7 @@ textarea::placeholder, input::placeholder {
 }
 
 
-.ios .adm-popup-body:not(:has(.chat-list)) {
+:root:not(.no-animation) .ios .adm-popup-body:not(:has(.chat-list)) {
   margin-bottom: 0;
   transition: margin-bottom 0.25s cubic-bezier(0.25, 0.1, 0.25, 1.0);
   will-change: margin-bottom;
@@ -522,7 +522,6 @@ body.light-theme .adm-button:hover:not(.adm-button-danger):not(.adm-button-prima
     display: none !important;
   }
 }
-
 @media (max-width: 768px) {
   .hide-on-mobile {
     display: none !important;
