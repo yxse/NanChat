@@ -420,7 +420,9 @@ const Contacts: React.FC = ({onlyImport = false}) => {
                      arrowIcon
                      prefix={
                      <TeamFill 
-style={{fontSize: 48, marginRight: 4, backgroundColor: 'var(--adm-color-primary)', borderRadius: 8, padding: 4, marginTop: 8, marginBottom: 8
+style={{
+    color: 'white',
+    fontSize: 48, marginRight: 4, backgroundColor: 'var(--adm-color-primary)', borderRadius: 8, padding: 4, marginTop: 8, marginBottom: 8
 
 }} />}
                      >
