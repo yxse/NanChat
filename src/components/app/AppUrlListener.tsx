@@ -14,6 +14,7 @@ import { getSeed } from '../../utils/storage';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { useEmit, useEvent } from '../messaging/components/EventContext';
 import { saveMessageCache } from '../messaging/fetcher';
+import { useChats } from '../messaging/hooks/use-chats';
 
 
 const isContactImport = (url: string) => {
@@ -34,6 +35,7 @@ const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [uri, setUri] = useState('');
+    const {mutateChats} = useChats()
     const eventOpenUrl = useEvent('open-url'); // handle open url from discover nano apps
     const emit = useEmit()
     const handleURL = (url) => {
@@ -94,6 +96,7 @@ const AppUrlListener: React.FC<any> = () => {
 
       FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
         console.log("notificationActionPerformed: ", { event });
+        mutateChats() // refresh chats to update last message read
         // Toast.show({
         //   content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
         // })
