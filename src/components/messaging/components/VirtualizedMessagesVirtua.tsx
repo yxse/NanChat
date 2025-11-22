@@ -122,7 +122,7 @@ export const VirtualizedMessagesVirtua = ({
     }
 
     return () => {
-      if (isMobile || isTablet) {
+      // if (isMobile || isTablet) {
         clearTimeout(timeoutRef.current);
         clearTimeout(scrollTimeoutRef.current);
         isPrepend.current = false
@@ -131,7 +131,7 @@ export const VirtualizedMessagesVirtua = ({
           JSON.stringify([handle.scrollOffset, handle.cache])
         );
       }
-    };
+    // };
   }, [chat?.id]);
 
   useEffect(() => {
@@ -202,7 +202,7 @@ export const VirtualizedMessagesVirtua = ({
       scrollToBottom()
       firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
     }
-  }, [displayMessages, virtuaRef, hasRestored, offset]);
+  }, [displayMessages, virtuaRef, hasRestored, offset, chat?.id]);
 
   const handleScroll = async (offsetScroll) => {
     if (!virtuaRef.current) return;
