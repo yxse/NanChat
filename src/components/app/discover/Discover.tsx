@@ -29,7 +29,8 @@ import { restoreData, setData } from "../../../services/database.service";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import { Keyboard } from "@capacitor/keyboard";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
-
+import { createPortal } from "react-dom";
+let opened = false
 const HistoryApps = ({history, handleServiceClick, setHistory}) => {
     if (!history || history.length === 0) return null;
     return <List mode="card">
@@ -160,12 +161,13 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         if (defaultURL && services) { // open url from message
             let domain = new URL(defaultURL).hostname;
             let service = services.find(service => new URL(service.link).hostname === domain); // verifiy that the url is an existing service
-            if (service) {
+            if (service && opened == false) {
+                opened = true; // prevent multiple opens
                 handleServiceClick({...service, link: defaultURL});
                 // setOpenService(service);
             }
         }
-    }, [services, openUrl, defaultURL]);
+    }, [services, defaultURL]);
 
     useEffect(() => {
         const loadHistory = async () => {
@@ -253,6 +255,7 @@ WebviewOverlay.onPageLoaded(() => {
         }
     };
     async function closeNanoApp(save = true) {
+        opened = false;
         let metaData = "{}";
         try {
             metaData = await WebviewOverlay.evaluateJavaScript(`(${extractMetadata.toString()})()`);
@@ -272,7 +275,11 @@ WebviewOverlay.onPageLoaded(() => {
         element.style.zIndex = "-1";
         element.style.backgroundImage = "none";
         element.style.backgroundColor = "transparent"
-        WebviewOverlay.close();
+        try {
+            WebviewOverlay.close();
+        } catch (error) {
+            console.error("Error closing webview overlay:", error);            
+        }
         if (onClose) {
             onClose();
         }
@@ -369,8 +376,8 @@ WebviewOverlay.onPageLoaded(() => {
            
         {
             openService && 
-        
-        <div  style={{
+       // we use createPortal otherwise will be bugged when opening from virtualized messages
+       createPortal(<div  style={{
                 position: 'fixed',
                 top: 'var(--safe-area-inset-top)',
                 left: 0,
@@ -422,8 +429,10 @@ WebviewOverlay.onPageLoaded(() => {
             </div></div>
             </div>
             </div>
+        , document.body)
             }
-              <div 
+              {
+                createPortal(<div 
             id="webview-overlay" 
             onClick={() => {
                 // handleServiceClick({link: currentUrl});
@@ -436,8 +445,9 @@ WebviewOverlay.onPageLoaded(() => {
                 zIndex: -1,
                 bottom: 'calc(-1 * var(--android-inset-top, 0px))',
                 left: 0,
+                backgroundColor: "red",
             }}
-        ></div>  
+        ></div>, document.body)}  
 <Popup
 destroyOnClose
             bodyStyle={{ }}
