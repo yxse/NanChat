@@ -94,14 +94,17 @@ const AppUrlListener: React.FC<any> = () => {
     }, [eventOpenUrl]);
     useEffect(() => {
 
-      FirebaseMessaging.addListener("notificationActionPerformed", (event) => {
+      FirebaseMessaging.addListener("notificationActionPerformed", async (event) => {
         console.log("notificationActionPerformed: ", { event });
-        mutateChats() // refresh chats to update last message read
         // Toast.show({
-        //   content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
-        // })
-        navigate('/') // to prevent bug when navigating back
-        navigate(event.notification.data.url);
+          //   content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
+          // })
+          navigate('/') // to prevent bug when navigating back
+          navigate(event.notification.data.url);
+           setTimeout(() => {
+            // using delay or else it seems that chats list not correctly update
+               mutateChats() 
+          }, 1000);
         
         FirebaseMessaging.getDeliveredNotifications().then((notifications) => {
           if (Capacitor.getPlatform() === "android"){ // on iOS, threadId of notification allows to already remove all notification of that thread when clicking, on android we remove all notification, grouping notification in android seems to be pain in the ass
