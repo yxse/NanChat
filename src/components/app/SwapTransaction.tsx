@@ -13,12 +13,17 @@ import { AiOutlineCheck, AiOutlineClose, AiOutlineHourglass, AiOutlineQrcode } f
 import { CopyToClipboard } from "../Settings";
 import { QRCodeSVG } from "qrcode.react";
 import { BsQrCode } from "react-icons/bs";
+import { openInBrowser } from "../messaging/utils";
+import { networks } from "../../utils/networks";
 
 export default function SwapTransaction() {
 
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: order, isLoading } = useSWR(`${getOrder}${id}`, fetcher, { refreshInterval: 1000 });
+
+  const isFeeless = networks.hasOwnProperty(order?.from) && networks.hasOwnProperty(order?.to)
+
   if (isLoading) {
     return <Skeleton animated />;
   }
@@ -97,12 +102,12 @@ export default function SwapTransaction() {
       <List.Item
         title="From"
       >
-        {order.amountFrom} {order.from}
+        {order.amountFrom || order.expectedAmountFrom} {order.from}
       </List.Item>
       <List.Item
         title="To"
       >
-        {(+(+order.amountTo).toPrecision(6))} {order.to}
+        {(+(+order.amountTo || +order.expectedAmountTo).toPrecision(6))} {order.to}
       </List.Item>
 
     </List>
@@ -120,6 +125,17 @@ export default function SwapTransaction() {
               :
               <Completed />
           }
+        </div>
+        <div className="text-center mt-4">
+          <Button
+            size="small"
+            shape="rounded"
+            onClick={() => {
+              openInBrowser(`https://nanswap.com/${isFeeless ? "transaction" : "transaction-all"}/${order.id}`);
+            }}
+          >
+            View on Nanswap
+          </Button>
         </div>
       </div>
     </div >

@@ -205,6 +205,12 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
         await refreshBalances();
         await mutate((key) => key?.startsWith("history-" + selectedFrom) || key?.startsWith("balance-" + selectedFrom));
         await mutate((key) => key?.startsWith("history-" + selectedTo) || key?.startsWith("balance-" + selectedTo));
+        await fetch(getOrder + exchange.id).then(res => res.json()).then(async (order) => {
+          if (order.status !== 'completed') {
+            navigate(`/swap/${exchange.id}`);
+          }
+        });
+        return;
       }
       else {
         navigate(`/swap/${exchange.id}`);
