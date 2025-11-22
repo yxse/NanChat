@@ -219,7 +219,7 @@ export const VirtualizedMessagesVirtua = ({
     let fixedViewPortInitial = viewportSize
     let isCloseToBottom = offsetScroll - scrollSize + fixedViewPortInitial >= -100;
     
-    console.log("scroll", offsetScroll, scrollSize, viewportSize, isCloseToBottom, fixedViewPortInitial)
+    // console.log("scroll", offsetScroll, scrollSize, viewportSize, isCloseToBottom, fixedViewPortInitial)
     
     // Clear any pending timeout
     if (scrollTimeoutRef.current) {
