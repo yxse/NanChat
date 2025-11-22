@@ -359,7 +359,9 @@ const right = (
                               {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                               <Button
                               className="text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1"
-                               size="mini" color="primary" shape="rounded">{chat.unreadCount}</Button>
+                               size="mini" 
+                               color={chat?.muted ? 'default' : 'primary'}
+                               shape="rounded">{chat.unreadCount}</Button>
                             </div>
                         )
                         : // empty div to keep the same height
