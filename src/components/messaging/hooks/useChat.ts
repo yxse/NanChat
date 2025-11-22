@@ -26,7 +26,7 @@ export function useUnreadCount() {
   if (chats === undefined || chats?.error) return null;
   const unread = chats?.reduce((acc, chat) => {
     if (chat.lastMessageFrom !== activeAccount) {
-      return acc + chat.unreadCount;
+      return acc + (chat?.muted ? 0 : chat.unreadCount);
     }
     return acc;
   }, 0)
