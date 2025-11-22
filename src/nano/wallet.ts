@@ -244,7 +244,7 @@ export class Wallet {
     } else {
       console.log("Websocket not yet connected, retrying in 0.5s");
       setTimeout(() => {
-        // this.subscribeConfirmation(addresses);
+        this.subscribeConfirmation(addresses);
       }, 500);
     }
 
