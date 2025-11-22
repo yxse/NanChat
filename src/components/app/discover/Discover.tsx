@@ -445,7 +445,7 @@ WebviewOverlay.onPageLoaded(() => {
                 zIndex: -1,
                 bottom: 'calc(-1 * var(--android-inset-top, 0px))',
                 left: 0,
-                backgroundColor: "red",
+                // backgroundColor: "red",
             }}
         ></div>, document.body)}  
 <Popup
