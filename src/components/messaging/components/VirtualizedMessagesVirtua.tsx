@@ -122,16 +122,16 @@ export const VirtualizedMessagesVirtua = ({
     }
 
     return () => {
-      // if (isMobile || isTablet) {
-        clearTimeout(timeoutRef.current);
-        clearTimeout(scrollTimeoutRef.current);
-        isPrepend.current = false
+      clearTimeout(timeoutRef.current);
+      clearTimeout(scrollTimeoutRef.current);
+      isPrepend.current = false
+      if (isMobile || isTablet) {
         sessionStorage.setItem(
           cacheKey,
           JSON.stringify([handle.scrollOffset, handle.cache])
         );
-      }
-    // };
+      };
+    }
   }, [chat?.id]);
 
   useEffect(() => {
@@ -219,7 +219,7 @@ export const VirtualizedMessagesVirtua = ({
     let fixedViewPortInitial = viewportSize
     let isCloseToBottom = offsetScroll - scrollSize + fixedViewPortInitial >= -100;
     
-    // console.log("scroll", offsetScroll, scrollSize, viewportSize, isCloseToBottom, fixedViewPortInitial)
+    // console.log("scroll", offsetScroll - scrollSize + fixedViewPortInitial, isCloseToBottom)
     
     // Clear any pending timeout
     if (scrollTimeoutRef.current) {
@@ -275,6 +275,7 @@ export const VirtualizedMessagesVirtua = ({
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
+      // console.log("cleaning up timeouts");
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
@@ -282,7 +283,7 @@ export const VirtualizedMessagesVirtua = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [chat?.id]);
 
   return (
     <div
