@@ -97,7 +97,7 @@ const saveScrollPosition = useCallback(
     const {isMobile, isTablet} = useWindowDimensions()
     const {chat, isLoading} = useChats(account);
     const safeMutate = useImmediateSafeMutate(mutate);
-
+    const virtualized = Capacitor.getPlatform() !== "ios"
     console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
@@ -112,7 +112,7 @@ const saveScrollPosition = useCallback(
         isNew = true;
     }
     const isNewChat = chat && !chat?.accepted && activeAccount !== chat?.creator
-    const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_MESSAGES_INITIAL) && isLoadingMore && Capacitor.getPlatform() !== "ios" // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
+    const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_MESSAGES_INITIAL) && isLoadingMore && virtualized // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
     // const showSpinnerLoadingMoreInHeader = false
     const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
     const nameOrAccount = participant?.name || formatAddress(address);
@@ -254,7 +254,7 @@ const saveScrollPosition = useCallback(
 
 
     const scrollToBottom = () => {
-        if (Capacitor.getPlatform() !== "ios") return
+        if (virtualized) return
         // return
         // debugger
         // messagesEndRef.current?.
@@ -324,12 +324,12 @@ useEffect(() => {
     if (
         ((!isMobile && !isTablet) ||
         (!sessionStorage.getItem("list-cache-" + chat?.id)))
-        && Capacitor.getPlatform() !== "ios"
+        && virtualized
     ){
         // debugger
         reset()
     }
-    if (Capacitor.getPlatform() !== "ios") return
+    if (virtualized) return
       // restore scroll position
       const scrollTop = localStorage.getItem(scrollKeyStore);
       if (scrollTop) {
@@ -549,10 +549,10 @@ useEffect(() => {
                         style={{
                             height: "100%",
                             width: '100%',
-                            overflow: Capacitor.getPlatform() === "ios" ? "scroll": "hidden",
-                            display: Capacitor.getPlatform() === "ios" ? "flex": "block",
+                            overflow: !virtualized ? "scroll": "hidden",
+                            display: !virtualized ? "flex": "block",
                             // flexDirection: "column-reverse",
-                            flexDirection: Capacitor.getPlatform() === "ios" ? "column-reverse": "column",
+                            flexDirection: !virtualized ? "column-reverse": "column",
                             // overflowAnchor: 'auto',
                             // touchAction: 'none', // don't or ios scroll glitch
                         }}
@@ -598,7 +598,7 @@ useEffect(() => {
                         https://github.com/inokawa/virtua/issues/403#issuecomment-1978126177
                     */}
                     {
-                        Capacitor.getPlatform() === "ios" ? 
+                        !virtualized ? 
                         <InfiniteScrollingMessages 
                         saveScrollPosition={saveScrollPosition}
                         loadMore={loadMore} chat={chat} isLoadingMore={isLoadingMore} hasMore={hasMore} 
@@ -653,7 +653,7 @@ useEffect(() => {
                         messageInputRef={messageInputRef}
                         onSent={onSent}
                         onTouch={() => {
-                            if (Capacitor.getPlatform() === "ios")
+                            if (!virtualized)
                                 onSent()
                             // scroll bottom when focus input
                         }} 

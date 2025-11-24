@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import Message, { HeaderMessage } from './Message';
-import { firstMessageId, TEAM_ACCOUNT } from '../utils';
+import { TEAM_ACCOUNT } from '../utils';
 import { Button, DotLoading, SpinLoading, Toast } from 'antd-mobile';
 import { CacheSnapshot, VList, VListHandle } from "virtua";
 import { debounce } from 'lodash';
@@ -200,7 +200,9 @@ export const VirtualizedMessagesVirtua = ({
     if (shouldStickToBottom.current) {
       console.log("Auto-scrolling to bottom for new messages");
       scrollToBottom()
-      firstMessageId[chat?.id] = displayMessages[displayMessages.length - 1]?._id
+      setTimeout(() => {
+        scrollToBottom()
+      }, 10) // on large screens sometimes need a bit more time to have correct scroll
     }
   }, [displayMessages, virtuaRef, hasRestored, offset, chat?.id]);
 

@@ -343,7 +343,6 @@ export function clearLocalStorage(){
     throw error; // Re-throw other errors
   }
 }
-export let firstMessageId = {};
 
 
 export let shouldStickToBottom = {};

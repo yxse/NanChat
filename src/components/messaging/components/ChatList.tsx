@@ -151,7 +151,6 @@ const saveScrollPosition = useCallback(
 
 useEffect(() => {
   sessionStorage.clear() // reset scroll chat room 
-  // Object.keys(firstMessageId).forEach(key => delete firstMessageId[key]); // to reset scroll chat room 
   localStorage.removeItem('scrollTop-chat-room')
   setTimeout(() => {
     localStorage.removeItem('scrollTop-chat-room') // as sometime it fail to get removed if scrolling on ios and back fast
