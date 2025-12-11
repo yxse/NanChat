@@ -42,7 +42,7 @@ import { GrInProgress } from "react-icons/gr";
 import { fetcher, getOrder } from "../../nanswap/swap/service";
 import useSWRInfinite from "swr/infinite";
 import { useWallet } from "../useWallet";
-import { Discover } from "./discover/Discover";
+import { WrapperArt } from "./WrapperArt";
 
 export function ArtImages({onImageClick}) {
     const {activeAccount} = useWallet()
@@ -165,7 +165,6 @@ export function ArtImages({onImageClick}) {
 
 export default function Art() {
     const navigate = useNavigate();
-    const [openUrl, setOpenUrl] = useState(false);
 
     return <>
     <NavBar
@@ -173,15 +172,6 @@ export default function Art() {
             onBack={() => navigate("/wallet")}>
               NaNFT
             </NavBar>
-        <ArtImages onImageClick={({url}) => {
-            console.log(url)
-            setOpenUrl(url)}
-         } />
-        
-        {
-          openUrl && <Discover defaultURL={openUrl} onClose={() => {
-            setOpenUrl(false)
-          }}/>
-        }        
+    <WrapperArt openInApp={true} />
     </>
 }

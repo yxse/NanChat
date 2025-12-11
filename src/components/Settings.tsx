@@ -370,7 +370,7 @@ const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defa
                   <CheckList.Item key={currency} value={currency}>
                     <div className="flex items-center space-x-2">
                       {/* <CircleFlag countryCode={currency.slice(0, 2).toLowerCase()} width="30" cdnUrl={} /> */}
-                      <Image src={getCurrencyLogo(currency)} className="w-8 h-8" />
+                      <Image fallback={null} src={getCurrencyLogo(currency)} className="w-8 h-8" />
                       <div>
                         {currency}
                       </div>

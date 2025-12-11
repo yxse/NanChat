@@ -8,6 +8,7 @@ import { fetcherAccount, fetcherMessages, fetcherMessagesPost } from '../../fetc
 import { accountIconUrl } from '../../../app/Home';
 import { networks } from '../../../../utils/networks';
 import { ArtImages } from '../../../app/Art';
+import { WrapperArt } from "../../../app/WrapperArt";
 import { getChatToken } from '../../../../utils/storage';
 import { AiOutlinePlus } from 'react-icons/ai';
 import { NoAvatar } from '../icons/NoAvatar';
@@ -179,7 +180,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
         })
       }
       </div>
-      <ArtImages onImageClick={({image: url}) => {
+      <WrapperArt openInApp={false} onImageClick={({image: url}) => {
           setCurrentAvatar(url);
           fetcherMessagesPost('/upload/update-pfp', {
               url,
