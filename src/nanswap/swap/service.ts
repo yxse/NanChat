@@ -120,12 +120,12 @@ export const getCurrencyLogo = (currency) => {
     return networks["XNO"].logo;
   }
   else if (currency === "NYANO") {
-    return "https://nyano.org/img/nyano2.png";
+    return "https://bucket.nanwallet.com/logo/nyano.png";
   }
   else if (cryptoBaseCurrencies.includes(currency)) {
-    return `https://moneyconvert.net/assets/flags/${currency.toLowerCase()}.svg`;
+    return `https://cdn-icons.fex.to/webp/128/${currency.toLowerCase()}.webp`;
   }
   else {
-    return `https://moneyconvert.net/assets/flags/${currency.toLowerCase().slice(0, 2)}.svg`;
+    return `https://cdn-icons.fex.to/webp/128/${currency.toLowerCase().slice(0, 2)}.webp`;
   }
 }
