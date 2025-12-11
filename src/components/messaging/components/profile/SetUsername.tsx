@@ -13,7 +13,7 @@ import { fetcherAccount, fetcherMessagesPost } from '../../fetcher';
 import useSWR from 'swr';
 import { useHideNavbarOnMobile } from '../../../../hooks/use-hide-navbar';
 import { ResponsivePopup } from '../../../Settings';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const SetUsername: React.FC = () => {
     const navigate = useNavigate();
@@ -69,7 +69,11 @@ visible={visible} closeOnMaskClick onClose={() => setVisible(false)}>
                             cancelText: t('cancel'),
                             title: t('confirmNanChatId'),
                             content: <div>
-                                {t('areYouSureChangeNanChatId', {username: values.username})}
+                                  <Trans
+    i18nKey="areYouSureChangeNanChatId"
+    values={{ username: values.username }}
+    components={{ b: <strong /> }}
+  />
                                 <div style={{color: "var(--adm-color-warning)"}}>
                                     {t('canOnlyChangeNanChatIdOncePerYear')}
                                 </div>
