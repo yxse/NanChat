@@ -38,6 +38,9 @@ export default function InitializeScreen({
       {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated}/>}
       {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 2 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
+      {wizardI == 20 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={() => { 
+        onCreated({callback: "/wallet"}); // for skip to wallet
+      }} />}
       {wizardI == 3 && <Done setW={setWizardI} theme={theme} />}
       {wizardI == 4 && <ImportPhrase setW={setWizardI} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 5 && <ImportPassword setW={setWizardI} />}

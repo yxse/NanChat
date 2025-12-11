@@ -29,6 +29,8 @@ const ProfileHome: React.FC = () => {
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const { t } = useTranslation();
+    const isRegistered = isLoading || me?.name;
+
     return (
         <div className="">
                 <NavBar
@@ -37,6 +39,9 @@ const ProfileHome: React.FC = () => {
         backArrow={false}>
           <span className=""></span>
         </NavBar>
+        {
+            isRegistered ? 
+        
             <List mode='card'>
                 <List.Item
                 onClick={() => {
@@ -110,6 +115,16 @@ const ProfileHome: React.FC = () => {
                     {t('bio')}
                 </List.Item>
                 </List>
+                : 
+                <List className='my-4' mode='card'>
+                <List.Item
+                        prefix={<UserOutline fontSize={24} />}
+                        onClick={() => navigate('/profile/name')}
+                        >
+                                {t('me')}
+                        </List.Item>
+                </List>
+                }
             <List className='my-4' mode='card'>
             <List.Item
                     prefix={<SetOutline fontSize={24} />}

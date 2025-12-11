@@ -4,7 +4,7 @@ import React, { Dispatch, useState, useEffect, useContext, useDeferredValue, use
 import { IoArrowBack } from "react-icons/io5";
 
 import storage, { setSeed } from "../../../utils/storage";
-import { Button, Card, Form, Input, List, Modal, ProgressBar, Toast } from "antd-mobile";
+import { Button, Card, Form, Input, List, Modal, NavBar, ProgressBar, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../useWallet";
 import { LockOutline } from "antd-mobile-icons";
@@ -211,25 +211,13 @@ export default function Password({
   }
   return (
     <div className={``}>
-      <div
-        className={`${theme == "light" && "!bg-white !text-black !border-slate-400"
-          } step-p-nav`}
-      >
-        <div
-          className="cursor-pointer text-slate-400 hover:text-slate-200"
-          role="button"
-          onClick={() => {
-            setW(1)
-          }}
-        >
-          <IoArrowBack size={20} />
-        </div>
-        <div className="step-p-steps select-none">
-          <div className="step-dot mr-[10px]" />
-          <div className="step-dot mr-[10px]" />
-          <div className="step-dot !bg-slate-700" />
-        </div>
-      </div>
+      <NavBar
+                                  onBack={() => setW(6)}
+                                  // onBack={() => navigate('/me')}
+                          className="app-navbar "
+                          backArrow={true}>
+                           
+                          </NavBar>
        <Card
        
             style={{maxWidth: 500, margin: "auto", borderRadius: 10, marginTop: 20}}
@@ -256,7 +244,7 @@ export default function Password({
           <p className={`text-3xl text-center`}>
           <LockOutline style={{display: "inline", marginRight: 4}} /> Set a password
             </p>
-          <p className="mb-2 mt-4" style={{color: "var(--adm-color-text-secondary)"}}>
+          <p className="mb-2 mt-4" style={{color: "var(--adm-color-text-secondary)", textAlign: "center"}}>
            
            Password will be used to encrypt your secret phrase and will be required to unlock NanChat.
           </p>

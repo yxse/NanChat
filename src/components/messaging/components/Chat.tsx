@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, useNavigate, Routes, useParams } from 'react-router-dom';
 import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
@@ -29,6 +29,7 @@ const Chat: React.FC = () => {
     // const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
     const {isTablet, isMobile} = useWindowDimensions();
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
+    const [isRegistered, setIsRegistered] = useState(true)
     //     getChatToken().then((token) => {
     //         socket.auth = { token };
     //         socket.connect();
@@ -51,9 +52,16 @@ const Chat: React.FC = () => {
                 debugger
                 await mutate()
                 if (me && !me?.name) {
-                    navigate('/profile/name'); 
+                    // navigate('/profile/name'); 
+                    setIsRegistered(false)
                     return
                 }
+                else {
+                    setIsRegistered(true)
+                }
+            }
+            else {
+                setIsRegistered(true)
             }
         }
         navigateToNameIfNotRegistered()
@@ -73,6 +81,9 @@ const Chat: React.FC = () => {
         else {
             navigate(path)
         }
+    }
+    if (!isRegistered) {
+        return <SetName />
     }
     return (
         <>

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, useNavigate, Routes, useLocation } from 'react-router-dom';
 import ChatRoom from './ChatRoom';
 import ChatList, { LedgerNotCompatible } from './ChatList';
 import { socket } from '../socket';
@@ -24,10 +24,10 @@ const SetName: React.FC = () => {
     const {activeAccount, activeAccountPk} = useWallet();
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const {mutateChats} = useChats();
-
+    const location = useLocation();
     const {ledger} = useContext(LedgerContext);
-    useHideNavbarOnMobile(ledger ? false : true);
     const isRegistered = me?.name;
+    useHideNavbarOnMobile((ledger || !isRegistered) ? false : true);
     const { t } = useTranslation();
     if (ledger) {
         return <LedgerNotCompatible />
@@ -37,7 +37,8 @@ const SetName: React.FC = () => {
             <NavBar
                             onBack={() => navigate('/me')}
                     className="app-navbar "
-                    backArrow={true}>
+                    backArrow={location.pathname !== "/chat"} // don't show back arrow on /chat
+                    >
                       {t('name')}
                     </NavBar>
         <div className="flex flex-col items-center justify-center h-full">
@@ -66,17 +67,14 @@ const SetName: React.FC = () => {
                 fetcherMessagesPost('/set-name', {
                     name: values.name.trim(),
                     account: activeAccount
-                }, activeAccountPk).then((res) => {
+                }, activeAccountPk).then(async (res) => {
                     console.log(res);
                     Toast.show({icon: 'success'});
-                    mutate({...me, name: values.name});
+                    await mutate({...me, name: values.name});
                     // navigate('/chat');
-                    if (isRegistered) {
+                    mutateChats(); // this can happen when switching to another account not yet registered
+                    if (location.pathname === "/profile/name"){
                         navigate('/me');
-                    }
-                    else{
-                        navigate('/chat');
-                        mutateChats(); // this can happen when switching to another account not yet registered
                     }
                 }).catch((err) => {
                     console.log(err);

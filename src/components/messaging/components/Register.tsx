@@ -64,6 +64,9 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const [currentAvatar, setCurrentAvatar] = useState(null);
     const [skip, setSkip] = useState(false);
+    
+    const HAS_SECURE_STORAGE = isTauri() || Capacitor.isNativePlatform(); 
+
     useHideNavbarOnMobile(true);
     const { t } = useTranslation();
     useEffect(() => {
@@ -71,13 +74,14 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
         for (let ticker of Object.keys(networks)) {
           dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutateGlobal, dispatch) } });
         }
-        setSeed(generatedWallet.seed, false).then(async () => {
-        })
+        if (HAS_SECURE_STORAGE){
+          setSeed(generatedWallet.seed, false).then(async () => {})
+        }
         getNewChatToken(generatedWallet.accounts[0].address, generatedWallet.accounts[0].privateKey)
       }, []);
 
 
-const register = async () => {
+const registerNative = async () => {
     if (skip){
         setWalletState("unlocked");
         onCreated({callback: "/wallet"});
@@ -105,19 +109,35 @@ const register = async () => {
             Toast.show({icon: 'fail', content: err.message});
         })
     }
+const registerWeb = async (name) => {
+    // Toast.show({icon: 'loading'});
+      fetcherMessagesPost('/set-name', {
+            name: name,
+            account: activeAccount
+        }, activeAccountPk).then(async (res) => {
+            console.log(res);
+            // Toast.show({icon: 'success'});
+            await mutate({name: name});
+            await mutateChats(); // preload chats
+                preload('/services', fetcherChat);
+        }).catch((err) => {
+            console.log(err);
+            Toast.show({icon: 'fail', content: err.message});
+        })
+    }
  const handleProfilePictureSuccess = (data) => {
     setCurrentAvatar(data.url);
     mutate();
   };
 
-  const enablePin = async () => {
-    if (Capacitor.isNativePlatform()) { // on native version, we skip password encryption since secure storage is already used
+  const enablePin = async (skipToWallet = false, name = "") => {
+    if (HAS_SECURE_STORAGE) { // on native version, we skip password encryption since secure storage is already used
         let biometricAuth = await BiometricAuth.checkBiometry()
         let webauthnAuth = webauthn.client.isAvailable()
         
         // Toast.show({icon: "success", content: biometricAuth.strongBiometryIsAvailable})
-        // const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
-        const hasStrongAuth = biometricAuth.strongBiometryIsAvailable
+        const hasStrongAuth = biometricAuth.strongBiometryIsAvailable || webauthnAuth
+        // const hasStrongAuth = biometricAuth.strongBiometryIsAvailable
         if (hasStrongAuth){
           localStorage.setItem('confirmation-method', '"enabled"')
           setPinVisible(true)
@@ -128,7 +148,13 @@ const register = async () => {
         }
       }
       else{
-        setW(2)
+        if (skipToWallet){
+          setW(20);
+        }
+        else{
+          await registerWeb(name);
+          setW(2);
+        }
       }
     }
     return (
@@ -158,7 +184,7 @@ const register = async () => {
             mode='card'
             onFinish={async (values) => {
                 setName(values.name)
-                enablePin()
+                enablePin(false, values.name)
             }}
 
             footer={
@@ -173,7 +199,7 @@ const register = async () => {
                 </Button>
                 <div 
                 onClick={() => {
-                    enablePin()
+                    enablePin(true)
                     setSkip(true)
                 }}
                 style={{marginTop: 48, color: "var(--adm-color-primary)", cursor: "pointer"}}>
@@ -203,11 +229,11 @@ const register = async () => {
                   visible={pinVisible}
                   setVisible={setPinVisible}
                   onAuthenticated={async () => {
-                    await register()
+                    await registerNative()
                   }
                   } />
                   <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={async () => {
-                    await register()
+                    await registerNative()
                   }
                   } />
             </div>
