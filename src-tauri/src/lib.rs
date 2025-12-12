@@ -52,12 +52,15 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
-            #[cfg(desktop)]
-            app.deep_link().register("nan")?;
-            app.deep_link().register("nanauth")?;
-            app.deep_link().register("nano")?;
-            app.deep_link().register("ban")?;
-            app.deep_link().register("xdg")?;
+            // usefull for dev, only works on Windows and Linux
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            {
+                app.deep_link().register("nan")?;
+                app.deep_link().register("nanauth")?;
+                app.deep_link().register("nano")?;
+                app.deep_link().register("ban")?;
+                app.deep_link().register("xdg")?;
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

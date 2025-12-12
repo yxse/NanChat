@@ -31,7 +31,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "macOS": {
+      "entitlements": "./Entitlements.plist"
+    }
   },
   "plugins": {
     "deep-link": {
@@ -40,7 +43,7 @@
         { "host": "another.site.br" }
       ],
       "desktop": {
-        "schemes": ["nano", "web-nano", "ban", "nanauth", "nan"]
+        "schemes": ["nano", "web-nano", "ban", "nanauth", "nan", "xdg"]
       }
     },
     "updater": {
