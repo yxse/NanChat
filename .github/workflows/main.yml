@@ -77,3 +77,43 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  publish-microsoft-store:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: install frontend dependencies
+        run: yarn install
+      - name: Build and bundle for Microsoft Store
+        run: yarn tauri build --config src-tauri/tauri.microsoftstore.conf.json
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          VITE_PUBLIC_NODES_API_KEY: ${{ secrets.NODES_API_KEY }}
+          VITE_PUBLIC_WS_URL: 'wss://nodes.nanswap.com/ws/'
+          VITE_PUBLIC_SERVER_NOTIFICATIONS_PUBLIC_KEY: 'BB0nIzmF18kyuqsUKVPjqbraKNRDdTDmxIVk0HqP9Uam5iwchOMqDE8HTcdgR0ZPGMMRDbcgYCVWBBou-mYs9uI'
+          VITE_PUBLIC_BACKEND: 'https://api.nanchat.com'
+          VITE_PUBLIC_REDIRECT_URL: 'https://app.nanchat.com'
+          VITE_PUBLIC_GOOGLE_ANDROID_APP_ID: '674827583308-cs17h24lp36a236aluhm8n38nq450r03.apps.googleusercontent.com'
+          VITE_PUBLIC_GOOGLE_WEB_CLIENT_ID: '674827583308-fn0dvr1ocr89gk29at7sfbdjn7m6bnk4.apps.googleusercontent.com'
+          VITE_PUBLIC_firebase_apiKey: 'AIzaSyAHy_2GatOSvUTcrcyqJrxE_Xy7BbJ54cw'
+          VITE_PUBLIC_firebase_authDomain: 'nanwallet-efce5.firebaseapp.com'
+          VITE_PUBLIC_firebase_projectId: 'nanwallet-efce5'
+          VITE_PUBLIC_firebase_storageBucket: 'nanwallet-efce5.firebasestorage.app'
+          VITE_PUBLIC_firebase_messagingSenderId: '137198054925'
+          VITE_PUBLIC_firebase_appId: '1:137198054925:web:7ca07d199b5f0c912aaf44'
+          VITE_PUBLIC_firebase_measurementId: 'G-1GKPS9V51B'
+          VITE_PUBLIC_firebase_vapidKey: 'BCj8VTaYMFBloIppZRfKvCR6wfi3lL_qThfzItI5Bam7pBXJMhgE1pqyK4cIpAwCRG_jRMTBiiPJ3exswub3YZg'
+          VITE_PUBLIC_TEAM_ACCOUNT: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij'
+      - name: Upload Microsoft Store artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: microsoft-store-bundle
+          path: src-tauri/target/release/bundle/**/*

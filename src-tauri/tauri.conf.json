@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "NanChat",
   "version": "0.1.1",
-  "identifier": "com.nanwallet.dev",
+  "identifier": "com.nanchat.app",
   "build": {
     "frontendDist": "../dist",
     "beforeDevCommand": "",
@@ -22,6 +22,7 @@
     }
   },
   "bundle": {
+    "publisher": "YXSE SAS",
     "createUpdaterArtifacts": true,
     "active": true,
     "targets": "all",
