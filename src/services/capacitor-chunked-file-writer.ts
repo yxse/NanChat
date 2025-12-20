@@ -265,7 +265,18 @@ export async function backupWalletICloud(encryptedWalletTxt, filename) {
   return null;
 }
 
-
+const safeMimeTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'video/mp4',
+  'video/webm',
+  'audio/mpeg',
+  'audio/ogg',
+  'audio/wav',
+  'text/plain',
+]
 export let fileIDsBeingDecrypted = new Set();
 export let fileIDsBeingSaved = new Set();
 /**
@@ -290,6 +301,10 @@ export async function writeUint8ArrayToFile(
   if (!(data instanceof Uint8Array)) {
     throw new Error('Data must be a Uint8Array, received: ' + typeof data);
   }
+  const safeType = safeMimeTypes.includes(meta.type) ? meta.type : 'application/octet-stream'; 
+  // octet-stream allows the browser to choose a safe way to handle the file
+  // without it, a svg with javascript could be interpreted if opened in a new tab
+  meta.type = safeType;
   if (Capacitor.getPlatform() === 'web') {
     let blob = new Blob([data], {type: meta.type});
    let r =  
@@ -303,7 +318,7 @@ export async function writeUint8ArrayToFile(
     // return r.uri;
   }
   else{
-    await writeFileChunked(fileID, new Blob([data]), Directory.Data);
+    await writeFileChunked(fileID, new Blob([data], {type: meta.type}), Directory.Data);
   }
   fileIDsBeingSaved.delete(fileID);
   await setData(fileID, {
@@ -312,6 +327,8 @@ export async function writeUint8ArrayToFile(
   })
   return fileID;
 }
+
+
 
 /**
  * Reads a base64-encoded file and converts it to blob URL using Capacitor

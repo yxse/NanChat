@@ -313,7 +313,11 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         <Skeleton animated style={{"--height": `${maxHeight}`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
         }
     </div>
-
+    const isSVG = fileType === 'image/svg+xml';
+    if (isSVG || !fileType?.startsWith('image') && !fileType?.startsWith('video')) {
+        maxHeight = "72px"
+        heightImage = 72
+    }
     // Main render - only when decrypted exists
     return (
         <div key={message._id + "file"} className={``} style={{
@@ -321,7 +325,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
             }}>
             <div className={``}>
                 <div> 
-                    {fileType?.startsWith('image') && 
+                    {!isSVG && fileType?.startsWith('image') && 
                         <img
                             onClick={() => {
                                 ImageViewer.show({image: decrypted})
@@ -345,7 +349,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                             <source src={decrypted + '#t=0.05'} type={fileType} />
                         </video>
                     }
-                    {!fileType?.startsWith('image') && !fileType?.startsWith('video') && 
+                    {(isSVG || !fileType?.startsWith('image')) && !fileType?.startsWith('video') && 
                         <Card>
                             <div 
                                 onClick={async () => {
