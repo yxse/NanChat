@@ -59,6 +59,22 @@ export default function SwapTransaction() {
         >
           {order.expectedAmountFrom} {order.from} ({order.fromNetwork})
         </List.Item>
+        {order.payinExtraId && <List.Item
+          title="With this extra ID"
+        >
+          <CopyToClipboard text={order.payinExtraId} />
+          <Button
+            size="small" onClick={() => {
+              Modal.show({
+                closeOnMaskClick: true,
+                content: <div className="text-center flex flex-col items-center">
+                  <CopyToClipboard text={order.payinExtraId} />
+                  <QRCodeSVG value={order.payinExtraId} includeMargin />
+                </div>
+              });
+            }}>
+            Show QR Code</Button>
+        </List.Item>}
         <List.Item
           title="To this address"
         >
@@ -75,6 +91,7 @@ export default function SwapTransaction() {
             }}>
             Show QR Code</Button>
         </List.Item>
+        
       </List>
       <Divider />
       <List >
