@@ -21,6 +21,7 @@ import { SeedVerifiedBadge } from '../../utils';
 import { showAccountQRCode } from "../../showAccountQRCode";
 import { AccountAvatar } from "../../AccountAvatar";
 import { useTranslation } from 'react-i18next';
+import { UpdateButton } from '../../../app/desktop/UpdateButton';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -134,6 +135,7 @@ const ProfileHome: React.FC = () => {
                             {t('settings')}
                     </List.Item>
             </List>
+            <UpdateButton />
             {/* <Settings /> */}
         </div>
     );

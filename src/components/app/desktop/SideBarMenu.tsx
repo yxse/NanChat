@@ -1,5 +1,5 @@
 import { Badge, SideBar } from "antd-mobile";
-import { CompassOutline, MessageFill, MessageOutline, SetOutline, UserContactOutline, UserOutline } from "antd-mobile-icons";
+import { CompassOutline, DownlandOutline, MessageFill, MessageOutline, SetOutline, UserContactOutline, UserOutline } from "antd-mobile-icons";
 import { useState } from "react";
 import { AiFillHome, AiOutlineHome, AiOutlineWallet } from "react-icons/ai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -8,6 +8,7 @@ import { networks } from "../../../utils/networks";
 import { useUnreadCount } from "../../messaging/hooks/useChat";
 import { SeedVerifiedBadge } from "../../messaging/utils";
 import { useTranslation } from 'react-i18next';
+import { UpdateButton } from './UpdateButton';
 
 
 export const SideBarMenu = () => {
@@ -47,16 +48,16 @@ export const SideBarMenu = () => {
         title: t('discover'),
         icon: <CompassOutline size={btnSize} />,
       },
-      // {
-      //   key: "settings",
-      //   title: t('settings'),
-      //   icon: <SetOutline size={btnSize} />
-      // }
       {
         key: "me",
         title: <>{t('me')}<SeedVerifiedBadge size={btnSize} count={1} icon={false}/></>,
         icon: <UserOutline size={btnSize} />
-      }
+      },
+      {
+        key: "update",
+        title: <UpdateButton />,
+        // icon: <UserOutline size={btnSize} />
+      },
     ];
     return (
       <>
