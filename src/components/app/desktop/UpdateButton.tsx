@@ -2,7 +2,7 @@ import { Button, ProgressBar, SpinLoading } from "antd-mobile";
 import { DownlandOutline } from "antd-mobile-icons";
 import { useCallback, useEffect, useState } from "react";
 import { check, Update } from "@tauri-apps/plugin-updater";
-// import { relaunch } from "@tauri-apps/plugin-process";
+import { relaunch } from "@tauri-apps/plugin-process";
 import { getVersion } from "@tauri-apps/api/app";
 import { useTranslation } from "react-i18next";
 import { openInBrowser } from "../../messaging/utils";
@@ -69,7 +69,7 @@ export const UpdateButton = () => {
       });
 
       setStatus("ready");
-      // await relaunch();
+      await relaunch();
     } catch (err) {
       console.error("Update failed:", err);
       setError(String(err));
