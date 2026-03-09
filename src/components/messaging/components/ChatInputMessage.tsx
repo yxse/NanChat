@@ -610,7 +610,8 @@ const onStickerSelect = useCallback((stickerId) => {
           address :
           chat?.type === "group" ?
           chat?.sharedAccount :
-          undefined 
+          account?.startsWith('nano_') ? account : // chat not yet created
+          undefined
         }
         chat={chat}
         onUploadSuccess={onUploadSuccess}
