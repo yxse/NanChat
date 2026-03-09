@@ -110,7 +110,11 @@ export const AmountFormItem = ({ form, amountType, setAmountType, ticker , type=
       // transform: (value) => parseFloat(value),
       min: 0,
       validator: async (rule, value) => {
-        if (new BigNumber(value).isGreaterThan(balance)) {
+        const fiatRate = getFiatRate();
+        const cryptoValue = isAmountFiat
+          ? new BigNumber(value).dividedBy(prices[ticker]?.usd * fiatRate)
+          : new BigNumber(value);
+        if (cryptoValue.isGreaterThan(balance)) {
           throw new Error("Not enough balance");
         }
       },
