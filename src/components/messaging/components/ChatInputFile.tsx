@@ -14,6 +14,9 @@ import { getChatToken } from '../../../utils/storage';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import { Keyboard } from '@capacitor/keyboard';
+import { MdHd, MdOutlineHd } from 'react-icons/md';
+import Compressor from 'compressorjs';
+import piexif from 'piexifjs';
 
 const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
@@ -212,9 +215,48 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         }
     };
     
+    const compressImage = (file) => {
+      return new Promise((resolve, reject) => {
+        new Compressor(file, {
+          quality: 0.8,
+          maxWidth: 1920,
+          maxHeight: 1920,
+          success: resolve,
+          error: reject,
+        });
+      });
+    };
+
+    const stripExifData = (file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const dataUrl = e.target.result;
+            const exifData = piexif.load(dataUrl);
+            const orientation = exifData['0th']?.[piexif.ImageIFD.Orientation];
+            const newExif = { '0th': {}, Exif: {}, GPS: {}, Interop: {}, '1st': {} };
+            if (orientation) {
+              newExif['0th'][piexif.ImageIFD.Orientation] = orientation;
+            }
+            const exifBytes = piexif.dump(newExif);
+            const cleaned = piexif.insert(exifBytes, dataUrl);
+            const binary = atob(cleaned.split(',')[1]);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+              array[i] = binary.charCodeAt(i);
+            }
+            resolve(new Blob([array], { type: file.type }));
+          } catch (err) {
+            resolve(file);
+          }
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+      });
+    };
+
     const confirmSend = async ({ droppedFiles }) => {
-  debugger;
-  
   const file = droppedFiles[0];
   const objectURL = URL.createObjectURL(file);
   
@@ -222,17 +264,60 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
   
   const isImage = file.type.startsWith('image');
 
+  let isHd = false;
+  let compressPromise = null;
+  let onCompressedReady = null;
+
+  // Pre-compress image in background for faster send
+  if (isImage) {
+    compressPromise = compressImage(file).then(compressed => {
+      if (onCompressedReady) onCompressedReady(compressed.size);
+      return compressed;
+    }).catch(() => null);
+  }
   
   const cleanup = () => {
     URL.revokeObjectURL(objectURL);
   };
 
-  Modal.confirm({
-    title: 'Send File',
-    confirmText: 'Send',
-    cancelText: 'Cancel',
-    content: (
+  const ConfirmContent = () => {
+    const [hd, setHd] = React.useState(false);
+    const [compressedSize, setCompressedSize] = React.useState(null);
+
+    React.useEffect(() => {
+      onCompressedReady = (size) => setCompressedSize(size);
+      // Check if already resolved
+      if (compressPromise) {
+        compressPromise.then(compressed => {
+          if (compressed) setCompressedSize(compressed.size);
+        });
+      }
+      return () => { onCompressedReady = null; };
+    }, []);
+
+    const displaySize = () => {
+      if (!isImage || hd) return formatSize(file.size);
+      if (file.size <= 0.8 * 1024 * 1024) return formatSize(file.size);
+      if (compressedSize !== null) return formatSize(compressedSize);
+      return `...` // waiting for compression result
+    };
+
+    return (
       <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>
+          Send File
+          {isImage && (
+            <span
+              onClick={() => {
+                isHd = !isHd;
+                setHd(isHd);
+              }}
+              style={{ cursor: 'pointer', fontSize: 24, display: 'flex', alignItems: 'center', color: hd ? 'var(--adm-color-primary)' : 'var(--adm-color-text-secondary)' }}
+            >
+              {hd ? <MdHd /> : <MdOutlineHd />}
+            </span>
+          )}
+        </div>
         {isImage && (
           <div>
             <img 
@@ -247,7 +332,7 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
         )}
         <p>{file.name}</p>
         <p style={{ color: 'var(--adm-color-text-secondary)' }}>
-          {formatSize(file.size)}
+          {displaySize()}
         </p>
         <div 
           className="flex items-center space-x-2 text-sm mt-2" 
@@ -257,16 +342,38 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
           File will be end-to-end encrypted.
         </div>
       </div>
-    ),
-    onConfirm: () => {
+    );
+  };
+
+  Modal.confirm({
+    confirmText: 'Send',
+    cancelText: 'Cancel',
+    content: <ConfirmContent />,
+    onConfirm: async () => {
       if (droppedFiles && droppedFiles.length > 0) {
-        if (beforeUpload(file)) {
+        let fileToUpload = file;
+        if (isImage && !isHd) {
+          try {
+            Toast.show({ icon: 'loading', content: 'Compressing image...', duration: 0 });
+            fileToUpload = await compressPromise || file;
+            Toast.clear();
+          } catch (error) {
+            console.warn('Image compression failed, sending original:', error);
+          }
+        } else if (isImage && isHd) {
+          try {
+            fileToUpload = await stripExifData(file);
+          } catch (error) {
+            console.warn('EXIF stripping failed, sending original:', error);
+          }
+        }
+        if (beforeUpload(fileToUpload)) {
           const droppedFile = {
             url: objectURL,
-            file: file,
+            file: fileToUpload,
           };
           setFileList([droppedFile]);
-          handleUpload(file);
+          handleUpload(fileToUpload);
         }
       }
     },
