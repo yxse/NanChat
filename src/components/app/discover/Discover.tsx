@@ -248,6 +248,7 @@ WebviewOverlay.onPageLoaded(() => {
             await WebviewOverlay.open({
                 url: service.link,
                 element: element,
+                userAgent: "NanChat/1.0.0",
             })
 
         } else {
