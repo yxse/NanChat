@@ -154,7 +154,7 @@ const Message = memo(({
         isFromTeam={isFromTeam}
       />
         {message?.replyMessage && <div style={{
-          height: message.replyMessage.file ? 56 : message.replyMessage.stickerId ? 58 : 36, // reduce content shift virtualizer
+          height: message.replyMessage.file ? 56 : message.replyMessage.stickerId ? 58 : "unset", // reduce content shift virtualizer
           display: "flex", justifyContent: isFromCurrentUser ? "flex-end" : "flex-start"}}>
            <Popover
            mode="dark"
