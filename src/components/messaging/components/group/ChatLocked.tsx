@@ -1,16 +1,52 @@
-import { Button, NavBar, Toast } from 'antd-mobile';
-import React, { useState } from 'react'
-import { joinRequest } from '../../fetcher';
+import { Button, NavBar, SpinLoading, Toast } from 'antd-mobile';
+import React, { useEffect, useState } from 'react'
+import { fetcherChat, fetcherMessages, joinRequest } from '../../fetcher';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LockOutline } from 'antd-mobile-icons';
+import useSWR from 'swr';
+import { useChats } from '../../hooks/use-chats';
 
 function ChatLocked() {
     const navigate = useNavigate();
+    const {mutateChats} = useChats()
     const {
             account
         } = useParams();
+    const {data: chatName, error: chatNotFound} = useSWR('/chat?chatId=' + account, fetcherMessages)
+
     const [isAsked, setIsAsked] = useState(false);
     
+    useEffect(() => {
+        if (chatName?.type === "private"){
+            mutateChats();
+            navigate('/chat/' + account);
+        }
+    }, [chatName])
+  if (chatNotFound) {
+    return (
+      <div style={{ padding: 20, textAlign: 'center' }}>
+        <h2>Chat not found</h2>
+        <Button style={{marginTop: 32}} size='large' color='primary'  shape='rounded' onClick={() => navigate('/chat')}>Go back to chats</Button>
+      </div>
+    );
+  }
+  if (chatName?.type === "private"){
+    return (<div>
+        <NavBar
+                    className="app-navbar "
+                    backIcon={true}
+                    onBack={() => {
+                        navigate('/chat');
+                    }}
+                    >
+                        
+                </NavBar>
+                {/* show spinner */}
+                <div style={{display: 'flex', justifyContent: 'center', marginTop: 32}}>
+                    <SpinLoading style={{ '--size': '48px' }} />
+                </div>
+    </div>);
+  }
   return (
             <div
                 
@@ -38,9 +74,9 @@ function ChatLocked() {
                     marginRight: 16,
                 }}
             >
+                
                 <div>
-              <LockOutline style={{display: "inline"}}/>  Invited to join a group chat. 
-              
+              <LockOutline style={{display: "inline"}}/>  Invited to join {chatName?.name || "a group chat"}
                 </div>
             </div>
             <div style={{display: 'flex', justifyContent: 'center', marginTop: 32, textAlign: 'center'}}>
