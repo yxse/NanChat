@@ -311,7 +311,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
               <div className="text-xl  text-center p-2 mb-2">{t('sending')}</div>
                 <div className="text-center">
                   <div className="text-2xl">
-                     {form.getFieldValue("amount")} {ticker}
+                      {Number(form.getFieldValue("amount")).toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 30 })} {ticker}
                   </div>
                   <div className="text-base" style={{color: "var(--adm-color-text-secondary)"}}>
                     ~<ConvertToBaseCurrency amount={form.getFieldValue("amount")} ticker={ticker} />

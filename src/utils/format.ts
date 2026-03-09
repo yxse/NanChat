@@ -22,7 +22,10 @@ export const formatAmountRaw = (amountRaw, ticker) => {
     if (amountMega == null) {
       return "";
     }
-    return +(+amountMega).toFixed(networks[ticker]?.decimalsToShow);
+    return (+amountMega).toFixed(networks[ticker]?.decimalsToShow)
+        // not using parseFloat to avoid exponential notation for small amounts, instead using regex to trim trailing zeros
+        .replace(/(\.\d*?)0+$/, "$1") // Remove trailing zeros
+        .replace(/\.$/, ""); // Remove trailing dot if there are no decimals
   }
 export const parseURI = (uri) => {
     const parts = uri.split(":");
