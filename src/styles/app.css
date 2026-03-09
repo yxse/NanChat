@@ -922,3 +922,16 @@ input[type=number]::-webkit-outer-spin-button {
   border-top: solid 1px var(--adm-border-color);
   /* This won't push other content */
 }
+
+.discover-header-bar {
+  background-color: var(--adm-color-background);
+  color: var(--adm-color-text);
+}
+.discover-header-bar-actions {
+  background-color: var(--main-background-color);
+  color: var(--adm-color-text);
+}
+.discover-header-bar-divider {
+  border-color: var(--adm-color-border) !important;
+  color: var(--adm-color-border) !important;
+}

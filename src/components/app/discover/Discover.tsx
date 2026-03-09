@@ -10,7 +10,7 @@ import { InAppBrowser } from "@capacitor/inappbrowser";
 
 import { WebviewOverlay, IWebviewOverlayPlugin,   } from '@teamhive/capacitor-webview-overlay';
 import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
-import { extractMetadata } from "../../messaging/utils";
+import { extractMetadata, openInBrowser } from "../../messaging/utils";
 import ChatInputMessage from "../../messaging/components/ChatInputMessage";
 import { AccountListItems } from "../../messaging/components/NewChatPopup";
 import { CheckCircleFill, DeleteOutline, GlobalOutline } from "antd-mobile-icons";
@@ -243,7 +243,7 @@ WebviewOverlay.onPageLoaded(() => {
             setOpenService(service);
             const element = document.getElementById('webview-overlay') as HTMLElement;
             element.style.zIndex = "1000";
-            element.style.backgroundColor = "white"
+            element.style.backgroundColor = "var(--adm-color-background)"
             // WebviewOverlay.toggleFullscreen();
             await WebviewOverlay.open({
                 url: service.link,
@@ -377,18 +377,15 @@ WebviewOverlay.onPageLoaded(() => {
         {
             openService && 
        // we use createPortal otherwise will be bugged when opening from virtualized messages
-       createPortal(<div  style={{
+       createPortal(<div className="discover-header-bar" style={{
                 position: 'fixed',
                 top: 'var(--safe-area-inset-top)',
                 left: 0,
                 right: 0,
                 zIndex: 100000,
-                // height: 40,
                 padding: 8,
-                backgroundColor: 'rgba(245, 245, 245)',
                 width: "100%",
                 textAlign: "center",
-                color: '#000',
             }}>
                {openService?.name || new URL(openService?.link).hostname || "​"}
         <div  style={{
@@ -399,7 +396,7 @@ WebviewOverlay.onPageLoaded(() => {
                 height: 40,
                 // backgroundColor: 'gray',
             }}>
-                <div style={{display: 'flex',  backgroundColor: '#fff', padding: 6, borderRadius: 24, color: '#000'}}>
+                <div className="discover-header-bar-actions" style={{display: 'flex', padding: 6, borderRadius: 24}}>
                  <div
         style={{}}
            size="middle"
@@ -419,7 +416,7 @@ WebviewOverlay.onPageLoaded(() => {
            >
                <AiOutlineShareAlt />
            </div> 
-           <Divider direction="vertical" style={{color: "#000", borderColor: "#000", opacity: 0.3}} />
+           <Divider direction="vertical" className="discover-header-bar-divider" style={{opacity: 0.3}} />
         <div
            
             size="middle"
@@ -438,13 +435,13 @@ WebviewOverlay.onPageLoaded(() => {
                 // handleServiceClick({link: currentUrl});
             }}
             style={{
-                width: '100%',
                 height: 'calc(100vh - 40px - var(--safe-area-inset-top))',
                 // height: '400px',
                 position: 'fixed',
                 zIndex: -1,
                 bottom: 'calc(-1 * var(--android-inset-top, 0px))',
-                left: 0,
+                left: Capacitor.getPlatform() === 'android' ? -1 : 0,  // to prevent a weird 1px border on the left on android, 1px border happens at least on samsung s23 api 36
+                width: Capacitor.getPlatform() === 'android' ? 'calc(100% + 1px)' : '100%',
                 // backgroundColor: "red",
             }}
         ></div>, document.body)}  
