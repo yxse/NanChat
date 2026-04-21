@@ -39,6 +39,7 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     const names = chat?.participants;
     let address = names?.find(participant => participant._id !== activeAccount)?._id;
     const lastEmitTimeRef = useRef(0); // important to use useRef instead of useState to prevent race condition that can happen on low cpu simulation
+    const prevNewMessageRef = useRef(newMessage);
 
     const [participantsTyping, setParticipantsTyping] = useState<string[]>([]);
     if (account?.startsWith('nano_')) {
@@ -46,6 +47,11 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     }
 
     useEffect(() => {
+        // Only emit typing when newMessage actually changed (user typed),
+        // not when the effect re-runs because `chat` reference changed
+        // (e.g., when receiving a new message updates the chats list).
+        if (newMessage === prevNewMessageRef.current) return;
+        prevNewMessageRef.current = newMessage;
         if (newMessage.trim() && Date.now() - lastEmitTimeRef.current > 1000) { // send typing event every 1s at most
             lastEmitTimeRef.current = Date.now();
             socket.emit('typing', chat?.id);
