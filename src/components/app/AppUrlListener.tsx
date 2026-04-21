@@ -13,8 +13,10 @@ import { box, wallet } from 'multi-nano-web';
 import { getSeed } from '../../utils/storage';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { useEmit, useEvent } from '../messaging/components/EventContext';
-import { saveMessageCache } from '../messaging/fetcher';
+import { fetcherMessagesCache } from '../messaging/fetcher';
 import { useChats } from '../messaging/hooks/use-chats';
+import { LIMIT_MESSAGES_INITIAL } from '../messaging/utils';
+import { useWallet } from '../useWallet';
 
 
 const isContactImport = (url: string) => {
@@ -36,6 +38,7 @@ const AppUrlListener: React.FC<any> = () => {
     const location = useLocation();
     const [uri, setUri] = useState('');
     const {mutateChats} = useChats()
+    const {activeAccount, activeAccountPk} = useWallet()
     const eventOpenUrl = useEvent('open-url'); // handle open url from discover nano apps
     const emit = useEmit()
     const handleURL = (url) => {
@@ -167,6 +170,14 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   if (location.pathname === url && isActive) {
     return; // do not show notification if the user is already in the chat
   }
+  // Preload first page of messages so the chat opens instantly when the user taps the notification.
+  // This warms the localStorage/sqlite message cache that fetcherMessagesCache reads from,
+  // so useChat(chatId) on the chat screen will resolve from cache without a network round-trip.
+  fetcherMessagesCache(
+    `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES_INITIAL}&cursor=-1`,
+    activeAccount,
+    activeAccountPk,
+  ).catch((err) => console.warn('preload chat messages failed', err));
   // return
   // focus window
   // window.focus();
