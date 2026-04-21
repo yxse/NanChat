@@ -382,16 +382,31 @@ export class Wallet {
 
   verifyBlock = (account, blockContents, subtype, hash) => {
     // https://docs.nano.org/releases/network-upgrades/#epoch-blocks
-    const epochV2SignerAccount = 'nano_3qb6o6i1tkzr6jwr5s7eehfxwg9x6eemitdinbpi7u8bjjwsgqfj4wzser3x';
+    const upgrades = {
+      "v1": {
+        signer: "nano_3t6k35gi95xu6tergt6p69ck76ogmitsa8mnijtpxm9fkcm736xtoncuohr3",
+        link: "65706F636820763120626C6F636B000000000000000000000000000000000000"
+      },
+      "v2": {
+        signer: "nano_3qb6o6i1tkzr6jwr5s7eehfxwg9x6eemitdinbpi7u8bjjwsgqfj4wzser3x",
+        link: "65706F636820763220626C6F636B000000000000000000000000000000000000"
+      }
+    }
     if (subtype === "epoch"){
-      if (blockContents.account !== epochV2SignerAccount){
-          throw new Error("Frontier epoch block account verification failed");
-      }
-      const publicKey = tools.addressToPublicKey(epochV2SignerAccount);
-      const valid = tools.verifyBlock(publicKey, blockContents);
-      if (valid !== true) {
-        throw new Error("Epoch block signature verification failed: " + hash)
-      }
+      Object.keys(upgrades).forEach((upgradeVersion) => {
+        if (blockContents.link === upgrades[upgradeVersion].link){
+          if (blockContents.account !== upgrades[upgradeVersion].signer){
+            throw new Error("Frontier epoch block account verification failed");
+          }
+          const publicKey = tools.addressToPublicKey(upgrades[upgradeVersion].signer);
+          const valid = tools.verifyBlock(publicKey, blockContents);
+          if (valid !== true) {
+            throw new Error("Frontier epoch block signature verification failed: " + hash)
+          }
+          return true
+        }
+      })
+      throw new Error("Unknown epoch block link: " + blockContents.link)
     }
     else{
       const publicKey = this.getPublicKey(account)
