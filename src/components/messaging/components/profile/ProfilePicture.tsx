@@ -1,32 +1,64 @@
+import { memo, useMemo } from "react";
 import useSWR from "swr";
 import { fetcherAccount } from "../../fetcher";
-import { DotLoading, Image, ImageViewer } from "antd-mobile";
-import { accountIconUrl } from "../../../app/Home";
+import { ImageViewer } from "antd-mobile";
 import { NoAvatar } from "../icons/NoAvatar";
 import { useChats } from "../../hooks/use-chats";
 
 const getDevicePixelRatioCeiled = () => Math.ceil(window.devicePixelRatio || 1);
-const imgProxy = (src, width) => `https://i.nanwallet.com/unsafe/rs::${width}/dpr:${getDevicePixelRatioCeiled()}/plain/${encodeURI(src)}` 
+const imgProxy = (src: string, width: number) =>
+    `https://i.nanwallet.com/unsafe/rs::${width}/dpr:${getDevicePixelRatioCeiled()}/plain/${encodeURI(src)}`;
 
-const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = null }) => {
-    // Always call hooks at the top level
-    let chats = []
+// Build an address -> profilePicture URL lookup lazily, once per `chats`
+// array reference, and share it across every ProfilePicture instance.
+// WeakMap lets the old map be GC'd when SWR swaps in a new chats array.
+const chatsPfpCache: WeakMap<object, Map<string, string>> = new WeakMap();
+
+function getPfpMap(chats: any[]): Map<string, string> {
+    let map = chatsPfpCache.get(chats);
+    if (map) return map;
+    map = new Map<string, string>();
+    for (let i = 0; i < chats.length; i++) {
+        const parts = chats[i]?.participants;
+        if (!parts) continue;
+        for (let j = 0; j < parts.length; j++) {
+            const p = parts[j];
+            const url = p?.profilePicture?.url;
+            if (url && p?._id && !map.has(p._id)) map.set(p._id, url);
+        }
+    }
+    chatsPfpCache.set(chats, map);
+    return map;
+}
+
+type ProfilePictureProps = {
+    address: string;
+    width?: number;
+    borderRadius?: number;
+    clickable?: boolean;
+    src?: string | null;
+};
+
+const ProfilePicture = ({ address, width = 40, borderRadius = 8, clickable = false, src = null }: ProfilePictureProps) => {
+    let chats: any[] = [];
     try {
         const { chats: allChats } = useChats();
-        chats = allChats
-    } catch (error) { 
-        console.log("cannot load chats in profilepicture", error)
+        if (Array.isArray(allChats)) chats = allChats;
+    } catch (error) {
+        console.log("cannot load chats in profilepicture", error);
     }
 
-    // Determine if we need to fetch data before calling useSWR
-    const shouldFetchData = src == null && !chats.some(chat => 
-        chat.participants.find(p => p._id === address)?.profilePicture?.url
-    );
+    // O(1) lookup into the shared map; recomputes only when chats ref or address changes.
+    const pfpFromChats = useMemo(() => {
+        if (src != null || !address || chats.length === 0) return null;
+        return getPfpMap(chats).get(address) ?? null;
+    }, [chats, address, src]);
 
-    // Always call useSWR, but conditionally enable it
+    const shouldFetchData = src == null && pfpFromChats == null;
+
     const { data, isLoading: isLoadingData } = useSWR(
-        shouldFetchData ? address : null, // Only fetch when needed
-        fetcherAccount, 
+        shouldFetchData ? address : null,
+        fetcherAccount,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -34,60 +66,32 @@ const ProfilePicture = ({ address, width=40, borderRadius=8, clickable, src = nu
         }
     );
 
-    // Determine the final src value
-    let finalSrc = src;
-    let isLoading = false;
+    const finalSrc = src ?? pfpFromChats ?? data?.profilePicture?.url ?? null;
 
-    if (finalSrc == null) {
-        // First check chats for the profile picture
-        for (const chat of chats) {
-            const participant = chat.participants.find(p => p._id === address);
-            if (participant?.profilePicture?.url) {
-                finalSrc = participant.profilePicture.url;
-                break;
-            }
-        }
-        
-        // If still null, use SWR data
-        if (finalSrc == null) {
-            finalSrc = data?.profilePicture?.url;
-            isLoading = isLoadingData;
-        }
+    if (shouldFetchData && isLoadingData) return null;
+
+    if (!finalSrc) {
+        return <NoAvatar width={width as any} height={width as any} borderRadius={borderRadius} />;
     }
 
-    // Render logic
-    let icon;
-    if (finalSrc == null || finalSrc == false) {
-        icon = <NoAvatar width={width} height={width} borderRadius={borderRadius} />
-    } else {
-        icon = (
-            <div style={{width: width, height: width}}>
-                <img
-                    onClick={() => {
-                        if (clickable) {
-                            ImageViewer.show({
-                                image: finalSrc,
-                            })
-                        }
-                    }}
-                    loading="lazy"
-                    style={{ 
-                        borderRadius: borderRadius, 
-                        objectFit: "cover", 
-                        width: width, 
-                        height: width 
-                    }}
-                    src={imgProxy(finalSrc, width)} 
-                    width={width} 
-                    height={width}
-                    alt="pfp" 
-                />
-            </div>
-        )
-    }
+    return (
+        <div style={{ width, height: width }}>
+            <img
+                onClick={clickable ? () => ImageViewer.show({ image: finalSrc }) : undefined}
+                loading="lazy"
+                style={{
+                    borderRadius,
+                    objectFit: "cover",
+                    width,
+                    height: width,
+                }}
+                src={imgProxy(finalSrc, width)}
+                width={width}
+                height={width}
+                alt="pfp"
+            />
+        </div>
+    );
+};
 
-    if (isLoading) return null;
-    
-    return icon;
-}
-export default ProfilePicture;
+export default memo(ProfilePicture);

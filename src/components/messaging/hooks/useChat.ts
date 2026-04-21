@@ -118,6 +118,7 @@ export function useChat(chatId) {
 
 
   const reset = async () => { 
+    return
     // we use this function to reduce the number of message loaded
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
     // todo: use virtualize list instead

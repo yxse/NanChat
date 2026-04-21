@@ -341,12 +341,14 @@ const right = (
                 onClick={() => {
                     onChatSelect(chat.id)
                     // local mutate to update unread count
-                    mutate(chats.map(chatToMutate => {
-                        if (chatToMutate.id === chat.id) {
-                            chatToMutate.unreadCount = 0;
-                        }
-                        return chatToMutate;
-                    }), false);
+                    if (chat.unreadCount) {
+                        mutate(
+                            chats.map(c =>
+                                c.id === chat.id ? { ...c, unreadCount: 0 } : c
+                            ),
+                            false
+                        );
+                    }
                 }}
                 extra={
                     <div className="flex flex-col items-end">
@@ -382,7 +384,9 @@ const right = (
                 }
                 // Ellipsis component is laggy when there are many messages
                 // description={<Ellipsis content={decrypted || '...'} />}
-                description={<MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} type="chatlist"/>}
+                description={
+                <MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} type="chatlist"/>
+              }
             >
                 <div
                 style={{
