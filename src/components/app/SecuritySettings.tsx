@@ -65,10 +65,13 @@ function SecuritySettings() {
               if (checked) {
                   setWhenToAuthenticate([...whenToAuthenticate, value])
               }
-              else if (whenToAuthenticate.length === 1) {
+              else if (
+                (value === "launch" || value === "send") &&
+                whenToAuthenticate.filter((v) => v === "launch" || v === "send").length <= 1
+              ){
                 Toast.show({
                   icon: "fail",
-                  content: "At least one option must be enabled",
+                  content: "At least one option must be enabled between launch and send",
                   position: "top"
                 })
               }
@@ -90,6 +93,8 @@ function SecuritySettings() {
         onAuthenticated={() => setWhenToAuthenticate(whenToAuthenticate.filter((v) => v !== actionToRemove))} />
         {!seed?.isPasswordEncrypted && <WhenToAuthenticateItem value={"launch"}>Authenticate on launch</WhenToAuthenticateItem>}
           <WhenToAuthenticateItem value={"send"}>Authenticate on send</WhenToAuthenticateItem>
+          <WhenToAuthenticateItem value={"swap-feeless"}>Authenticate on swap</WhenToAuthenticateItem>
+          {/* swap to none feeless alway has authentication */}
           </List>
   }
 
@@ -435,7 +440,7 @@ function SecuritySettings() {
         {
           confirmationMethod !== "none" && 
         <div className="text-sm px-4" style={{color: "var(--adm-color-text-secondary)"}}>
-          At least one option must be enabled.
+          At least one option must be enabled between launch and send when authentication is enabled.
         </div> 
         }
         <Divider />

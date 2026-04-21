@@ -48,6 +48,7 @@ import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Buy from "./Buy";
 import BigNumber from "bignumber.js";
 import { safeSetItem } from "../messaging/utils";
+import { PinAuthPopup } from "../Lock/PinLock";
 
 const SelectTicker = ({ side, visible, setVisible, allCurrencies,  isLoading, selected, setSelected}) => {
 
@@ -124,6 +125,8 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
   const [selectedTo, setSelectedTo] = useState<string>(defaultTo);
   const [amount, setAmount] = useState<number | string>(null);
   const [side, setSide] = useState<string>("from"); // ["from", "to"]
+  const [pinVisible, setPinVisible] = useState<boolean>(false);
+  const [pendingSwapValues, setPendingSwapValues] = useState<any>(null);
   const [form] = Form.useForm();
   const {wallet} = useContext(WalletContext);
   const accountFrom = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, selectedFrom);
@@ -297,7 +300,11 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
               amount: searchParams.get("amount") || "",
             }}
             form={form}
-            onFinish={onSwap}
+            onFinish={(values) => {
+                setPendingSwapValues(values);
+                setPinVisible(true);
+                return;
+            }}
             className="mt-4 swap-form"
             layout="horizontal"
             footer={
@@ -464,6 +471,23 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
               </Form.Item>
             }
           </Form>
+          <PinAuthPopup
+            location={allCurrencies?.[selectedTo]?.feeless == false ? "swap" : "swap-feeless"}
+            description={`Swap ${amount} ${selectedFrom} to ${selectedTo}`}
+            visible={pinVisible}
+            setVisible={setPinVisible}
+            onAuthenticated={async () => {
+              if (pendingSwapValues) {
+                const values = pendingSwapValues;
+                setPendingSwapValues(null);
+                await onSwap(values);
+              }
+            }}
+            onCancel={() => {
+              setPendingSwapValues(null);
+              setIsLoading(false);
+            }}
+          />
         </div>
       </div>
     </div >

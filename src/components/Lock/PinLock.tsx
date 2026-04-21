@@ -64,7 +64,7 @@ export const PinAuthPopup = ({ visible, setVisible, onAuthenticated, description
     const [nextAttemptDate, setNextAttemptDate] = useState(0)
     const [attemptRemaining, setAttemptRemaining] = useState(10)
     const [whenToAuthenticate, setWhenToAuthenticate] = useLocalStorageState("when-to-authenticate", { defaultValue: ["send"] })
-    const alwaysAuthenticate = ["backup-secret-phrase", "change-confirmation-method", "create-wallet" ]
+    const alwaysAuthenticate = ["backup-secret-phrase", "change-confirmation-method", "create-wallet", "swap" ]
     const [error, setError] = useState("")
     const [retry, setRetry] = useState(0)
     const showCloseButton = location === "launch" ? false : true
