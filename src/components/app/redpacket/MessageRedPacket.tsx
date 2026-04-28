@@ -25,6 +25,7 @@ import { inMemoryMap } from "../../../services/database.service";
 import MessageTip from "../../messaging/components/MessageTip";
 import { RedPacketIcon, RedPacketIconOpened } from "./RedPacketIcon";
 import { createPortal } from "react-dom";
+import { askForReview } from "../History";
 
 export const useMessageRedpacket = ({message}) => {
    
@@ -161,6 +162,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
                     //     await mutate("/redpacket?id=" + message._id)
                     // }
                     await mutateRedPacket() 
+                    askForReview(2000)
                     // await mutateRedPacket(messageResult, {revalidate: false}) 
             //         await mutateMessages(currentPages => {
             //     if (!currentPages) return currentPages;

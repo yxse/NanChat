@@ -48,20 +48,22 @@ import { restoreData, setData } from "../../services/database.service";
 
 export function askForReview(delay = 500) {
   if (!Capacitor.isNativePlatform()) return
-  
-  if (localStorage.getItem("install-date") == null){
+
+  if (localStorage.getItem("install-date") == null) {
     localStorage.setItem("install-date", new Date().getTime().toString())
     return
   }
-  const installDate = parseInt(localStorage.getItem("install-date"))
-  if ((new Date().getTime() - parseInt(localStorage.getItem("lastReview")) > 1000 * 60 * 60 * 24 * 60) &&
-      (new Date().getTime() - parseInt(installDate) > 1000 * 60 * 60 * 24 * 7) // ask for review if user has installed since at least 7 days
-    ) {
-    localStorage.setItem("lastReview", new Date().getTime().toString())
+  const now = new Date().getTime()
+  const installDate = parseInt(localStorage.getItem("install-date"), 10)
+  const lastReview = parseInt(localStorage.getItem("lastReview") ?? "0", 10) || 0
+  if (
+    now - lastReview > 1000 * 60 * 60 * 24 * 60 && // ask for review if last review was asked more than 60 days ago
+    now - installDate > 1000 * 60 * 60 * 24 * 7 // ask for review if user has installed since at least 7 days
+  ) {
+    localStorage.setItem("lastReview", now.toString())
     setTimeout(() => {
       InAppReview.requestReview()
-    }
-    , delay) // 2 seconds delay to let the new transaction appear or success send message to be shown
+    }, delay) // delay to let the new transaction / success message appear first
   }
 }
 
@@ -306,7 +308,6 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
       if (offset == 0) {
         setHasMore(false);
       }
-      debugger
       return isCached.reverse()
     }
 
