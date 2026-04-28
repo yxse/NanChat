@@ -8,6 +8,7 @@ import { Capacitor } from '@capacitor/core';
 import { isTauri } from '@tauri-apps/api/core';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { getSharedKey } from '../../services/sharedkey';
 import { box, wallet } from 'multi-nano-web';
 import { getSeed } from '../../utils/storage';
@@ -17,6 +18,9 @@ import { fetcherMessagesCache } from '../messaging/fetcher';
 import { useChats } from '../messaging/hooks/use-chats';
 import { LIMIT_MESSAGES_INITIAL } from '../messaging/utils';
 import { useWallet } from '../useWallet';
+import { useSWRConfig } from 'swr';
+import { unstable_serialize } from 'swr/infinite';
+import { getKey } from '../messaging/hooks/useChat';
 
 
 const isContactImport = (url: string) => {
@@ -39,6 +43,7 @@ const AppUrlListener: React.FC<any> = () => {
     const [uri, setUri] = useState('');
     const {mutateChats} = useChats()
     const {activeAccount, activeAccountPk} = useWallet()
+    const {mutate: globalMutate} = useSWRConfig()
     const eventOpenUrl = useEvent('open-url'); // handle open url from discover nano apps
     const emit = useEmit()
     const handleURL = (url) => {
@@ -162,7 +167,9 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   console.log("notificationReceived: ", { event });
   let chatId = event.notification.data.chatId;
   let url = event.notification.data.url;
-  if (url == null || ((location.pathname === "/chat" || location.pathname === "/") && isActive)) {
+  let messagePreview = event.notification.data.messagePreview;
+  let isMessagePreviewExist = messagePreview != null && messagePreview != undefined; // for backward compatibility, we set url to null to not show double notification on old client
+  if ((url == null && !isMessagePreviewExist) || ((location.pathname === "/chat" || location.pathname === "/") && isActive)) {
     return
   }
   console.log("path", location.pathname, url);
@@ -171,13 +178,19 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
     return; // do not show notification if the user is already in the chat
   }
   // Preload first page of messages so the chat opens instantly when the user taps the notification.
-  // This warms the localStorage/sqlite message cache that fetcherMessagesCache reads from,
-  // so useChat(chatId) on the chat screen will resolve from cache without a network round-trip.
-  fetcherMessagesCache(
-    `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES_INITIAL}&cursor=-1`,
-    activeAccount,
-    activeAccountPk,
+  // We seed the useSWRInfinite cache directly (under its $inf$ key) so useChat(chatId)
+  // mounts with data already present and skips the initial loading state.
+  const firstPageKey = `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES_INITIAL}&cursor=-1&clearCount=false`;
+  const infiniteKey = unstable_serialize((index, prev) => getKey(index, prev, chatId));
+  globalMutate(
+    infiniteKey,
+    async () => {
+      const firstPage = await fetcherMessagesCache(firstPageKey, activeAccount, activeAccountPk);
+      return [firstPage];
+    },
+    { revalidate: false },
   ).catch((err) => console.warn('preload chat messages failed', err));
+
   // return
   // focus window
   // window.focus();
@@ -226,6 +239,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   accounts = null;
   seed = null; // remove seed from memory
   console.log("decrypted: ", decrypted);
+  if (messagePreview) {
     // localStorage.setItem(`message-${message._id}`, decrypted);
     LocalNotifications.schedule({
           notifications: [
@@ -242,6 +256,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
             }
           ]
         })
+      }
 
       } catch (error) {
         console.log(error.stack);
