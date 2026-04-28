@@ -8,6 +8,7 @@ import { getRepresentative, setRepresentative } from "../components/getRepresent
 import { convertAddress } from "../utils/convertAddress";
 import { sendNotificationTauri } from "./notifications";
 import { Preferences } from '@capacitor/preferences';
+import { App as CapacitorApp } from '@capacitor/app';
 
 var lock = new AsyncLock();
 
@@ -64,28 +65,120 @@ export class Wallet {
     let accountsToCreate = +localStorage.getItem("lastAccountIndex") || 1;
     this.createAccounts(0, accountsToCreate, true);
     if (WS_URL !== undefined) {
-      this.websocket = new WebSocket(WS_URL);
-      this.websocket.onerror = (err) => {
-        console.log("Cannot connect to websocket");
-        console.log(err.message);
-      };
-      this.websocket.onopen = () => {
-        console.log("Connected to websocket");
-        if (wsSubAll) {
-          this.subscribeConfirmation();
-        } else if (this.mapAccounts.size > 0) {
-          this.subscribeConfirmation(Array.from(this.mapAccounts.keys()));
-        }
-      };
-      this.websocket.onmessage = async (msg) => {
-        let data_json = JSON.parse(msg.data);
-        this.wsOnMessage(data_json);
-        if (autoReceive) {
-          this.wsAutoReceiveSend(data_json);
-        }
-      };
+      this.WS_URL = WS_URL;
+      this.wsAutoReceive = autoReceive;
+      this.wsSubAll = wsSubAll;
+      this.wsReconnectAttempts = 0;
+      this.wsManuallyClosed = false;
+      this.connectWebSocket();
+      this.setupReconnectListeners();
     }
   }
+
+  connectWebSocket = () => {
+    if (!this.WS_URL) return;
+    // avoid duplicate sockets
+    if (
+      this.websocket &&
+      (this.websocket.readyState === WebSocket.OPEN ||
+        this.websocket.readyState === WebSocket.CONNECTING)
+    ) {
+      return;
+    }
+    try {
+      this.websocket = new WebSocket(this.WS_URL);
+    } catch (e) {
+      console.log("WebSocket constructor failed", e);
+      this.scheduleReconnect();
+      return;
+    }
+    this.websocket.onerror = (err) => {
+      console.log("Cannot connect to websocket", err?.message);
+    };
+    this.websocket.onopen = () => {
+      console.log("Connected to websocket");
+      this.wsReconnectAttempts = 0;
+      if (this.wsSubAll) {
+        this.subscribeConfirmation();
+      } else if (this.mapAccounts.size > 0) {
+        this.subscribeConfirmation(Array.from(this.mapAccounts.keys()));
+      }
+      // also try to receive any pending tx that arrived while offline
+      try {
+        this.receiveAllActiveAccount?.();
+      } catch (e) {
+        console.log("receiveAllActiveAccount on reconnect failed", e);
+      }
+    };
+    this.websocket.onmessage = async (msg) => {
+      let data_json = JSON.parse(msg.data);
+      this.wsOnMessage(data_json);
+      if (this.wsAutoReceive) {
+        this.wsAutoReceiveSend(data_json);
+      }
+    };
+    this.websocket.onclose = () => {
+      console.log("Websocket closed");
+      if (!this.wsManuallyClosed) {
+        this.scheduleReconnect();
+      }
+    };
+  };
+
+  scheduleReconnect = () => {
+    if (this.wsReconnectTimer) return;
+    const attempt = this.wsReconnectAttempts || 0;
+    // exponential backoff capped at 30s
+    const delay = Math.min(30000, 500 * Math.pow(2, attempt));
+    this.wsReconnectAttempts = attempt + 1;
+    console.log(`Reconnecting websocket in ${delay}ms (attempt ${this.wsReconnectAttempts})`);
+    this.wsReconnectTimer = setTimeout(() => {
+      this.wsReconnectTimer = null;
+      this.connectWebSocket();
+    }, delay);
+  };
+
+  reconnectIfNeeded = () => {
+    if (!this.WS_URL) return;
+    if (
+      !this.websocket ||
+      this.websocket.readyState === WebSocket.CLOSED ||
+      this.websocket.readyState === WebSocket.CLOSING
+    ) {
+      // reset backoff for user-triggered resume
+      this.wsReconnectAttempts = 0;
+      if (this.wsReconnectTimer) {
+        clearTimeout(this.wsReconnectTimer);
+        this.wsReconnectTimer = null;
+      }
+      this.connectWebSocket();
+    }
+  };
+
+  setupReconnectListeners = () => {
+    if (this.wsListenersSetup) return;
+    this.wsListenersSetup = true;
+
+    // Capacitor: app returning to foreground
+    try {
+      CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          console.log("App active, checking websocket");
+          this.reconnectIfNeeded();
+        }
+      });
+      CapacitorApp.addListener('resume', () => {
+        console.log("App resume, checking websocket");
+        this.reconnectIfNeeded();
+      });
+    } catch (e) {
+      console.log("Capacitor App listeners not available", e);
+    }
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", () => this.reconnectIfNeeded());
+    }
+  };
 
   /**
    * subscribe to all websocketconfirmation or to a list of accounts if provided
