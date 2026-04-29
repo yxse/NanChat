@@ -35,6 +35,7 @@ dependencies {
     implementation project(':teamhive-capacitor-webview-overlay')
     implementation project(':capacitor-icloud-drive')
     implementation project(':capacitor-native-settings')
+    implementation project(':capacitor-plugin-safe-area')
     implementation project(':capacitor-secure-storage-plugin')
     implementation project(':capacitor-share-extension')
     implementation project(':power-mode')

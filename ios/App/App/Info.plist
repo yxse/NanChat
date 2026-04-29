@@ -2,8 +2,31 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<key></key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>CFBundleIconName</key>
+			<string></string>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+		<key>UINewsstandIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UINewsstandBindingEdge</key>
+			<string>UINewsstandBindingEdgeLeft</string>
+			<key>UINewsstandBindingType</key>
+			<string>UINewsstandBindingTypeMagazine</string>
+		</dict>
+	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
@@ -18,6 +41,10 @@
 	<string></string>
 	<key>CFBundleIconFile</key>
 	<string></string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string></string>
+	</array>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -105,6 +132,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>LSRequiresIPhoneOS</key>
@@ -115,8 +144,6 @@
 	<string>Uses Bluetooth to connect and interact with Ledger devices</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan qrcode</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Access to photo library is required to select images</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow contacts to send invitation with ease. Contacts are stored locally only.</string>
 	<key>NSExtensionAttributes</key>
@@ -128,19 +155,19 @@
               SUBQUERY (
                   $extensionItem.attachments,
                   $attachment,
-                   ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.image&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.spreadsheet&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.presentation&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;org.openxmlformats.wordprocessingml.document&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;com.adobe.pdf&quot; ||
-						   ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.text&quot; ||
-						   ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.json&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.png&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.jpeg&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.jpeg-2000&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.plain-text&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.url&quot; ||
-                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;com.compuserve.gif&quot;
+                   ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.spreadsheet" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.presentation" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "org.openxmlformats.wordprocessingml.document" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.adobe.pdf" ||
+						   ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.text" ||
+						   ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.json" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.png" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.jpeg" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.jpeg-2000" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.url" ||
+                           ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.compuserve.gif"
                 ).@count == $extensionItem.attachments.@count
                 ).@count == 1
         </string>
@@ -149,6 +176,8 @@
 	<string>Authenticate</string>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Access to photo library is required to select images</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.com.nanwallet.app</key>
@@ -167,6 +196,8 @@
 		<string>processing</string>
 		<string>fetch</string>
 	</array>
+	<key>UIDesignRequiresCompatibility</key>
+	<true/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

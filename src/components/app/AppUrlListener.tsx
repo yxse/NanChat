@@ -260,7 +260,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
 
       } catch (error) {
         console.log(error.stack);
-        Toast.show({content: error.message, icon: 'fail'})
+        // Toast.show({content: error.message, icon: 'fail'})
       }
 
 })

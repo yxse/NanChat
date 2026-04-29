@@ -11,6 +11,9 @@ importers:
       '@aparajita/capacitor-biometric-auth':
         specifier: ^8.0.2
         version: 8.0.2
+      '@benskalz/swr-idb-cache':
+        specifier: ^1.1.4
+        version: 1.1.4(react@18.3.1)(swr@2.3.0(react@18.3.1))
       '@capacitor-community/bluetooth-le':
         specifier: ^6.1.0
         version: 6.1.0(@capacitor/core@6.2.0)
@@ -24,11 +27,11 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(@capacitor/core@6.2.0)
       '@capacitor-firebase/messaging':
-        specifier: ^6.3.1
-        version: 6.3.1(@capacitor/core@6.2.0)(firebase@11.6.1)
+        specifier: 6.1.0
+        version: 6.1.0(@capacitor/core@6.2.0)(firebase@11.6.1)
       '@capacitor-mlkit/barcode-scanning':
-        specifier: ^7.2.1
-        version: 7.2.1(@capacitor/core@6.2.0)
+        specifier: ^6.2.0
+        version: 6.2.0(@capacitor/core@6.2.0)
       '@capacitor/android':
         specifier: ^6.2.0
         version: 6.2.0(@capacitor/core@6.2.0)
@@ -63,11 +66,14 @@ importers:
         specifier: ^6.2.0
         version: 6.2.0(@capacitor/core@6.2.0)
       '@capacitor/keyboard':
-        specifier: ^6.0.3
-        version: 6.0.3(@capacitor/core@6.2.0)
+        specifier: https://github.com/Benskalz/capacitor-plugins.git#0b553028bd3c20657f278f072acd5dc8d12bde62
+        version: https://codeload.github.com/Benskalz/capacitor-plugins/tar.gz/0b553028bd3c20657f278f072acd5dc8d12bde62(@capacitor/core@6.2.0)
       '@capacitor/local-notifications':
         specifier: '6'
         version: 6.1.2(@capacitor/core@6.2.0)
+      '@capacitor/preferences':
+        specifier: ^6
+        version: 6.0.3(@capacitor/core@6.2.0)
       '@capacitor/share':
         specifier: '6'
         version: 6.0.3(@capacitor/core@6.2.0)
@@ -80,6 +86,9 @@ importers:
       '@capawesome/capacitor-badge':
         specifier: '6'
         version: 6.0.0(@capacitor/core@6.2.0)
+      '@capawesome/capacitor-file-picker':
+        specifier: ^6
+        version: 6.2.0(@capacitor/core@6.2.0)
       '@capgo/capacitor-data-storage-sqlite':
         specifier: ^6.0.59
         version: 6.0.59(@capacitor/core@6.2.0)(localforage@1.10.0)
@@ -114,20 +123,23 @@ importers:
         specifier: ^1.3.0
         version: 1.5.1
       '@tauri-apps/api':
-        specifier: ^2.1.1
-        version: 2.2.0
+        specifier: ^2.10.0
+        version: 2.10.1
       '@tauri-apps/plugin-deep-link':
-        specifier: ~2
+        specifier: ^2.2.0
         version: 2.2.0
       '@tauri-apps/plugin-notification':
         specifier: ~2
         version: 2.2.0
+      '@tauri-apps/plugin-process':
+        specifier: ~2
+        version: 2.3.1
+      '@tauri-apps/plugin-updater':
+        specifier: ^2.8.0
+        version: 2.9.0
       '@teamhive/capacitor-webview-overlay':
-        specifier: https://github.com/Benskalz/capacitor-webview-overlay.git#b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a
-        version: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a(@capacitor/core@6.2.0)
-      '@yudiel/react-qr-scanner':
-        specifier: ^2.0.1
-        version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: https://github.com/Benskalz/capacitor-webview-overlay.git#d47955b3ca256b2433d59e1def4fdfb60488150a
+        version: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/d47955b3ca256b2433d59e1def4fdfb60488150a(@capacitor/core@6.2.0)
       '@zxcvbn-ts/core':
         specifier: ^3.0.4
         version: 3.0.4
@@ -149,6 +161,9 @@ importers:
       async-lock:
         specifier: ^1.4.1
         version: 1.4.1
+      barcode-detector:
+        specifier: ^3.0.6
+        version: 3.0.6(@types/emscripten@1.39.13)
       bignumber.js:
         specifier: ^9.1.2
         version: 9.1.2
@@ -161,12 +176,18 @@ importers:
       capacitor-native-settings:
         specifier: ^6.0.2
         version: 6.0.2(@capacitor/core@6.2.0)
+      capacitor-plugin-safe-area:
+        specifier: ^3.0.4
+        version: 3.0.4(@capacitor/core@6.2.0)
       capacitor-secure-storage-plugin:
         specifier: ^0.10.0
         version: 0.10.0(@capacitor/core@6.2.0)
       capacitor-share-extension:
         specifier: '3'
         version: 3.0.0
+      compressorjs:
+        specifier: ^1.2.1
+        version: 1.2.1
       currency-symbol-map:
         specifier: ^5.1.0
         version: 5.1.0
@@ -203,6 +224,12 @@ importers:
       nanocurrency:
         specifier: ^2.5.0
         version: 2.5.0
+      piexifjs:
+        specifier: ^1.0.6
+        version: 1.0.6
+      power-mode:
+        specifier: ^5.0.0
+        version: 5.0.0(@capacitor/core@6.2.0)
       qrcode.react:
         specifier: ^3.1.0
         version: 3.2.0(react@18.3.1)
@@ -257,6 +284,9 @@ importers:
       use-scroll-restoration:
         specifier: ^1.0.0
         version: 1.0.0(@types/react@18.3.18)
+      virtua:
+        specifier: ^0.43.0
+        version: 0.43.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
         version: 0.22.0(rollup@2.79.2)(vite@5.4.11(@types/node@20.17.12)(terser@5.39.0))
@@ -268,8 +298,8 @@ importers:
         specifier: ^0.5.7
         version: 0.5.10(tailwindcss@3.4.17(ts-node@10.9.2(@swc/core@1.10.7)(@types/node@20.17.12)(typescript@5.7.3)))
       '@tauri-apps/cli':
-        specifier: ^2.0.4
-        version: 2.2.3
+        specifier: ^2.10.0
+        version: 2.10.1
       '@types/bun':
         specifier: ^1.0.12
         version: 1.1.16
@@ -882,6 +912,12 @@ packages:
     resolution: {integrity: sha512-+EzkxvLNfiUeKMgy/3luqfsCWFRXLb7U6wNQTk60tovuckwB15B191tJWvpp4HjiQWdJkCxO3Wbvc6jlk3Xb2Q==}
     engines: {node: '>=6.9.0'}
 
+  '@benskalz/swr-idb-cache@1.1.4':
+    resolution: {integrity: sha512-9FQDWvQAm9QwfZS3dPiS6fZw/AO6QrsK+PBBVfXWNB93vSmWYHUdCOnxIykPiyK9hS0HcfVJLVt0Mva7GUaCzg==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      swr: ^2.0.0-beta.3
+
   '@capacitor-community/bluetooth-le@6.1.0':
     resolution: {integrity: sha512-hnNChEwV+xNOVqDYI4bfkQtFtvEyzBMlgYs+6xsLYTJVl0v8h6Hn3nCwjW9l6LH0tMzYaRYlFLCiGHKPHt1N0Q==}
     peerDependencies:
@@ -903,19 +939,19 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
-  '@capacitor-firebase/messaging@6.3.1':
-    resolution: {integrity: sha512-wbNa0f3Jk1egDj2OZJszmkhJSZhmTYChG4cqPIn4caxo6Ir9NTML9jXwUcBff2afJ1zeOix3XmA3HJzTXLs3LA==}
+  '@capacitor-firebase/messaging@6.1.0':
+    resolution: {integrity: sha512-Sne3WC1nmTt2FuxNfiVvBim+mYjaV47eYLzUmcVyEqGDz+m9NqC6mp+Q81B/X7p5LKiXSUv0A/lpkQVIYRmyAw==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
-      firebase: ^10.9.0 || ^11.0.0
+      firebase: ^10.9.0
     peerDependenciesMeta:
       firebase:
         optional: true
 
-  '@capacitor-mlkit/barcode-scanning@7.2.1':
-    resolution: {integrity: sha512-zz1TYe//Fw/kx+x3cBDgWlskx3DA0BpXLGGaaEFfq+cP2F/3Bf2Gy/2LAKG+eIzMQ/McGGKMnUC6OpzrDqxwww==}
+  '@capacitor-mlkit/barcode-scanning@6.2.0':
+    resolution: {integrity: sha512-XnnErDabpCUty9flugqB646ERejCxrtKcKOJrdoh9ZVLTQXUnyjxUDWOlqHVxrBHy+e86ZgpZX7D5zcaNvS0lQ==}
     peerDependencies:
-      '@capacitor/core': '>=7.0.0'
+      '@capacitor/core': ^6.0.0
 
   '@capacitor/android@6.2.0':
     resolution: {integrity: sha512-3YIDPylV0Q2adEQ/H568p496QdYG0jK/XGMdx7OGSqdBZen92ciAsYdyhLtyl91UVsN1lBhDi5H6j3T2KS6aJg==}
@@ -980,13 +1016,19 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.2.0
 
-  '@capacitor/keyboard@6.0.3':
-    resolution: {integrity: sha512-V/mURxBI68HvClYjrGBlOriWkwYN7r+cWid/igJz/3scNc/V81DgQ9fpoLr4W0I5NY7YxOesjIJLuLO+LT18mQ==}
+  '@capacitor/keyboard@https://codeload.github.com/Benskalz/capacitor-plugins/tar.gz/0b553028bd3c20657f278f072acd5dc8d12bde62':
+    resolution: {tarball: https://codeload.github.com/Benskalz/capacitor-plugins/tar.gz/0b553028bd3c20657f278f072acd5dc8d12bde62}
+    version: 7.0.2
     peerDependencies:
-      '@capacitor/core': ^6.0.0
+      '@capacitor/core': '>=7.0.0'
 
   '@capacitor/local-notifications@6.1.2':
     resolution: {integrity: sha512-LZrwkuh+EaIbpIOeqotUUB31MWA3BF+Hdf9ZdOK9MVJyHG7hL27ja/mx50tO6VW3+nlaXSeygkRZPIuuV4UQRQ==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
+  '@capacitor/preferences@6.0.3':
+    resolution: {integrity: sha512-3I1BbhhCBTMBziVvr0fU7RCRXqGvhUW/apHLRJSaJAWonASya5rp6AWsHv1lW1tkF0avUOMwp6e7iNA4UUGu8g==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
@@ -1007,6 +1049,11 @@ packages:
 
   '@capawesome/capacitor-badge@6.0.0':
     resolution: {integrity: sha512-HaRmS1apdlP51SKXKWr0bwhCJy9gSfP+e8UZuhrIxv6EtRujxkYPTTqDv883uwl4gidzedeUHI7YrGNJkKbdbw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
+  '@capawesome/capacitor-file-picker@6.2.0':
+    resolution: {integrity: sha512-ZgXbC3qOyKJrQh2bQIOLcjAYOdS8+ii1V0zaV56pMAw2i/pitdayvdBs7Da3tTw/eMdUNZ0lBYZcLN6NPQMIvA==}
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
@@ -1894,71 +1941,77 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20 || >= 4.0.0-beta.1'
 
-  '@tauri-apps/api@2.2.0':
-    resolution: {integrity: sha512-R8epOeZl1eJEl603aUMIGb4RXlhPjpgxbGVEaqY+0G5JG9vzV/clNlzTeqc+NLYXVqXcn8mb4c5b9pJIUDEyAg==}
+  '@tauri-apps/api@2.10.1':
+    resolution: {integrity: sha512-hKL/jWf293UDSUN09rR69hrToyIXBb8CjGaWC7gfinvnQrBVvnLr08FeFi38gxtugAVyVcTa5/FD/Xnkb1siBw==}
 
-  '@tauri-apps/cli-darwin-arm64@2.2.3':
-    resolution: {integrity: sha512-dMObP+sEifhnEmQdOqbq+wct2CUjj3DDM0JKT20q3qcaGP5asK68RxPleL0HnU5REXekcYwGV7m6Y8VtLFKrmw==}
+  '@tauri-apps/cli-darwin-arm64@2.10.1':
+    resolution: {integrity: sha512-Z2OjCXiZ+fbYZy7PmP3WRnOpM9+Fy+oonKDEmUE6MwN4IGaYqgceTjwHucc/kEEYZos5GICve35f7ZiizgqEnQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
 
-  '@tauri-apps/cli-darwin-x64@2.2.3':
-    resolution: {integrity: sha512-nNS9+jOoNxIE2qVjE0vxuLNXVTV5VKsTpt0SLDOnO4sp33PRJ8Jiwe3U8Nvv4sn36DXmp9i0lX1WXuDp48dTsA==}
+  '@tauri-apps/cli-darwin-x64@2.10.1':
+    resolution: {integrity: sha512-V/irQVvjPMGOTQqNj55PnQPVuH4VJP8vZCN7ajnj+ZS8Kom1tEM2hR3qbbIRoS3dBKs5mbG8yg1WC+97dq17Pw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
 
-  '@tauri-apps/cli-linux-arm-gnueabihf@2.2.3':
-    resolution: {integrity: sha512-fOzMQHT/5KGesAdDygk2y0zKz5a6jcXkEmvo7wyGp9KEpfJzozBIEzdx7Cvwt//WqXci4SfFq59kUI4ZY3qUAA==}
+  '@tauri-apps/cli-linux-arm-gnueabihf@2.10.1':
+    resolution: {integrity: sha512-Hyzwsb4VnCWKGfTw+wSt15Z2pLw2f0JdFBfq2vHBOBhvg7oi6uhKiF87hmbXOBXUZaGkyRDkCHsdzJcIfoJC2w==}
     engines: {node: '>= 10'}
     cpu: [arm]
     os: [linux]
 
-  '@tauri-apps/cli-linux-arm64-gnu@2.2.3':
-    resolution: {integrity: sha512-qJpwKawgwLNoi34PVbKdCz5CMvB4ru5pvucvtiBaeki5qdBsqlXuhNeUdrhTs+bb2LVNMK4BgzcLSj1WNHeaXg==}
+  '@tauri-apps/cli-linux-arm64-gnu@2.10.1':
+    resolution: {integrity: sha512-OyOYs2t5GkBIvyWjA1+h4CZxTcdz1OZPCWAPz5DYEfB0cnWHERTnQ/SLayQzncrT0kwRoSfSz9KxenkyJoTelA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
 
-  '@tauri-apps/cli-linux-arm64-musl@2.2.3':
-    resolution: {integrity: sha512-lkiaMNFU4aDXO1QXUZ97ERtxOc1952oEpMRXtRrpwIJutKlLg08Nm2fiaH3vKbGXFvuRBL68rO1xBOKZ8CYpJQ==}
+  '@tauri-apps/cli-linux-arm64-musl@2.10.1':
+    resolution: {integrity: sha512-MIj78PDDGjkg3NqGptDOGgfXks7SYJwhiMh8SBoZS+vfdz7yP5jN18bNaLnDhsVIPARcAhE1TlsZe/8Yxo2zqg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
 
-  '@tauri-apps/cli-linux-x64-gnu@2.2.3':
-    resolution: {integrity: sha512-yTKk5i50UQCrL0OhMin+ThzXWFXbH3O93tcX5eKQh3ZUS2BXQkDdGmYmwsIgdqevMOQTj19PasxY5SgPzCi5CA==}
+  '@tauri-apps/cli-linux-riscv64-gnu@2.10.1':
+    resolution: {integrity: sha512-X0lvOVUg8PCVaoEtEAnpxmnkwlE1gcMDTqfhbefICKDnOTJ5Est3qL0SrWxizDackIOKBcvtpejrSiVpuJI1kw==}
+    engines: {node: '>= 10'}
+    cpu: [riscv64]
+    os: [linux]
+
+  '@tauri-apps/cli-linux-x64-gnu@2.10.1':
+    resolution: {integrity: sha512-2/12bEzsJS9fAKybxgicCDFxYD1WEI9kO+tlDwX5znWG2GwMBaiWcmhGlZ8fi+DMe9CXlcVarMTYc0L3REIRxw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  '@tauri-apps/cli-linux-x64-musl@2.2.3':
-    resolution: {integrity: sha512-eP4F+DihyShB7PV2rw7NYRtcJWod7qtJkVaF4BvW+kk0TXWsp1tQIjKGh5LA7wrWXGdeOZrLHRbQY9ArVXkAdA==}
+  '@tauri-apps/cli-linux-x64-musl@2.10.1':
+    resolution: {integrity: sha512-Y8J0ZzswPz50UcGOFuXGEMrxbjwKSPgXftx5qnkuMs2rmwQB5ssvLb6tn54wDSYxe7S6vlLob9vt0VKuNOaCIQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  '@tauri-apps/cli-win32-arm64-msvc@2.2.3':
-    resolution: {integrity: sha512-b/OoNk3PiFPzYvS+AMBEuv7s4vCxv8tWSwm9WKkSbankyFJq41KdIujlODYOaAgeQoA2sXwbAeQ7b+wQfu8L6g==}
+  '@tauri-apps/cli-win32-arm64-msvc@2.10.1':
+    resolution: {integrity: sha512-iSt5B86jHYAPJa/IlYw++SXtFPGnWtFJriHn7X0NFBVunF6zu9+/zOn8OgqIWSl8RgzhLGXQEEtGBdR4wzpVgg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
 
-  '@tauri-apps/cli-win32-ia32-msvc@2.2.3':
-    resolution: {integrity: sha512-0s2BUQ08MB7ucySH/iLWP9JS0VIBI+uViRL9bifOpTjKSVk1EGSYQy1K+jR1bch9U1L/nJE8wXPlhgmsOpOAdA==}
+  '@tauri-apps/cli-win32-ia32-msvc@2.10.1':
+    resolution: {integrity: sha512-gXyxgEzsFegmnWywYU5pEBURkcFN/Oo45EAwvZrHMh+zUSEAvO5E8TXsgPADYm31d1u7OQU3O3HsYfVBf2moHw==}
     engines: {node: '>= 10'}
     cpu: [ia32]
     os: [win32]
 
-  '@tauri-apps/cli-win32-x64-msvc@2.2.3':
-    resolution: {integrity: sha512-QQpiuMKJS3uMfsf5wrAf36qnxGnEQ/i0YcBWMU7HJnYRLEcwpUT4PWVdzLS0ltrA7hDqsHV3leI/KGbdllpVDw==}
+  '@tauri-apps/cli-win32-x64-msvc@2.10.1':
+    resolution: {integrity: sha512-6Cn7YpPFwzChy0ERz6djKEmUehWrYlM+xTaNzGPgZocw3BD7OfwfWHKVWxXzdjEW2KfKkHddfdxK1XXTYqBRLg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
 
-  '@tauri-apps/cli@2.2.3':
-    resolution: {integrity: sha512-tvI/wEL1v//Qka1CDTCXR1cvwNCguJ0PtqXhdHBcKiT7DPZuFV/ZYUTygy+HpiP0b25t4XksoJqTeETxOtlb/Q==}
+  '@tauri-apps/cli@2.10.1':
+    resolution: {integrity: sha512-jQNGF/5quwORdZSSLtTluyKQ+o6SMa/AUICfhf4egCGFdMHqWssApVgYSbg+jmrZoc8e1DscNvjTnXtlHLS11g==}
     engines: {node: '>= 10'}
     hasBin: true
 
@@ -1968,8 +2021,14 @@ packages:
   '@tauri-apps/plugin-notification@2.2.0':
     resolution: {integrity: sha512-uhE3a2gFlqwiWhY/JbhXOF13K4iILEYxUk0D2Y+q69HP6tnfPqKCuNTHxDM0H+oFAakXESNmJVnYw0Vi4IrMMQ==}
 
-  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a':
-    resolution: {tarball: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a}
+  '@tauri-apps/plugin-process@2.3.1':
+    resolution: {integrity: sha512-nCa4fGVaDL/B9ai03VyPOjfAHRHSBz5v6F/ObsB73r/dA3MHHhZtldaDMIc0V/pnUw9ehzr2iEG+XkSEyC0JJA==}
+
+  '@tauri-apps/plugin-updater@2.9.0':
+    resolution: {integrity: sha512-j++sgY8XpeDvzImTrzWA08OqqGqgkNyxczLD7FjNJJx/uXxMZFz5nDcfkyoI/rCjYuj2101Tci/r/HFmOmoxCg==}
+
+  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/d47955b3ca256b2433d59e1def4fdfb60488150a':
+    resolution: {tarball: https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/d47955b3ca256b2433d59e1def4fdfb60488150a}
     version: 3.1.1
     peerDependencies:
       '@capacitor/core': ^4.6.3
@@ -2004,9 +2063,6 @@ packages:
 
   '@types/dom-chromium-installation-events@101.0.4':
     resolution: {integrity: sha512-jV4HXmW5D18bpndzAPF1REGE5xagQqrAexHgX9WoWIPpNaaHtsHQgu5uFbL2z0NIc9fOD0TIC1TRpJhYA1OPxw==}
-
-  '@types/dom-webcodecs@0.1.11':
-    resolution: {integrity: sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==}
 
   '@types/emscripten@1.39.13':
     resolution: {integrity: sha512-cFq+fO/isvhvmuP/+Sl4K4jtU6E23DoivtbO4r50e3odaxAiVdbfSYRDdJ4gCdxx+3aRjhphS5ZMwIH4hFy/Cw==}
@@ -2102,12 +2158,6 @@ packages:
   '@xmldom/xmldom@0.8.10':
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
-
-  '@yudiel/react-qr-scanner@2.1.0':
-    resolution: {integrity: sha512-O3832Qk8YU+vnLO+tsJalfQcXRZ1pOB9l6WrI3OdwpxkQEzukpT48M6Hc2vUUe1rFE6qapQnV3RGRFNM0S7CHw==}
-    peerDependencies:
-      react: ^17 || ^18 || ^19
-      react-dom: ^17 || ^18 || ^19
 
   '@zxcvbn-ts/core@3.0.4':
     resolution: {integrity: sha512-aQeiT0F09FuJaAqNrxynlAwZ2mW/1MdXakKWNmGM1Qp/VaY6CnB/GfnMS2T8gB2231Esp1/maCWd8vTG4OuShw==}
@@ -2289,8 +2339,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  barcode-detector@2.3.1:
-    resolution: {integrity: sha512-D9KEtrquS1tmBZduxBZl8qublIKnRrFqD8TAHDYcLCyrHQBo+vitIxmjMJ61LvXjXyAMalOlO7q0Oh/9Rl2PbQ==}
+  barcode-detector@3.0.6:
+    resolution: {integrity: sha512-v4xTr6B+FINl/p1RDl38qzIwF+Repfo+k/a/HlKTJKAJpNvACD6v7AH7LSPvfR4AdzXXuwai04huA4TWn02Znw==}
 
   bare-events@2.5.4:
     resolution: {integrity: sha512-+gFfDkR8pj4/TrWCGUGWmJIkBwuxPS5F+a5yWjOHQt2hHvNZd5YLzadjmDUtFmMM4y429bnKLa8bYBMHcYdnQA==}
@@ -2350,6 +2400,9 @@ packages:
 
   blakejs@1.2.1:
     resolution: {integrity: sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ==}
+
+  blueimp-canvas-to-blob@3.29.0:
+    resolution: {integrity: sha512-0pcSSGxC0QxT+yVkivxIqW0Y4VlO2XSDPofBAqoJ1qJxgH9eiUDLv50Rixij2cDuEfx4M6DpD9UGZpRhT5Q8qg==}
 
   bn.js@4.12.1:
     resolution: {integrity: sha512-k8TVBiPkPJT9uHLdOKfFpqcfprwBFOAAXXozRubr7R7PfIuKvQlzcI4M0pALeqXN09vdaMbUdUj+pass+uULAg==}
@@ -2494,6 +2547,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
+  capacitor-plugin-safe-area@3.0.4:
+    resolution: {integrity: sha512-Ccw0MMSo+IPDWZT5qGS6PSV5ifRBBrq/TnejVHZeIULgxkMeTxzdwoPRczCTF/oAZgcLVeaahQrF7c8Gh9wqVw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
+
   capacitor-secure-storage-plugin@0.10.0:
     resolution: {integrity: sha512-dV4E+HTZAJWC3gef7sBXaAkkb6wvcZHyXjJIHXNb3yz9gRQ/5VMLqCxa0khqpwgWh5oIbo4XFxg3g5tEkfaNMg==}
     peerDependencies:
@@ -2620,6 +2678,9 @@ packages:
 
   compare-func@2.0.0:
     resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==}
+
+  compressorjs@1.2.1:
+    resolution: {integrity: sha512-+geIjeRnPhQ+LLvvA7wxBQE5ddeLU7pJ3FsKFWirDw6veY3s9iLxAQEw7lXGHnhCJvBujEQWuNnGzZcvCvdkLQ==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -3484,6 +3545,10 @@ packages:
     resolution: {integrity: sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==}
     engines: {node: '>=8'}
 
+  is-blob@2.1.0:
+    resolution: {integrity: sha512-SZ/fTft5eUhQM6oF/ZaASFDEdbFVe89Imltn9uZr03wdKMcWNVYSMjQPFtg05QuNkt5l5c135ElvXEQG0rk4tw==}
+    engines: {node: '>=6'}
+
   is-boolean-object@1.2.2:
     resolution: {integrity: sha512-wa56o2/ElJMYqjCjGkXri7it5FbebW5usLw/nPmCMs5DeZ7eziSYZhSmPRn0txqeW4LnAmQQU7FgqLpsEFKM4A==}
     engines: {node: '>= 0.4'}
@@ -4220,6 +4285,9 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
+  piexifjs@1.0.6:
+    resolution: {integrity: sha512-0wVyH0cKohzBQ5Gi2V1BuxYpxWfxF3cSqfFXfPIpl5tl9XLS5z4ogqhUCD20AbHi0h9aJkqXNJnkVev6gwh2ag==}
+
   pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
@@ -4454,6 +4522,11 @@ packages:
   postcss@8.4.49:
     resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
     engines: {node: ^10 || ^12 || >=14}
+
+  power-mode@5.0.0:
+    resolution: {integrity: sha512-8hqYLd2VLmmbO9v2z1X6GeSVv7V7BrFyiRhl9MaBvlko6SjYmJKh14d6tO4E8q+V6V30nYzHFhCCWwaEOHojyQ==}
+    peerDependencies:
+      '@capacitor/core': ^5.0.0
 
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
@@ -4847,9 +4920,6 @@ packages:
     resolution: {integrity: sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==}
     engines: {node: '>=0.10.0'}
 
-  sdp@3.2.0:
-    resolution: {integrity: sha512-d7wDPgDV3DDiqulJjKiV2865wKsJ34YI+NDREbm+FySq6WuKOikwyNQcm+doLAZ1O6ltdO0SeKle2xMpN3Brgw==}
-
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
     hasBin: true
@@ -5139,6 +5209,10 @@ packages:
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  tagged-tag@1.0.0:
+    resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
+    engines: {node: '>=20'}
+
   tailwindcss@3.4.17:
     resolution: {integrity: sha512-w33E2aCvSDP0tW9RZuNXadXlkHXqFzSkQew/aIa2i/Sj8fThxwovwlXHSPXTbAHwEIhBFXAedUhP2tueAKP8Og==}
     engines: {node: '>=14.0.0'}
@@ -5283,6 +5357,10 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
 
+  type-fest@5.0.1:
+    resolution: {integrity: sha512-9MpwAI52m8H6ssA542UxSLnSiSD2dsC3/L85g6hVubLSXd82wdI80eZwTWhdOfN67NlA+D+oipAs1MlcTcu3KA==}
+    engines: {node: '>=20'}
+
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
     engines: {node: '>= 0.4'}
@@ -5407,6 +5485,26 @@ packages:
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
+  virtua@0.43.6:
+    resolution: {integrity: sha512-FcIkIUibw5SSCywhTbg0R0nKmFhILWCVrAIWesckitsXX5IOrWYqtDpT/GLmIuZIrTB9A/+3DnmL5uvDgKWmFQ==}
+    peerDependencies:
+      react: '>=16.14.0'
+      react-dom: '>=16.14.0'
+      solid-js: '>=1.0'
+      svelte: '>=5.0'
+      vue: '>=3.2'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+
   vite-plugin-node-polyfills@0.22.0:
     resolution: {integrity: sha512-F+G3LjiGbG8QpbH9bZ//GSBr9i1InSTkaulfUHFa9jkLqVGORFBoqc2A/Yu5Mmh1kNAbiAeKeK+6aaQUf3x0JA==}
     peerDependencies:
@@ -5470,10 +5568,6 @@ packages:
 
   webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
-
-  webrtc-adapter@9.0.1:
-    resolution: {integrity: sha512-1AQO+d4ElfVSXyzNVTOewgGT/tAomwwztX/6e3totvyyzXPvXIIuUUjAmyZGbKBKbZOXauuJooZm3g6IuFuiNQ==}
-    engines: {node: '>=6.0.0', npm: '>=3.10.0'}
 
   websocket-driver@0.7.4:
     resolution: {integrity: sha512-b17KeDIQVjvb0ssuSDF2cYXSg2iztliJ4B9WdsuB6J952qCPKmnVq4DyW5motImXHDC1cBT/1UezrJVsKw5zjg==}
@@ -5698,8 +5792,10 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zxing-wasm@1.3.4:
-    resolution: {integrity: sha512-9l0QymyATF19FmI92QHe7Dayb+BUN7P7zFAt5iDgTnUf0dFWokz6GVA/W9EepjW5q8s3e89fIE/7uxpX27yqEQ==}
+  zxing-wasm@2.2.2:
+    resolution: {integrity: sha512-Q9/B9whEwAUABvr7ScHl36wVZTBWVHAaumx45uGQLl2GGRp5ZRtDtwbz5scOwl/xzL07fximIqoQqqmzf9eJJA==}
+    peerDependencies:
+      '@types/emscripten': '>=1.39.6'
 
 snapshots:
 
@@ -6422,6 +6518,12 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
+  '@benskalz/swr-idb-cache@1.1.4(react@18.3.1)(swr@2.3.0(react@18.3.1))':
+    dependencies:
+      idb: 7.1.1
+      react: 18.3.1
+      swr: 2.3.0(react@18.3.1)
+
   '@capacitor-community/bluetooth-le@6.1.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
@@ -6439,13 +6541,13 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
-  '@capacitor-firebase/messaging@6.3.1(@capacitor/core@6.2.0)(firebase@11.6.1)':
+  '@capacitor-firebase/messaging@6.1.0(@capacitor/core@6.2.0)(firebase@11.6.1)':
     dependencies:
       '@capacitor/core': 6.2.0
     optionalDependencies:
       firebase: 11.6.1
 
-  '@capacitor-mlkit/barcode-scanning@7.2.1(@capacitor/core@6.2.0)':
+  '@capacitor-mlkit/barcode-scanning@6.2.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
@@ -6556,11 +6658,15 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
-  '@capacitor/keyboard@6.0.3(@capacitor/core@6.2.0)':
+  '@capacitor/keyboard@https://codeload.github.com/Benskalz/capacitor-plugins/tar.gz/0b553028bd3c20657f278f072acd5dc8d12bde62(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
   '@capacitor/local-notifications@6.1.2(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
+  '@capacitor/preferences@6.0.3(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
@@ -6577,6 +6683,10 @@ snapshots:
       '@capacitor/core': 6.2.0
 
   '@capawesome/capacitor-badge@6.0.0(@capacitor/core@6.2.0)':
+    dependencies:
+      '@capacitor/core': 6.2.0
+
+  '@capawesome/capacitor-file-picker@6.2.0(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
 
@@ -7559,60 +7669,72 @@ snapshots:
       mini-svg-data-uri: 1.4.4
       tailwindcss: 3.4.17(ts-node@10.9.2(@swc/core@1.10.7)(@types/node@20.17.12)(typescript@5.7.3))
 
-  '@tauri-apps/api@2.2.0': {}
+  '@tauri-apps/api@2.10.1': {}
 
-  '@tauri-apps/cli-darwin-arm64@2.2.3':
+  '@tauri-apps/cli-darwin-arm64@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-darwin-x64@2.2.3':
+  '@tauri-apps/cli-darwin-x64@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-linux-arm-gnueabihf@2.2.3':
+  '@tauri-apps/cli-linux-arm-gnueabihf@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-linux-arm64-gnu@2.2.3':
+  '@tauri-apps/cli-linux-arm64-gnu@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-linux-arm64-musl@2.2.3':
+  '@tauri-apps/cli-linux-arm64-musl@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-linux-x64-gnu@2.2.3':
+  '@tauri-apps/cli-linux-riscv64-gnu@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-linux-x64-musl@2.2.3':
+  '@tauri-apps/cli-linux-x64-gnu@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-win32-arm64-msvc@2.2.3':
+  '@tauri-apps/cli-linux-x64-musl@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-win32-ia32-msvc@2.2.3':
+  '@tauri-apps/cli-win32-arm64-msvc@2.10.1':
     optional: true
 
-  '@tauri-apps/cli-win32-x64-msvc@2.2.3':
+  '@tauri-apps/cli-win32-ia32-msvc@2.10.1':
     optional: true
 
-  '@tauri-apps/cli@2.2.3':
+  '@tauri-apps/cli-win32-x64-msvc@2.10.1':
+    optional: true
+
+  '@tauri-apps/cli@2.10.1':
     optionalDependencies:
-      '@tauri-apps/cli-darwin-arm64': 2.2.3
-      '@tauri-apps/cli-darwin-x64': 2.2.3
-      '@tauri-apps/cli-linux-arm-gnueabihf': 2.2.3
-      '@tauri-apps/cli-linux-arm64-gnu': 2.2.3
-      '@tauri-apps/cli-linux-arm64-musl': 2.2.3
-      '@tauri-apps/cli-linux-x64-gnu': 2.2.3
-      '@tauri-apps/cli-linux-x64-musl': 2.2.3
-      '@tauri-apps/cli-win32-arm64-msvc': 2.2.3
-      '@tauri-apps/cli-win32-ia32-msvc': 2.2.3
-      '@tauri-apps/cli-win32-x64-msvc': 2.2.3
+      '@tauri-apps/cli-darwin-arm64': 2.10.1
+      '@tauri-apps/cli-darwin-x64': 2.10.1
+      '@tauri-apps/cli-linux-arm-gnueabihf': 2.10.1
+      '@tauri-apps/cli-linux-arm64-gnu': 2.10.1
+      '@tauri-apps/cli-linux-arm64-musl': 2.10.1
+      '@tauri-apps/cli-linux-riscv64-gnu': 2.10.1
+      '@tauri-apps/cli-linux-x64-gnu': 2.10.1
+      '@tauri-apps/cli-linux-x64-musl': 2.10.1
+      '@tauri-apps/cli-win32-arm64-msvc': 2.10.1
+      '@tauri-apps/cli-win32-ia32-msvc': 2.10.1
+      '@tauri-apps/cli-win32-x64-msvc': 2.10.1
 
   '@tauri-apps/plugin-deep-link@2.2.0':
     dependencies:
-      '@tauri-apps/api': 2.2.0
+      '@tauri-apps/api': 2.10.1
 
   '@tauri-apps/plugin-notification@2.2.0':
     dependencies:
-      '@tauri-apps/api': 2.2.0
+      '@tauri-apps/api': 2.10.1
 
-  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/b390c4181157c3dd758a1e6aaf3e3f9d405dbe8a(@capacitor/core@6.2.0)':
+  '@tauri-apps/plugin-process@2.3.1':
+    dependencies:
+      '@tauri-apps/api': 2.10.1
+
+  '@tauri-apps/plugin-updater@2.9.0':
+    dependencies:
+      '@tauri-apps/api': 2.10.1
+
+  '@teamhive/capacitor-webview-overlay@https://codeload.github.com/Benskalz/capacitor-webview-overlay/tar.gz/d47955b3ca256b2433d59e1def4fdfb60488150a(@capacitor/core@6.2.0)':
     dependencies:
       '@capacitor/core': 6.2.0
       resize-observer-polyfill: 1.5.1
@@ -7673,8 +7795,6 @@ snapshots:
       '@types/har-format': 1.2.16
 
   '@types/dom-chromium-installation-events@101.0.4': {}
-
-  '@types/dom-webcodecs@0.1.11': {}
 
   '@types/emscripten@1.39.13': {}
 
@@ -7758,13 +7878,6 @@ snapshots:
   '@xmldom/xmldom@0.7.13': {}
 
   '@xmldom/xmldom@0.8.10': {}
-
-  '@yudiel/react-qr-scanner@2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      barcode-detector: 2.3.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      webrtc-adapter: 9.0.1
 
   '@zxcvbn-ts/core@3.0.4':
     dependencies:
@@ -7971,10 +8084,11 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  barcode-detector@2.3.1:
+  barcode-detector@3.0.6(@types/emscripten@1.39.13):
     dependencies:
-      '@types/dom-webcodecs': 0.1.11
-      zxing-wasm: 1.3.4
+      zxing-wasm: 2.2.2(@types/emscripten@1.39.13)
+    transitivePeerDependencies:
+      - '@types/emscripten'
 
   bare-events@2.5.4:
     optional: true
@@ -8024,6 +8138,8 @@ snapshots:
       readable-stream: 3.6.2
 
   blakejs@1.2.1: {}
+
+  blueimp-canvas-to-blob@3.29.0: {}
 
   bn.js@4.12.1: {}
 
@@ -8199,6 +8315,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.0
 
+  capacitor-plugin-safe-area@3.0.4(@capacitor/core@6.2.0):
+    dependencies:
+      '@capacitor/core': 6.2.0
+
   capacitor-secure-storage-plugin@0.10.0(@capacitor/core@6.2.0):
     dependencies:
       '@capacitor/core': 6.2.0
@@ -8322,6 +8442,11 @@ snapshots:
     dependencies:
       array-ify: 1.0.0
       dot-prop: 5.3.0
+
+  compressorjs@1.2.1:
+    dependencies:
+      blueimp-canvas-to-blob: 3.29.0
+      is-blob: 2.1.0
 
   concat-map@0.0.1: {}
 
@@ -9402,6 +9527,8 @@ snapshots:
     dependencies:
       binary-extensions: 2.3.0
 
+  is-blob@2.1.0: {}
+
   is-boolean-object@1.2.2:
     dependencies:
       call-bound: 1.0.4
@@ -10113,6 +10240,8 @@ snapshots:
 
   pidtree@0.6.0: {}
 
+  piexifjs@1.0.6: {}
+
   pify@2.3.0: {}
 
   pify@3.0.0: {}
@@ -10324,6 +10453,10 @@ snapshots:
       nanoid: 3.3.8
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  power-mode@5.0.0(@capacitor/core@6.2.0):
+    dependencies:
+      '@capacitor/core': 6.2.0
 
   prebuild-install@7.1.3:
     dependencies:
@@ -10784,8 +10917,6 @@ snapshots:
 
   screenfull@5.2.0: {}
 
-  sdp@3.2.0: {}
-
   semver@5.7.2: {}
 
   semver@6.3.1: {}
@@ -11141,6 +11272,8 @@ snapshots:
       react: 18.3.1
       use-sync-external-store: 1.4.0(react@18.3.1)
 
+  tagged-tag@1.0.0: {}
+
   tailwindcss@3.4.17(ts-node@10.9.2(@swc/core@1.10.7)(@types/node@20.17.12)(typescript@5.7.3)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
@@ -11326,6 +11459,10 @@ snapshots:
 
   type-fest@0.8.1: {}
 
+  type-fest@5.0.1:
+    dependencies:
+      tagged-tag: 1.0.0
+
   typed-array-buffer@1.0.3:
     dependencies:
       call-bound: 1.0.4
@@ -11454,6 +11591,11 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
+  virtua@0.43.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    optionalDependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   vite-plugin-node-polyfills@0.22.0(rollup@2.79.2)(vite@5.4.11(@types/node@20.17.12)(terser@5.39.0)):
     dependencies:
       '@rollup/plugin-inject': 5.0.5(rollup@2.79.2)
@@ -11492,10 +11634,6 @@ snapshots:
   webidl-conversions@3.0.1: {}
 
   webidl-conversions@4.0.2: {}
-
-  webrtc-adapter@9.0.1:
-    dependencies:
-      sdp: 3.2.0
 
   websocket-driver@0.7.4:
     dependencies:
@@ -11807,6 +11945,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zxing-wasm@1.3.4:
+  zxing-wasm@2.2.2(@types/emscripten@1.39.13):
     dependencies:
       '@types/emscripten': 1.39.13
+      type-fest: 5.0.1

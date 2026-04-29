@@ -341,14 +341,12 @@ const right = (
                 onClick={() => {
                     onChatSelect(chat.id)
                     // local mutate to update unread count
-                    if (chat.unreadCount) {
                         mutate(
                             chats.map(c =>
                                 c.id === chat.id ? { ...c, unreadCount: 0 } : c
                             ),
                             false
                         );
-                    }
                 }}
                 extra={
                     <div className="flex flex-col items-end">

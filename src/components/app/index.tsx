@@ -111,6 +111,11 @@ export const MenuBar = () => {
 
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
+  const [cachedSafeBottom] = useLocalStorageState<number>(
+    "cached-safe-area-inset-bottom",
+    { defaultValue: 0 }
+  );
+  const isIOS = Capacitor.getPlatform() === "ios";
   const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
   const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
 
@@ -195,7 +200,9 @@ export const MenuBar = () => {
         "WebkitUserSelect": "none",
         "MozUserSelect": "none",
         "msUserSelect": "none",
-        "marginBottom": "var(--safe-area-inset-bottom)"
+        "marginBottom": isIOS
+          ? `max(var(--safe-area-inset-bottom), ${cachedSafeBottom}px)`
+          : "var(--safe-area-inset-bottom)"
       }}
         className={"bottom"}
         activeKey={location.pathname.split("/")[1] || "chat"}
@@ -294,6 +301,50 @@ hideHistory={true} defaultFrom={ticker} defaultTo={"BAN"} />}
 function SafeAreaWrapper({ children, callback }) {
   const location = useLocation();
   const navigate = useNavigate();
+  // Cache the resolved safe-area-inset-top to avoid flicker on iOS when the
+  // app is woken by a silent push: env(safe-area-inset-top) briefly resolves
+  // to 0 before the WebView reapplies the real inset, which collapses the
+  // header. We persist the last known good value and use it as a fallback.
+  const [cachedSafeTop, setCachedSafeTop] = useLocalStorageState<number>(
+    "cached-safe-area-inset-top",
+    { defaultValue: 0 }
+  );
+  const [cachedSafeBottom, setCachedSafeBottom] = useLocalStorageState<number>(
+    "cached-safe-area-inset-bottom",
+    { defaultValue: 0 }
+  );
+
+  useEffect(() => {
+    let removeListener: (() => void) | undefined;
+
+    const apply = (insets: { top: number; bottom: number }) => {
+      if (insets.top > 0 && insets.top !== cachedSafeTop) {
+        setCachedSafeTop(insets.top);
+      }
+      if (insets.bottom > 0 && insets.bottom !== cachedSafeBottom) {
+        setCachedSafeBottom(insets.bottom);
+      }
+    };
+
+    if (Capacitor.getPlatform() === "ios") {
+      // iOS-only: env(safe-area-inset-*) briefly resolves to 0 when the
+      // WebView is woken by a silent push. Cache the real native insets so
+      // we can use them as a CSS max() fallback. Other platforms don't have
+      // this bug, so we skip the work entirely.
+      import("capacitor-plugin-safe-area").then(({ SafeArea }) => {
+        SafeArea.getSafeAreaInsets().then(({ insets }) => apply(insets));
+        SafeArea.addListener("safeAreaChanged", ({ insets }) =>
+          apply(insets)
+        ).then((handle) => {
+          removeListener = () => handle.remove();
+        });
+      });
+    } 
+
+    return () => {
+      removeListener?.();
+    };
+  }, [cachedSafeTop, setCachedSafeTop, cachedSafeBottom, setCachedSafeBottom]);
 
   async function checkIntent() {
   try {
@@ -344,7 +395,10 @@ if (Capacitor.isPluginAvailable('ShareExtension')) {
     <>
       <div
       style={{
-        "paddingTop": "var(--safe-area-inset-top)",
+        "paddingTop":
+          Capacitor.getPlatform() === "ios"
+            ? `max(var(--safe-area-inset-top), ${cachedSafeTop}px)`
+            : "var(--safe-area-inset-top)",
         backgroundColor: 
           location.pathname.startsWith("/wallet") ?
           "var(--main-background-color)" :
