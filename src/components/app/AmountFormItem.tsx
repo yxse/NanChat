@@ -153,7 +153,6 @@ if (type === "airdrop"){
       validateFirst
       required={false}
       extra={
-        type == "airdrop" ? currency : // show currency only for airdrop
         <div 
         className="flex justify-between space-x-2 items-center mr-22">
           <div
