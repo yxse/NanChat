@@ -98,7 +98,7 @@ const saveScrollPosition = useCallback(
     const {chat, isLoading} = useChats(account);
     const safeMutate = useImmediateSafeMutate(mutate);
     const virtualized = Capacitor.getPlatform() !== "ios"
-    console.log("chats", chat);
+    // console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
     let participant = names?.find(participant => participant._id !== activeAccount)
@@ -115,7 +115,6 @@ const saveScrollPosition = useCallback(
     const showSpinnerLoadingMoreInHeader = (!isLoadingInitial && !isLoadingFirstPage && messages.length >= LIMIT_MESSAGES_INITIAL) && isLoadingMore && virtualized // we show spinner in header when using virtualizer to maybe prevent content shift / fix scroll to bottom
     // const showSpinnerLoadingMoreInHeader = false
     const { data: nanwalletAccount, isLoading: isLoadingNanwalletAccount } = useSWR(isNew ? address : null, fetcherAccount);
-    const nameOrAccount = participant?.name || formatAddress(address);
     const location = useLocation();
     const accountExists = isLoadingNanwalletAccount || nanwalletAccount?.error === undefined;
     const chatLocked = (chat == null && 

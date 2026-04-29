@@ -168,6 +168,7 @@ export const VirtualizedMessagesVirtua = ({
   }, [eventAddVisible])
 
   useEffect(() => {
+    if (Capacitor.getPlatform() === 'web') return; // Keyboard events are only relevant for native platforms
     Keyboard.addListener('keyboardWillShow', info => {
       const safeAreaBottomValue = parseInt(window.getComputedStyle(document.body).getPropertyValue('--android-inset-bottom-buttons').split('px')[0] || 0)
       console.log('keyboard will show with height:', info.keyboardHeight);
