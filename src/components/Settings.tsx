@@ -40,6 +40,7 @@ import { refreshStatusBarTheme } from "./messaging/utils";
 import { clearDb } from "../services/database.service";
 import { useContacts } from "./messaging/components/contacts/ImportContactsFromShare";
 import ReduceAnimation from "./settings/ReduceAnimation";
+import appVersion from "../../version.json";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useWindowDimensions();
@@ -695,6 +696,9 @@ className="mb-24"
                 // navigate("/")
               }}
             />
+            </div>
+            <div className="text-center text-xs mt-4 pb-4 select-none" style={{color: "var(--adm-color-text-secondary)"}}>
+              v{appVersion.version}
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "NanChat",
-  "version": "0.1.3",
+  "version": "1.1.0",
   "identifier": "com.nanchat.app",
   "build": {
     "frontendDist": "../dist",
@@ -39,19 +39,22 @@
   },
   "plugins": {
     "deep-link": {
-      "mobile": [
-        { "host": "your.website.com", "pathPrefix": ["/open"] },
-        { "host": "another.site.br" }
-      ],
       "desktop": {
-        "schemes": ["nano", "web-nano", "ban", "nanauth", "nan", "xdg"]
+        "schemes": [
+          "nano",
+          "web-nano",
+          "ban",
+          "nanauth",
+          "nan",
+          "xdg"
+        ]
       }
     },
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzRkY1QjE3OTNCMUI3ODMKUldTRHQ3R1RGMXYvMHhJb21sSjV2VVdxS1NuWnd3dEs1Z21HVWFpR3FwS0N4RmJ4RUtrOUZKeW0K",
       "endpoints": [
         "https://github.com/yxse/nanchat/releases/latest/download/latest.json"
-      ] 
+      ]
     }
   }
 }
