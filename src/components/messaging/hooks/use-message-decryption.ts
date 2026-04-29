@@ -5,6 +5,7 @@ import { decryptGroupMessage, getSharedKey } from '../../../services/sharedkey';
 import { isSpecialMessage } from '../utils';
 import { restoreDataString, setData, setDataString } from '../../../services/database.service';
 import { useWallet } from "../../useWallet";
+import { boxDecryptInWorker } from '../../../worker/decryptClient';
 
 export const decryptChatMessage = async (message, activeAccount, activeAccountPk) => {
    if (isSpecialMessage(message) && !message.redPacket) { 
@@ -29,10 +30,10 @@ export const decryptChatMessage = async (message, activeAccount, activeAccountPk
         if (message.redPacket){
                 return {
                 decrypted: message.content,
-                decryptedRedPacket: box.decrypt(message.redPacket.message, targetAccount, decryptionKey),
+                decryptedRedPacket: await boxDecryptInWorker(message.redPacket.message, targetAccount, decryptionKey),
               }
         }
-        let decrypted = box.decrypt(message.content, targetAccount, decryptionKey);
+        let decrypted = await boxDecryptInWorker(message.content, targetAccount, decryptionKey);
         let decryptedRedPacket, decryptedReply
         
         if (message.replyMessage){

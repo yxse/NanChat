@@ -1,19 +1,18 @@
 import { box } from 'multi-nano-web';
 
-// decryptWorker.js
-self.onmessage = async function(e) {
-  const { targetAccount, decryptionKey, content } = e.data;
-  console.log("web worker decrypting message");
+// Persistent decryption worker.
+// Supports request-id multiplexing so a single worker instance can handle
+// many concurrent box.decrypt calls from the main thread.
+self.onmessage = function (e) {
+  const { id, targetAccount, decryptionKey, content } = e.data || {};
   try {
-    let decrypted = box.decrypt(content, targetAccount, decryptionKey);
-    self.postMessage({ 
-      status: 'success', 
-      decrypted: decrypted
-    });
+    const decrypted = box.decrypt(content, targetAccount, decryptionKey);
+    self.postMessage({ id, status: 'success', decrypted });
   } catch (error) {
-    self.postMessage({ 
-      status: 'error', 
-      error: error.message 
+    self.postMessage({
+      id,
+      status: 'error',
+      error: error && error.message ? error.message : String(error),
     });
   }
 };

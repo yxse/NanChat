@@ -185,7 +185,8 @@ export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().
       let cachedMessages = [];
       let cachedMaxHeight = 0;
     //   debugger
-    
+    console.time('cache')
+
     if (Capacitor.getPlatform() == "web"){
          // on web, capgo/capacitor-data-storage-sqlite use localforage, which renders any filtering very inefficient as need to load all keys each time
          // so for now we just load all messages in memory
@@ -199,7 +200,6 @@ export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().
         for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--) {
             promises.push(getMessageCache(chatId, i));
         }
-console.time('cache')
         const results = await Promise.all(promises);
         cachedMessages = results.filter(data => data).flat();
       console.timeEnd('cache')
@@ -227,11 +227,11 @@ console.time('cache')
             console.time('decrypt new messages')
             const decrypted = [];
             for (const message of messages) {
-                const cache = await getMessageCache(chatId, message.height); // Remove await
+                const cache = await getMessageCache(chatId, message.height); 
                 if (cache == null) {
                     // Only save if not already existing
                     let d = await saveMessageCache(chatId, message, account, accountPk)
-                    decrypted.push(d); // Remove await
+                    decrypted.push(d); 
                 } else {
                     decrypted.push(cache);
                 }
