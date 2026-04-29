@@ -40,21 +40,9 @@ type ProfilePictureProps = {
 };
 
 const ProfilePicture = ({ address, width = 40, borderRadius = 8, clickable = false, src = null }: ProfilePictureProps) => {
-    let chats: any[] = [];
-    try {
-        const { chats: allChats } = useChats();
-        if (Array.isArray(allChats)) chats = allChats;
-    } catch (error) {
-        console.log("cannot load chats in profilepicture", error);
-    }
+  
 
-    // O(1) lookup into the shared map; recomputes only when chats ref or address changes.
-    const pfpFromChats = useMemo(() => {
-        if (src != null || !address || chats.length === 0) return null;
-        return getPfpMap(chats).get(address) ?? null;
-    }, [chats, address, src]);
-
-    const shouldFetchData = src == null && pfpFromChats == null;
+    const shouldFetchData = src == null
 
     const { data, isLoading: isLoadingData } = useSWR(
         shouldFetchData ? address : null,
@@ -66,7 +54,7 @@ const ProfilePicture = ({ address, width = 40, borderRadius = 8, clickable = fal
         }
     );
 
-    const finalSrc = src ?? pfpFromChats ?? data?.profilePicture?.url ?? null;
+    const finalSrc = src ?? data?.profilePicture?.url ?? null;
 
     if (shouldFetchData && isLoadingData) return null;
 
