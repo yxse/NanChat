@@ -106,6 +106,7 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   const {mutate,cache}=useSWRConfig()
   const [amountMode, setAmountMode] = useState<"normal" | "random">("random");
+  const [confirmedAmount, setConfirmedAmount] = useState<number>(0);
   const amount = Form.useWatch("amount", form);
   const quantity = Form.useWatch("quantity", form);
   const amountFiat = Form.useWatch("amountFiat", form);
@@ -122,10 +123,13 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
   }, []);
 
   let amountTotal = 0;
+  // In fiat mode, the form field bound to the input is `amountFiat`, so `amount` may
+  // not trigger a re-render via useWatch. Fall back to reading from the form directly.
+  const cryptoAmountForFooter = amount ?? form.getFieldValue("amount") ?? 0;
   if (amountMode === "random") {
-    amountTotal = amount || 0;
+    amountTotal = Number(cryptoAmountForFooter) || 0;
   } else {
-    amountTotal = (quantity || 1) * (amount || 0);
+    amountTotal = (quantity || 1) * (Number(cryptoAmountForFooter) || 0);
   }
   
 
@@ -169,10 +173,16 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
             form={form}
             onFinish={async (values) => {
               Keyboard.hide()
+              // Read the latest crypto amount from the form (kept in sync by AmountFormItem
+              // even when the user is typing in fiat mode).
+              const cryptoAmount = parseFloat(form.getFieldValue("amount")) || 0;
+              const qty = parseInt(form.getFieldValue("quantity")) || 1;
+              const totalCrypto = amountMode === "random" ? cryptoAmount : qty * cryptoAmount;
+              setConfirmedAmount(totalCrypto);
                dataPrepareSend = wallet.wallets[ticker].prepareSend({
                 source: activeAccount,
                 destination: config?.account,
-                amount: megaToRaw(ticker, amountTotal),
+                amount: megaToRaw(ticker, totalCrypto),
               })
               setDataSend(dataPrepareSend)
               setConfirmPopupOpen(true);
@@ -181,8 +191,11 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
             layout="horizontal"
             footer={
               <div>
-                <div className="text-3xl mb-4">
+                <div className="text-3xl mb-1">
                   {amountTotal} {ticker}
+                </div>
+                <div className="text-sm mb-4" style={{color: "var(--adm-color-text-secondary)"}}>
+                  ~<ConvertToBaseCurrency amount={amountTotal} ticker={ticker} />
                 </div>
               <div className="" style={{
                 // paddingTop: (height <= 745 || !isMobile) ? 0 // on small screen, no padding to prevent overflow, padding is used to prevent content shifting when keyboard is opened
@@ -227,10 +240,16 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
                                   let qty = quantity || 1;
     if (amountMode === "random") {
       setAmountMode("normal");
-      form.setFieldsValue({ amount: (amount / qty) || null });
+      form.setFieldsValue({
+        amount: (amount / qty) || null,
+        amountFiat: (amountFiat / qty) || null,
+      });
     } else {
       setAmountMode("random");
-      form.setFieldsValue({ amount: (amount * qty) || null });
+      form.setFieldsValue({
+        amount: (amount * qty) || null,
+        amountFiat: (amountFiat * qty) || null,
+      });
     }
   }}
                                 className="" style={{color: "var(--adm-color-primary)", textAlign: "left",  marginLeft: 18}}>
@@ -325,10 +344,10 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
               <div className="text-xl  text-center p-2 mb-2">{t('sending')}</div>
                 <div className="text-center">
                   <div className="text-2xl">
-                     {amountTotal} {ticker}
+                     {confirmedAmount} {ticker}
                   </div>
                   <div className="text-base" style={{color: "var(--adm-color-text-secondary)"}}>
-                    ~<ConvertToBaseCurrency amount={amountTotal} ticker={ticker} />
+                    ~<ConvertToBaseCurrency amount={confirmedAmount} ticker={ticker} />
                   </div>
                 </div>
                 <Divider />
@@ -355,14 +374,14 @@ export default function RedPacket({ticker, chatId, onPacketSent}) {
                 </div>
                 <PinAuthPopup
                 location={"send"}
-                description={t('sendButton') + ` ${amountTotal} ${ticker}`}
+                description={t('sendButton') + ` ${confirmedAmount} ${ticker}`}
                 visible={pinVisible}
                 setVisible={setPinVisible}
                 onAuthenticated={async () => {
                                   await sendTransaction({
                                     fromAddress: activeAccount,
                                     toAddress: config?.account,
-                                    amount: amountTotal,
+                                    amount: confirmedAmount,
                                     ticker,
                                     wallet,
                                     form,
