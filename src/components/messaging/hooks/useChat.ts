@@ -118,11 +118,10 @@ export function useChat(chatId) {
 
 
   const reset = async () => { 
-    return
+    // return
     // we use this function to reduce the number of message loaded
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
-    // todo: use virtualize list instead
-    // if (Capacitor.getPlatform() !== "ios") return // we reset only for ios since not using virtualizer
+    if (Capacitor.getPlatform() !== "ios") return // we reset only for ios since not using virtualizer
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
     // await mutate([pages[0]], false); // Keep only first page, no revalidation
