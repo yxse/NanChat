@@ -2,6 +2,18 @@ import { box, tools, wallet } from "multi-nano-web";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../components/messaging/fetcher";
 import { initSqlStore, inMemoryMap, restoreData, setData } from "./database.service";
 
+export async function addSharedKeyForParticipants(chatId: string, newParticipants: string[], existingSharedAccount: string, fromPk: string) {
+    const sharedKey = await getSharedKey(chatId, existingSharedAccount, fromPk);
+    const sharedKeys = newParticipants.map((participant) => {
+        return {
+            sharedAccount: existingSharedAccount,
+            encryptedKey: box.encrypt(sharedKey, participant, fromPk),
+            toAccount: participant
+        }
+    });
+    await fetcherMessagesPost('/sharedKeys', { sharedKeys: sharedKeys, chatId: chatId });
+}
+
 export async function updateSharedKeys(chatId: string, participants: string[], fromPk: string) {
     // 64 bytes shared key hex encoded
     const sharedWallet = wallet.generate();

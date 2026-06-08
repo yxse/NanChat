@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { AccountCard } from '../GroupInfo'
 import { AddOutline, MinusOutline } from 'antd-mobile-icons'
 import NewChatPopup from '../NewChatPopup'
-import { updateSharedKeys } from '../../../../services/sharedkey'
+import { updateSharedKeys, addSharedKeyForParticipants } from '../../../../services/sharedkey'
 import { addParticipants, removeParticipants } from '../../fetcher'
 import { useChats } from '../../hooks/use-chats'
 import { useTranslation } from 'react-i18next'
@@ -57,11 +57,17 @@ function GroupParticipants({chatId}) {
                     <NewChatPopup 
                     alreadySelected={chat?.participants.map((participant) => participant._id)}
                     onAccountSelect={async (accounts) => {
-                        let newParticipants = chat?.participants?.map((participant) => participant._id) || []
-                        newParticipants = newParticipants.concat(accounts)
-                        newParticipants = Array.from(new Set(newParticipants)) // unique
-                        await updateSharedKeys(chat?.id, newParticipants, activeAccountPk) // we generate new shared keys for all the participants, eventually we could reuse the sared key when adding participant                    
-                        let r = await addParticipants(chat?.id, accounts)
+                        if (!chat) return
+                        const currentParticipants = chat.participants.map((participant) => participant._id)
+                        // for optimization purposes, if there are more than 100 participants, we will not regenerate a new 
+                        // shared key for all participants but reuse the existing shared key
+                        if (currentParticipants.length > 100 && chat.sharedAccount) {
+                            await addSharedKeyForParticipants(chat.id, accounts, chat.sharedAccount, activeAccountPk)
+                        } else {
+                            const newParticipants = Array.from(new Set(currentParticipants.concat(accounts)))
+                            await updateSharedKeys(chat.id, newParticipants, activeAccountPk)
+                        }
+                        let r = await addParticipants(chat.id, accounts)
                         if (r.error) {
                             Toast.show({icon: 'fail', content: r.error})
                             return

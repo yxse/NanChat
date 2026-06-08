@@ -94,7 +94,7 @@ export const fetcherChats = async (oldChats, activeAccount, activeAccountPk, cac
         })
     }
 }
-export const fetcherMessages = (url, activeAccountPk) => getChatToken(activeAccountPk).then(async (token) => {
+export const fetcherMessages = (url, activeAccountPk?) => getChatToken(activeAccountPk).then(async (token) => {
     if (token == null){
         throw new Error('Chat token not available')
     }
@@ -261,7 +261,7 @@ export const fetcherAccount = (account) => fetch(import.meta.env.VITE_PUBLIC_BAC
 })
 
 export const openRedPacket = ({id}) => fetcherMessagesPost('/redpacket/open', {id})
-export const fetcherMessagesPost = (url, data, activeAccountPk) => getChatToken(activeAccountPk).then(async (token) => {
+export const fetcherMessagesPost = (url, data, activeAccountPk?) => getChatToken(activeAccountPk).then(async (token) => {
     return fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
     method: 'POST',
     headers: { 

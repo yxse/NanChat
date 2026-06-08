@@ -14,7 +14,8 @@ interface Message {
     lastMessage?: Message;
     unreadCount: number;
     avatar?: string;
-    participants: string[];
+    participants: { _id: string; [key: string]: any }[];
+    sharedAccount?: string;
   }
   
   interface User {
