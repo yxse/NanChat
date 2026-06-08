@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useWindowDimensions } from "./use-windows-dimensions";
+import { useBreakpoint } from "./use-windows-dimensions";
 
 export function useHideNavbarOnMobile(hide) {
-        const {isMobile, width} = useWindowDimensions();
+        const {isMobile, width} = useBreakpoint();
     
     useEffect(() => {
       if (hide && width <= 800) {

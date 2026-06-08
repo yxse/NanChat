@@ -11,7 +11,7 @@ import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
 import { getKey, useChat } from "../hooks/useChat";
 import EmitTyping from "./EmitTyping";
 import ChatInputStickers from "./ChatInputStickers";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import ChatInputAdd from "./ChatInputAdd";
 import { useEmit, useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
@@ -59,7 +59,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
 
 
     const StickerButton = ({stickerVisible, inputAdditionVisible, messageInputRef, setInputAdditionVisible, setStickerVisible}) =>  {
-      const {isMobile} = useWindowDimensions()
+      const {isMobile} = useBreakpoint()
       const iconRisibankGray =  <PiStickerLight style={{width: 32, height: 32}} className="hoverable"  />
       const iconRisibank =  <PiStickerFill style={{width: 32, height: 32}} className="hoverable" />
 
@@ -101,7 +101,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [stickerVisible, setStickerVisible] = useState(undefined);
     const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
-    const {isMobile} = useWindowDimensions()
+    const {isMobile} = useBreakpoint()
     const DRAFT_KEY = 'draft-' + account
 
     // debugger

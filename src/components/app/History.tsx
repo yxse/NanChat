@@ -32,7 +32,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { WalletContext } from "../useWallet";
 import { copyToClipboard, formatAddress, formatAmountMega } from "../../utils/format";
 import { convertAddress } from "../../utils/convertAddress";
-import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../hooks/use-windows-dimensions";
 import CopyAddressPopup from "./CopyAddressPopup";
 import CopyAddressPopupCustom from "./CopyAddressPopupCustom";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -214,7 +214,7 @@ export default function History({ ticker, onSendClick }: { ticker: string }) {
   let history = data?.concat(dataPages)
   const [contacts] = useLocalStorageState("contacts", { defaultValue: [] })
   const navigate = useNavigate();
-  const { isMobile } = useWindowDimensions()
+  const { isMobile } = useBreakpoint()
   const [newContactVisible, setNewContactVisible] = useState(false)
   const [newContactDefaultValues, setNewContactDefaultValues] = useState({
     name: "",

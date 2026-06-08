@@ -27,7 +27,7 @@ import { useWalletBalance } from "../../hooks/use-wallet-balance";
 import Swap from "./Swap";
 import { Capacitor } from "@capacitor/core";
 import { useTranslation } from 'react-i18next'
-import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../hooks/use-windows-dimensions";
 import { ConvertToBaseCurrency } from "../messaging/utils";
 
 
@@ -206,7 +206,7 @@ export const NetworkItem = ({ network, ticker, onClick, hidePrice = false, showR
   const [visible, setVisible] = useState(false);
   const [activeTicker, setActiveTicker] = useState(null);
   const [action, setAction] = useState("");
-  const {isMobile} = useWindowDimensions()
+  const {isMobile} = useBreakpoint()
   const hasPrice = prices?.[ticker]?.usd;
   const ButtonAction = ({ action, text, ticker }) => { 
     return <Button 

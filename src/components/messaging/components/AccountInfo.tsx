@@ -26,7 +26,7 @@ import ProfileName from "./profile/ProfileName";
 import { BlockChatButton } from "./NewMessageWarning";
 import { findNanoAddress, InviteContactButton, MessageButton } from "../../app/Contacts";
 import ChatInputTip from "./ChatInputTip";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { useContact } from "./contacts/ImportContactsFromShare";
 import { CardAddNewContact } from "./contacts/AddNewContact";
 import AddContacts from "../../app/AddContacts";
@@ -67,7 +67,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
         network: 'ALL',
         address: ''
     });
-    const {isMobile} = useWindowDimensions();
+    const {isMobile} = useBreakpoint();
     const inContacts = contacts?.find((contact) => contact.addresses?.find((address) => address.address === account));
 
     const inOnNanchat = name?._id === convertAddress(account, 'XNO');

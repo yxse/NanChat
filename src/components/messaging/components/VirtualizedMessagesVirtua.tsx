@@ -11,7 +11,7 @@ import { Capacitor } from '@capacitor/core';
 import { DownOutline } from 'antd-mobile-icons';
 import { AiOutlineDown } from 'react-icons/ai';
 import { DateHeader, shouldShowDate } from './date-header-component';
-import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
+import { useBreakpoint } from '../../../hooks/use-windows-dimensions';
 import NewMessageWarning from './NewMessageWarning';
 
 export const VirtualizedMessagesVirtua = ({ 
@@ -39,7 +39,7 @@ export const VirtualizedMessagesVirtua = ({
   const eventStickerVisible = useEvent("sticker-visible")
   const eventAddVisible = useEvent("add-visible")
   const shouldStickToBottom = useRef(true);
-  const {isMobile, isTablet} = useWindowDimensions()
+  const {isMobile, isTablet} = useBreakpoint()
   
   // Add these new refs to manage state better
   const isRestoringScroll = useRef(false);
@@ -64,6 +64,38 @@ export const VirtualizedMessagesVirtua = ({
 
   const [pendingScrollTarget, setPendingScrollTarget] = useState<string | null>(null);
 
+  const highlightMessageById = (id: string) => {
+    const doHighlight = (el: Element) => {
+      el.classList.add('message-highlight');
+      el.addEventListener('animationend', () => el.classList.remove('message-highlight'), { once: true });
+    };
+
+    const attachObserver = (el: Element) => {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          observer.disconnect();
+          doHighlight(el);
+        }
+      }, { threshold: 0.5 });
+      observer.observe(el);
+      setTimeout(() => observer.disconnect(), 8000);
+    };
+
+    const el = document.querySelector(`[data-message-id="${id}"]`);
+    if (el) {
+      attachObserver(el);
+    } else {
+      let attempts = 0;
+      const poll = setInterval(() => {
+        const found = document.querySelector(`[data-message-id="${id}"]`);
+        if (found || ++attempts > 80) {
+          clearInterval(poll);
+          if (found) attachObserver(found);
+        }
+      }, 100);
+    }
+  };
+
   useEffect(() => {
     if (!pendingScrollTarget || !virtuaRef.current) return;
     const displayIndex = displayMessagesRef.current.findIndex(m => m._id === pendingScrollTarget);
@@ -71,6 +103,7 @@ export const VirtualizedMessagesVirtua = ({
       requestAnimationFrame(() => {
         virtuaRef.current?.scrollToIndex(displayIndex, { align: 'center', smooth: true });
         setTimeout(() => { isGoingToMessage.current = false; }, 600);
+        highlightMessageById(pendingScrollTarget);
       });
       setPendingScrollTarget(null);
     }
@@ -86,6 +119,7 @@ export const VirtualizedMessagesVirtua = ({
     if (displayIndex !== -1) {
       virtuaRef.current.scrollToIndex(displayIndex, { align: 'center', smooth: true });
       setTimeout(() => { isGoingToMessage.current = false; }, 600);
+      highlightMessageById(replyMessage._id);
       return;
     }
 
@@ -376,7 +410,7 @@ export const VirtualizedMessagesVirtua = ({
           const nextMessage = displayMessages[index - 1];
           
           return (
-            <div key={message._id + "-vlist"}>
+            <div key={message._id + "-vlist"} data-message-id={message._id}>
               <Message
                 key={`${message._id}-${message.status}`}
                 message={message}

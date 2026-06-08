@@ -17,7 +17,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { ModalReceive } from "../Network";
 import Swap from "../Swap";
 import NetworkList from "../NetworksList";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../../utils/haptic";
 import { Capacitor } from "@capacitor/core";
@@ -76,7 +76,7 @@ export const SendReceive = () => {
     const location = useLocation();
     const [visible, setVisible] = useState<boolean>(false);
     const [action, setAction] = useState<"receive" | "send" | "swap">("receive");
-    const {isMobile} = useWindowDimensions()
+    const {isMobile} = useBreakpoint()
     const { t } = useTranslation();
 
     const [activeTicker, setActiveTicker] = useState<string>(null);

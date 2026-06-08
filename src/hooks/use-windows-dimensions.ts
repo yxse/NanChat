@@ -22,12 +22,40 @@ export function useWindowDimensions() {
       setWindowDimensions(getWindowDimensions());
     }
 
-    // bad performance, especially when virtual keyboard opens
-    // window.addEventListener('resize', handleResize);
-    // return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return windowDimensions;
+}
+
+function getBreakpoint() {
+  const width = window.innerWidth;
+  return {
+    width,
+    isMobile: width <= 800,
+    isTablet: width > 800 && width < 1200,
+    isDesktop: width >= 1200,
+  };
+}
+
+export function useBreakpoint() {
+  const [bp, setBp] = useState(getBreakpoint());
+
+  useEffect(() => {
+    function handleResize() {
+      setBp(prev => {
+        const next = getBreakpoint();
+        if (prev.width === next.width) return prev;
+        return next;
+      });
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return bp;
 }
 
 /**

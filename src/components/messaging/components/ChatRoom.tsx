@@ -25,7 +25,7 @@ import GroupAvatar from "./group-avatar";
 import ProfilePicture from "./profile/ProfilePicture";
 import NewMessageWarning from "./NewMessageWarning";
 import { sendNotificationTauri } from "../../../nano/notifications";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
@@ -64,7 +64,7 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     const [autoScroll, setAutoScroll] = useState(true);
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
     // const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
-    const {width} = useWindowDimensions();
+    const {width} = useBreakpoint();
     //   const { ref: messagesEndRef, setScroll } = useScrollRestoration('contacts', {
     //     persist: 'localStorage',
     //   });
@@ -94,7 +94,7 @@ const saveScrollPosition = useCallback(
         hasMore,
         reset
     } = useChat(account);
-    const {isMobile, isTablet} = useWindowDimensions()
+    const {isMobile, isTablet} = useBreakpoint()
     const {chat, isLoading} = useChats(account);
     const messagesRef = useRef(messages);
     useEffect(() => { messagesRef.current = messages; }, [messages]);
@@ -106,6 +106,15 @@ const saveScrollPosition = useCallback(
             const el = document.querySelector(`[data-message-id="${replyMessage._id}"]`);
             if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        observer.disconnect();
+                        el.classList.add('message-highlight');
+                        el.addEventListener('animationend', () => el.classList.remove('message-highlight'), { once: true });
+                    }
+                }, { threshold: 0.5 });
+                observer.observe(el);
+                setTimeout(() => observer.disconnect(), 8000);
                 return true;
             }
             return false;

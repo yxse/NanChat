@@ -2,7 +2,6 @@ import { Card, List, Popup, Toast } from 'antd-mobile';
 import React, { useContext, useState } from 'react'
 import NetworkList, { ItemCopyAddress } from './NetworksList';
 import { CopyIcon } from './Icons';
-import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
 import { WalletContext } from "../useWallet";
 import { convertAddress } from "../../utils/convertAddress";
 import { activeNetworks, networks } from '../../utils/networks';

@@ -10,7 +10,7 @@ import useSWR from "swr";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import GroupAvatar from "./group-avatar";
 import NewChatPopup from "./NewChatPopup";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { DisconnectLedger } from "../../Initialize/Start";
 import { Scanner } from "../../app/Scanner";
 import isValid from 'nano-address-validator';
@@ -114,7 +114,7 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     //     chat.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     // );
     // const accountData = accounts?.find(name => name._id === activeAccount)
-    const {isMobile, width, isTablet} = useWindowDimensions()
+    const {isMobile, width, isTablet} = useBreakpoint()
     const {inviteFriends} = useInviteFriends()
      const [scanOpen, setScanOpen] = useState(false)
     const listRef = useRef(null);

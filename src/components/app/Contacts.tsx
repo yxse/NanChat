@@ -11,7 +11,7 @@ import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AddOutline, DownlandOutline, LinkOutline, LockFill, MailOutline, MessageOutline, ScanCodeOutline, SystemQRcodeOutline, TeamFill, UploadOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
-import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
+import { useBreakpoint } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
 import { useWallet } from "../useWallet";
 import ProfileName from '../messaging/components/profile/ProfileName';
@@ -332,7 +332,7 @@ const Contacts: React.FC = ({onlyImport = false}) => {
     const { activeAccount } = useWallet()
     const {data: me} = useSWR(activeAccount, fetcherAccount);
     const [scanOpen, setScanOpen] = useState(false)
-  const {isMobile} = useWindowDimensions()
+  const {isMobile} = useBreakpoint()
   const { ref, setScroll } = useScrollRestoration('contacts', {
     persist: 'localStorage',
   });

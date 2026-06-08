@@ -12,14 +12,18 @@ import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
 import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
 
 export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includeProfileName, type}) => {
-    const style = ellipsis ? { 
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
+    const style: React.CSSProperties = ellipsis ? {
+        display: '-webkit-box',
+        WebkitLineClamp: 1,
+        WebkitBoxOrient: 'vertical' as const,
         overflow: 'hidden',
-        // containerType: 'inline-size',
     } : {}
+    if (type === "reply"){
+        style.WebkitLineClamp = 2
+    }
     if (type === "input-reply"){
-        style['containerType'] = 'inline-size'
+        style.containerType = 'inline-size'
+        style.WebkitLineClamp = 2
     }
     
     // console.log(message)

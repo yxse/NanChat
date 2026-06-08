@@ -10,7 +10,7 @@ import { FaAddressBook } from 'react-icons/fa6';
 import { getAccount } from '../getAccount';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AddOutline, DownlandOutline, LockFill, MessageOutline, UploadOutline, UserAddOutline, UserCircleOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
-import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
+import { useBreakpoint } from '../../hooks/use-windows-dimensions';
 import ProfilePicture from '../messaging/components/profile/ProfilePicture';
 import { useWallet } from "../useWallet";
 import ProfileName from '../messaging/components/profile/ProfileName';
@@ -48,7 +48,7 @@ const AddContacts: React.FC = ({defaultName, defaultAddress, defaultNetwork, set
     const [contacts, setContacts] = useLocalStorageState('contacts', {defaultValue: defaultContacts});
     
     const [editContactVisible, setEditContactVisible] = useState(true);
-  const {isMobile} = useWindowDimensions()
+  const {isMobile} = useBreakpoint()
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
     const {backupContacts} = useBackupContacts()
     const handleExport = () => {

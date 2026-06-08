@@ -188,9 +188,11 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
           <div style={{maxWidth: 300}}>
             <MessageRaw key={"full" + message.replyMessage._id} message={message.replyMessage} ellipsis={false} maxHeight={"75px"} includeProfileName={false}/>
             <Button
+            className="dark-button"
             size="small"
             shape="rounded"
             type="submit"
+            style={{ color: '#fff', borderColor: 'rgb(30, 30, 30)', backgroundColor: '#0e0e0e' }}
             onClick={() => { setReplyPopoverVisible(false); onGoToMessage?.(message.replyMessage); }}>
               Go to message
             </Button>

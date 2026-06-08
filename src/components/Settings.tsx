@@ -31,7 +31,7 @@ import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-s
 import ProfileHome from "./messaging/components/profile/ProfileHome";
 import { getSeed, removeSeed } from "../utils/storage";
 import { copyToClipboard } from "../utils/format";
-import { useWindowDimensions } from "../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../hooks/use-windows-dimensions";
 import { useHideNavbarOnMobile } from "../hooks/use-hide-navbar";
 import ExportSecretPhrase from "./app/ExportSecretPhrase";
 import { useTranslation } from 'react-i18next';
@@ -43,7 +43,7 @@ import ReduceAnimation from "./settings/ReduceAnimation";
 import appVersion from "../../version.json";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
-  const { isMobile } = useWindowDimensions();
+  const { isMobile } = useBreakpoint();
   if (isMobile) {
     return <Popup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick}  {...props}>
       {children}

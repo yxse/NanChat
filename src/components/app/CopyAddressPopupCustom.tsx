@@ -2,7 +2,7 @@ import { Card, DotLoading, List, Popup, Toast } from 'antd-mobile';
 import React, { useContext } from 'react'
 import NetworkList, { ItemCopyAddress } from './NetworksList';
 import { CopyIcon } from './Icons';
-import { useWindowDimensions } from '../../hooks/use-windows-dimensions';
+import { useBreakpoint } from '../../hooks/use-windows-dimensions';
 import { WalletContext } from "../useWallet";
 import { copyToClipboard } from '../../utils/format';
 import { convertAddress } from "../../utils/convertAddress";
@@ -13,7 +13,7 @@ import { HapticsImpact } from '../../utils/haptic';
 
   
 function CopyAddressPopupCustom({addresses = [], title = "Your Addresses", popupVisible, setPopupVisible, isLoading = false}) {
-    const {isMobile} = useWindowDimensions()
+    const {isMobile} = useBreakpoint()
       
   return (
     <>

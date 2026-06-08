@@ -28,7 +28,7 @@ import Swap from "../../app/Swap";
 import nanoDrop from "../../../../public/icons/nano-drop.svg"
 import { RiRedPacketFill, RiRedPacketLine } from "react-icons/ri";
 import RedPacket from "../../app/redpacket/RedPacket";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { t } from "i18next";
 
 const ButtonAirdrop = ({onClick}) => {
@@ -59,7 +59,7 @@ const ChatInputRedPacket = ({ filterTickers =[], chat }) => {
     const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
     const [customNetworks, setCustomNetworks] = useLocalStorageState("customNetworks", {});
     const navigate = useNavigate()
-    const {isMobile, isTablet} = useWindowDimensions()
+    const {isMobile, isTablet} = useBreakpoint()
     const activeMainNetworks = Object.keys(networks).filter((ticker) => !networks[ticker].custom && !hiddenNetworks?.includes(ticker));
     const activeCustomNetworks = customNetworks ? Object.keys(customNetworks).filter((ticker) => !hiddenNetworks.includes(ticker)) : [];
     const onClick = () => {

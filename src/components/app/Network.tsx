@@ -45,7 +45,7 @@ import { CopyButton } from "./Icons";
 import { LedgerContext } from "../LedgerContext";
 import { WalletContext } from "../useWallet";
 import { Wallet } from "../../nano/wallet";
-import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../hooks/use-windows-dimensions";
 import { fetchPrices } from "../../nanswap/swap/service";
 import { isTouchDevice } from "../../utils/isTouchDevice";
 import RefreshButton from "../RefreshButton";
@@ -115,7 +115,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
   const {ledger} = useContext(LedgerContext);
   // console.log("wallets", wallet);
   const address = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, ticker);
-  const {isMobile} = useWindowDimensions()
+  const {isMobile} = useBreakpoint()
   const {data: minReceive, isLoading: isLoadingMinReceive} = useSWR("/min-receive", fetcherMessages)
   const ResponsivePopup = isMobile ? Popup : CenterPopup;
   if (ticker == null) ticker = "XNO";

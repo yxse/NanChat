@@ -1,7 +1,7 @@
 import { Button, CenterPopup, CheckList, Divider, DotLoading, Ellipsis, List, Popup, SearchBar, Skeleton } from 'antd-mobile'
 import React, { useState } from 'react'
 import { AiOutlineImport, AiOutlinePlusCircle } from 'react-icons/ai'
-import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
+import { useBreakpoint } from '../../../hooks/use-windows-dimensions';
 import { useNavigate } from 'react-router-dom';
 import { formatAddress } from '../../../utils/format';
 import useSWR from 'swr';
@@ -117,7 +117,7 @@ const SkeletonAccountListItems = () => {
           </div>
         )}
 function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, accounts = [], alreadySelected, hideImportContacts = false}) {
-    const { isMobile } = useWindowDimensions()
+    const { isMobile } = useBreakpoint()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
     const [searchText, setSearchText] = useState('')
@@ -220,7 +220,7 @@ function NewChatPopup({visible, setVisible, title="New chat", onAccountSelect, a
     )
 }
 export function SelectParticipant({visible, setVisible, participants, onAccountSelect, onClose}) {
-    const { isMobile } = useWindowDimensions()
+    const { isMobile } = useBreakpoint()
     const ResponsivePopup = isMobile ? Popup : CenterPopup;
     // const [visible, setVisible] = useState(false);
     const [searchText, setSearchText] = useState('')

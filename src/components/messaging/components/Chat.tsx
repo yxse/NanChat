@@ -11,7 +11,7 @@ import { askPermission } from '../../../nano/notifications';
 import { fetcherAccount, fetcherMessages } from '../fetcher';
 import useSWR from 'swr';
 import { getChatToken } from '../../../utils/storage';
-import { useWindowDimensions } from '../../../hooks/use-windows-dimensions';
+import { useBreakpoint } from '../../../hooks/use-windows-dimensions';
 import { Toast } from 'antd-mobile';
 import GroupInfo from './GroupInfo';
 import { useSWRConfig } from "swr"
@@ -27,7 +27,7 @@ const Chat: React.FC = () => {
     const { wallet, dispatch } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     // const {data: accounts, mutate} = useSWR<string[]>('/accounts', fetcherMessages);
-    const {isTablet, isMobile} = useWindowDimensions();
+    const {isTablet, isMobile} = useBreakpoint();
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const [isRegistered, setIsRegistered] = useState(true)
     //     getChatToken().then((token) => {

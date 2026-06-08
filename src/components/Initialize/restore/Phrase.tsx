@@ -32,7 +32,7 @@ import { ImportFromICloud } from "./ImportFromICloud";
 import { MnemonicInput } from "./MnemonicInput";
 import { PasswordImport } from "./PasswordImport";
 import { LedgerSelect } from "../Start";
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { ImportFromQRcode } from "./ImportFromQRcode";
 import PasswordInputExportNewDevice from "../../app/backup/PasswordInputExportNewDevice";
 import { useTranslation } from 'react-i18next';
@@ -58,7 +58,7 @@ export default function ImportPhrase({
   const [importFileVisible, setImportFileVisible] = useState<boolean>(false)
   const [passwordMode, setPasswordMode] = useState<string>("import")
   const [encryptedSeed, setEncryptedSeed] = useState<string>("")
-  const {isMobile} = useWindowDimensions()
+  const {isMobile} = useBreakpoint()
 
   const initializeWalletsAndAuth = async (seed: string) => {
     for (let ticker of Object.keys(networks)) {
