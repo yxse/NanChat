@@ -96,6 +96,41 @@ const saveScrollPosition = useCallback(
     } = useChat(account);
     const {isMobile, isTablet} = useWindowDimensions()
     const {chat, isLoading} = useChats(account);
+    const messagesRef = useRef(messages);
+    useEffect(() => { messagesRef.current = messages; }, [messages]);
+    const loadMoreRef = useRef(loadMore);
+    useEffect(() => { loadMoreRef.current = loadMore; }, [loadMore]);
+
+    const goToMessageIos = useCallback(async (replyMessage: { _id: string; height: number }) => {
+        const scrollToElement = () => {
+            const el = document.querySelector(`[data-message-id="${replyMessage._id}"]`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return true;
+            }
+            return false;
+        };
+
+        if (scrollToElement()) return;
+
+        const currentMessages = messagesRef.current;
+        const lowestLoadedHeight = currentMessages[currentMessages.length - 1]?.height;
+        if (!lowestLoadedHeight || !replyMessage.height || replyMessage.height >= lowestLoadedHeight) return;
+
+        const pagesToLoad = Math.ceil((lowestLoadedHeight - replyMessage.height) / LIMIT_MESSAGES) + 1;
+
+        for (let i = 0; i < pagesToLoad; i++) {
+            try {
+                await loadMoreRef.current(LIMIT_MESSAGES);
+                await new Promise(r => setTimeout(r, 100));
+                if (scrollToElement()) return;
+            } catch (e) {
+                break;
+            }
+        }
+
+        scrollToElement();
+    }, []);
     const safeMutate = useImmediateSafeMutate(mutate);
     const virtualized = Capacitor.getPlatform() !== "ios"
     // console.log("chats", chat);
@@ -159,97 +194,54 @@ const saveScrollPosition = useCallback(
             };
         }, [account]);
 
+    const mutateRef = useRef(mutate);
+    const activeAccountRef = useRef(activeAccount);
+    const activeAccountPkRef = useRef(activeAccountPk);
     useEffect(() => {
+        mutateRef.current = mutate;
+        activeAccountRef.current = activeAccount;
+        activeAccountPkRef.current = activeAccountPk;
+    });
+
+    useEffect(() => {
+        if (!account) return;
         socket.emit('join', account); // join chat id
-//         socket.on('message', (message: Message) => {
-//             // setMessages(prev => [...prev, message]);
-//             // if (message.fromAccount !== address && chat?.type === 'private') {
-//             //     debugger
-//             //     return;
-//             // }
-//             // console.log('message', message);
-//             // if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
-//             //     mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
-//             //         const newChats = [...(currentChats || [])];
-//             //         const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
-//             //         if (chatIndex !== -1) {
-//             //             const newChat = { ...newChats[chatIndex] };
-//             //             newChat.lastMessage = message.content;
-//             //             newChat.unreadCount = message.fromAccount === activeAccount ?
-//             //              0 : // don't increment unread count if message is from ourself
-//             //             (
-//             //                 message.chatId === account ? 0 : // don't increment unread count if chat is the current open chat
-//             //                 newChat.unreadCount + 1
-//             //             );
-//             //             newChat.lastMessageFrom = message.fromAccount;
-//             //             newChat.lastMessageTimestamp = new Date().toISOString();
-//             //             newChat.lastMessageId = message._id;
-//             //             newChat.isLocal = false;
-//             //             newChat.height = message.height;
-//             //             // move chat to top
-//             //             newChats.splice(chatIndex, 1);
-//             //             newChats.unshift(newChat);
-//             //         }
-//             //         return newChats;
-//             //     }, false);
-//             // }
-
-//             if (account == null) return // don't mutate messages if on /chat page to prevent showing new message if chat not selected
-            
-// // debugger
-            
-//                 if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate messages if not for this chat
-//                 // mutate(currentPages => {
-//                 //     if (account == null) return // don't mutate if on /chat page to prevent showing new message if chat not selected
-//                 //     if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
-//                 //     const newPages = [...(currentPages || [])];
-//                 //     newPages[0] = [message, ...(newPages[0] || [])];
-//                 //     return newPages;
-//                 // }, false);
-
-//             console.log("pathname", location.pathname);
-//             console.log("chatId", message.chatId);
-//             // if (location.pathname !== `/chat/${message.chatId}`) {
-//             sendNotificationTauri(message.fromAccountName, "New message");
-//             // }
-//             // setTimeout(() => {
-//             //     // window.scrollTo(0, document.body.scrollHeight);
-//             // }, 1000);
-//         });
-        socket.on('update-join-request-message', (newMessage) => {
+        const onJoinRequestUpdate = (newMessage) => {
             console.log("join request update", newMessage);
-            mutate(currentPages => {
+            mutateRef.current(currentPages => {
                 // find by id and update
                 const newPages = [...(currentPages || [])];
                 const messageIndex = newPages[0].findIndex(message => message._id === newMessage._id);
                 if (messageIndex !== -1) {
                     newPages[0][messageIndex] = newMessage;
-                    saveMessageCache(newMessage.chatId, newMessage, activeAccount, activeAccountPk)
+                    saveMessageCache(newMessage.chatId, newMessage, activeAccountRef.current, activeAccountPkRef.current)
                 }
                 return newPages;
 
             }, false);
-        });
-        socket.on('delete-message', ({chatId, height, messageSystem}) => {
+        };
+        const onDeleteMessage = ({chatId, height, messageSystem}) => {
             console.log("recalled message", height); // best effort is to remove message from local cache, but not guaranteed to be removed by everyone cache
-            mutate(currentPages => {
+            mutateRef.current(currentPages => {
                 const newPages = [...(currentPages || [])];
                 const messageIndex = newPages[0].findIndex(message => message.height === height);
                 if (messageIndex !== -1) {
                     debugger
                     newPages[0][messageIndex] = messageSystem;
-                    saveMessageCache(chatId, messageSystem, activeAccount, activeAccountPk)
+                    saveMessageCache(chatId, messageSystem, activeAccountRef.current, activeAccountPkRef.current)
                 }
                 return newPages;
             }, false);
-        });
+        };
+        socket.on('update-join-request-message', onJoinRequestUpdate);
+        socket.on('delete-message', onDeleteMessage);
 
         return () => {
-            // socket.off('message');
-            socket.off('update-join-request-message');
-            socket.off('delete-message');
+            socket.emit('leave', account);
+            socket.off('update-join-request-message', onJoinRequestUpdate);
+            socket.off('delete-message', onDeleteMessage);
         };
-    }, [address, chat]);
+    }, [account]);
 
 
     const scrollToBottom = () => {
@@ -598,11 +590,12 @@ useEffect(() => {
                     */}
                     {
                         !virtualized ? 
-                        <InfiniteScrollingMessages 
+                        <InfiniteScrollingMessages
                         saveScrollPosition={saveScrollPosition}
-                        loadMore={loadMore} chat={chat} isLoadingMore={isLoadingMore} hasMore={hasMore} 
+                        loadMore={loadMore} chat={chat} isLoadingMore={isLoadingMore} hasMore={hasMore}
                         messages={messages.reverse()}
-                         infiniteScrollRef={infiniteScrollRef} isLoadingInitial={isLoadingInitial} setAutoScroll={setAutoScroll} />
+                        infiniteScrollRef={infiniteScrollRef} isLoadingInitial={isLoadingInitial} setAutoScroll={setAutoScroll}
+                        onGoToMessage={goToMessageIos} />
                                  :   
                                     <VirtualizedMessagesVirtua
                                     isNewChat={isNewChat}

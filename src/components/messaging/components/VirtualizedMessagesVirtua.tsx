@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import Message, { HeaderMessage } from './Message';
-import { TEAM_ACCOUNT } from '../utils';
+import { TEAM_ACCOUNT, LIMIT_MESSAGES } from '../utils';
 import { Button, DotLoading, SpinLoading, Toast } from 'antd-mobile';
 import { CacheSnapshot, VList, VListHandle } from "virtua";
 import { debounce } from 'lodash';
@@ -45,6 +45,7 @@ export const VirtualizedMessagesVirtua = ({
   const isRestoringScroll = useRef(false);
   const pendingShouldStick = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  const isGoingToMessage = useRef(false);
   
   const displayMessages = useMemo(() => {
     return [...messages].reverse();
@@ -53,10 +54,73 @@ export const VirtualizedMessagesVirtua = ({
   const isFirstLoadMore = useRef(true);
   const timeoutRef = useRef(null);
 
+  // Refs for stable access inside async goToMessage callback
+  const displayMessagesRef = useRef(displayMessages);
+  useEffect(() => { displayMessagesRef.current = displayMessages; }, [displayMessages]);
+  const messagesRef = useRef(messages);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  const fetchNextPageRef = useRef(fetchNextPage);
+  useEffect(() => { fetchNextPageRef.current = fetchNextPage; }, [fetchNextPage]);
+
+  const [pendingScrollTarget, setPendingScrollTarget] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingScrollTarget || !virtuaRef.current) return;
+    const displayIndex = displayMessagesRef.current.findIndex(m => m._id === pendingScrollTarget);
+    if (displayIndex !== -1) {
+      requestAnimationFrame(() => {
+        virtuaRef.current?.scrollToIndex(displayIndex, { align: 'center', smooth: true });
+        setTimeout(() => { isGoingToMessage.current = false; }, 600);
+      });
+      setPendingScrollTarget(null);
+    }
+  }, [displayMessages, pendingScrollTarget]);
+
+  const goToMessage = useCallback(async (replyMessage: { _id: string; height: number }) => {
+    if (!virtuaRef.current) return;
+
+    isGoingToMessage.current = true;
+    shouldStickToBottom.current = false;
+
+    const displayIndex = displayMessagesRef.current.findIndex(m => m._id === replyMessage._id);
+    if (displayIndex !== -1) {
+      virtuaRef.current.scrollToIndex(displayIndex, { align: 'center', smooth: true });
+      setTimeout(() => { isGoingToMessage.current = false; }, 600);
+      return;
+    }
+
+    const currentMessages = messagesRef.current;
+    if (!replyMessage.height || !currentMessages.length) {
+      isGoingToMessage.current = false;
+      return;
+    }
+    const lowestLoadedHeight = currentMessages[currentMessages.length - 1]?.height;
+    if (lowestLoadedHeight === undefined || replyMessage.height >= lowestLoadedHeight) {
+      isGoingToMessage.current = false;
+      return;
+    }
+
+    const pagesToLoad = Math.ceil((lowestLoadedHeight - replyMessage.height) / LIMIT_MESSAGES) + 1;
+
+    isPrepend.current = true;
+    setPendingScrollTarget(replyMessage._id);
+
+    for (let i = 0; i < pagesToLoad; i++) {
+      try {
+        await fetchNextPageRef.current();
+        await new Promise(r => setTimeout(r, 50)); // let React commit and refresh fetchNextPageRef
+      } catch (e) {
+        break;
+      }
+    }
+
+    isPrepend.current = false;
+    // isGoingToMessage.current is reset by the pendingScrollTarget effect after the scroll completes
+  }, []);
+
   const cacheKey = "list-cache-" + chat?.id;
 
-  const scrollToBottom = (force = true) => {
-    if (true){
+  const scrollToBottom = () => {
       console.log("scroll to bottom", displayMessages.length)
       const to = displayMessages.length + 999
       requestAnimationFrame(() =>
@@ -65,13 +129,6 @@ export const VirtualizedMessagesVirtua = ({
           smooth: false
         })
       )
-    }
-    else{
-        virtuaRef.current?.scrollToIndex(displayMessages.length - 1, {
-          align: 'end',
-          smooth: false
-        })
-    }
   }
 
   const [offset, cache] = useMemo(() => {
@@ -138,6 +195,7 @@ export const VirtualizedMessagesVirtua = ({
     // Reset state when chat changes
     shouldStickToBottom.current = true;
     isRestoringScroll.current = false;
+    isGoingToMessage.current = false;
     pendingShouldStick.current = null;
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
@@ -184,19 +242,20 @@ export const VirtualizedMessagesVirtua = ({
   // Auto-scroll to bottom for new messages (improved logic)
   useEffect(() => {
     if (!virtuaRef.current) return;
-    
+    if (isGoingToMessage.current) return;
+
     // Don't auto-scroll if we're restoring scroll position
     if (isRestoringScroll.current) {
       console.log("Skipping auto-scroll during restoration");
       return;
     }
-    
+
     // Don't auto-scroll if we have an offset to restore and haven't restored yet
     if (offset && !hasRestored) {
       console.log("Skipping auto-scroll - waiting for restoration");
       return;
     }
-    
+
     // Always scroll to bottom when there are new messages and we should stick to bottom
     if (shouldStickToBottom.current) {
       console.log("Auto-scrolling to bottom for new messages");
@@ -328,6 +387,7 @@ export const VirtualizedMessagesVirtua = ({
                 type={chat?.type}
                 hasMore={hasMore}
                 isFromTeam={chat?.creator === TEAM_ACCOUNT}
+                onGoToMessage={goToMessage}
               />
             </div>
           );

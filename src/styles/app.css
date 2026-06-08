@@ -935,3 +935,54 @@ input[type=number]::-webkit-outer-spin-button {
   border-color: var(--adm-color-border) !important;
   color: var(--adm-color-border) !important;
 }
+
+.adm-popover.adm-popover-dark.adm-popover-menu, .adm-popover.adm-popover-dark
+ {
+--background: #333;
+--border-color: var(--adm-color-text-secondary);
+color: var(--adm-color-text);
+}
+
+
+.adm-popover {
+  filter: drop-shadow(0 0 1px var(--adm-color-text-secondary));
+}
+
+/* used to enforce dark button, for example for popover */
+.dark-button {
+  color: #fff !important;
+  border-color: rgb(30, 30, 30) !important;
+  background-color: #0e0e0e !important;
+}
+.dark-button:hover {
+  background-color: #1677ff !important;
+}
+
+
+:root {
+  --message-highlight-color: rgba(255, 255, 255, 0.5);
+}
+
+body.light-theme {
+  --message-highlight-color: rgba(0, 0, 0, 0.3);
+}
+
+@keyframes messageHighlight {
+  0% { 
+    background-color: transparent; 
+    box-shadow: none;
+  }
+  20% { 
+    background-color: var(--message-highlight-color);
+    /* box-shadow: 0 0 14px 3px var(--message-highlight-color); */
+   }
+  100% {
+     background-color: transparent; 
+     box-shadow: none;
+    }
+}
+
+.message-highlight {
+  animation: messageHighlight 1.5s ease-out;
+  border-radius: 0px;
+}

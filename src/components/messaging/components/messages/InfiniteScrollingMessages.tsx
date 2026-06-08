@@ -5,7 +5,7 @@ import Message from '../Message';
 import { useWallet } from '../../../useWallet';
 import { TEAM_ACCOUNT } from '../../utils';
 
-function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAutoScroll, infiniteScrollRef, isLoadingMore, chat, loadMore, saveScrollPosition}) {
+function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAutoScroll, infiniteScrollRef, isLoadingMore, chat, loadMore, saveScrollPosition, onGoToMessage}: {isLoadingInitial: any, messages: any, hasMore: any, setAutoScroll: any, infiniteScrollRef: any, isLoadingMore: any, chat: any, loadMore: any, saveScrollPosition: any, onGoToMessage: (replyMessage: { _id: string; height: number }) => void}) {
     const {activeAccount, activeAccountPk} = useWallet()
   return (<div
  style={{}}
@@ -63,9 +63,8 @@ function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAuto
                             return (
                                             <div
                                                 key={message._id}
+                                                data-message-id={message._id}
                                                 style={index == messages.length - 1 ? {marginBottom: 28.4} : {}}
-                                            // id={index == messages.length - 1 ? "endOfMessages" : ""}
-                                            // ref={index === messages.length - 1 ? messagesEndRef : null}
                                             >
                                                 <Message
                                                     key={`${message._id}-${message.status}`}
@@ -77,7 +76,7 @@ function InfiniteScrollingMessages({isLoadingInitial, messages, hasMore, setAuto
                                                     type={chat?.type}
                                                     hasMore={hasMore}
                                                     isFromTeam={chat?.creator === TEAM_ACCOUNT}
-                                                    // toAccount={names?.find(participant => participant._id !== message.fromAccount)?._id}
+                                                    onGoToMessage={onGoToMessage}
                                                 />
                                             </div>
                                         )

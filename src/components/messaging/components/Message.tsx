@@ -19,7 +19,9 @@ import { Button, List, Popover, Toast } from "antd-mobile";
 import { Action } from "antd-mobile/es/components/popover";
 import { copyToClipboard } from "../../../utils/format";
 import { CopyIcon } from "../../app/Icons";
-import { deleteMessage } from "../fetcher";
+import { deleteMessage, fetcherMessagesPost } from "../fetcher";
+import { HeartFill, HeartOutline } from "antd-mobile-icons";
+import { useFavoriteStickers } from "./favoriteStickersApi";
 import { AiOutlineEnter, AiOutlineRollback, AiOutlineWallet } from "react-icons/ai";
 import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
@@ -33,16 +35,29 @@ const Message = memo(({
   prevMessage,
   nextMessage,
   hasMore,
-  isFromTeam
+  isFromTeam,
+  onGoToMessage,
+}: {
+  message: any;
+  type?: string;
+  prevMessage?: any;
+  nextMessage?: any;
+  hasMore?: boolean;
+  isFromTeam?: boolean;
+  activeAccount?: string;
+  activeAccountPk?: string;
+  onGoToMessage?: (replyMessage: { _id: string; height: number }) => void;
 }) => {
   const { wallet, dispatch } = useContext(WalletContext);
   const activeAccount = wallet.accounts.find(
     (account) => account.accountIndex === wallet.activeIndex
   )?.address;
+const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
 
   // console.log("render", message?._id)
 
   const [visible, setVisible] = useState(false);
+  const [replyPopoverVisible, setReplyPopoverVisible] = useState(false);
   const emit = useEmit();
   const ref = useRef(null);
   const onLongPress = useLongPress(() => {
@@ -104,10 +119,17 @@ const Message = memo(({
   const isNextMessageFromSameAccount = nextMessage && nextMessage.fromAccount === message.fromAccount;
 
   const isFromCurrentUser = message.fromAccount === activeAccount;
+  const isFavorited = message.stickerId && favorites?.some((f: { url: string }) => f.url === message.stickerId);
   let actions: Action[] = [
     { key: 'reply', text: 'Reply', icon: <MdOutlineReply /> },
     { key: 'copy', text: 'Copy', icon: <CopyIcon /> }
   ]
+  if (message.stickerId) {
+    actions.push(isFavorited
+      ? { key: 'unfavorite', text: 'Unfavorite', icon: <HeartFill /> }
+      : { key: 'favorite', text: 'Favorite', icon: <HeartOutline /> }
+    );
+  }
   const MAX_RECALL_TIME = 1000 * 60 * 4 // 4 minutes
   if (Date.now() - new Date(message.timestamp) < MAX_RECALL_TIME && isFromCurrentUser) {
     actions.push({ key: 'recall', text: 'Recall', icon: <AiOutlineRollback /> });
@@ -122,6 +144,7 @@ const Message = memo(({
           nextMessage={nextMessage}
           hasMore={hasMore}
           decrypted={decrypted}
+          isFromTeam={isFromTeam}
         />
         <MessageJoinRequest message={message} />
       </>
@@ -137,6 +160,7 @@ const Message = memo(({
           nextMessage={nextMessage}
           hasMore={hasMore}
           decrypted={decrypted}
+          isFromTeam={isFromTeam}
         />
         <MessageSystem message={message} />
       </>
@@ -158,23 +182,37 @@ const Message = memo(({
           display: "flex", justifyContent: isFromCurrentUser ? "flex-end" : "flex-start"}}>
            <Popover
            mode="dark"
-          content={<div style={{maxWidth: 300}}><MessageRaw key={"full" + message.replyMessage._id} message={message.replyMessage} ellipsis={false} maxHeight={"75px"} includeProfileName={false}/></div>}
+          visible={replyPopoverVisible}
+          onVisibleChange={setReplyPopoverVisible}
+          content={
+          <div style={{maxWidth: 300}}>
+            <MessageRaw key={"full" + message.replyMessage._id} message={message.replyMessage} ellipsis={false} maxHeight={"75px"} includeProfileName={false}/>
+            <Button
+            size="small"
+            shape="rounded"
+            type="submit"
+            onClick={() => { setReplyPopoverVisible(false); onGoToMessage?.(message.replyMessage); }}>
+              Go to message
+            </Button>
+          </div>}
           trigger={(message.replyMessage?.file || message.replyMessage.nanoApp) ? false : "click"} // only trigger popover if text message
           placement='top'
-          defaultVisible={false}
         >
-          <div 
+          <div
           className={`chat-message p-2 rounded-md from message text-sm`}
         style={{
           color: 'var(--adm-color-text-secondary)',
           marginLeft: isFromCurrentUser ? 0 : 66,
           marginRight: isFromCurrentUser ? 66 : 0,
           marginBottom: 2,
-          maxWidth: '250px',
+          maxWidth: '300px',
           cursor: 'pointer'
-          // width: '100%',
-                }}>
-                  <MessageRaw key={"reply" + message.replyMessage._id} message={message.replyMessage} ellipsis includeProfileName={true}/>
+                }}
+          onClick={(message.replyMessage?.file || message.replyMessage.nanoApp) ? () => onGoToMessage?.(message.replyMessage) : undefined}
+          >
+                  <MessageRaw
+                  type="reply"
+                   key={"reply" + message.replyMessage._id} message={message.replyMessage} ellipsis includeProfileName={true}/>
                   </div></Popover></div>}
       <div
         ref={ref}
@@ -197,6 +235,14 @@ const Message = memo(({
             else if (action.key === 'reply') {
               console.log('reply', message._id);
               emit('reply-message', { message: message });
+            }
+            if (action.key === 'favorite') {
+              await fetcherMessagesPost('/stickers/favorites/add', { url: message.stickerId });
+              mutateFavorites();
+            }
+            if (action.key === 'unfavorite') {
+              await fetcherMessagesPost('/stickers/favorites/remove', { url: message.stickerId });
+              mutateFavorites();
             }
             if (action.key === 'recall') {
               console.log('delete', message._id);
