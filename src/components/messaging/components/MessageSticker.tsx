@@ -1,62 +1,21 @@
-import { box } from "multi-nano-web";
-import { memo, useContext, useEffect, useMemo, useState } from "react";
-import { BiMessageSquare } from "react-icons/bi";
-import { WalletContext } from "../../useWallet";
-import { Card, DotLoading } from "antd-mobile";
-import { formatAmountRaw } from "../../../utils/format";
-import { convertAddress } from "../../../utils/convertAddress";
-import { networks } from "../../../utils/networks";
-import useSWR from "swr";
-import { fetchAccountInfo, fetchBlock } from "../../app/Network";
-import { rawToMega } from "../../../nano/accounts";
-import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
-
 const MessageSticker = ({ message, side, raw = false }) => {
-    const {data } = useSWR('/stickers', fetcherMessagesNoAuth, {            
-          focusThrottleInterval: 60 * 60 * 1000, // only 1 req per hour max
-            dedupingInterval: 60 * 60 * 1000,
-            keepPreviousData: true,
-});
-    
-    let url = data?.find(sticker => sticker.id == message.stickerId)?.cache_url;
+    const url = message.stickerId;
+
+    const imgStyle = { height: '75px', marginBottom: 0, objectFit: 'contain' as const, userSelect: 'none' as const, WebkitUserSelect: 'none' as const, pointerEvents: 'none' as const };
+
     if (raw) {
-        return <img src={url} style={{
-                // width: '85px',
-                height: '75px',
-                marginBottom: 0,
-                objectFit: 'contain',
-                
-                }} />
-            
+        return <img src={url} draggable={false} style={imgStyle} />;
     }
     return (
         <div
-        // style={{marginLeft: '10px', marginRight: '10px'}}
-        key={message._id + "-sticker"}
-        // className={`flex ${side === "from" ? 'justify-end' : 'justify-start'} `}
-    >
-        <div
-        style={{
-        }}
-            className={`rounded-lg ${side === "from"
-                    ? ' rounded-br-none'
-                    : ' rounded-bl-none'
-                }`}
-        >
-            <p
-            > 
-            <img src={url} style={{
-                // width: '85px',
-                height: '75px',
-                marginBottom: 0,
-                objectFit: 'contain',
-                
-                }} />
-            </p>
-         
+        key={message._id + "-sticker"}>
+            <div className={`rounded-lg ${side === "from" ? 'rounded-br-none' : 'rounded-bl-none'}`}>
+                <p>
+                    <img src={url} draggable={false} style={imgStyle} />
+                </p>
+            </div>
         </div>
-    </div>
-    )
-}
+    );
+};
 
 export default MessageSticker;

@@ -55,7 +55,7 @@ import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
 import PWAInstallComponent from "../PWAInstallComponent";
 import useLocalStorageState from "use-local-storage-state";
 import SecuritySettings from "./SecuritySettings";
-import { useWindowDimensions } from "../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../hooks/use-windows-dimensions";
 import DeveloperSettings from "./DeveloperSettings";
 import NanoAlias from "./NanoAlias";
 import { IoWalletOutline } from "react-icons/io5";
@@ -67,6 +67,8 @@ import { Discover } from "./discover/Discover";
 import SetName from "../messaging/components/SetName";
 import ProfilePictureUpload from "../messaging/components/profile/upload-pfp";
 import ProfileHome from "../messaging/components/profile/ProfileHome";
+import MyStickers from "../messaging/components/profile/MyStickers";
+import MyCustomStickers from "../messaging/components/profile/MyCustomStickers";
 import { SideBarMenu } from "./desktop/SideBarMenu";
 import SetUsername from "../messaging/components/profile/SetUsername";
 import AppUrlListener from "./AppUrlListener";
@@ -415,7 +417,7 @@ export default function App({callback}) {
     "home" | "art" | "swap" | "history" | "network"
   >("home");
   const [isNavOpen, setNavOpen] = useState<boolean>(false);
-  const { isMobile, isTablet } = useWindowDimensions();
+  const { isMobile, isTablet } = useBreakpoint();
   const {activeAccount, activeAccountPk} = useWallet();
   
 
@@ -546,6 +548,8 @@ export default function App({callback}) {
             <Route path="/discover" element={<Discover />} />
             <Route  path="/me" element={<ProfileHome />} />
             <Route  path="/me/settings" element={<Settings />} />
+            <Route  path="/me/stickers" element={<MyStickers />} />
+            <Route  path="/me/stickers/custom" element={<MyCustomStickers />} />
             {/* <Route  path="/settings" element={<Settings />} /> */}
             <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
             <Route  path="/profile/name" element={<SetName />} />

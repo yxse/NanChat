@@ -22,6 +22,7 @@ import { showAccountQRCode } from "../../showAccountQRCode";
 import { AccountAvatar } from "../../AccountAvatar";
 import { useTranslation } from 'react-i18next';
 import { UpdateButton } from '../../../app/desktop/UpdateButton';
+import { PiStickerLight } from 'react-icons/pi';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -126,6 +127,14 @@ const ProfileHome: React.FC = () => {
                         </List.Item>
                 </List>
                 }
+            <List className='my-4' mode='card'>
+            <List.Item
+                    prefix={<PiStickerLight fontSize={24} />}
+                    onClick={() => navigate('/me/stickers')}
+                    >
+                            {t('stickerGallery')}
+                    </List.Item>
+            </List>
             <List className='my-4' mode='card'>
             <List.Item
                     prefix={<SetOutline fontSize={24} />}
