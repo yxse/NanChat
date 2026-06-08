@@ -319,5 +319,21 @@
   "deleteContactConfirmTitle": "刪除 {{name}}？",
   "deleteContactConfirmContent": "確定要刪除此聯絡人嗎？",
   "noContacts": "沒有聯絡人",
-  "contactsForNetwork": "{{networkName}} 的聯絡人"
+  "contactsForNetwork": "{{networkName}} 的聯絡人",
+  "searchStickers": "搜尋貼圖...",
+  "noStickersOwned": "您沒有任何貼圖。在 <lnk>我 › 貼圖庫</lnk> 中新增一些",
+  "noFavoriteStickers": "還沒有最愛的貼圖。長按貼圖以新增收藏。",
+  "moveToFront": "移至最前",
+  "clearFavorites": "清除收藏",
+  "stickerGallery": "貼圖庫",
+  "sort": "排序",
+  "remove": "移除",
+  "add": "新增",
+  "failedToSaveOrder": "儲存順序失敗",
+  "somethingWentWrong": "發生了一些問題",
+  "createSticker": "建立貼圖",
+  "stickerCreated": "貼圖已建立！",
+  "myCustomStickers": "我的自訂貼圖",
+  "deleteCustomSticker": "刪除貼圖",
+  "deleteCustomStickerWarning": "刪除此貼圖為永久操作，將從所有訊息中移除。"
 }

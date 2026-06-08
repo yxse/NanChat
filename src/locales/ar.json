@@ -221,7 +221,6 @@
   "passwordStrengthWeak": "ضعيفة",
   "passwordStrengthGood": "جيدة",
   "passwordStrengthStrong": "قوية",
-  "next": "التالي",
   "passwordMandatoryWeb": "كلمة المرور إلزامية في إصدار الويب.",
   "downloadNanChat": "تحميل NanChat",
   "toUseSecureStorage": "لاستخدام التخزين الآمن بدون كلمة مرور.",
@@ -320,5 +319,21 @@
   "invite": "دعوة",
   "always": "دائمًا",
   "onPowerSavingMode": "عند تفعيل وضع توفير الطاقة",
-  "never": "أبدًا"
-} 
+  "never": "أبدًا",
+  "searchStickers": "البحث عن ملصقات...",
+  "noStickersOwned": "ليس لديك أي ملصقات. أضف بعضها في <lnk>أنا › معرض الملصقات</lnk>",
+  "noFavoriteStickers": "لا توجد ملصقات مفضلة بعد. اضغط مطولاً على ملصق لإضافته.",
+  "moveToFront": "نقل إلى الأمام",
+  "clearFavorites": "مسح المفضلة",
+  "stickerGallery": "معرض الملصقات",
+  "sort": "ترتيب",
+  "remove": "إزالة",
+  "add": "إضافة",
+  "failedToSaveOrder": "فشل حفظ الترتيب",
+  "somethingWentWrong": "حدث خطأ ما",
+  "createSticker": "إنشاء ملصق",
+  "stickerCreated": "تم إنشاء الملصق!",
+  "myCustomStickers": "ملصقاتي المخصصة",
+  "deleteCustomSticker": "حذف الملصق",
+  "deleteCustomStickerWarning": "حذف هذا الملصق دائم وسيزيله من جميع الرسائل."
+}

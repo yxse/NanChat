@@ -319,5 +319,21 @@
   "invite": "Convidar",
   "always": "Sempre",
   "onPowerSavingMode": "No modo economia de energia",
-  "never": "Nunca"
-} 
+  "never": "Nunca",
+  "searchStickers": "Pesquisar stickers...",
+  "noStickersOwned": "Você não tem stickers. Adicione alguns em <lnk>Eu › Galeria de Stickers</lnk>",
+  "noFavoriteStickers": "Nenhum sticker favorito ainda. Mantenha pressionado um sticker para adicionar.",
+  "moveToFront": "Mover para a frente",
+  "clearFavorites": "Limpar favoritos",
+  "stickerGallery": "Galeria de Stickers",
+  "sort": "Ordenar",
+  "remove": "Remover",
+  "add": "Adicionar",
+  "failedToSaveOrder": "Falha ao salvar a ordem",
+  "somethingWentWrong": "Algo deu errado",
+  "createSticker": "Criar sticker",
+  "stickerCreated": "Sticker criado!",
+  "myCustomStickers": "Meus stickers personalizados",
+  "deleteCustomSticker": "Excluir sticker",
+  "deleteCustomStickerWarning": "Excluir este sticker é permanente e o removerá de todas as mensagens."
+}

@@ -319,6 +319,21 @@
   "deleteContactConfirmTitle": "Видалити {{name}}?",
   "deleteContactConfirmContent": "Ви впевнені, що хочете видалити цей контакт?",
   "noContacts": "Немає контактів",
-  "contactsForNetwork": "Контакти для {{networkName}}"
+  "contactsForNetwork": "Контакти для {{networkName}}",
+  "searchStickers": "Пошук стікерів...",
+  "noStickersOwned": "У вас немає стікерів. Додайте їх у <lnk>Я › Галерея стікерів</lnk>",
+  "noFavoriteStickers": "Немає улюблених стікерів. Утримуйте стікер, щоб додати його.",
+  "moveToFront": "Перемістити на початок",
+  "clearFavorites": "Очистити обрані",
+  "stickerGallery": "Галерея стікерів",
+  "sort": "Сортувати",
+  "remove": "Видалити",
+  "add": "Додати",
+  "failedToSaveOrder": "Не вдалося зберегти порядок",
+  "somethingWentWrong": "Щось пішло не так",
+  "createSticker": "Створити стікер",
+  "stickerCreated": "Стікер створено!",
+  "myCustomStickers": "Мої стікери",
+  "deleteCustomSticker": "Видалити стікер",
+  "deleteCustomStickerWarning": "Видалення цього стікера є незворотним і прибере його з усіх повідомлень."
 }
-
