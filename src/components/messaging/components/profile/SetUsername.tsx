@@ -39,7 +39,7 @@ const SetUsername: React.FC = () => {
                 {t('toGetStartedSetYourDisplayName')}
             </span> */}
             <div className='text-2xl mb-4'>
-                    {t('nanChatId')}: {me?.username}
+                    {t('nanChatId')}: <span className='select-all'>{me?.username}</span>
             </div>
             {/* <div className='text-2xl mb-4'>
                     {t('changeNanChatId')}
