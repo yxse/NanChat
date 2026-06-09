@@ -62,7 +62,12 @@ const FavStickerItem: React.FC<FavStickerItemProps> = ({ sticker, onSelect, onMo
         onClick={() => { if (!visible) onSelect(sticker); }}
         className="cursor-pointer"
       >
-        <img draggable="false" loading="lazy" src={sticker.url} style={{ height: 60 }} />
+        <img draggable="false" loading="lazy" src={sticker.url} style={{ 
+          height: 60,
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          pointerEvents: 'none',
+        }} />
       </div>
     </Popover.Menu>
   );

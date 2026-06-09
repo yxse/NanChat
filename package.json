@@ -1,5 +1,5 @@
 {
-  "name": "cesium",
+  "name": "nanchat",
   "private": true,
   "version": "1.2.0",
   "type": "module",
@@ -16,7 +16,7 @@
     "bump:major": "node scripts/bump-version.mjs major",
     "bump:sync": "node scripts/bump-version.mjs --sync"
   },
-  "author": "Nano Gift Developers",
+  "author": "YXSE",
   "license": "MIT",
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^8.0.2",

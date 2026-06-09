@@ -110,7 +110,14 @@ const ChatInputStickers: React.FC<{ onStickerSelect: (url: string) => void }> = 
                       flexShrink: 0,
                     }}
                   >
-                    <img draggable="false" loading="lazy" src={col.logo} title={col.name} style={{ height: 32, borderRadius: 6 }} />
+                    <img 
+                    style={{ height: 32, borderRadius: 6, 
+                      userSelect: 'none',
+                      WebkitUserSelect: 'none',
+                      pointerEvents: 'none',
+                    }}
+                    draggable="false" loading="lazy" src={col.logo} title={col.name} 
+                    />
                   </div>
                 ))
               }
