@@ -1,7 +1,7 @@
 {
   "name": "cesium",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -63,6 +63,7 @@
     "@tauri-apps/plugin-process": "~2",
     "@tauri-apps/plugin-updater": "^2.8.0",
     "@teamhive/capacitor-webview-overlay": "https://github.com/Benskalz/capacitor-webview-overlay.git#d47955b3ca256b2433d59e1def4fdfb60488150a",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@zxcvbn-ts/core": "^3.0.4",
     "@zxcvbn-ts/language-common": "^3.0.4",
     "@zxcvbn-ts/language-en": "^3.0.2",
@@ -95,6 +96,7 @@
     "power-mode": "^5.0.0",
     "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-circle-flags": "^0.0.20",
     "react-confetti-boom": "^1.0.0",
     "react-dom": "^18.2.0",

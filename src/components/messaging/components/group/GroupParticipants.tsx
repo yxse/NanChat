@@ -57,12 +57,14 @@ function GroupParticipants({chatId}) {
                     <NewChatPopup 
                     alreadySelected={chat?.participants.map((participant) => participant._id)}
                     onAccountSelect={async (accounts) => {
+                        const MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE = 2
                         if (!chat) return
                         const currentParticipants = chat.participants.map((participant) => participant._id)
-                        // for optimization purposes, if there are more than 100 participants, we will not regenerate a new 
+                        // for optimization purposes, if there are more than MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE participants, we will not regenerate a new 
                         // shared key for all participants but reuse the existing shared key
-                        if (currentParticipants.length > 100 && chat.sharedAccount) {
-                            await addSharedKeyForParticipants(chat.id, accounts, chat.sharedAccount, activeAccountPk)
+                        if (currentParticipants.length > MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE && chat.sharedAccount) {
+                            const newAccounts = accounts.filter((account) => !currentParticipants.includes(account))
+                            await addSharedKeyForParticipants(chat.id, newAccounts, chat.sharedAccount, activeAccountPk)
                         } else {
                             const newParticipants = Array.from(new Set(currentParticipants.concat(accounts)))
                             await updateSharedKeys(chat.id, newParticipants, activeAccountPk)

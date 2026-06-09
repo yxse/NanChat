@@ -322,7 +322,7 @@
   "contactsForNetwork": "Контакти для {{networkName}}",
   "searchStickers": "Пошук стікерів...",
   "noStickersOwned": "У вас немає стікерів. Додайте їх у <lnk>Я › Галерея стікерів</lnk>",
-  "noFavoriteStickers": "Немає улюблених стікерів. Утримуйте стікер, щоб додати його.",
+  "noFavoriteStickers": "Ваші улюблені стікери з'являться тут",
   "moveToFront": "Перемістити на початок",
   "clearFavorites": "Очистити обрані",
   "stickerGallery": "Галерея стікерів",

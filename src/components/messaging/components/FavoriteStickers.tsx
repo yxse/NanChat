@@ -9,9 +9,10 @@ import { AddOutline } from "antd-mobile-icons";
 const compressSticker = (file: File): Promise<File> =>
   new Promise((resolve, reject) =>
     new Compressor(file, {
-      maxHeight: 225,
+      maxHeight: 225, // stickers takes 75px height but we still save 225px for screen with 3x DPR
       quality: 0.85,
-      success: f => resolve(f as File),
+      convertSize: Infinity, // don't convert to jpeg to preserve transparency
+      success: f => resolve(new File([f], file.name, { type: f.type })), // convert back to File to preserve extension
       error: reject,
     })
   );
@@ -61,7 +62,7 @@ const FavStickerItem: React.FC<FavStickerItemProps> = ({ sticker, onSelect, onMo
         onClick={() => { if (!visible) onSelect(sticker); }}
         className="cursor-pointer"
       >
-        <img loading="lazy" src={sticker.url} style={{ height: 60 }} />
+        <img draggable="false" loading="lazy" src={sticker.url} style={{ height: 60 }} />
       </div>
     </Popover.Menu>
   );
@@ -76,7 +77,7 @@ type Props = {
   onClear: () => void;
 };
 
-const CreateCustomSticker: React.FC = () => {
+export const CreateCustomSticker: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate } = useFavoriteStickers();
@@ -97,10 +98,11 @@ const CreateCustomSticker: React.FC = () => {
       onConfirm: async () => {
         try {
           Toast.show({ icon: 'loading', content: t('uploading'), duration: 0 });
-          const compressed = await compressSticker(file);
+          console.log("file type", file.type);
+          const compressed = file.type === 'image/gif' ? file : await compressSticker(file);
           await createCustomSticker(compressed);
           Toast.show({ icon: 'success', content: t('stickerCreated') });
-          mutate();
+          (onCreated ?? mutate)();
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : 'Failed';
           Toast.show({ icon: 'fail', content: msg });
@@ -115,7 +117,7 @@ const CreateCustomSticker: React.FC = () => {
     <div
       onClick={() => inputRef.current?.click()}
       style={{ border: '2px dashed var(--adm-color-text-secondary)', borderRadius: 8, width: 60, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-    >
+      >
       <input
         ref={inputRef}
         type="file"
@@ -126,8 +128,9 @@ const CreateCustomSticker: React.FC = () => {
           if (file) handleFileSelect(file);
           e.target.value = '';
         }}
-      />
-      <AddOutline style={{ fontSize: 32 }} />
+        />
+      <AddOutline 
+      style={{ fontSize: 32, color: 'var(--adm-color-text-secondary)' }} />
     </div>
   );
 };

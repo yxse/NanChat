@@ -14,6 +14,7 @@ import useSWR from 'swr';
 import { useHideNavbarOnMobile } from '../../../../hooks/use-hide-navbar';
 import { ResponsivePopup } from '../../../Settings';
 import { Trans, useTranslation } from 'react-i18next';
+import { copyToClipboard } from '../../../../utils/format';
 
 const SetUsername: React.FC = () => {
     const navigate = useNavigate();
@@ -39,7 +40,16 @@ const SetUsername: React.FC = () => {
                 {t('toGetStartedSetYourDisplayName')}
             </span> */}
             <div className='text-2xl mb-4'>
-                    {t('nanChatId')}: <span className='select-all'>{me?.username}</span>
+                    {t('nanChatId')}: <span 
+                    style={{cursor: "pointer"}}
+                    onClick={() => {
+                         Toast.show({
+                            content: t('copied'),
+                            duration: 2000
+                        });
+                        copyToClipboard(me?._id);
+                    }}
+                    className='select-all'>{me?.username}</span>
             </div>
             {/* <div className='text-2xl mb-4'>
                     {t('changeNanChatId')}

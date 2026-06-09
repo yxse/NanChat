@@ -9,6 +9,7 @@ import { useWallet } from "../../useWallet";
 import { Link } from "react-router-dom";
 import FavoriteStickers from "./FavoriteStickers";
 import { useFavoriteStickers } from "./favoriteStickersApi";
+import { Keyboard } from "@capacitor/keyboard";
 
 const SWR_OPTS = {
   focusThrottleInterval: 60 * 60 * 1000,
@@ -60,6 +61,10 @@ const ChatInputStickers: React.FC<{ onStickerSelect: (url: string) => void }> = 
         {searchOpen
           ? (
             <Input
+            onEnterPress={() => {
+                Keyboard.hide();
+              }
+            }
               onKeyDown={e => { if (e.key === 'Escape') { setSearchOpen(false); setQuery(''); } }}
               clearable
               enterKeyHint="search"
@@ -74,7 +79,7 @@ const ChatInputStickers: React.FC<{ onStickerSelect: (url: string) => void }> = 
             <>
               {/* Favorites icon */}
               <div
-                onClick={() => setLastTab(showFavorites ? '' : 'favorites')}
+                onClick={() => setLastTab('favorites')}
                 style={{
                   backgroundColor: showFavorites ? 'var(--adm-color-border)' : 'unset',
                   padding: 8,
@@ -105,7 +110,7 @@ const ChatInputStickers: React.FC<{ onStickerSelect: (url: string) => void }> = 
                       flexShrink: 0,
                     }}
                   >
-                    <img src={col.logo} title={col.name} style={{ height: 32, borderRadius: 6 }} />
+                    <img draggable="false" loading="lazy" src={col.logo} title={col.name} style={{ height: 32, borderRadius: 6 }} />
                   </div>
                 ))
               }

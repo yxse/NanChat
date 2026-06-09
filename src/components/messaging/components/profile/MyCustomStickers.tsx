@@ -4,6 +4,7 @@ import { DotLoading, Modal, NavBar, Toast } from 'antd-mobile';
 import useSWR from 'swr';
 import { fetcherMessages } from '../../fetcher';
 import { removeCustomSticker } from '../favoriteStickersApi';
+import { CreateCustomSticker } from '../FavoriteStickers';
 
 const SWR_OPTS = {
   focusThrottleInterval: 60 * 60 * 1000,
@@ -48,11 +49,10 @@ const MyCustomStickers: React.FC = () => {
         </div>
       )}
 
-      {!isLoading && !customStickers?.length && (
-        <div style={{ color: 'var(--adm-color-text-secondary)', textAlign: 'center', padding: 48 }}>
-          {t('noFavoriteStickers')}
-        </div>
-      )}
+
+      <div style={{ padding: 16 }}>
+        <CreateCustomSticker onCreated={mutate} />
+      </div>
 
       {customStickers?.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, padding: 16 }}>
