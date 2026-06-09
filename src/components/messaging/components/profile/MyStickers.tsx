@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Divider, DotLoading, List, NavBar, Popup, Toast } from 'antd-mobile';
 import useSWR from 'swr';
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
+import { AiOutlineHolder } from 'react-icons/ai';
 import { fetcherMessages, fetcherMessagesNoAuth, fetcherMessagesPost } from '../../fetcher';
 import { useWallet } from '../../../useWallet';
 
@@ -108,11 +109,13 @@ const MyStickers: React.FC = () => {
                           style={{
                             ...provided.draggableProps.style,
                             opacity: snapshot.isDragging ? 0.8 : 1,
+                            userSelect: 'none',
                           }}
                         >
                           <List.Item
                             arrowIcon={false}
                             prefix={<img src={col.logo} style={{ height: 40, width: 40, borderRadius: 8, objectFit: 'cover' }} />}
+                            extra={<AiOutlineHolder style={{ fontSize: 20, color: 'var(--adm-color-text-secondary)' }} />}
                           >
                             {col.name}
                           </List.Item>
