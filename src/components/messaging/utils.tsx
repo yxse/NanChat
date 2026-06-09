@@ -1,9 +1,11 @@
-import { Badge, DotLoading, Modal, Toast } from "antd-mobile";
+import { Badge, Checkbox, DotLoading, Modal, Toast } from "antd-mobile";
 import { QRCodeSVG } from "qrcode.react";
 import useLocalStorageState from "use-local-storage-state";
 import { useCallback, useRef, useState } from "react";
+import { openUrl as tauriOpenUrl } from "@tauri-apps/plugin-opener";
 import { Capacitor } from "@capacitor/core";
 import { DefaultSystemBrowserOptions, InAppBrowser } from "@capacitor/inappbrowser";
+import { isTauri } from "@tauri-apps/api/core";
 import { networks } from "../../utils/networks";
 import { Device } from "@capacitor/device";
 import { StatusBar, Style } from "@capacitor/status-bar";
@@ -169,8 +171,78 @@ export function generateSecurePassword() {
 }
 
 
-export const openInBrowser = (url: string) => {
-  if (Capacitor.isNativePlatform()) {
+let lastBrowserWebviewLabel: string | null = null;
+
+const BROWSER_WINDOW_KEY = "browser-window-rect";
+const DEFAULT_BROWSER_RECT = { width: 1024, height: 768, x: undefined, y: undefined };
+
+function getSavedBrowserWindowRect() {
+  try {
+    const saved = localStorage.getItem(BROWSER_WINDOW_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.width > 0 && parsed.height > 0) return parsed;
+    }
+  } catch {}
+  return DEFAULT_BROWSER_RECT;
+}
+
+export const focusLastBrowserWindow = async () => {
+  if (!lastBrowserWebviewLabel || !isTauri()) return;
+  const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+  const win = await WebviewWindow.getByLabel(lastBrowserWebviewLabel);
+  await win?.setFocus();
+};
+
+export const openInBrowser = async (url: string, title: string) => {
+  if (isTauri()) {
+    const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+    const label = `browser-${Date.now()}`;
+    lastBrowserWebviewLabel = label;
+    const { width, height, x, y, maximized } = getSavedBrowserWindowRect();
+    const webview = new WebviewWindow(label, {
+      url,
+      title: title || url,
+      width,
+      height,
+      x: x,
+      y: y,
+      devtools: true,
+      // center: true,
+      maximized: maximized
+    });
+    console.log("Opening URL in Tauri webview", { url, width, height, x, y });
+    webview.once("tauri://created", async () => {
+      const win = await WebviewWindow.getByLabel(label);
+      if (!win) return;
+      // win.setPosition({ x, y });
+      const saveRect = async () => {
+        try {
+          const size = await win.size();
+          const posForX = await win.outerPosition();
+          const posForY = await win.outerPosition();
+          const scaleFactor = await win.scaleFactor();
+          const x = Math.round(posForX.x / scaleFactor);
+          const y = Math.round(posForY.y / scaleFactor);
+          const width = Math.round(size.width / scaleFactor);
+          const height = Math.round(size.height / scaleFactor);
+          console.log("Saving browser window rect", { x, y, width, height });
+          localStorage.setItem(BROWSER_WINDOW_KEY, JSON.stringify({
+            width: width,
+            height: height,
+            x: x < 0 ? 0 : x,
+            y: y < 0 ? 0 : y,
+            maximized: await win.isMaximized()
+          }));
+        } catch {}
+      };
+      // Save initial rect so next window matches even without resize/move
+      await saveRect();
+      win.onResized(saveRect);
+      win.onMoved(saveRect);
+    });
+    return;
+  } else if (Capacitor.isNativePlatform()) {
     try {
       InAppBrowser.openInSystemBrowser({
         url,
@@ -181,11 +253,112 @@ export const openInBrowser = (url: string) => {
         url: url
       })      
     }
-  }
-  else {
+  } else {
     window.open(url)
   }
 } 
+
+const TRUSTED_DOMAINS_KEY = "trustedExternalDomains";
+
+export const getTrustedDomains = (): string[] => {
+  try {
+    const raw = localStorage.getItem(TRUSTED_DOMAINS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const addTrustedDomain = (hostname: string) => {
+  const list = getTrustedDomains();
+  if (!list.includes(hostname)) {
+    list.push(hostname);
+    localStorage.setItem(TRUSTED_DOMAINS_KEY, JSON.stringify(list));
+  }
+};
+
+const openExternalUrl = async (url: string) => {
+  if (isTauri()) {
+    return tauriOpenUrl(url);
+  }
+  if (Capacitor.isNativePlatform()) {
+    try {
+      InAppBrowser.openInSystemBrowser({ url, options: DefaultSystemBrowserOptions });
+    } catch {
+      InAppBrowser.openInExternalBrowser({ url });
+    }
+    return;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
+const ExternalLinkConfirmContent = ({
+  url,
+  hostname,
+  trustRef,
+}: {
+  url: string;
+  hostname: string;
+  trustRef: { current: boolean };
+}) => {
+  const [trust, setTrust] = useState(false);
+  return (
+    <div>
+      <div style={{ marginBottom: 12, wordBreak: "break-all" }}>
+        This link is going to <strong>{url}</strong>
+      </div>
+      <Checkbox
+        checked={trust}
+        onChange={(checked) => {
+          setTrust(checked);
+          trustRef.current = checked;
+        }}
+      >
+        Always trust {hostname}
+      </Checkbox>
+    </div>
+  );
+};
+
+export const confirmAndOpenExternalUrl = (url: string) => {
+  let hostname = "";
+  try {
+    hostname = new URL(url).hostname;
+  } catch {
+    return openExternalUrl(url);
+  }
+  if (!hostname || getTrustedDomains().includes(hostname)) {
+    return openExternalUrl(url);
+  }
+  const trustRef = { current: false };
+  Modal.show({
+    title: "You're leaving NanChat",
+    content: (
+      <ExternalLinkConfirmContent
+        url={url}
+        hostname={hostname}
+        trustRef={trustRef}
+      />
+    ),
+    closeOnAction: true,
+    closeOnMaskClick: true,
+    actions: [
+      {
+        key: "visit",
+        text: "Visit the site",
+        onClick: () => {
+          if (trustRef.current) addTrustedDomain(hostname);
+          openExternalUrl(url);
+        },
+      },
+      {
+        key: "cancel",
+        text: "Cancel",
+      },
+    ],
+  });
+};
 
 export const openHashInExplorer = (hash: string, ticker: string) => {
   openInBrowser(`https://nanexplorer.com/${networks[ticker].id}/block/${hash}`)

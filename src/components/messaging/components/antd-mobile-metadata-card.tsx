@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Avatar, Card, Divider, DotLoading, Ellipsis, Image, List } from 'antd-mobile';
 import useSWR from 'swr';
-import { hasLink, openInBrowser } from '../utils';
+import { hasLink, confirmAndOpenExternalUrl } from '../utils';
 import { CompassOutline } from 'antd-mobile-icons';
 import { fetcherMessagesNoAuth } from '../fetcher';
 import { useNavigate } from 'react-router-dom';
@@ -39,7 +39,7 @@ export const MetadataCard = ({ message  }) => {
           setOpenUrl(true)
         }
         else {
-          openInBrowser(url)
+          confirmAndOpenExternalUrl(url)
         }
        }}
         style={{maxWidth: 300, marginTop: 0, cursor: "pointer"}}>

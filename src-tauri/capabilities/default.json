@@ -3,13 +3,26 @@
   "identifier": "default",
   "description": "enables the default permissions",
   "windows": [
-    "main"
+    "main",
+    "browser-*",
+    "test"
   ],
   "permissions": [
     "core:default",
     "core:event:default",
+    "core:webview:allow-create-webview-window",
+    "core:webview:allow-create-webview",
+    "core:window:allow-create",
+    "core:window:allow-set-focus",
+    "core:window:allow-maximize",
+    "core:window:allow-set-position",
     "deep-link:default",
     "notification:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [{ "url": "https://*" }]
+    },
+    "process:default",
     "updater:default"
   ]
 }

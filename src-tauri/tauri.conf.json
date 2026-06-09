@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "NanChat",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "identifier": "com.nanchat.app",
   "build": {
     "frontendDist": "../dist",
@@ -18,7 +18,7 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.nanchat.com https://api.nanexplorer.com https://proxy.xno.link https://proxy-signature.xno.link https://cdn.moneyconvert.net https://link-preview.b3nskalz.workers.dev https://nanswap.com wss://nodes.nanswap.com wss://api.nanchat.com https://*.googleapis.com https://*.firebaseapp.com https://*.firebasestorage.app; frame-src 'self' https://*.firebaseapp.com; object-src 'none'"
     }
   },
   "bundle": {

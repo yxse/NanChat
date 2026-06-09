@@ -41,6 +41,7 @@ import { clearDb } from "../services/database.service";
 import { useContacts } from "./messaging/components/contacts/ImportContactsFromShare";
 import ReduceAnimation from "./settings/ReduceAnimation";
 import appVersion from "../../version.json";
+import { isTauri } from "@tauri-apps/api/core";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useBreakpoint();
@@ -232,7 +233,7 @@ export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean
   const [isVisible, setIsVisible] = useState(true);
   const [address, setAddress] = useState<string | null>(null);
   const navigate = useNavigate();
-const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
+const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: isTauri() ? true : false })
   const { t } = useTranslation();
   const {mutateContacts} = useContacts()
   const [option, setSelectedOption] = useState({

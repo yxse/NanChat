@@ -11,7 +11,7 @@ import MessageFile from "./MessageFile";
 import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
 import { DateHeader } from "./date-header-component";
-import { isNanoAppMessage, isSpecialMessage, TEAM_ACCOUNT } from "../utils";
+import { isNanoAppMessage, isSpecialMessage, TEAM_ACCOUNT, confirmAndOpenExternalUrl } from "../utils";
 import { useLongPress } from "../../../hooks/use-long-press";
 import { HapticsImpact } from "../../../utils/haptic";
 import { ImpactStyle } from "@capacitor/haptics";
@@ -28,6 +28,7 @@ import { MetadataCard } from "./antd-mobile-metadata-card";
 import { MdOutlineReply, MdOutlineSync } from "react-icons/md";
 import MessageRaw from "./MessageRaw";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
+import { isTauri } from "@tauri-apps/api/core";
 
 const Message = memo(({
   message,
@@ -482,6 +483,12 @@ const MessageContentLink = ({ message }) => {
     // Add the URL as a link
     parts.push(
       <a 
+        onClick={(e) => {
+          if (isTauri()) {
+            e.preventDefault();
+            confirmAndOpenExternalUrl(url);
+          }
+        }}
         key={urlIndex}
         style={{ textDecoration: 'underline' }}
         href={url}

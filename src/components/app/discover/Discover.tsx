@@ -9,7 +9,7 @@ import { convertAddress } from "../../../utils/convertAddress";
 import { InAppBrowser } from "@capacitor/inappbrowser";
 
 import { WebviewOverlay, IWebviewOverlayPlugin,   } from '@teamhive/capacitor-webview-overlay';
-import { useWindowDimensions } from "../../../hooks/use-windows-dimensions";
+import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
 import { extractMetadata, openInBrowser } from "../../messaging/utils";
 import ChatInputMessage from "../../messaging/components/ChatInputMessage";
 import { AccountListItems } from "../../messaging/components/NewChatPopup";
@@ -252,7 +252,7 @@ WebviewOverlay.onPageLoaded(() => {
             })
 
         } else {
-            window.open(url, '_blank');
+            openInBrowser(service.link, service?.name);
         }
     };
     async function closeNanoApp(save = true) {

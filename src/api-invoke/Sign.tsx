@@ -12,6 +12,8 @@ import { useEmit, useEvent } from "../components/messaging/components/EventConte
 import { ResponsivePopup } from "../components/Settings";
 import { WebviewOverlay } from "@teamhive/capacitor-webview-overlay";
 import { signMessage } from "../components/messaging/fetcher";
+import { focusLastBrowserWindow } from "../components/messaging/utils";
+import { isTauri } from "@tauri-apps/api/core";
 
 
 export const SignPopup = ({visible, setVisible, uri, setUri}) => {
@@ -169,10 +171,14 @@ export default function Sign({uri, onClose}) {
                 }),
               })
               .then((response) => response.text())
-              .then((data) => {
+              .then(async (data) => {
                 console.log(data)
                 setResult(data)
-                if (Capacitor.isNativePlatform()) {
+                if (isTauri()) {
+                  await focusLastBrowserWindow();
+                  if (onClose) onClose()
+                }
+                else if (Capacitor.isNativePlatform()) {
                   // InAppBrowser.openInSystemBrowser({url: callback, options: DefaultSystemBrowserOptions})
                   // InAppBrowser.openWebView({url: callback, isPresentAfterPageLoad: true});
                   WebviewOverlay.toggleSnapshot(false);

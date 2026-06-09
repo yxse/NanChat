@@ -22,6 +22,7 @@ import { Capacitor } from "@capacitor/core";
 import useLocalStorageState from "use-local-storage-state";
 import { useTranslation } from "react-i18next";
 import { safeSetItem } from "../utils";
+import { isTauri } from "@tauri-apps/api/core";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -99,7 +100,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       account = defaultChatId;
     }
     const [stickerVisible, setStickerVisible] = useState(undefined);
-    const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: false })
+    const [enterToSend, setEnterToSend] = useLocalStorageState("enterToSend", { defaultValue: isTauri() ? true : false })
     const [inputAdditionVisible, setInputAdditionVisible] = useState(false);
     const {isMobile} = useBreakpoint()
     const DRAFT_KEY = 'draft-' + account
