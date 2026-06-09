@@ -87,8 +87,13 @@ export const CreateCustomSticker: React.FC<{ onCreated?: () => void }> = ({ onCr
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate } = useFavoriteStickers();
 
-  const handleFileSelect = (file: File) => {
-    const objectURL = URL.createObjectURL(file);
+  const handleFileSelect = async (file: File) => {
+    // Eagerly materialize file bytes before any async gaps — on Android, clearing the
+    // input revokes the content:// URI permission, making later FileReader calls fail.
+    const bytes = await file.arrayBuffer();
+    const localFile = new File([bytes], file.name, { type: file.type });
+
+    const objectURL = URL.createObjectURL(localFile);
     const cleanup = () => URL.revokeObjectURL(objectURL);
 
     Modal.confirm({
@@ -103,8 +108,7 @@ export const CreateCustomSticker: React.FC<{ onCreated?: () => void }> = ({ onCr
       onConfirm: async () => {
         try {
           Toast.show({ icon: 'loading', content: t('uploading'), duration: 0 });
-          console.log("file type", file.type);
-          const compressed = file.type === 'image/gif' ? file : await compressSticker(file);
+          const compressed = localFile.type === 'image/gif' ? localFile : await compressSticker(localFile);
           await createCustomSticker(compressed);
           Toast.show({ icon: 'success', content: t('stickerCreated') });
           (onCreated ?? mutate)();
@@ -130,8 +134,9 @@ export const CreateCustomSticker: React.FC<{ onCreated?: () => void }> = ({ onCr
         style={{ display: 'none' }}
         onChange={e => {
           const file = e.target.files?.[0];
-          if (file) handleFileSelect(file);
-          e.target.value = '';
+          if (!file) return;
+          // Clear input only after bytes are read to keep the content:// URI valid
+          handleFileSelect(file).finally(() => { e.target.value = ''; });
         }}
         />
       <AddOutline 
