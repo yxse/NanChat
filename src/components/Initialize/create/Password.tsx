@@ -257,7 +257,7 @@ export default function Password({
                         seed={wallet.wallets["XNO"]?.seed}
                         onFinish={async (values) => {
                           let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, values.password)
-                          await setSeed(encryptedSeed, true)
+                          await setSeed(encryptedSeed, true, undefined, true)
                           setWalletState("unlocked")
                           onCreated()
                         }}

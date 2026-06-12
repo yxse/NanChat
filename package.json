@@ -90,7 +90,7 @@
     "i18next-browser-languagedetector": "^8.2.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
-    "multi-nano-web": "^1.8.0",
+    "multi-nano-web": "2.0.1",
     "nano-address-validator": "^3.0.0",
     "nanocurrency": "^2.5.0",
     "piexifjs": "^1.0.6",

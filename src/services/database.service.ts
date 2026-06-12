@@ -8,27 +8,38 @@ import { cacheKeyPrefix } from "../components/messaging/utils";
   export let inMemoryMap = new Map<string, any>();
   // Call this function before accessing 
   // functions like sqlStore.get sqlStore.set etc...
+  let initSqlStorePromise: Promise<void> | null = null;
   export let initSqlStore = async () => {
-    console.log("Init capacitor-data-storage-sqlite");
-  
-    let options: capOpenStorageOptions = {
-      database: "nanchat_db",
-      table: "cache",
-    };
-  
-    try {
-      await sqlStore.openStore(options);
-    } catch (err) {
-      console.log("Error initialising capacitor-data-storage-sqlite.");
-      console.log(err);
-    }
+    // Memoize: openStore only needs to run once. Re-opening the store on every
+    // call gets progressively slower as the table grows.
+    if (initSqlStorePromise) return initSqlStorePromise;
+
+    initSqlStorePromise = (async () => {
+      console.log("Init capacitor-data-storage-sqlite");
+
+      let options: capOpenStorageOptions = {
+        database: "nanchat_db",
+        table: "cache",
+      };
+
+      try {
+        await sqlStore.openStore(options);
+      } catch (err) {
+        console.log("Error initialising capacitor-data-storage-sqlite.");
+        console.log(err);
+        // Reset so a later call can retry opening the store.
+        initSqlStorePromise = null;
+      }
+    })();
+
+    return initSqlStorePromise;
   };
 
   export let setDataString = async (key: string, value: string): Promise<boolean> => {
     await initSqlStore();
     try {
       await sqlStore.set({ key: key, value: value });
-      console.log("set data", value)
+      // console.log("set data", value)
       inMemoryMap.set(key, value);
       return true;
     } catch (err) {
@@ -55,7 +66,7 @@ import { cacheKeyPrefix } from "../components/messaging/utils";
     let valueJson = JSON.stringify(value);
     try {
       await sqlStore.set({ key: key, value: valueJson });
-      console.log("set data", valueJson)
+      // console.log("set data", valueJson)
       inMemoryMap.set(key, value);
       return true;
     } catch (err) {
@@ -115,7 +126,7 @@ console.timeEnd('load in memory')
   export let restoreMessages = async (key: string, chatId: string): Promise<any> => {
     try {
       if (inMemoryMap.has(key)) {
-        console.log("hit data from memory", key)
+        // console.log("hit data from memory", key)
         return inMemoryMap.get(key)
       }
       return null;
@@ -128,7 +139,7 @@ console.timeEnd('load in memory')
   export let restoreData = async (key: string): Promise<any> => {
     try {
       if (inMemoryMap.has(key)) {
-        console.log("hit data from memory", key)
+        // console.log("hit data from memory", key)
         return inMemoryMap.get(key)
       }
       await initSqlStore();
@@ -148,7 +159,7 @@ console.timeEnd('load in memory')
   }
   export let restoreDataString = async (key: string): Promise<any> => {
     if (inMemoryMap.has(key)) {
-        console.log("hit data from memory", key)
+        // console.log("hit data from memory", key)
         return inMemoryMap.get(key)
     }
     await initSqlStore();

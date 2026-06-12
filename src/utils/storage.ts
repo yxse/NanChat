@@ -3,6 +3,7 @@ import KeyringService from "../services/tauri-keyring-frontend";
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { mutate } from "swr";
 import { getNewChatToken } from "../components/messaging/fetcher";
+import { wallet as walletLib } from "multi-nano-web";
 interface StorageArea {
   [key: string]: any;
 }
@@ -37,6 +38,15 @@ export default {
     });
   }
 };
+
+export function generateSecureSeed(): string {
+  if (!crypto?.getRandomValues) {
+    throw new Error('Cannot generate a secure wallet in this environment');
+  }
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export function resetWallet(): void {
   localStorage.clear();
@@ -124,14 +134,77 @@ export async function getIsPasswordEncrypted(): Promise<boolean> {
   const seed = await getSeed();
   return seed?.isPasswordEncrypted;
 }
-export async function setSeed(seed: string, isPasswordEncrypted: boolean, pin: string = ""): Promise<void> {
-  // localStorage.setItem("seed", seed);
-  const listSeeds = [{
-    seed: seed,
-    isPasswordEncrypted: isPasswordEncrypted
-  }] // to support multiple seeds eventually
-  let valueSeed = JSON.stringify(listSeeds);
-  await saveInSecureStorage('seed', valueSeed);
+export async function setSeed(seed: string, isPasswordEncrypted: boolean, pin: string = "", isSecureRandom: boolean = false): Promise<void> {
+  const existing = await getSeeds();
+  const activeIdx = getActiveSeedIndex();
+  const newEntry = { seed, isPasswordEncrypted, isSecureRandom };
+  let listSeeds: typeof existing;
+  if (existing.length > 0) {
+    listSeeds = [...existing];
+    listSeeds[Math.min(activeIdx, listSeeds.length - 1)] = newEntry; // 
+  } else {
+    listSeeds = [newEntry];
+  }
+  await saveInSecureStorage('seed', JSON.stringify(listSeeds));
+  localStorage.setItem('walletPrimaryAddresses', JSON.stringify(listSeeds.map(s => s.isPasswordEncrypted ? "Encrypted" : _derivePrimaryAddress(s.seed))));
+  localStorage.setItem('walletSecureFlags', JSON.stringify(listSeeds.map(s => s.isSecureRandom ?? false)));
+}
+
+export function _derivePrimaryAddress(seed: string): string | null {
+  try {
+    const accs = seed.length === 128 ? walletLib.accounts(seed, 0, 0) : walletLib.legacyAccounts(seed, 0, 0);
+    return accs[0]?.address ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getSeeds(): Promise<Array<{seed: string, isPasswordEncrypted: boolean, isSecureRandom?: boolean}>> {
+  try {
+    const stored = await getFromSecureStorage('seed');
+    const json = JSON.parse(stored);
+    if (Array.isArray(json)) return json;
+    if (json?.seed) return [json];
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+// Add a new wallet seed at the front (new primary), old seeds shift back
+export async function prependWalletSeed(seed: string, isPasswordEncrypted: boolean, isSecureRandom: boolean = false): Promise<void> {
+  const seeds = await getSeeds();
+  const newEntry = { seed, isPasswordEncrypted, isSecureRandom };
+  const updated = [newEntry, ...seeds]
+  await saveInSecureStorage('seed', JSON.stringify(updated));
+  const addresses = updated.map(s => _derivePrimaryAddress(s.seed));
+  localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses));
+  const flags = updated.map(s => s.isSecureRandom ?? false);
+  localStorage.setItem('walletSecureFlags', JSON.stringify(flags));
+  localStorage.setItem('activeSeedIndex', '0');
+}
+
+export async function removeWalletSeed(index: number): Promise<void> {
+  const seeds = await getSeeds();
+  if (index < 0 || index >= seeds.length) return;
+  const activeIndex = getActiveSeedIndex();
+  if (index === activeIndex) return;
+  const updated = seeds.filter((_, i) => i !== index);
+  await saveInSecureStorage('seed', JSON.stringify(updated));
+  const addresses = updated.map(s => _derivePrimaryAddress(s.seed));
+  localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses));
+  const flags = updated.map(s => s.isSecureRandom ?? false);
+  localStorage.setItem('walletSecureFlags', JSON.stringify(flags));
+  const newActiveIndex = index < activeIndex ? activeIndex - 1 : activeIndex;
+  localStorage.setItem('activeSeedIndex', String(newActiveIndex));
+}
+
+export function getActiveSeedIndex(): number {
+  return parseInt(localStorage.getItem('activeSeedIndex') || '0');
+}
+
+export function setActiveSeedIndex(index: number): void {
+  localStorage.setItem('activeSeedIndex', String(index));
 }
 
 const getActiveAccount = () => {
@@ -233,15 +306,14 @@ export async function getSeed(): Promise<string> {
     const seed = await getFromSecureStorage('seed');
     const json = JSON.parse(seed)
     if (Array.isArray(json) && json.length > 0) {
-      return json[0]
+      const idx = getActiveSeedIndex();
+      return json[Math.min(idx, json.length - 1)];
     }
     return json
   } catch (error) {
     console.error("Error getting seed: ", error);
     return null
-    // return JSON
   }
-  // return localStorage.getItem("seed");
 }
 
 export async function removeSeed(): Promise<void> {

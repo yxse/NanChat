@@ -33,6 +33,7 @@ import { useTranslation } from "react-i18next";
 import NetworkUnavailable from "./NetworkUnavailable";
 import { shouldStickToBottom } from '../utils';
 import GroupName from "./group/GroupName";
+import { UnsafeWalletWarning } from "../../app/UnsafeWalletWarning";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -423,11 +424,14 @@ const right = (
             className="app-navbar "
             right={right}
             backArrow={false}>
-          <span className="">NanChat </span>
+          <span 
+          onClick={() => {
+            listRef.current?.scrollToPosition(0)
+          }}
+          className="">NanChat </span>
         </NavBar>
         }
     
-
           
             <div className="">
                 <div className="">
@@ -442,6 +446,7 @@ const right = (
           // 47px for the header, 58px for the menu
           , overflow: "hidden" }}>
             <NetworkUnavailable />
+           <UnsafeWalletWarning step={1} />
             <AutoSizer>
               {({ width, height }) => (
                 <VirtualizedList

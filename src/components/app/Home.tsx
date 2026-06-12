@@ -51,6 +51,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { HapticsImpact } from "../../utils/haptic";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { FormatBaseCurrency } from "../messaging/utils";
+import { UnsafeWalletWarning } from "./UnsafeWalletWarning";
 
 
 
@@ -235,6 +236,7 @@ export default function Home({ }) {
       {/* 211px is the height of navbar + wallet summary + menu bar */}
       <div className="pb-10" style={{ height: "calc(100vh - 211px + 46px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))", overflowY: "auto" }}>
      <SendReceive />
+     <UnsafeWalletWarning step={1} />
         <NetworkList
         hideZeroBalanceIfNotFeatured={isMobile} // hide zero balance networks that are not featured (hideIfEmpty true in networks.ts), only on mobile 
         noPadding

@@ -99,6 +99,7 @@ import RedPacketResult from "./redpacket/RedPacketResult";
 import { ClipLoader as HashSpinner } from "react-spinners";
 import { SplashScreen } from "@capacitor/splash-screen";
 import GroupsChats from "../messaging/components/group/GroupsChats";
+import ChangeSecretPhrase from "./ChangeSecretPhrase";
 
 
 export const MenuBar = () => {
@@ -488,7 +489,6 @@ export default function App({callback}) {
          <span className="text-sm">Loading wallet</span>
       </div>
      </div>
-  if (!activeAccount) return
   return (
     <>
     <LockAfterInactivity />
@@ -520,6 +520,7 @@ export default function App({callback}) {
             
              />} />
             {/* <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} /> */}
+            <Route path="/settings/change-secret-phrase" element={<ChangeSecretPhrase />} />
             <Route path="/settings/security" element={<SecuritySettings />} />
             <Route path="/settings/notification" element={<NotificationSettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />

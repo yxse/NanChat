@@ -40,6 +40,6 @@ export function boxDecryptInWorker(
   return new Promise((resolve, reject) => {
     const id = ++nextId;
     pending.set(id, { resolve, reject });
-    getWorker().postMessage({ id, content, targetAccount, decryptionKey });
+    getWorker().postMessage({ id, action: 'decrypt', content, targetAccount, decryptionKey });
   });
 }

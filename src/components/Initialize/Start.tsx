@@ -284,7 +284,7 @@ export default function Start({
   const {dispatch} = useWallet()
   // const navigate = useNavigate();
   // useEffect(() => {
-  //   const generatedWallet = walletLib.generateLegacy()
+  //   const generatedWallet = walletLib.generateLegacy(generateSecureSeed())
   //   for (let ticker of Object.keys(networks)) {
   //     dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
   //   }

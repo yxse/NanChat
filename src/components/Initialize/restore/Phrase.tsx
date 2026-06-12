@@ -161,13 +161,13 @@ export default function ImportPhrase({
               }}
               // description="Enter your PIN to secure your wallet"
               onAuthenticated={async () => {
-                await setSeed(wallet.wallets["XNO"].seed, false)
+                await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
                 setWalletState("unlocked");
                 onCreated()
               }
               } />
               <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={async () => {
-                await setSeed(wallet.wallets["XNO"].seed, false)
+                await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
                 setWalletState("unlocked");
                 onCreated()
               }

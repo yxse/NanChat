@@ -21,7 +21,7 @@ import { isTauri } from '@tauri-apps/api/core';
 import { Capacitor } from '@capacitor/core';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 import * as webauthn from '@passwordless-id/webauthn'
-import { setSeed } from '../../../utils/storage';
+import { setSeed, generateSecureSeed } from '../../../utils/storage';
 import { wallet as walletLib } from "multi-nano-web";
 import { initWallet } from '../../../nano/accounts';
 import { networks } from '../../../utils/networks';
@@ -70,12 +70,18 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
     useHideNavbarOnMobile(true);
     const { t } = useTranslation();
     useEffect(() => {
-        const generatedWallet = walletLib.generateLegacy()
+        let generatedWallet;
+        try {
+          generatedWallet = walletLib.generateLegacy(generateSecureSeed());
+        } catch {
+          Toast.show({ icon: 'fail', content: 'Cannot generate a secure wallet in this environment' });
+          return;
+        }
         for (let ticker of Object.keys(networks)) {
           dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutateGlobal, dispatch) } });
         }
         if (HAS_SECURE_STORAGE){
-          setSeed(generatedWallet.seed, false).then(async () => {})
+          setSeed(generatedWallet.seed, false, undefined, true).then(async () => {})
         }
         getNewChatToken(generatedWallet.accounts[0].address, generatedWallet.accounts[0].privateKey)
       }, []);
@@ -89,10 +95,11 @@ const registerNative = async () => {
         return
     }
     Toast.show({icon: 'loading'});
-                    await setSeed(wallet.wallets["XNO"].seed, false)
+                    await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
         fetcherMessagesPost('/set-name', {
             name: name,
-            account: activeAccount
+            account: activeAccount,
+            version: 2
         }, activeAccountPk).then(async (res) => {
             console.log(res);
             // Toast.show({icon: 'success'});
@@ -113,7 +120,8 @@ const registerWeb = async (name) => {
     // Toast.show({icon: 'loading'});
       fetcherMessagesPost('/set-name', {
             name: name,
-            account: activeAccount
+            account: activeAccount,
+            version: 2
         }, activeAccountPk).then(async (res) => {
             console.log(res);
             // Toast.show({icon: 'success'});
@@ -172,7 +180,7 @@ const registerWeb = async (name) => {
         <ReusableImageUploader
         showButton={false}
         endpoint="/upload/upload-profile-picture"
-        additionalFormData={{ account: activeAccount }}
+        additionalFormData={{ account: activeAccount, version: 2 }}
         onUploadSuccess={handleProfilePictureSuccess}
         buttonText={t('uploadProfilePicture')}
         loadingText={t('uploading')}

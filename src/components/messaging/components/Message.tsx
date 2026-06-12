@@ -211,7 +211,6 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
           maxWidth: '300px',
           cursor: 'pointer'
                 }}
-          onClick={(message.replyMessage?.file || message.replyMessage.nanoApp) ? () => onGoToMessage?.(message.replyMessage) : undefined}
           >
                   <MessageRaw
                   type="reply"

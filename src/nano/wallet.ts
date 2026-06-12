@@ -1,4 +1,5 @@
 import { wallet as walletLib, block, tools } from "multi-nano-web";
+import { generateSecureSeed } from "../utils/storage";
 import RPC from "./rpc";
 import { BigNumber } from "bignumber.js";
 import AsyncLock from "async-lock";
@@ -211,7 +212,7 @@ export class Wallet {
    *
    */
   createWallet = () => {
-    let wallet = walletLib.generateLegacy();
+    let wallet = walletLib.generateLegacy(generateSecureSeed());
     this.seed = wallet.seed;
     this.createAccounts(1);
     return {

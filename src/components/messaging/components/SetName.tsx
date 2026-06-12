@@ -66,7 +66,8 @@ const SetName: React.FC = () => {
             onFinish={(values) => {
                 fetcherMessagesPost('/set-name', {
                     name: values.name.trim(),
-                    account: activeAccount
+                    account: activeAccount,
+                    version: 2
                 }, activeAccountPk).then(async (res) => {
                     console.log(res);
                     Toast.show({icon: 'success'});

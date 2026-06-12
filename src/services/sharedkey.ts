@@ -1,4 +1,5 @@
 import { box, tools, wallet } from "multi-nano-web";
+import { generateSecureSeed } from "../utils/storage";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../components/messaging/fetcher";
 import { initSqlStore, inMemoryMap, restoreData, setData } from "./database.service";
 
@@ -16,7 +17,7 @@ export async function addSharedKeyForParticipants(chatId: string, newParticipant
 
 export async function updateSharedKeys(chatId: string, participants: string[], fromPk: string) {
     // 64 bytes shared key hex encoded
-    const sharedWallet = wallet.generate();
+    const sharedWallet = wallet.generateLegacy(generateSecureSeed());
     const account = sharedWallet.accounts[0];
     const pk = account.privateKey;
     const address = account.address;

@@ -38,8 +38,11 @@ export const getNewChatToken = async (account, privateKey) => {
             await setChatToken(account, data.token, data.expiresAt);
             return data.token;
         }
-        else if (data.error && !data.error == 'Invalid signature'){ // invalid signature can happen when switching accounts
+        else if (data.error && data.error != 'Invalid signature'){ // invalid signature can happen when switching accounts
+            if (window.location.pathname != '/me/settings' && window.location.pathname != '/settings/change-secret-phrase'){
+                 // to prevent multiple toasts 
             Toast.show({content: data.error, icon: 'fail'})
+            }
         }
         
         return null;
@@ -245,7 +248,7 @@ export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().
           }
       })
   })
-export const addParticipants = (chatId, participants) => fetcherMessagesPost('/add-participants', {chatId, participants})
+export const addParticipants = (chatId, participants, notification = true) => fetcherMessagesPost('/add-participants', {chatId, participants, notification})
 export const removeParticipants = (chatId, participants) => fetcherMessagesPost('/remove-participants', {chatId, participants})
 export const joinRequest = (chatId) => fetcherMessagesPost('/join-request', {chatId})
 export const acceptJoinRequest = (chatId, fromAccount) => fetcherMessagesPost('/join-request-accept', {chatId, fromAccount})

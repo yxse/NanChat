@@ -73,6 +73,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
       const formData = new FormData();
       formData.append('profilePicture', file);
       formData.append('account', activeAccount)
+      formData.append('version', '2')
 
       const response = await fetch(import.meta.env.VITE_PUBLIC_BACKEND +
         '/upload/upload-profile-picture', {
@@ -145,7 +146,7 @@ const ProfilePictureUpload = ({ username, onUploadSuccess }) => {
       <ReusableImageUploader
       showButton={!currentAvatar == null}
         endpoint="/upload/upload-profile-picture"
-        additionalFormData={{ account: activeAccount }}
+        additionalFormData={{ account: activeAccount, version: 2 }}
         onUploadSuccess={handleProfilePictureSuccess}
         buttonText="Select Profile Picture"
         loadingText="Uploading..."

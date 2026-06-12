@@ -13,7 +13,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { fetchFiatRates, getCurrencyLogo } from "../nanswap/swap/service";
 import { CircleFlag } from "react-circle-flags";
 import useLocalStorageState from "use-local-storage-state";
-import { MdBackup, MdContactMail, MdHowToVote, MdLogout, MdOutlineCleaningServices, MdOutlineFingerprint, MdOutlinePassword, MdOutlineSecurity, MdOutlineSettingsBackupRestore, MdOutlineTimer, MdSettingsBackupRestore } from "react-icons/md";
+import { MdBackup, MdContactMail, MdHowToVote, MdLogout, MdOutlineCleaningServices, MdOutlineFingerprint, MdOutlinePassword, MdOutlineSecurity, MdOutlineSettingsBackupRestore, MdOutlineTimer, MdSettingsBackupRestore, MdLockReset } from "react-icons/md";
 import { getAccount } from "./getAccount";
 import * as webauthn from '@passwordless-id/webauthn'
 import { AiOutlineContacts, AiOutlineFormatPainter } from "react-icons/ai";
@@ -29,7 +29,7 @@ import { BiHistory } from "react-icons/bi";
 import { FiAtSign } from "react-icons/fi";
 import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-sheet";
 import ProfileHome from "./messaging/components/profile/ProfileHome";
-import { getSeed, removeSeed } from "../utils/storage";
+import { getSeed, removeSeed, getActiveSeedIndex, setActiveSeedIndex, removeWalletSeed, getSeeds, _derivePrimaryAddress } from "../utils/storage";
 import { copyToClipboard } from "../utils/format";
 import { useBreakpoint } from "../hooks/use-windows-dimensions";
 import { useHideNavbarOnMobile } from "../hooks/use-hide-navbar";
@@ -125,7 +125,7 @@ export const showLogoutModal = async () => {
         style={{color: 'var(--adm-color-warning)', maxWidth: 300}}
       >
         <ExclamationTriangleOutline style={{minWidth: 24}} />
-        Make sure to have a backup of your recovery phrase. You will not be able to recover your funds and accounts without it.
+        This will remove all your wallets. Make sure to have a backup of your recovery phrase. You will not be able to recover your funds and accounts without it.
       </div>
     ),
     content: null,
@@ -146,7 +146,7 @@ export const showLogoutModal = async () => {
                 key: 'logout',
                 text: <div className="flex items-center gap-2 justify-center">
                 <ExclamationCircleOutline />
-                Remove Secret Phrase and Log Out
+                Remove all Secret Phrases and Log Out
               </div>,
                 danger: true,
                 onClick: async () => {
@@ -187,7 +187,7 @@ export const showLogoutSheet = async () => {
             { key: '1',
               text: <div className="flex items-center gap-2 justify-center">
                 <ExclamationCircleOutline />
-                Remove Secret Phrase and Log Out</div>,
+                Remove all Secret Phrases and Log Out</div>,
               danger: true,
               description: '',
               onClick: async () => {
@@ -221,11 +221,160 @@ export const showLogoutSheet = async () => {
     className="text-center text-xl flex items-center justify-center gap-2"
     style={{color: 'var(--adm-color-warning)'}}
     ><ExclamationTriangleOutline fontSize={24} style={{minWidth: 24}} />
-    Make sure to have a backup of your recovery phrase. You will not be able to recover your funds and accounts without it.
+    This will remove all your wallets. Make sure to have a backup of your recovery phrase. You will not be able to recover your funds and accounts without it.
     </div>
   })
 }
       
+function SwitchWalletSection() {
+  const [visible, setVisible] = useState(false);
+  const [wallets, setWallets] = useState<{ address: string | null; isSecureRandom: boolean }[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const loadWallets = async () => {
+    let addresses: (string | null)[] = (() => {
+      try { return JSON.parse(localStorage.getItem('walletPrimaryAddresses') || '[]'); } catch { return []; }
+    })();
+    const flags: boolean[] = (() => {
+      try { return JSON.parse(localStorage.getItem('walletSecureFlags') || '[]'); } catch { return []; }
+    })();
+    if (addresses.length === 0) { // in case localstorage empty, we derive again from seeds
+      const seeds = await getSeeds();
+      addresses = seeds.map(seed => _derivePrimaryAddress(seed.seed) as string);
+      localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses)); 
+    }
+    setActiveIndex(getActiveSeedIndex());
+    setWallets(addresses.map((address, i) => ({ address, isSecureRandom: flags[i] ?? false })));
+  };
+
+  if (wallets.length <= 1 && !visible) {
+    // Still render the List.Item so user can see it, but suppress popup if only 1 wallet
+  }
+
+  const handleSwitch = (i: number) => {
+    setActiveSeedIndex(i);
+    window.location.reload();
+  };
+
+  const handleRemove = async (i: number) => {
+    Modal.show({
+      closeOnMaskClick: true,
+      title: (
+        <div
+          className="text-center flex items-center justify-center gap-2"
+          style={{ color: 'var(--adm-color-warning)', maxWidth: 300 }}
+        >
+          <ExclamationTriangleOutline style={{ minWidth: 24 }} />
+          Remove Wallet {i + 1} from this device? Make sure you have a backup of Wallet {i + 1} recovery phrase.
+        </div>
+      ),
+      content: null,
+      closeOnAction: true,
+      actions: [
+        {
+          key: 'continue',
+          text: 'Continue',
+          danger: true,
+          onClick: () => {
+            Modal.show({
+              title: null,
+              closeOnAction: true,
+              closeOnMaskClick: true,
+              actions: [
+                {
+                  key: 'remove',
+                  text: (
+                    <div className="flex items-center gap-2 justify-center">
+                      <ExclamationCircleOutline />
+                      Remove Wallet {i + 1}
+                    </div>
+                  ),
+                  danger: true,
+                  onClick: async () => {
+                    await removeWalletSeed(i);
+                    loadWallets();
+                  },
+                },
+                { key: 'cancel', text: 'Cancel' },
+              ],
+            });
+          },
+        },
+        { key: 'cancel', text: 'Cancel' },
+      ],
+    });
+  };
+
+  useEffect(() => {
+    loadWallets();
+  }, [])
+  
+  if (wallets.length <= 1) return null;
+  return (
+    <>
+      <List.Item
+        prefix={<FaExchangeAlt size={20} />}
+        onClick={() => { loadWallets(); setVisible(true); }}
+      >
+        Switch Wallet
+      </List.Item>
+      <ResponsivePopup
+        visible={visible}
+        onClose={() => setVisible(false)}
+        closeOnMaskClick
+        showCloseButton
+        bodyStyle={{ maxHeight: '80dvh', overflowY: 'auto' }}
+        destroyOnClose
+      >
+        <div className="p-4 text-xl font-semibold text-center">Wallets</div>
+        {wallets.length === 0 && (
+          <div className="p-4 text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>No wallets found</div>
+        )}
+        {wallets.map((w, i) => {
+          const isActive = i === activeIndex;
+          const short = w.address ? w.address.slice(0, 14) + '…' + w.address.slice(-6) : `Wallet ${i + 1}`;
+          return (
+            <div
+              key={i}
+              className="flex items-center justify-between mx-4 mb-2 rounded-xl px-3 py-3 cursor-pointer"
+              style={{
+                background: isActive ? 'var(--adm-color-primary-light-1, rgba(0,100,255,0.08))' : 'var(--adm-color-box)',
+                border: isActive ? '1px solid var(--adm-color-primary)' : '1px solid transparent',
+              }}
+              onClick={() => { if (!isActive) handleSwitch(i); }}
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium">Wallet {i + 1}</span>
+                  {isActive && (
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--adm-color-primary)', color: '#fff' }}>Active</span>
+                  )}
+                  {!w.isSecureRandom && (
+                    <span className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1" style={{ background: 'var(--adm-color-warning-bg, #fff7e6)', color: 'var(--adm-color-warning)' }}>
+                      ⚠ Unsafe
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs font-mono mt-0.5" style={{ color: 'var(--adm-color-text-secondary)' }}>{short}</div>
+              </div>
+              {!isActive && (
+                <button
+                  className="ml-3 text-xs px-2 py-1 rounded"
+                  style={{ color: 'var(--adm-color-danger)', background: 'transparent', border: '1px solid var(--adm-color-danger)' }}
+                  onClick={(e) => { e.stopPropagation(); handleRemove(i); }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          );
+        })}
+        <div className="pb-6" />
+      </ResponsivePopup>
+    </>
+  );
+}
+
 export default function Settings({ isNavOpen, setNavOpen }: { isNavOpen: boolean, setNavOpen: Function }) {
   const {ledger, setLedger} = useContext(LedgerContext);
   const {activeAccount} = useWallet()
@@ -644,7 +793,7 @@ className="mb-24"
                 mutate("/chats-"+activeAccount) // preload chats
                 mutateContacts() // preload contacts
                 mutate("/stickers") // preload stickers
-                await clearDb()
+                // await clearDb()
                 Toast.show({
                   icon: "success",
                   // content: `Cleared ${count} items from cache`
@@ -654,12 +803,22 @@ className="mb-24"
             >
               {t('clearCache')}
             </List.Item>
+            </List>
+            <div className="my-4" />
+            <List mode="card">
             {/* <List.Item
               prefix={<DeleteOutline fontSize={24} color="red" />}
               onClick={() => localStorage.removeItem("contacts")}
             >
               Remove all contacts
             </List.Item> */}
+            <SwitchWalletSection />
+            <List.Item
+              prefix={<MdLockReset fontSize={24} />}
+              onClick={() => navigate('/settings/change-secret-phrase')}
+            >
+              Change Secret Phrase
+            </List.Item>
             <List.Item
               prefix={<MdLogout fontSize={24} color="red" />}
               onClick={async () => {
@@ -687,7 +846,7 @@ className="mb-24"
               </Button>
             }
             <div 
-            style={{paddingBottom: 'calc(var(--safe-area-inset-bottom) + 16px)'}}
+            style={{paddingBottom: '16px)'}}
             className="mt-4">
             <LedgerSelect 
             onConnect={() => {
@@ -698,7 +857,7 @@ className="mb-24"
               }}
             />
             </div>
-            <div className="text-center text-xs mt-4 pb-4 select-none" style={{color: "var(--adm-color-text-secondary)"}}>
+            <div className="text-center text-xs select-none" style={{color: "var(--adm-color-text-secondary)", paddingBottom: 'calc(var(--safe-area-inset-bottom) + 32px)', marginTop: 32}}>
               v{appVersion.version}
             </div>
           </div>

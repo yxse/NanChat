@@ -157,7 +157,7 @@ function SecuritySettings() {
                             console.error(error)
                           }
                           if (isValid) {
-                            await setSeed(result)
+                            await setSeed(result, false, undefined, true)
                             setSeedLocal({seed: result, isPasswordEncrypted: false})
                             Toast.show({
                               icon: "success",
@@ -200,7 +200,7 @@ function SecuritySettings() {
                     buttonText={t('changePasswordButton')}
                     onFinish={async (values) => {
                         let encryptedSeed = await encrypt(wallet.wallets["XNO"].seed, values.password)
-                        await setSeed(encryptedSeed, true)
+                        await setSeed(encryptedSeed, true, undefined, true)
                         modal.close()
                         Toast.show({
                           icon: "success",
@@ -233,7 +233,7 @@ function SecuritySettings() {
                                             const password = values.password
                                             let encryptedSeed = await encrypt(seed.seed, password)
                                             await setSeedLocal({seed: encryptedSeed, isPasswordEncrypted: true})
-                                            await setSeed(encryptedSeed, true)
+                                            await setSeed(encryptedSeed, true, undefined, true)
                                             Toast.show({
                                               icon: "success",
                                               content: t('passwordEnabled')

@@ -7,7 +7,7 @@ import { wallet as walletLib } from "multi-nano-web";
 import "../../../styles/mnemonic.css";
 import { BsEyeSlashFill } from "react-icons/bs";
 
-import storage, { setSeed } from "../../../utils/storage";
+import storage, { setSeed, generateSecureSeed } from "../../../utils/storage";
 import { Button, Card, DotLoading, Modal, NavBar, Toast } from "antd-mobile";
 import { CopyButton } from "../../app/Icons";
 import { saveAs } from 'file-saver';
@@ -44,14 +44,21 @@ export default function Mnemonic({
   const [createPinVisible, setCreatePinVisible] = useState<boolean>(false);
   const [pinVisible, setPinVisible] = useState<boolean>(false);
   useEffect(() => {
-    const generatedWallet = walletLib.generateLegacy()
+    let generatedWallet;
+    try {
+      generatedWallet = walletLib.generateLegacy(generateSecureSeed());
+    } catch {
+      Toast.show({ icon: 'fail', content: 'Cannot generate a secure wallet in this environment' });
+      return;
+    }
     setMnemonic(generatedWallet.mnemonic);
     for (let ticker of Object.keys(networks)) {
       dispatch({ type: "ADD_WALLET", payload: { ticker, wallet: initWallet(ticker, generatedWallet.seed, mutate, dispatch) } });
     }
-    setSeed(generatedWallet.seed, false)
-        setWalletState("unlocked");
-        onCreated()
+    setSeed(generatedWallet.seed, false, undefined, true).then(() => {
+      setWalletState("unlocked");
+      onCreated()
+    })
   }, []);
   return (
     <>
@@ -139,13 +146,13 @@ export default function Mnemonic({
       visible={pinVisible}
       setVisible={setPinVisible}
       onAuthenticated={async () => {
-        await setSeed(wallet.wallets["XNO"].seed, false)
+        await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
         setWalletState("unlocked");
         onCreated()
       }
       } />
       <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={async () => {
-        await setSeed(wallet.wallets["XNO"].seed, false)
+        await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
         setWalletState("unlocked");
         onCreated()
       }
