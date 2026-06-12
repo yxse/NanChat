@@ -8,6 +8,6 @@ We kindly ask you to refrain from malicious acts that put our users, the project
 We consider the security of this wallet a top priority. But no matter how much effort we put into system security, there can still be vulnerabilities present.
 
 If you discover a security vulnerability, please use one of the following means of communications to report it to us through any of these emails (If possible, all):
-* celioseviiz@gmail.com
+* contact@nanchat.com
 
 Your efforts to responsibly disclose your findings are sincerely appreciated and will be taken into account to acknowledge your contributions.
