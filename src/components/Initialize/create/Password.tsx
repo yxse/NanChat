@@ -7,11 +7,12 @@ import storage, { setSeed } from "../../../utils/storage";
 import { Button, Card, Form, Input, List, Modal, NavBar, ProgressBar, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../useWallet";
-import { LockOutline } from "antd-mobile-icons";
+import { EyeFill, EyeInvisibleFill, LockOutline } from "antd-mobile-icons";
 
 import { zxcvbnOptions, zxcvbnAsync } from '@zxcvbn-ts/core'
 import * as zxcvbnCommonPackage from '@zxcvbn-ts/language-common'
 import * as zxcvbnEnPackage from '@zxcvbn-ts/language-en'
+import { t } from "i18next";
 
 const options = {
   // recommended
@@ -122,12 +123,12 @@ export const PasswordForm = ({onFinish,  buttonText = "Next"}) => {
                       validateFirst
                       rules={
                         [
-                          { required: true, message: "Please confirm your password" },
+                          { required: true, message: t("pleaseConfirmYourPassword") },
                           { validator: async (rule, value) => {
-                            if (value !== document.getElementById("password")?.value) {
-                              return Promise.reject("Passwords do not match")
+                            if (value !== form.getFieldValue('password')) {
+                              return Promise.reject(t("passwordsDoNotMatch"));
                             }
-                            return Promise.resolve()
+                            return Promise.resolve();
                           } }
 
                         ]
