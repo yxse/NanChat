@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { getActiveSeedIndex } from '../../utils/storage';
 import { Link } from 'react-router-dom';
+import { LedgerContext } from '../LedgerContext';
 
 export function UnsafeWalletWarning({step = 2}) {
   const isSecure = useMemo(() => {
@@ -8,6 +9,8 @@ export function UnsafeWalletWarning({step = 2}) {
     return !!flags[getActiveSeedIndex()];
   }, []);
 
+  const {ledger} = useContext(LedgerContext);
+  if (ledger) return null;
   if (isSecure && step === 2) return <div className="text-center" style={{ color: 'var(--adm-color-text-secondary)', marginTop: 32 }}>
               Use Change Secret Phrase to migrate your funds, chats, and settings to a new wallet. <br/><br/>
               
