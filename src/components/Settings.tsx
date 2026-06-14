@@ -235,13 +235,18 @@ function SwitchWalletSection() {
     let addresses: (string | null)[] = (() => {
       try { return JSON.parse(localStorage.getItem('walletPrimaryAddresses') || '[]'); } catch { return []; }
     })();
-    const flags: boolean[] = (() => {
+    let flags: boolean[] = (() => {
       try { return JSON.parse(localStorage.getItem('walletSecureFlags') || '[]'); } catch { return []; }
     })();
     if (addresses.length === 0) { // in case localstorage empty, we derive again from seeds
       const seeds = await getSeeds();
       addresses = seeds.map(seed => _derivePrimaryAddress(seed.seed) as string);
-      localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses)); 
+      localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses));
+    }
+    if (flags.length === 0) {
+      const seeds = await getSeeds();
+      flags = seeds.map(s => s.isSecureRandom ?? false);
+      localStorage.setItem('walletSecureFlags', JSON.stringify(flags));
     }
     setActiveIndex(getActiveSeedIndex());
     setWallets(addresses.map((address, i) => ({ address, isSecureRandom: flags[i] ?? false })));

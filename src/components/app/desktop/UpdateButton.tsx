@@ -11,6 +11,11 @@ import { isTauri } from "@tauri-apps/api/core";
 type UpdateStatus = "idle" | "checking" | "downloading" | "installing" | "ready";
 
 export const UpdateButton = () => {
+  if (!isTauri()) return null;
+  return <UpdateButtonInner />;
+};
+
+const UpdateButtonInner = () => {
   const { t } = useTranslation();
   const [update, setUpdate] = useState<Update | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string>("");
@@ -86,9 +91,6 @@ export const UpdateButton = () => {
 //     );
 //   }
 
-  if (!isTauri()) {
-    return null;
-  }
   if (!update) {
     return currentVersion ? (
       <div
