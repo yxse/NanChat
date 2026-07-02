@@ -174,7 +174,7 @@ export function generateSecurePassword() {
 let lastBrowserWebviewLabel: string | null = null;
 
 const BROWSER_WINDOW_KEY = "browser-window-rect";
-const DEFAULT_BROWSER_RECT = { width: 1024, height: 768, x: undefined, y: undefined };
+const DEFAULT_BROWSER_RECT = { width: 1024, height: 768, x: undefined, y: undefined, maximized: false };
 
 function getSavedBrowserWindowRect() {
   try {
@@ -189,58 +189,75 @@ function getSavedBrowserWindowRect() {
 
 export const focusLastBrowserWindow = async () => {
   if (!lastBrowserWebviewLabel || !isTauri()) return;
-  const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
-  const win = await WebviewWindow.getByLabel(lastBrowserWebviewLabel);
+  const { Window } = await import("@tauri-apps/api/window");
+  const win = await Window.getByLabel(lastBrowserWebviewLabel);
   await win?.setFocus();
 };
+export const focusMainWindow = async () => {
+  if (!isTauri()) return;
+  const { Window } = await import("@tauri-apps/api/window");
+  const mainWin = await Window.getByLabel("main");
+  await mainWin?.setFocus();
+}
 
 export const openInBrowser = async (url: string, title: string) => {
   if (isTauri()) {
-    const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+    const { Window } = await import("@tauri-apps/api/window");
+    const { invoke } = await import("@tauri-apps/api/core");
     const label = `browser-${Date.now()}`;
     lastBrowserWebviewLabel = label;
     const { width, height, x, y, maximized } = getSavedBrowserWindowRect();
-    const webview = new WebviewWindow(label, {
+    console.log("Opening URL in Tauri webview", { url, width, height, x, y });
+
+    await invoke("open_browser_window", {
+      label,
       url,
-      title: title || url,
+      title: title || "url",
       width,
       height,
-      x: x,
-      y: y,
-      devtools: true,
-      // center: true,
-      maximized: maximized
+      x: x ?? null,
+      y: y ?? null,
+      maximized,
     });
-    console.log("Opening URL in Tauri webview", { url, width, height, x, y });
-    webview.once("tauri://created", async () => {
-      const win = await WebviewWindow.getByLabel(label);
-      if (!win) return;
-      // win.setPosition({ x, y });
-      const saveRect = async () => {
-        try {
-          const size = await win.size();
-          const posForX = await win.outerPosition();
-          const posForY = await win.outerPosition();
-          const scaleFactor = await win.scaleFactor();
-          const x = Math.round(posForX.x / scaleFactor);
-          const y = Math.round(posForY.y / scaleFactor);
-          const width = Math.round(size.width / scaleFactor);
-          const height = Math.round(size.height / scaleFactor);
-          console.log("Saving browser window rect", { x, y, width, height });
+
+    const win = await Window.getByLabel(label);
+    if (!win) return;
+    const saveRect = async () => {
+      try {
+        const maximized = await win.isMaximized();
+        // While maximized the size/position reflect the full screen, which we
+        // must NOT persist as the normal bounds (otherwise un-maximizing /
+        // restoring would keep the window full-screen). Only update the stored
+        // width/height/x/y when the window is in its normal state; always keep
+        // the maximized flag current.
+        const prev = getSavedBrowserWindowRect();
+        if (maximized) {
           localStorage.setItem(BROWSER_WINDOW_KEY, JSON.stringify({
-            width: width,
-            height: height,
-            x: x < 0 ? 0 : x,
-            y: y < 0 ? 0 : y,
-            maximized: await win.isMaximized()
+            ...prev,
+            maximized: true,
           }));
-        } catch {}
-      };
-      // Save initial rect so next window matches even without resize/move
-      await saveRect();
-      win.onResized(saveRect);
-      win.onMoved(saveRect);
-    });
+          return;
+        }
+        const size = await win.innerSize();
+        const pos = await win.outerPosition();
+        const scaleFactor = await win.scaleFactor();
+        const x = Math.round(pos.x / scaleFactor);
+        const y = Math.round(pos.y / scaleFactor);
+        const width = Math.round(size.width / scaleFactor);
+        const height = Math.round(size.height / scaleFactor);
+        console.log("Saving browser window rect", { x, y, width, height });
+        localStorage.setItem(BROWSER_WINDOW_KEY, JSON.stringify({
+          width,
+          height,
+          x: x < 0 ? 0 : x,
+          y: y < 0 ? 0 : y,
+          maximized: false,
+        }));
+      } catch {}
+    };
+    await saveRect();
+    win.onResized(saveRect);
+    win.onMoved(saveRect);
     return;
   } else if (Capacitor.isNativePlatform()) {
     try {

@@ -268,7 +268,7 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
               (<MessageSpecial message={message} type={type} activeAccount={activeAccount} />) :
               isNanoAppMessage(message) ?
                 (<div className={`message flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} `} style={{}}>
-                  <MetadataCard message={decrypted} /></div>
+                  <MetadataCard message={decrypted} messageData={message} /></div>
                 ) : (
                   <MessageContent
                     message={message}

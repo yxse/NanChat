@@ -16,7 +16,7 @@ import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { useEmit, useEvent } from '../messaging/components/EventContext';
 import { fetcherMessagesCache } from '../messaging/fetcher';
 import { useChats } from '../messaging/hooks/use-chats';
-import { LIMIT_MESSAGES_INITIAL } from '../messaging/utils';
+import { focusMainWindow, LIMIT_MESSAGES_INITIAL } from '../messaging/utils';
 import { useWallet } from '../useWallet';
 import { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr/infinite';
@@ -74,6 +74,19 @@ const AppUrlListener: React.FC<any> = () => {
 
       if (isTauri()){
         handleOpenUrl();
+        import('@tauri-apps/api/event').then(({ listen }) => {
+          listen('nanchat-navigation', (event) => {
+            const url = event.payload as string;
+            console.log('[nanchat-navigation] intercepted url:', url);
+            if (url.startsWith("https://nanchat.com/") || url.startsWith("nan://nanchat.com/")) {
+            handleURL(url);
+            focusMainWindow();
+            }
+          }).then((unlisten) => {
+            console.log('[nanchat-navigation] listener registered');
+            return unlisten;
+          });
+        });
       }
       if (Capacitor.isNativePlatform()){
         App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {

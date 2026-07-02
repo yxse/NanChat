@@ -57,7 +57,7 @@ export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includePro
     
     const decrypted = useMessageDecryption({message})
     if (message.nanoApp){
-        return <MetadataCard message={decrypted} />
+        return <MetadataCard message={decrypted} messageData={message} />
     }
      return (
         <div style={style}>

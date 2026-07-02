@@ -16,13 +16,27 @@ import { Discover } from '../../app/discover/Discover';
  * @param {string} props.url - Original website URL
  * @returns {JSX.Element}
  */
-export const MetadataCard = ({ message  }) => {
+export const MetadataCard = ({ message, messageData }) => {
   const link = hasLink(message)
   if (!link) return null;
   const url = link[0];
   console.log({url});
-  const [openUrl, setOpenUrl] = useState(false);
+  const [openKey, setOpenKey] = useState<number | null>(null);
   const { data: services } = useSWR('/services', fetcherMessagesNoAuth);
+
+  // For group chats, append the chatId so the loaded app knows which group
+  // it was opened from. Direct (1:1) chats are left untouched.
+  const isGroupChat = messageData?.type === 'group';
+  const urlWithChatId = (() => {
+    if (!isGroupChat || !messageData?.chatId || !url) return url;
+    try {
+      const u = new URL(url);
+      u.searchParams.set('nanchat-chat-id', messageData.chatId);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  })();
 
   // Extract domain for display
   const domain = url ? new URL(url).hostname : '';
@@ -36,10 +50,10 @@ export const MetadataCard = ({ message  }) => {
        <Card
        onClick={() => {
         if (isWhiteListed){
-          setOpenUrl(true)
+          setOpenKey(Date.now())
         }
         else {
-          confirmAndOpenExternalUrl(url)
+          confirmAndOpenExternalUrl(urlWithChatId)
         }
        }}
         style={{maxWidth: 300, marginTop: 0, cursor: "pointer"}}>
@@ -72,8 +86,8 @@ export const MetadataCard = ({ message  }) => {
             </div>
         </Card>
         {
-          openUrl && <Discover defaultURL={url} onClose={() => {
-            setOpenUrl(false)
+          openKey && <Discover key={openKey} defaultURL={urlWithChatId} onClose={() => {
+            setOpenKey(null)
           }}/>
         }
         

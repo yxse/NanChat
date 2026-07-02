@@ -1,4 +1,5 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
+import { isTauri } from "@tauri-apps/api/core";
 import { DotLoading, List, NavBar, Popup, Button, Space, Toast, CheckList, Ellipsis, Divider, Card, SearchBar, Badge, Form, Input } from "antd-mobile";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../../messaging/fetcher";
 import useSWR from "swr";
@@ -10,7 +11,7 @@ import { InAppBrowser } from "@capacitor/inappbrowser";
 
 import { WebviewOverlay, IWebviewOverlayPlugin,   } from '@teamhive/capacitor-webview-overlay';
 import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
-import { extractMetadata, openInBrowser } from "../../messaging/utils";
+import { extractMetadata, openInBrowser, focusMainWindow, focusLastBrowserWindow } from "../../messaging/utils";
 import ChatInputMessage from "../../messaging/components/ChatInputMessage";
 import { AccountListItems } from "../../messaging/components/NewChatPopup";
 import { CheckCircleFill, DeleteOutline, GlobalOutline } from "antd-mobile-icons";
@@ -30,7 +31,7 @@ import { showActionSheet } from "antd-mobile/es/components/action-sheet/action-s
 import { Keyboard } from "@capacitor/keyboard";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { createPortal } from "react-dom";
-let opened = false
+import { ResponsivePopup } from "../../Settings";
 const HistoryApps = ({history, handleServiceClick, setHistory}) => {
     if (!history || history.length === 0) return null;
     return <List mode="card">
@@ -117,6 +118,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const [shareContent, setShareContent] = useState("nothing");
     const [selectedChat, setSelectedChat] = useState(null);
     const [visible, setVisible] = useState(false);
+    const [desktopShareUrl, setDesktopShareUrl] = useState<string | null>(null);
     const [visibleMessage, setVisibleMessage] = useState(false);
     const [openService, setOpenService] = useState(null);
     const [history, setHistory] = useState([]);
@@ -130,6 +132,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const navigate = useNavigate();
 
     const inputRef = useRef(null);
+    const opened = useRef(false);
     
     const { data: services, isLoading } = useSWR('/services?platform=' + Capacitor.getPlatform(), fetcherMessagesNoAuth);
 
@@ -161,8 +164,8 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         if (defaultURL && services) { // open url from message
             let domain = new URL(defaultURL).hostname;
             let service = services.find(service => new URL(service.link).hostname === domain); // verifiy that the url is an existing service
-            if (service && opened == false) {
-                opened = true; // prevent multiple opens
+            if (service && opened.current === false) {
+                opened.current = true; // prevent multiple opens
                 handleServiceClick({...service, link: defaultURL});
                 // setOpenService(service);
             }
@@ -181,11 +184,26 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         }
     }, []);
 
-   useEffect(() => {
-    
-    return () => {
-    };
-}, []);
+    // Desktop (Tauri): the in-app browser window has a custom title bar with a
+    // share button that lives in its own webview. It emits a `browser-share`
+    // event when clicked; we open the share popup for that URL here.
+    useEffect(() => {
+        if (!isTauri()) return;
+        let unlisten: (() => void) | undefined;
+        import('@tauri-apps/api/event').then(({ listen }) => {
+            listen('browser-share', (event) => {
+                const url = event.payload as string;
+                if (url) setDesktopShareUrl(url);
+                setVisible(true);
+                focusMainWindow();
+            }).then((fn) => {
+                unlisten = fn;
+            });
+        });
+        return () => {
+            if (unlisten) unlisten();
+        };
+    }, []);
     if (isLoading) {
         return <div><DotLoading /></div>
     }
@@ -252,11 +270,11 @@ WebviewOverlay.onPageLoaded(() => {
             })
 
         } else {
-            openInBrowser(service.link, service?.name);
+            openInBrowser(service.link, service?.name || new URL(service.link).hostname);
         }
     };
     async function closeNanoApp(save = true) {
-        opened = false;
+        opened.current = false;
         let metaData = "{}";
         try {
             metaData = await WebviewOverlay.evaluateJavaScript(`(${extractMetadata.toString()})()`);
@@ -446,13 +464,16 @@ WebviewOverlay.onPageLoaded(() => {
                 // backgroundColor: "red",
             }}
         ></div>, document.body)}  
-<Popup
+<ResponsivePopup
+showCloseButton
 destroyOnClose
             bodyStyle={{ }}
                 visible={visible}
                 onClose={async () => {
-                    await WebviewOverlay.toggleSnapshot(false);
+                    if (Capacitor.isNativePlatform()) await WebviewOverlay.toggleSnapshot(false);
+                    setDesktopShareUrl(null);
                     setVisible(false)
+                    focusLastBrowserWindow();
                 }}
                 closeOnMaskClick
                 
@@ -473,8 +494,8 @@ className="text-xl  text-center p-2">
                 chats={chats}
                 
                 /></div>
-            </Popup>
-            <Popup
+            </ResponsivePopup>
+            <ResponsivePopup
             bodyStyle={{ height: '600px' , overflow: 'scroll'}}
                 visible={visibleMessage}
                 onClose={() => setVisibleMessage(false)}
@@ -490,7 +511,7 @@ className="text-xl  text-center p-2">
                     <ItemChat chat={selectedChat} onClick={() => {}} /></List>
                     <div 
                     style={{border: '1px solid var(--adm-color-border)', maxWidth: 300, padding: 8, marginLeft: "auto", marginRight: "auto", borderRadius: 8}}>
-                        <MetadataCard message={openService?.link} />
+                        <MetadataCard message={openService?.link || desktopShareUrl} />
                     </div>
                     <ChatInputMessage 
                     hideInput
@@ -501,12 +522,14 @@ className="text-xl  text-center p-2">
                             duration: 1000
                         })
                         await new Promise((resolve) => setTimeout(resolve, 500)); // wait for the toast to show
-                        await WebviewOverlay.toggleSnapshot(false);
+                        if (Capacitor.isNativePlatform()) await WebviewOverlay.toggleSnapshot(false);
                         setVisibleMessage(false)
                         setVisible(false)
+                        setDesktopShareUrl(null);
+                        focusLastBrowserWindow();
                         
                     }}
-                        defaultNewMessage={openService?.link}
+                        defaultNewMessage={openService?.link || desktopShareUrl}
                         defaultChatId={selectedChat?.id}
                         messageInputRef={inputRef}
                     />
@@ -523,7 +546,7 @@ className="text-xl  text-center p-2">
                     </Button>
                     </Space>
                 </div>
-            </Popup>
+            </ResponsivePopup>
        
         </div>
 
