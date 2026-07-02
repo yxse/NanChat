@@ -132,7 +132,11 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
       updateBiometryInfo(await BiometricAuth.checkBiometry())
 
       try {
-        appListener = await BiometricAuth.addResumeListener(updateBiometryInfo)
+        appListener = await BiometricAuth.addResumeListener(() => {
+          setTimeout(async () => {
+            updateBiometryInfo(await BiometricAuth.checkBiometry())
+          }, 800) // this should prevent false positives when the app is resumed and the biometry is still available
+        })
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message)
