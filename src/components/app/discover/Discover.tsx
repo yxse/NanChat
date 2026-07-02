@@ -32,6 +32,7 @@ import { Keyboard } from "@capacitor/keyboard";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { createPortal } from "react-dom";
 import { ResponsivePopup } from "../../Settings";
+import { useWalletBalance } from "../../../hooks/use-wallet-balance";
 const HistoryApps = ({history, handleServiceClick, setHistory}) => {
     if (!history || history.length === 0) return null;
     return <List mode="card">
@@ -134,7 +135,11 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const inputRef = useRef(null);
     const opened = useRef(false);
     
-    const { data: services, isLoading } = useSWR('/services?platform=' + Capacitor.getPlatform(), fetcherMessagesNoAuth);
+    const {
+          lowBalanceUsd,
+        } = useWalletBalance();
+    const { data: services, isLoading } = useSWR('/services?platform=' + Capacitor.getPlatform() + '&low=' + lowBalanceUsd, fetcherMessagesNoAuth);
+
 
      async function saveHistory(url, metaData) {
         let history = await restoreData('discoverHistory') || [];
@@ -411,15 +416,15 @@ WebviewOverlay.onPageLoaded(() => {
                 position: 'fixed',
                 top: 'var(--safe-area-inset-top)',
                 right: 8,
-                padding: 8,
                 height: 40,
+                display: 'flex',
+                alignItems: 'center',
                 // backgroundColor: 'gray',
             }}>
-                <div className="discover-header-bar-actions" style={{display: 'flex', padding: 6, borderRadius: 24}}>
+                <div className="discover-header-bar-actions" style={{display: 'flex', alignItems: 'center', padding: '3px 6px', borderRadius: 24}}>
                  <div
-        style={{}}
-           size="middle"
-           shape="default"
+        role="button"
+        style={{cursor: 'pointer', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent'}}
            onClick={async() => {
             // const script = `
             // ${extractMetadata.toString()}
@@ -437,9 +442,9 @@ WebviewOverlay.onPageLoaded(() => {
            </div> 
            <Divider direction="vertical" className="discover-header-bar-divider" style={{opacity: 0.3}} />
         <div
-           
-            size="middle"
-            onClick={closeNanoApp}
+            role="button"
+            style={{cursor: 'pointer', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent'}}
+            onClick={() => closeNanoApp()}
             >
                 <FaRegCircleDot />
             </div></div>
