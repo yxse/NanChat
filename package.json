@@ -1,7 +1,7 @@
 {
   "name": "nanchat",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.4.0",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -10,6 +10,9 @@
     "style": "prettier --check \"src/**/*.{ts,tsx}\"",
     "style:fix": "prettier --write \"src/**/*.{ts,tsx}\"",
     "tauri": "tauri",
+    "sync": "npx cap sync",
+    "sync:ios": "npx cap sync ios",
+    "sync:android": "npx cap sync android",
     "bump": "node scripts/bump-version.mjs",
     "bump:patch": "node scripts/bump-version.mjs patch",
     "bump:minor": "node scripts/bump-version.mjs minor",
