@@ -42,6 +42,7 @@ import { useContacts } from "./messaging/components/contacts/ImportContactsFromS
 import ReduceAnimation from "./settings/ReduceAnimation";
 import appVersion from "../../version.json";
 import { isTauri } from "@tauri-apps/api/core";
+import { createPortal } from "react-dom";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useBreakpoint();
@@ -50,12 +51,15 @@ export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick 
       {children}
     </Popup>
   }
-  return <CenterPopup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick} 
-  {...props}
-  bodyStyle={{...props.bodyStyle, width: 500}}
-   >
-    {children}
-  </CenterPopup>
+  return createPortal(
+    <CenterPopup visible={visible} onClose={onClose} closeOnMaskClick={closeOnMaskClick} 
+    {...props}
+    bodyStyle={{...props.bodyStyle, width: 500}}
+     >
+      {children}
+    </CenterPopup>,
+    document.body
+  );
 }
 
 export const ManageNetworks = ({}) => {
@@ -703,7 +707,10 @@ className="mb-24"
             <BackupSecretPhrase />
             }
             {/*  */}
+            {
+              !ledger && 
             <ExportSecretPhrase />
+            }
 
               
             
@@ -810,18 +817,20 @@ className="mb-24"
             </List.Item>
             </List>
             <div className="my-4" />
+            {
+              !ledger &&
             <List mode="card">
             {/* <List.Item
               prefix={<DeleteOutline fontSize={24} color="red" />}
               onClick={() => localStorage.removeItem("contacts")}
-            >
+              >
               Remove all contacts
-            </List.Item> */}
+              </List.Item> */}
             <SwitchWalletSection />
             <List.Item
               prefix={<MdLockReset fontSize={24} />}
               onClick={() => navigate('/settings/change-secret-phrase')}
-            >
+              >
               Change Secret Phrase
             </List.Item>
             <List.Item
@@ -829,10 +838,11 @@ className="mb-24"
               onClick={async () => {
                 await showLogoutSheet()
               }}
-            >
+              >
               {t('logout')}
             </List.Item>
           </List>
+            }
           <div className="m-2 space-y-3 mb-4">
             {
               isPasswordEncrypted &&
