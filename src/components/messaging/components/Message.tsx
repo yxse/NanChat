@@ -75,10 +75,8 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Only close if clicking outside ref element
-      // if (ref.current && !ref.current.contains(event.target)) {
-        setVisible(false);
-      // }
+      if (event.button === 2) return; // right-click opens the menu; ignore its mouseup
+      setVisible(false);
     };
 
     document.addEventListener('mouseup', handleClickOutside);
