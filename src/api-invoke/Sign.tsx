@@ -185,7 +185,8 @@ export default function Sign({uri, onClose}) {
 <div style={{maxWidth: "550px"}} className={result ? "hidden" : ""}>
       <div className="flex justify-center  p-4">
         <div className="flex flex-col justify-between  w-full text-sm">
-          <div className="flex flex-col w-full justify-start mt-0 items-center mb-4">
+          <div
+          className="flex flex-col w-full justify-start mt-0 items-center mb-4">
             <div className="flex flex-col space-y-1  justify-center text-center w-full">
               <div className="flex mb-2 items-center justify-center">
                 {/** image placeholder */}
@@ -256,7 +257,9 @@ export default function Sign({uri, onClose}) {
 
       <div className="relative select-none justify-end">
         {/** buttons */}
-        <div className="flex flex-row items-center justify-center space-x-5 p-3">
+        <div
+        style={{paddingBottom: "calc(var(--safe-area-inset-bottom) + 16px)"}}
+        className="flex flex-row items-center justify-center space-x-5 p-3">
           <Button
             onClick={() => {
               if (Capacitor.isNativePlatform()) {
