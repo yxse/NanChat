@@ -177,4 +177,16 @@ bc.onmessage = (event) => {
 };
 
 
+export async function checkPermissionGranted(): Promise<boolean> {
+    if (Capacitor.getPlatform() === "android") {
+        const r = await LocalNotifications.checkPermissions();
+        return r.display === "granted";
+    }
+    if (isTauri()) {
+        return await isPermissionGranted();
+    }
+    const permission = await FirebaseMessaging.checkPermissions();
+    return permission.receive === "granted";
+}
+
 export { askPermission, registerServiceWorker, saveSubscription, getPublicKey };

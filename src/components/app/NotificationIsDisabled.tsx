@@ -10,7 +10,7 @@ import { getSeed, removeSeed, setSeed } from "../../utils/storage";
 import {BiometricAuth} from '@aparajita/capacitor-biometric-auth'
 import { authenticate, biometricAuthIfAvailable, webauthnAuthIfAvailable } from "../../utils/biometrics";
 import { Capacitor } from "@capacitor/core";
-import { askPermission } from "../../nano/notifications";
+import { askPermission, checkPermissionGranted } from "../../nano/notifications";
 import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import useSWR from "swr";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../messaging/fetcher";
@@ -25,18 +25,18 @@ function NotificationIsDisabled() {
     const { t } = useTranslation();
 
     useEffect(() => {
-      App.addListener('resume', () => {
-        askPermission().then((isGranted) => { // refresh to check if the user has enabled notifications in the settings
-                console.log({isGranted});
-                setIsGranted(isGranted);
-              });
-      })
+      const listenerPromise = App.addListener('resume', () => {
+        checkPermissionGranted().then((isGranted) => {
+          console.log({isGranted});
+          setIsGranted(isGranted);
+        });
+      });
       askPermission().then((isGranted) => {
         console.log({isGranted});
         setIsGranted(isGranted);
       });
-    }
-    , []);
+      return () => { listenerPromise.then((l) => l.remove()); };
+    }, []);
 
 
     if (isGranted) return null
@@ -59,13 +59,6 @@ function NotificationIsDisabled() {
                     {t('enableNotificationsDevice')}
                     <div>
                       <Button onClick={() => {
-                        // setInterval(() => {
-                        //   askPermission().then((isGranted) => {
-                        //     console.log({isGranted});
-                        //     setIsGranted(isGranted);
-                        //   }
-                        //   );
-                        //   }, 5000); // fallback refresh every 5 seconds to check if the user has enabled notifications in the settings
                         NativeSettings.open({
                           optionAndroid: AndroidSettings.AppNotification,
                           optionIOS: IOSSettings.AppNotification
