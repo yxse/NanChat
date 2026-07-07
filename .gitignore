@@ -17,3 +17,5 @@ android/.idea/deploymentTargetSelector.xml
 *.keystore
 yarn-error.log
 myapp.key
+.env
+bun.lockb
