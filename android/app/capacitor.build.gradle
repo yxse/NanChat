@@ -16,6 +16,8 @@ dependencies {
     implementation project(':capacitor-community-in-app-review')
     implementation project(':capacitor-firebase-messaging')
     implementation project(':capacitor-mlkit-barcode-scanning')
+    implementation project(':capacitor-mlkit-language-identification')
+    implementation project(':capacitor-mlkit-translation')
     implementation project(':capacitor-app')
     implementation project(':capacitor-browser')
     implementation project(':capacitor-clipboard')

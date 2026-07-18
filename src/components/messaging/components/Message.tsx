@@ -26,6 +26,9 @@ import { AiOutlineEnter, AiOutlineRollback, AiOutlineWallet } from "react-icons/
 import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
 import { MdOutlineReply, MdOutlineSync } from "react-icons/md";
+import { BsTranslate } from "react-icons/bs";
+import { isAutoTranslateEnabled, isTranslationAvailable, translateText } from "../../../services/translation.service";
+import { useTranslation } from "react-i18next";
 import MessageRaw from "./MessageRaw";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
 import { isTauri } from "@tauri-apps/api/core";
@@ -54,6 +57,7 @@ const Message = memo(({
     (account) => account.accountIndex === wallet.activeIndex
   )?.address;
 const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
+  const { t } = useTranslation();
 
   // console.log("render", message?._id)
 
@@ -101,6 +105,16 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
   //   }
   // }, [decrypted, dispatch, message._id]);
   const [sending, setSending] = useState(false);
+  const [translated, setTranslated] = useState<string | null>(null);
+  useEffect(() => {
+    if (!decrypted) return;
+    if (!isAutoTranslateEnabled() || !isTranslationAvailable()) return;
+    if (isSpecialMessage(message) || isNanoAppMessage(message)) return;
+    if (message.fromAccount === activeAccount) return;
+    translateText(decrypted)
+      .then((result) => { if (result) setTranslated(result); })
+      .catch(() => {});
+  }, [decrypted]);
   useEffect(() => {
     // set sending after 2 seconds
     setTimeout(() => {
@@ -123,6 +137,9 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
     { key: 'reply', text: 'Reply', icon: <MdOutlineReply /> },
     { key: 'copy', text: 'Copy', icon: <CopyIcon /> }
   ]
+  if (isTranslationAvailable() && !isSpecialMessage(message) && !isNanoAppMessage(message)) {
+    actions.push({ key: 'translate', text: translated ? t('showOriginal') : t('translate'), icon: <BsTranslate /> });
+  }
   if (message.stickerId) {
     actions.push(isFavorited
       ? { key: 'unfavorite', text: 'Unfavorite', icon: <HeartFill /> }
@@ -232,6 +249,25 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
             if (action.key === 'copy') {
               await copyToClipboard(decrypted);
             }
+            else if (action.key === 'translate') {
+              if (translated) {
+                setTranslated(null);
+              } else {
+                Toast.show({ icon: 'loading', content: t('translating'), duration: 0 });
+                try {
+                  const result = await translateText(decrypted);
+                  Toast.clear();
+                  if (result) {
+                    setTranslated(result);
+                  } else {
+                    Toast.show({ content: t('nothingToTranslate') });
+                  }
+                } catch (error) {
+                  console.log('translation failed', error);
+                  Toast.show({ icon: 'fail', content: t('translationFailed') });
+                }
+              }
+            }
             else if (action.key === 'reply') {
               console.log('reply', message._id);
               emit('reply-message', { message: message });
@@ -272,6 +308,7 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
                     message={message}
                     type={type}
                     decrypted={decrypted}
+                    translated={translated}
                     isFromCurrentUser={isFromCurrentUser}
                     isPreviousMessageFromSameAccount={isPreviousMessageFromSameAccount}
                     activeAccount={activeAccount}
@@ -519,13 +556,15 @@ function extractUrls(message) {
 }
 
 const MessageContent = ({
-  message,
+  message = null as any,
   type,
   decrypted,
+  translated = null as string | null,
   isFromCurrentUser,
   isPreviousMessageFromSameAccount,
-  activeAccount
+  activeAccount = null as any
 }) => {
+  const { t } = useTranslation();
   const borderRadiusClass = isFromCurrentUser
     ? isPreviousMessageFromSameAccount ? '' : 'rounded-br-sm'
     : isPreviousMessageFromSameAccount ? '' : 'rounded-bl-sm';
@@ -534,7 +573,14 @@ const MessageContent = ({
   // if (!decrypted) return null
   return (
     <div
-    style={{borderRadius: 8}}
+    style={{borderRadius: 8,
+      // disable text selection
+      userSelect: 'none',
+      WebkitUserSelect: 'none',
+      MozUserSelect: 'none',
+      msUserSelect: 'none',
+      
+    }}
       className={`chat-message max-w-[70%] p-2 ${borderRadiusClass} ${isFromCurrentUser ? 'to' : 'from'}`}
     >
       {type === 'group' && !isFromCurrentUser && (
@@ -547,6 +593,14 @@ const MessageContent = ({
           <LockOutline />
         )}
         <MessageContentLink message={decrypted} />
+        {translated && (
+          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid color-mix(in srgb, currentColor 25%, transparent)' }}>
+            <MessageContentLink message={translated} />
+            <div className="text-xs flex items-center gap-1" style={{ color: 'var(--adm-color-text-secondary)', marginTop: 2 }}>
+              <BsTranslate /> {t('translated')}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

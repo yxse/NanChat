@@ -78,6 +78,7 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import NotificationSettings from "./NotificationSettings";
+import TranslateSettings from "../settings/TranslateSettings";
 import { authenticate } from "../../utils/biometrics";
 import { getIsPasswordEncrypted, getSeed } from "../../utils/storage";
 import useSWR from "swr";
@@ -523,6 +524,7 @@ export default function App({callback}) {
             <Route path="/settings/change-secret-phrase" element={<ChangeSecretPhrase />} />
             <Route path="/settings/security" element={<SecuritySettings />} />
             <Route path="/settings/notification" element={<NotificationSettings />} />
+            <Route path="/settings/translate" element={<TranslateSettings />} />
             <Route path="/settings/alias" element={<NanoAlias />} />
             <Route path="/settings/security/developer" element={<DeveloperSettings />} />
             <Route path="/settings/security/blocked" element={<BlockedChats />} />

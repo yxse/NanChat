@@ -20,7 +20,7 @@ import { AiOutlineContacts, AiOutlineFormatPainter } from "react-icons/ai";
 import { RiContactsFill } from "react-icons/ri";
 import BackupSecretPhrase from "./app/BackupSecretPhrase";
 import { decrypt, encrypt } from "../worker/crypto";
-import { BsCurrencyExchange } from "react-icons/bs";
+import { BsCurrencyExchange, BsTranslate } from "react-icons/bs";
 import { AddressBookFill, BellOutline, DeleteOutline, DownlandOutline, EditSOutline, ExclamationCircleOutline, ExclamationTriangleOutline, GlobalOutline, LockOutline, UnorderedListOutline, UploadOutline, UserContactOutline } from "antd-mobile-icons";
 import NetworksSwitch from "./app/NetworksSwitch";
 import { LedgerContext } from "./LedgerContext";
@@ -599,7 +599,15 @@ className="mb-24"
           
               <SelectBaseCurrency />
             <ChangeLanguage />
-            
+            <List.Item
+              prefix={<BsTranslate size={24} />}
+              onClick={() => {
+                navigate("/settings/translate")
+              }}
+            >
+              {t('translate')}
+            </List.Item>
+
             <List.Item
               prefix={<AiOutlineFormatPainter size={24} />}
               onClick={() => {
