@@ -147,5 +147,10 @@
     "vite": "^5.0.7",
     "vite-plugin-pwa": "^0.20.5",
     "workbox-window": "^7.3.0"
-  }
+  },
+  "trustedDependencies": [
+    "@firebase/util",
+    "@swc/core",
+    "protobufjs"
+  ]
 }
