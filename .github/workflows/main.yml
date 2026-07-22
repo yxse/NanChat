@@ -99,7 +99,7 @@ jobs:
           VITE_PUBLIC_firebase_appId: '1:137198054925:web:7ca07d199b5f0c912aaf44'
           VITE_PUBLIC_firebase_measurementId: 'G-1GKPS9V51B'
           VITE_PUBLIC_firebase_vapidKey: 'BCj8VTaYMFBloIppZRfKvCR6wfi3lL_qThfzItI5Bam7pBXJMhgE1pqyK4cIpAwCRG_jRMTBiiPJ3exswub3YZg'
-          VITE_PUBLIC_TEAM_ACCOUNT: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij'
+          VITE_PUBLIC_TEAM_ACCOUNT: 'nano_39f384r6dfogfttim5ucf5dmykeihscotmin5f7j1th1r4eedg9wxyzuhw53'
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'App v__VERSION__'
@@ -141,7 +141,7 @@ jobs:
           VITE_PUBLIC_firebase_appId: '1:137198054925:web:7ca07d199b5f0c912aaf44'
           VITE_PUBLIC_firebase_measurementId: 'G-1GKPS9V51B'
           VITE_PUBLIC_firebase_vapidKey: 'BCj8VTaYMFBloIppZRfKvCR6wfi3lL_qThfzItI5Bam7pBXJMhgE1pqyK4cIpAwCRG_jRMTBiiPJ3exswub3YZg'
-          VITE_PUBLIC_TEAM_ACCOUNT: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij'
+          VITE_PUBLIC_TEAM_ACCOUNT: 'nano_39f384r6dfogfttim5ucf5dmykeihscotmin5f7j1th1r4eedg9wxyzuhw53'
       - name: Upload Microsoft Store artifacts
         uses: actions/upload-artifact@v4
         with:

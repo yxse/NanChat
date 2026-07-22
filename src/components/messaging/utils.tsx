@@ -118,7 +118,7 @@ export const defaultContacts = [
         {
             name: 'NanChat Team',
             addresses: [
-                { network: 'ALL', address: 'nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij' },
+                { network: 'ALL', address: 'nano_39f384r6dfogfttim5ucf5dmykeihscotmin5f7j1th1r4eedg9wxyzuhw53' },
             ]
         },
 ]

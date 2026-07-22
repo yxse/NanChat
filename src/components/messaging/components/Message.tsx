@@ -417,7 +417,7 @@ export const WelcomeMessage = ({ }) => {
       className={`message flex justify-start mb-2 mx-2`}
     >
       <ProfilePictureLink
-        address={"nano_1aotdujz8ypijprua9fkerxr9nifbj8bbq5edgztjif45qr3g6fbd1cxenij"}
+        address={"nano_39f384r6dfogfttim5ucf5dmykeihscotmin5f7j1th1r4eedg9wxyzuhw53"}
       />
       <MessageContent
         //  You now have the most powerful Nano app in your hands.
