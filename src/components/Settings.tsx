@@ -43,6 +43,7 @@ import ReduceAnimation from "./settings/ReduceAnimation";
 import appVersion from "../../version.json";
 import { isTauri } from "@tauri-apps/api/core";
 import { createPortal } from "react-dom";
+import { AddWalletPopup } from "./app/AddWallet";
 
 export const ResponsivePopup =  ({ children, visible, onClose, closeOnMaskClick = true, ...props }) => {
   const { isMobile } = useBreakpoint();
@@ -232,6 +233,7 @@ export const showLogoutSheet = async () => {
       
 function SwitchWalletSection() {
   const [visible, setVisible] = useState(false);
+  const [addWalletVisible, setAddWalletVisible] = useState(false);
   const [wallets, setWallets] = useState<{ address: string | null; isSecureRandom: boolean }[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -318,7 +320,7 @@ function SwitchWalletSection() {
     loadWallets();
   }, [])
   
-  if (wallets.length <= 1) return null;
+  // if (wallets.length <= 1) return null;
   return (
     <>
       <List.Item
@@ -341,7 +343,11 @@ function SwitchWalletSection() {
         )}
         {wallets.map((w, i) => {
           const isActive = i === activeIndex;
-          const short = w.address ? w.address.slice(0, 14) + '…' + w.address.slice(-6) : `Wallet ${i + 1}`;
+          const short = !w.address
+            ? `Wallet ${i + 1}`
+            : w.address === 'Encrypted'
+              ? 'Encrypted'
+              : w.address.slice(0, 14) + '…' + w.address.slice(-6);
           return (
             <div
               key={i}
@@ -378,8 +384,25 @@ function SwitchWalletSection() {
             </div>
           );
         })}
+        {
+          wallets.length < 5 && <div className="mx-4 mt-4">
+          <Button
+            color="primary"
+            fill="outline"
+            shape="rounded"
+            className="w-full"
+            onClick={() => { setVisible(false); setAddWalletVisible(true); }}
+            >
+            Import Wallet
+          </Button>
+        </div>
+          }
         <div className="pb-6" />
       </ResponsivePopup>
+      <AddWalletPopup
+        visible={addWalletVisible}
+        onClose={() => setAddWalletVisible(false)}
+      />
     </>
   );
 }

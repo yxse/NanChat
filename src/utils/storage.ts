@@ -177,11 +177,23 @@ export async function prependWalletSeed(seed: string, isPasswordEncrypted: boole
   const newEntry = { seed, isPasswordEncrypted, isSecureRandom };
   const updated = [newEntry, ...seeds]
   await saveInSecureStorage('seed', JSON.stringify(updated));
-  const addresses = updated.map(s => _derivePrimaryAddress(s.seed));
+  const addresses = updated.map(s => s.isPasswordEncrypted ? "Encrypted" : _derivePrimaryAddress(s.seed));
   localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses));
   const flags = updated.map(s => s.isSecureRandom ?? false);
   localStorage.setItem('walletSecureFlags', JSON.stringify(flags));
   localStorage.setItem('activeSeedIndex', '0');
+}
+
+// Add a new wallet seed at the end of the list, returns the index of the added wallet
+export async function appendWalletSeed(seed: string, isPasswordEncrypted: boolean, isSecureRandom: boolean = false): Promise<number> {
+  const seeds = await getSeeds();
+  const updated = [...seeds, { seed, isPasswordEncrypted, isSecureRandom }];
+  await saveInSecureStorage('seed', JSON.stringify(updated));
+  const addresses = updated.map(s => s.isPasswordEncrypted ? "Encrypted" : _derivePrimaryAddress(s.seed));
+  localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses));
+  const flags = updated.map(s => s.isSecureRandom ?? false);
+  localStorage.setItem('walletSecureFlags', JSON.stringify(flags));
+  return updated.length - 1;
 }
 
 export async function removeWalletSeed(index: number): Promise<void> {
@@ -191,7 +203,7 @@ export async function removeWalletSeed(index: number): Promise<void> {
   if (index === activeIndex) return;
   const updated = seeds.filter((_, i) => i !== index);
   await saveInSecureStorage('seed', JSON.stringify(updated));
-  const addresses = updated.map(s => _derivePrimaryAddress(s.seed));
+  const addresses = updated.map(s => s.isPasswordEncrypted ? "Encrypted" : _derivePrimaryAddress(s.seed));
   localStorage.setItem('walletPrimaryAddresses', JSON.stringify(addresses));
   const flags = updated.map(s => s.isSecureRandom ?? false);
   localStorage.setItem('walletSecureFlags', JSON.stringify(flags));
