@@ -25,8 +25,7 @@ export function UnsafeWalletWarning({step = 2}) {
   if (ledger) return null;
   if (isSecure === null) return null;
   if (isSecure && step === 2) return <div className="text-center" style={{ color: 'var(--adm-color-text-secondary)', marginTop: 32 }}>
-              Use Change Secret Phrase to migrate your funds, chats, and settings to a new wallet. <br/><br/>
-
+              Use Change Secret Phrase to migrate your funds, chats, and settings to a new wallet. <br/><br/> This will change all your addresses. <br/><br/> You can't undo this change. <br/><br/>
             </div>;
   if (isSecure) return null;
   return (

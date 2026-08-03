@@ -99,7 +99,7 @@ export const fetchBlock = async (ticker: string, hash: string) => {
   }
   return block.blocks[hash];
 }
-export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, setAction, onClose = () => {}, defaultScannerOpen = false }) => {
+export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, setAction, onClose = () => {}, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", autoConfirm = false, confirmTitle = null }) => {
   // const [address, setAddress] = useState<string>(null);
   const [sizeQR, setSizeQR] = useState("small");
   const navigate = useNavigate();
@@ -152,7 +152,12 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
     onClose();
     // scroll to top
     window.scrollTo(0, 0);
-  }} defaultScannerOpen={defaultScannerOpen}/>}
+  }} defaultScannerOpen={defaultScannerOpen}
+  defaultAddress={defaultAddress}
+  defaultAmount={defaultAmount}
+  autoConfirm={autoConfirm}
+  confirmTitle={confirmTitle}
+  />}
   { action === 'receive' && <>
   <div className="text-center text-xl m-4">
         {t('receive')} {networks[ticker].name}

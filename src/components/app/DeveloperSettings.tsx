@@ -60,9 +60,8 @@ function DeveloperSettings() {
           </List.Item>
         </List>
         <div className="p-4">
-            If you're developing a network your can enable Developer Mode to add custom networks.
-            When Developer Mode is turned on, wallet security is reduced. Adding a malicious network can result in loss of funds.
-            <br />
+            You can enable Developer Mode to add custom networks and get access to beta features. When Developer Mode is turned on, wallet security is reduced. Adding a malicious network can result in loss of funds.
+            <br />  
         </div>
                 <VerifyOpenBlock />
 

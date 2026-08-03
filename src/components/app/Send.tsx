@@ -67,7 +67,7 @@ const useFocus = () => {
 
   return [ htmlElRef, setFocus ] 
 }
-export default function Send({ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null, hideAddress = false}) {
+export default function Send({ticker, onClose, defaultScannerOpen = false, defaultAddress = "", defaultAmount = "", onSent = null, hideAddress = false, confirmTitle = null, autoConfirm = false}) {
   const { t } = useTranslation();
   // const [result, setResult] = useState<string>(null);
   const {wallet} = useContext(WalletContext)
@@ -106,8 +106,18 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
     }
   }, [searchParams]);
   useEffect(() => {
-    wallet.wallets[ticker]?.receiveAllActiveAccount(); // force receive all 
+    wallet.wallets[ticker]?.receiveAllActiveAccount(); // force receive all
   }, []);
+  // When opened as a payment request (merchant scanned the user's QR), skip the
+  // entry screen and jump straight to the confirm ("Sending") popup with the
+  // prefilled address & amount.
+  const autoConfirmDone = useRef(false);
+  useEffect(() => {
+    if (autoConfirm && !autoConfirmDone.current && defaultAddress && defaultAmount) {
+      autoConfirmDone.current = true;
+      form.submit();
+    }
+  }, [autoConfirm, defaultAddress, defaultAmount]);
 
   let dataPrepareSend = null;
   return (
@@ -302,13 +312,14 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
             onClose={() => {
               setConfirmPopupOpen(false)
               setDataSend(false)
+              if (autoConfirm && onClose) onClose() // deny payment request closes the whole flow
             }}
           closeOnMaskClick
           showCloseButton
           >
             <div style={{minWidth: 350, overflow: "auto"}}>
               <Card >
-              <div className="text-xl  text-center p-2 mb-2">{t('sending')}</div>
+              <div className="text-xl  text-center p-2 mb-2">{confirmTitle || t('sending')}</div>
                 <div className="text-center">
                   <div className="text-2xl">
                       {Number(form.getFieldValue("amount")).toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 20 })} {ticker}
@@ -397,7 +408,7 @@ export default function Send({ticker, onClose, defaultScannerOpen = false, defau
                 shape="rounded"
                 size="large"
                 className="w-full mt-4 mb-4"
-                color="default" onClick={() => setConfirmPopupOpen(false)}>
+                color="default" onClick={() => { setConfirmPopupOpen(false); if (autoConfirm && onClose) onClose(); }}>
                   {t('cancel')}
                 </Button>
                 </div>

@@ -24,12 +24,24 @@ import { getKey } from './hooks/useChat';
 import { sendNotificationTauri } from '../../nano/notifications';
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { Modal } from 'antd-mobile';
+import { Modal, Toast } from 'antd-mobile';
 import Sticker from './components/Sticker';
+import { ModalReceive } from '../app/Network';
+import useLocalStorageState from 'use-local-storage-state';
 
 const ChatSocket: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
+    
+
+    // payment request handling
+    const [paymentTicker, setPaymentTicker] = React.useState<string | null>(null);
+    const [paymentAddress, setPaymentAddress] = React.useState<string>("");
+    const [paymentAmount, setPaymentAmount] = React.useState<string>("");
+    const [paymentTitle, setPaymentTitle] = React.useState<string>("Payment request");
+    const [paymentVisible, setPaymentVisible] = React.useState<boolean>(false);
+    const [developerMode] = useLocalStorageState("developer-mode", { defaultValue: false });
+
     const {activeAccount, activeAccountPk, wallet} = useWallet()
     const {chats, mutateChats} = useChats();
     const {mutate: mutateInifinite} = useSWRConfig();
@@ -216,9 +228,50 @@ const ChatSocket: React.FC = () => {
             };
         }, [activeAccount]);
 
+    // Merchant "pull" payment requests: a merchant scanned this user's QR (see
+    // /payment-request in the backend). Open the standard send confirm popup
+    // (titled "Payment request") prefilled with the merchant address & amount,
+    // reusing all validation + PIN. Its Cancel button denies the request.
+    useEffect(() => {
+        const handlePaymentRequest = async (request) => {
+            try {
+                const { address, amount, ticker, merchantName } = request || {};
+                if (!ticker || !wallet.wallets[ticker]) {
+                    Toast.show({ content: `Received an unsupported payment request (${ticker})` });
+                    return;
+                }
+                Modal.clear();
+                setPaymentTicker(ticker);
+                setPaymentAddress(address);
+                setPaymentAmount(String(amount));
+                setPaymentTitle(merchantName ? `Payment request from ${merchantName}` : 'Payment request');
+                setPaymentVisible(true);
+            } catch (e) {
+                console.log('payment-request error', e);
+            }
+        };
+        socket.on('payment-request', handlePaymentRequest);
+        return () => {
+            socket.off('payment-request', handlePaymentRequest);
+        };
+    }, [activeAccount, wallet]);
+
+    if (!paymentVisible) return null;
+    if (!developerMode) return null; // payment request currently only available in developer mode
     return (
         <>
-          
+          <ModalReceive
+            action="send"
+            ticker={paymentTicker}
+            modalVisible={paymentVisible}
+            setModalVisible={setPaymentVisible}
+            setAction={() => {}}
+            defaultAddress={paymentAddress}
+            defaultAmount={paymentAmount}
+            autoConfirm={paymentVisible}
+            confirmTitle={paymentTitle}
+            onClose={() => { setPaymentTicker(null); setPaymentAddress(""); setPaymentAmount(""); }}
+          />
         </>
     );
 };
