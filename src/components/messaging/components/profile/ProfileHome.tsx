@@ -14,15 +14,18 @@ import { copyToClipboard, formatAddress } from '../../../../utils/format';
 import { convertAddress } from "../../../../utils/convertAddress";
 import { QRCodeSVG } from 'qrcode.react';
 import icon from "../../../../../public/icons/icon.png";
-import { AddressBookFill, SetOutline, SystemQRcodeOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
+import { AddressBookFill, ScanCodeOutline, SetOutline, SystemQRcodeOutline, UserContactOutline, UserOutline } from 'antd-mobile-icons';
 import SelectAccount from '../../../app/SelectAccount';
 import Settings, { CopyToClipboard } from '../../../Settings';
 import { SeedVerifiedBadge } from '../../utils';
 import { showAccountQRCode } from "../../showAccountQRCode";
+import { showPaymentCode } from "../../showPaymentCode";
 import { AccountAvatar } from "../../AccountAvatar";
 import { useTranslation } from 'react-i18next';
 import { UpdateButton } from '../../../app/desktop/UpdateButton';
 import { PiStickerLight } from 'react-icons/pi';
+import useLocalStorageState from 'use-local-storage-state';
+import { AiOutlineBarcode } from 'react-icons/ai';
 
 const ProfileHome: React.FC = () => {
     const navigate = useNavigate();
@@ -31,6 +34,7 @@ const ProfileHome: React.FC = () => {
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const {data: me, isLoading, mutate} = useSWR(activeAccount, fetcherAccount);
     const { t } = useTranslation();
+    const [developerMode] = useLocalStorageState("developer-mode", { defaultValue: false });
     const isRegistered = isLoading || me?.name;
 
     return (
@@ -105,6 +109,14 @@ const ProfileHome: React.FC = () => {
                 >
                     {t('myQrCode')}
                 </List.Item>
+                {developerMode && <List.Item
+                extra={<AiOutlineBarcode />}
+                onClick={() => {
+                    showPaymentCode();
+                }}
+                >
+                    {t('myPaymentCode')}
+                </List.Item>}
                   <List.Item
                 extra={<div style={{textAlign: "right", paddingTop: 8, paddingBottom: 8, wordBreak: "break-all"}}>
                         {me?.bio ? me?.bio : t('notSet')}
