@@ -27,6 +27,8 @@ import { HapticsImpact } from "../../../utils/haptic";
 import { copyToClipboard } from "../../../utils/format";
 import { EyeFill, EyeOutline } from "antd-mobile-icons";
 import { EyeInvisibleFill } from "antd-mobile-icons";
+import { useSensitiveScreen } from "../../../utils/sensitiveScreen";
+import { useTranslation } from "react-i18next";
 
 export default function Mnemonic({
   setW,
@@ -163,7 +165,9 @@ export default function Mnemonic({
 
 }
 export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideButton = false, colorCopy}: { mnemonic: string, defaultIsRevealed?: boolean, showHideButton?: boolean, colorCopy?: string }) {
+  const { t } = useTranslation();
   const [isRevealed, setIsRevealed] = useState<boolean>(defaultIsRevealed);
+  const { isCaptured } = useSensitiveScreen({ onScreenshot: () => setIsRevealed(false) });
   const [copied, setCopied] = useState<boolean>(false);
   const [warningShown, setWarningShown] = useState<boolean>(defaultIsRevealed); // don't show warning when init wallet
   const warningModal = () => {
@@ -213,24 +217,30 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
         </span>
         <span className={`select-none`} style={{wordBreak: "break-word"}}>
           {
-            isRevealed ? word : "********"
+            isRevealed && !isCaptured ? word : "********"
           }
         </span>
       </div>
     ))}
       </div>
       {
-        showHideButton && 
+        isCaptured &&
+        <div className="mt-4 text-sm text-center" style={{ color: "var(--adm-color-warning)" }}>
+          {t("hiddenWhileScreenCaptured")}
+        </div>
+      }
+      {
+        showHideButton &&
       <div className="mt-4 mb-0 cursor-pointer text-base text-center w-full" onClick={() => triggerReveal()}>
                     {isRevealed ? 
                     <div className="flex items-center gap-2 justify-center">
-                      <EyeInvisibleFill /> 
-                      Click to hide
+                      <EyeInvisibleFill />
+                      {t("clickToHide")}
                     </div>
                     :
                     <div className="flex items-center gap-2 justify-center">
-                      <EyeFill /> 
-                      Click to reveal
+                      <EyeFill />
+                      {t("clickToReveal")}
                     </div>
                     }
                      
@@ -240,7 +250,7 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       {
         colorCopy && 
     <CopyButton 
-    textToCopy={mnemonic} copiedText={"Copied for 1 minute"} copyText={"Copy to clipboard"} color={colorCopy}
+    textToCopy={mnemonic} copiedText={t("copiedForOneMinute")} copyText={t("copyToClipboard")} color={colorCopy}
     onCopy={() => {
       setCopied(true)
       if (!warningShown){

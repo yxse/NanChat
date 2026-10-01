@@ -28,15 +28,17 @@ import { convertAddress } from "../../utils/convertAddress";
 import { QRCodeSVG } from 'qrcode.react';
 import IOSPasswordInput from './backup/PasswordInputExportNewDevice';
 import { useTranslation } from 'react-i18next';
+import { useSensitiveScreen } from '../../utils/sensitiveScreen';
 
 
 function EncryptedSeedQrCode() {
     const { wallet } = useWallet()
     const seed = wallet?.wallets['XNO']?.seed
     // we generate a secure password to encrypt the seed in order to not expose the raw seed directly in the QRCode which could be scanned by a malicious app or that could stay in history
-    const [encryptionPassword] = useState(() => generateSecurePassword()) 
+    const [encryptionPassword] = useState(() => generateSecurePassword())
     const [seedEncrypted, setSeedEncrypted] = useState<string | null>(null)
     const [isRevealed, setIsRevealed] = useState(false)
+    const { isCaptured } = useSensitiveScreen({ onScreenshot: () => setIsRevealed(false) })
     useEffect(() => {
         encrypt(seed, encryptionPassword).then((encrypted) => {
             setSeedEncrypted(encrypted)
@@ -47,6 +49,13 @@ function EncryptedSeedQrCode() {
 
     if (!seedEncrypted) {
         return <DotLoading />
+    }
+    if (isCaptured) {
+        return (
+            <div className="p-4 text-center" style={{ color: 'var(--adm-color-warning)' }}>
+                {t('hiddenWhileScreenCaptured')}
+            </div>
+        )
     }
     return (
         <div className="p-2">

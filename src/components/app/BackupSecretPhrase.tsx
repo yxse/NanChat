@@ -258,7 +258,7 @@ function BackupSecretPhrase() {
                     if (importedSeed === seed) {
                         Toast.show({
                             icon: 'success',
-                            content: 'Backup file verified.',
+                            content: t('backupFileVerified'),
                             duration: 5000,
                         });
                         setPasswordImportVisible(false)
@@ -267,7 +267,7 @@ function BackupSecretPhrase() {
                     else {
                         Toast.show({
                             icon: 'fail',
-                            content: 'Backup file does not match your wallet secret phrase.',
+                            content: t('backupFileDoesNotMatch'),
                             duration: 5000,
                         });
                     }
@@ -363,14 +363,14 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
                             else {
                                 Toast.show({
                                     icon: 'fail',
-                                    content: 'Failed to backup secret phrase.',
+                                    content: t('failedToBackupSecretPhrase'),
                                 });
                             }
                         }
                         catch (error) {
                             Toast.show({
                                 icon: 'fail',
-                                content: 'Failed to backup secret phrase.' + error,
+                                content: t('failedToBackupSecretPhrase') + ' ' + error,
                             });
                         }
                     }}

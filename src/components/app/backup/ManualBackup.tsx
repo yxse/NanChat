@@ -9,8 +9,10 @@ import { PinAuthPopup } from '../../Lock/PinLock';
 import { ResponsivePopup } from '../../Settings';
 import { ExclamationCircleOutline } from 'antd-mobile-icons';
 import { MnemonicInput } from '../../Initialize/restore/MnemonicInput';
+import { useTranslation } from 'react-i18next';
 
 function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose: () => void, setVisible: (visible: boolean) => void}) {
+    const { t } = useTranslation();
     const [seedVerified, setSeedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
     const [backupActive, setBackupActive] = useLocalStorageState('backupActive', {
         defaultValue: {
@@ -54,11 +56,11 @@ function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose
                 closeOnSwipe
             >
                 <div className="text-2xl text-center p-2">
-                    Backup Secret Phrase
+                    {t('backupSecretPhrase')}
                 </div>
                 <div className="p-2 mb-2" style={{ color: 'var(--adm-color-warning)', textAlign: 'center' }}>
                     <ExclamationCircleOutline style={{display: 'inline-block', marginRight: 4}} />
-                    Never share your secret phrase. Anyone with access to your secret phrase can steal your funds. Write it down and store it securely.
+                    {t('neverShareSecretPhraseWarning')}
                 </div>
                 <div className="text-center p-2 mb-4">
                     <MnemonicWords 
@@ -79,7 +81,7 @@ function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose
                                 }}
                                 className="w-full mt-4"
                             >
-                                Verify Secret Phrase
+                                {t('verifySecretPhrase')}
                             </Button>
                         }
                     </div>
@@ -95,14 +97,14 @@ function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose
             >
                 <div className='p-4'>
                     <div className='mb-4'>
-                        Verify that you correctly saved your secret phrase by entering it below.
+                        {t('verifySecretPhraseInstruction')}
                     </div>
                 <MnemonicInput mode="verify" onImport={(mnemonicInputs) => {
                     // verify mnemonic is same as seed
                     if (mnemonicInputs.join(' ') === mnemonic) {
                         Toast.show({
                             icon: "success",
-                            content: "Secret Phrase Verified",
+                            content: t('secretPhraseVerified'),
                         })
                         setSeedVerified(true)
                         setSeedVerifyVisible(false)
@@ -112,7 +114,7 @@ function ManualBackup({visible, onClose, setVisible}: {visible: boolean, onClose
                     else {
                         Toast.show({
                             icon: "fail",
-                            content: "Incorrect words entered. Make sure you saved your secret phrase correctly.",
+                            content: t('incorrectSecretPhraseWords'),
                         })
                     }
                 }}  />

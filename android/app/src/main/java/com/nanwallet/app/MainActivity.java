@@ -20,6 +20,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(SensitiveScreenPlugin.class);
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: Initializing edge-to-edge handler");
 

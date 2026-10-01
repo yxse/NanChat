@@ -3,6 +3,8 @@ import React, { useState } from "react";
 // Import the words list to validate inputs
 import words from "../../../utils/words";
 import { Button, Form, TextArea } from "antd-mobile";
+import { useSensitiveScreen } from "../../../utils/sensitiveScreen";
+import { useTranslation } from "react-i18next";
 
 interface MnemonicInputProps {
   mode: "import" | "verify";
@@ -13,6 +15,8 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
   mode = "import",
   onImport,
 }) => {
+  const { t } = useTranslation();
+  const { isCaptured } = useSensitiveScreen();
     const [mnemonicInputs, setMnemonicInputs] = useState<string[]>(
         new Array(0).fill(""),
       );
@@ -58,7 +62,13 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
 
   return (
     <div>
-      <Form 
+      {isCaptured && (
+        <div className="m-3 text-sm text-center" style={{ color: "var(--adm-color-warning)" }}>
+          {t("hiddenWhileScreenCaptured")}
+        </div>
+      )}
+      <div style={isCaptured ? { filter: "blur(8px)", pointerEvents: "none" } : undefined}>
+      <Form
      
                 className="form-mnemonic"
                 mode='card'>
@@ -73,7 +83,7 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
             setMnemonicInputs(v.split(" "));
             validateMnemonic(v.split(" "));
           }}
-          placeholder="Enter your 24 words recovery phrase or a 64/128 hex characters seed" />
+          placeholder={t("mnemonicInputPlaceholder")} />
           </Form.Item>
           </Form>
           <Button
@@ -84,7 +94,7 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
         shape="rounded"
         onClick={() => onImport(mnemonicInputs)}
         >
-          {mode === "import" ? "Import Account" : "Verify Secret Phrase"}
+          {mode === "import" ? t("importAccount") : t("verifySecretPhrase")}
         </Button>
     
     <div className="justify-items-center m-3" style={{maxHeight: 200, overflowY: 'auto'}}>
@@ -119,6 +129,7 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
           ))}
         </div>
       </div>
+    </div>
     </div>
     </div>
   );
