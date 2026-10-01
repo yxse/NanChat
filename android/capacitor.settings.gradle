@@ -23,6 +23,12 @@ project(':capacitor-firebase-messaging').projectDir = new File('../node_modules/
 include ':capacitor-mlkit-barcode-scanning'
 project(':capacitor-mlkit-barcode-scanning').projectDir = new File('../node_modules/@capacitor-mlkit/barcode-scanning/android')
 
+include ':capacitor-mlkit-language-identification'
+project(':capacitor-mlkit-language-identification').projectDir = new File('../node_modules/@capacitor-mlkit/language-identification/android')
+
+include ':capacitor-mlkit-translation'
+project(':capacitor-mlkit-translation').projectDir = new File('../node_modules/@capacitor-mlkit/translation/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
 
@@ -79,6 +85,9 @@ project(':capacitor-icloud-drive').projectDir = new File('../node_modules/capaci
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/capacitor-native-settings/android')
+
+include ':capacitor-plugin-safe-area'
+project(':capacitor-plugin-safe-area').projectDir = new File('../node_modules/capacitor-plugin-safe-area/android')
 
 include ':capacitor-secure-storage-plugin'
 project(':capacitor-secure-storage-plugin').projectDir = new File('../node_modules/capacitor-secure-storage-plugin/android')
