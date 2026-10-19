@@ -1,7 +1,7 @@
 {
   "name": "nanchat",
   "private": true,
-  "version": "1.7.0",
+  "version": "1.7.1",
   "type": "module",
   "scripts": {
     "build": "vite build",

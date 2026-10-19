@@ -212,7 +212,7 @@ export const openInBrowser = async (url: string, title: string) => {
     await invoke("open_browser_window", {
       label,
       url,
-      title: title || "url",
+      title: title || url,
       width,
       height,
       x: x ?? null,

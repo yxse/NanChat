@@ -164,7 +164,8 @@ export default function Swap({hideHistory = false, defaultFrom = "XNO", defaultT
           from: selectedFrom,
           to: selectedTo,
           amount: amount,
-          toAddress: toAddress
+          toAddress: toAddress,
+          ...(values.externalId?.trim() && { extraId: values.externalId.trim() })
         }),
         headers: {
           'Content-Type': 'application/json'

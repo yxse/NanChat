@@ -57,7 +57,7 @@ export default function SwapTransaction() {
         <List.Item
           title="Send"
         >
-          {order.expectedAmountFrom} {order.from} ({order.fromNetwork})
+          {order.expectedAmountFrom} {order.from}{order.fromNetwork && ` (${order.fromNetwork})`}
         </List.Item>
         {order.payinExtraId && <List.Item
           title="With this extra ID"
