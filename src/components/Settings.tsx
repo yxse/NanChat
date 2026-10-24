@@ -232,6 +232,7 @@ export const showLogoutSheet = async () => {
 }
       
 function SwitchWalletSection() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [addWalletVisible, setAddWalletVisible] = useState(false);
   const [wallets, setWallets] = useState<{ address: string | null; isSecureRandom: boolean }[]>([]);
@@ -327,7 +328,7 @@ function SwitchWalletSection() {
         prefix={<FaExchangeAlt size={20} />}
         onClick={() => { loadWallets(); setVisible(true); }}
       >
-        Switch Wallet
+        {t('switchWallet')}
       </List.Item>
       <ResponsivePopup
         visible={visible}
@@ -862,7 +863,7 @@ className="mb-24"
               prefix={<MdLockReset fontSize={24} />}
               onClick={() => navigate('/settings/change-secret-phrase')}
               >
-              Change Secret Phrase
+              {t('changeSecretPhrase')}
             </List.Item>
             <List.Item
               prefix={<MdLogout fontSize={24} color="red" />}

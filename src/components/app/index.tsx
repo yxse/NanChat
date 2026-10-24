@@ -101,6 +101,7 @@ import { ClipLoader as HashSpinner } from "react-spinners";
 import { SplashScreen } from "@capacitor/splash-screen";
 import GroupsChats from "../messaging/components/group/GroupsChats";
 import ChangeSecretPhrase from "./ChangeSecretPhrase";
+import { ForceMigrationGuard } from "./UnsafeWalletWarning";
 
 
 export const MenuBar = () => {
@@ -515,6 +516,7 @@ export default function App({callback}) {
         <div style={{flex: 1}}>
           {/** main content */}
             <AppUrlListener />
+            <ForceMigrationGuard />
           <Routes>
             <Route path="/wallet" element={<Home
             // setAction={setAction}

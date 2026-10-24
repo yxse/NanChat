@@ -1,31 +1,60 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { getActiveSeedIndex, getSeeds } from '../../utils/storage';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { LedgerContext } from '../LedgerContext';
+import { useTranslation } from 'react-i18next';
 
-export function UnsafeWalletWarning({step = 2}) {
-  const [isSecure, setIsSecure] = useState<boolean | null>(() => {
-    const flags: boolean[] = (() => {
+export const CHANGE_SECRET_PHRASE_PATH = '/settings/change-secret-phrase';
+
+// Secure flags for each stored seed (null while loading)
+function useWalletSecureFlags(): boolean[] | null {
+  const [flags, setFlags] = useState<boolean[] | null>(() => {
+    const cached: boolean[] = (() => {
       try { return JSON.parse(localStorage.getItem('walletSecureFlags') || '[]'); } catch { return []; }
     })();
-    return flags.length > 0 ? !!flags[getActiveSeedIndex()] : null;
+    return cached.length > 0 ? cached : null;
   });
 
   useEffect(() => {
-    if (isSecure !== null) return;
-    const idx = getActiveSeedIndex();
+    if (flags !== null) return;
     getSeeds().then(seeds => {
       const derived = seeds.map(s => s.isSecureRandom ?? false);
       localStorage.setItem('walletSecureFlags', JSON.stringify(derived));
-      setIsSecure(!!derived[idx]);
+      setFlags(derived);
     });
   }, []);
+
+  return flags;
+}
+
+// Seeds generated before v1.3.0 are compromised: migration is mandatory when no secure wallet exists.
+// If a secure wallet exists (already migrated), the user may still switch to the old one to sweep leftover funds.
+export function useMustMigrate(): boolean {
+  const flags = useWalletSecureFlags();
+  const { ledger } = useContext(LedgerContext);
+  if (ledger || !flags || flags.length === 0) return false;
+  return !flags.some(Boolean);
+}
+
+export function ForceMigrationGuard() {
+  const mustMigrate = useMustMigrate();
+  const location = useLocation();
+  if (mustMigrate && location.pathname !== CHANGE_SECRET_PHRASE_PATH) {
+    return <Navigate to={CHANGE_SECRET_PHRASE_PATH} replace />;
+  }
+  return null;
+}
+
+export function UnsafeWalletWarning({step = 2}) {
+  const { t } = useTranslation();
+  const flags = useWalletSecureFlags();
+  const isSecure = flags === null ? null : !!flags[getActiveSeedIndex()];
 
   const {ledger} = useContext(LedgerContext);
   if (ledger) return null;
   if (isSecure === null) return null;
   if (isSecure && step === 2) return <div className="text-center" style={{ color: 'var(--adm-color-text-secondary)', marginTop: 32 }}>
-              Use Change Secret Phrase to migrate your funds, chats, and settings to a new wallet. <br/><br/> This will change all your addresses. <br/><br/> You can't undo this change. <br/><br/>
+              {t('changeSecretPhraseInfo')} <br/><br/> {t('changeSecretPhraseAddressesChange')} <br/><br/> {t('changeSecretPhraseIrreversible')} <br/><br/>
             </div>;
   if (isSecure) return null;
   return (
@@ -34,16 +63,16 @@ export function UnsafeWalletWarning({step = 2}) {
       {
         step == 1 ?
     <div className="p-3 text-center" style={{ color: 'var(--adm-color-warning)' }}>
-      You are using an unsafe secret phrase. Migration is highly recommended for the safety of your funds and chats.{' '}
-      <Link to={"/settings/change-secret-phrase"} className="underline">
-        Migrate now
+      {t('compromisedWalletBanner')}{' '}
+      <Link to={"/me/settings"} className="underline">
+        {t('switchWallet')}
       </Link>
     </div>
       :
       <div className="p-3 text-center" style={{ color: 'var(--adm-color-warning)' }}>
-      Your wallet was created with a version of NanChat (prior to v1.3.0) affected by a Secret Phrase vulnerability. Please generate a new secret phrase and migrate to protect your funds and chats.{' '}
+      {t('unsafeWalletVulnerability')}{' '}
       <a href="https://nanchat.com/security" target="_blank" rel="noopener noreferrer" className="underline">
-        Read more
+        {t('readMore')}
       </a>
       </div>
       }

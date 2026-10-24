@@ -38,6 +38,7 @@ function EncryptWithPassword({
   onClose: () => void;
   seed: string;
 }) {
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
 
   const handleConfirm = async () => {
@@ -88,7 +89,7 @@ function EncryptWithPassword({
         </Form>
         <div style={{ margin: 24 }}>
           <Button className="w-full" color="primary" shape="rounded" size="large" onClick={handleConfirm}>
-            Add Wallet
+            {t('addWallet')}
           </Button>
         </div>
       </div>
@@ -134,9 +135,9 @@ export function AddWalletPopup({ visible, onClose }: { visible: boolean; onClose
         bodyStyle={{ maxHeight: "90dvh", overflowY: "auto" }}
       >
         <div className="p-4">
-          <div className="text-xl font-semibold text-center mb-2">Add Wallet</div>
+          <div className="text-xl font-semibold text-center mb-2">{t('addWallet')}</div>
           <div className="text-sm text-center mb-2" style={{ color: "var(--adm-color-text-secondary)" }}>
-            Import another secret phrase. Your current wallet stays available in Switch Wallet.
+            {t('importAnotherSecretPhrase')}
           </div>
           <MnemonicInput
             mode="import"

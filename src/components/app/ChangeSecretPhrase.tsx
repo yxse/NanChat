@@ -9,7 +9,7 @@ import { MnemonicInput } from '../Initialize/restore/MnemonicInput';
 import { WalletContext } from '../useWallet';
 import { PinAuthPopup } from '../Lock/PinLock';
 import { generateSecureSeed, prependWalletSeed } from '../../utils/storage';
-import { UnsafeWalletWarning } from './UnsafeWalletWarning';
+import { UnsafeWalletWarning, useMustMigrate } from './UnsafeWalletWarning';
 import { addSharedKeyForParticipants } from '../../services/sharedkey';
 import { box } from 'multi-nano-web';
 import { addParticipants, fetcherMessages, getNewChatToken, saveMessageCache, signMessage } from '../messaging/fetcher';
@@ -23,6 +23,7 @@ import { backupWalletGoogleDrive, backupWalletICloud } from '../../services/capa
 import { convertAddress } from '../../utils/convertAddress';
 import { rawToMega } from '../../nano/accounts';
 import { formatAmountMega, formatAmountRaw } from '../../utils/format';
+import { useTranslation } from 'react-i18next';
 
 type Step = 'intro' | 'backup' | 'confirm' | 'migrating' | 'done';
 
@@ -41,15 +42,16 @@ function getTimestampFilename() {
 }
 
 function NewSeedCloudBackup({ seed, onDone }: { seed: string; onDone: () => void }) {
-  let textSave = 'Download Encrypted File';
-  if (Capacitor.getPlatform() === 'ios') textSave = 'Save to iCloud';
-  else if (Capacitor.getPlatform() === 'android') textSave = 'Save to Google Drive';
+  const { t } = useTranslation();
+  let textSave = t('downloadEncryptedFile');
+  if (Capacitor.getPlatform() === 'ios') textSave = t('saveToICloud');
+  else if (Capacitor.getPlatform() === 'android') textSave = t('saveToGoogleDrive');
 
   return (
     <div className="p-4">
-      <div className="text-2xl text-center mb-2">Create Password</div>
+      <div className="text-2xl text-center mb-2">{t('createPassword')}</div>
       <div className="p-2 mb-2 text-center text-sm" style={{ color: 'var(--adm-color-warning)' }}>
-        Do not lose this password — your backup will be unrecoverable without it.
+        {t('doNotLoseYourPasswordOrYourBackupWillBeUnrecoverable')}
       </div>
       <PasswordForm
         onFinish={async (values) => {
@@ -73,10 +75,10 @@ function NewSeedCloudBackup({ seed, onDone }: { seed: string; onDone: () => void
               Toast.clear();
               onDone();
             } else {
-              Toast.show({ icon: 'fail', content: 'Backup failed.' });
+              Toast.show({ icon: 'fail', content: t('backupFailed') });
             }
           } catch (e) {
-            Toast.show({ icon: 'fail', content: 'Backup failed: ' + e });
+            Toast.show({ icon: 'fail', content: t('backupFailedWithError', { error: String(e) }) });
           }
         }}
         buttonText={textSave}
@@ -96,6 +98,7 @@ function NewSeedManualBackup({
   onClose: () => void;
   onDone: () => void;
 }) {
+  const { t } = useTranslation();
   const [verifyVisible, setVerifyVisible] = useState(false);
 
   return (
@@ -109,9 +112,9 @@ function NewSeedManualBackup({
         bodyStyle={{ maxHeight: '100dvh', overflowY: 'auto' }}
       >
         <div className="p-4">
-          <div className="text-2xl text-center mb-2">Write Down Your Phrase</div>
+          <div className="text-2xl text-center mb-2">{t('writeDownYourPhrase')}</div>
           <div className="text-sm text-center mb-4" style={{ color: 'var(--adm-color-warning)' }}>
-            Never share your secret phrase. Store it securely offline.
+            {t('neverShareSecretPhraseOffline')}
           </div>
           <MnemonicWords mnemonic={mnemonic} defaultIsRevealed={false} showHideButton colorCopy="default" />
           <Button
@@ -121,7 +124,7 @@ function NewSeedManualBackup({
             className="w-full mt-4"
             onClick={() => setVerifyVisible(true)}
           >
-            Verify Secret Phrase
+            {t('verifySecretPhrase')}
           </Button>
         </div>
       </ResponsivePopup>
@@ -134,7 +137,7 @@ function NewSeedManualBackup({
         bodyStyle={{ maxHeight: '90dvh', overflowY: 'auto' }}
       >
         <div className="p-4">
-          <div className="text-xl font-semibold text-center mb-4">Verify Recovery Phrase</div>
+          <div className="text-xl font-semibold text-center mb-4">{t('verifyRecoveryPhrase')}</div>
           <MnemonicInput
             mode="verify"
             onImport={(words) => {
@@ -143,7 +146,7 @@ function NewSeedManualBackup({
                 onClose();
                 onDone();
               } else {
-                Toast.show({ icon: 'fail', content: 'Incorrect words. Check your backup and try again.' });
+                Toast.show({ icon: 'fail', content: t('incorrectWordsCheckBackup') });
               }
             }}
           />
@@ -155,8 +158,10 @@ function NewSeedManualBackup({
 
 export default function ChangeSecretPhrase() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { wallet } = useContext(WalletContext);
   useHideNavbarOnMobile(true);
+  const mustMigrate = useMustMigrate();
 
   const [step, setStep] = useState<Step>('intro');
   const [pinVisible, setPinVisible] = useState(false);
@@ -182,7 +187,7 @@ export default function ChangeSecretPhrase() {
     try {
       seed = generateSecureSeed();
     } catch {
-      Toast.show({ icon: 'fail', content: 'Cannot generate a secure wallet in this environment' });
+      Toast.show({ icon: 'fail', content: t('cannotGenerateSecureWallet') });
       return;
     }
     const { mnemonic } = walletLib.fromLegacySeed(seed);
@@ -250,7 +255,7 @@ export default function ChangeSecretPhrase() {
 
       
         // Save new seed as primary
-        setProgressMsg('Saving new wallet…');
+        setProgressMsg(t('migrationSavingNewWallet'));
         await prependWalletSeed(newSeed, false, true);
 
         localStorage.removeItem('lastAccountIndex');
@@ -259,7 +264,7 @@ export default function ChangeSecretPhrase() {
         localStorage.removeItem('hiddenIndexes');
 
       // 1. Transfer funds for all tickers × all account indices
-      setProgressMsg('Transferring funds…');
+      setProgressMsg(t('migrationTransferringFunds'));
       const failed: TransferPreview[] = [];
       for (const ticker of Object.keys(wallet.wallets)) {
         const tickerWallet = wallet.wallets[ticker];
@@ -297,7 +302,7 @@ export default function ChangeSecretPhrase() {
       const oldToken = await getNewChatToken(oldPrimaryAddr, oldPrimaryPk);
       if (oldToken) {
       // 2. Share group keys with new account
-      setProgressMsg('Migrating group chats…');
+      setProgressMsg(t('migrationGroupChats'));
       let chats: any[] = [];
       try {
         const res = await fetcherMessages('/chats', oldPrimaryPk);
@@ -318,7 +323,7 @@ export default function ChangeSecretPhrase() {
       }
 
       // 3. Fetch and save messages locally (decrypted with old key) instead of re-encrypting
-      setProgressMsg('Saving all private messages…');
+      setProgressMsg(t('migrationSavingPrivateMessages'));
       const CHUNK_SIZE = 1000;
       
       let totalMessages = 0;
@@ -344,7 +349,7 @@ export default function ChangeSecretPhrase() {
         if (chunk.length === 0) break;
 
         chunkIndex++;
-        setProgressMsg(`Saving messages… (${chunkIndex*CHUNK_SIZE}/${totalMessages})`);
+        setProgressMsg(t('migrationSavingMessagesProgress', { current: chunkIndex*CHUNK_SIZE, total: totalMessages }));
 
         await Promise.all(
           chunk.map(async (msg) => {
@@ -360,7 +365,7 @@ export default function ChangeSecretPhrase() {
       }
 
       // 4. Re-encrypt contacts for new account's key pair
-      setProgressMsg('Migrating contacts…');
+      setProgressMsg(t('migrationContacts'));
       let reencryptedContacts: { encrypted: string; length: number } | null = null;
       try {
         const contactsData = await fetcherMessages('/contacts', oldPrimaryPk);
@@ -378,7 +383,7 @@ export default function ChangeSecretPhrase() {
       }
 
       // 5. Backend migration (message content already re-encrypted above)
-      setProgressMsg('Updating account…');
+      setProgressMsg(t('migrationUpdatingAccount'));
       const newMessage = `Login to nanwallet.com chat. Date:${new Date().toISOString()}`;
       const newSignature = signMessage(newPrimaryPk, newMessage);
       const migrateRes = await fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/migrate-account', {
@@ -401,7 +406,7 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
       setStep('done');
     } catch (e: any) {
       console.error('Migration failed', e);
-      setError(e?.message ?? 'Migration failed. Please try again.');
+      setError(e?.message ?? t('migrationFailedTryAgain'));
       setStep('confirm');
     }
   }
@@ -410,21 +415,21 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
   const newSeed = newSeedRef.current;
 
   let cloudIcon: React.ReactNode = <DownlandOutline />;
-  let cloudLabel = 'Download Encrypted File';
+  let cloudLabel = t('downloadEncryptedFile');
   if (Capacitor.getPlatform() === 'ios') { cloudIcon = <AiFillApple />; cloudLabel = 'iCloud'; }
   else if (Capacitor.getPlatform() === 'android') { cloudIcon = <AiFillAndroid />; cloudLabel = 'Google Drive'; }
 
   return (
     <div className="mb-24">
-      <NavBar onBack={() => navigate('/me/settings')} backArrow>
-        Change Secret Phrase
+      <NavBar onBack={mustMigrate ? undefined : () => navigate('/me/settings')} backArrow={!mustMigrate}>
+        {mustMigrate ? t('migrationRequired') : t('changeSecretPhrase')}
       </NavBar>
 
       {step === 'intro' && (
         <div className="p-4 flex flex-col gap-4 text-center">
           <UnsafeWalletWarning />
          <div style={{ color: 'var(--adm-color-text-secondary)' }}>
-           Your old wallet will remain accessible via 'Switch Wallet' in settings.
+           {t('oldWalletRemainsAccessible')}
           </div>
            <br/><br/>
           <Button
@@ -434,31 +439,31 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
             className="w-full"
             onClick={() => setPinVisible(true)}
           >
-            Generate New Recovery Phrase
+            {t('generateNewRecoveryPhrase')}
           </Button>
         </div>
       )}
 
       {step === 'backup' && newSeed && (
         <div className="p-4 flex flex-col gap-4">
-          <div className="text-xl font-semibold text-center">Backup New Recovery Phrase</div>
+          <div className="text-xl font-semibold text-center">{t('backupNewRecoveryPhrase')}</div>
           <div className="text-sm text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-            Complete at least one backup method to continue.
+            {t('completeOneBackupMethod')}
           </div>
           <List mode="card">
             <List.Item
-              description={cloudBackupDone ? 'Done' : <span style={{ color: 'var(--adm-color-primary)' }}>Backup Now</span>}
+              description={cloudBackupDone ? t('done') : <span style={{ color: 'var(--adm-color-primary)' }}>{t('backupNow')}</span>}
               prefix={cloudIcon}
               onClick={() => setCloudBackupVisible(true)}
             >
               {cloudLabel}
             </List.Item>
             <List.Item
-              description={manualBackupDone ? 'Done' : <span style={{ color: 'var(--adm-color-primary)' }}>Backup Now</span>}
+              description={manualBackupDone ? t('done') : <span style={{ color: 'var(--adm-color-primary)' }}>{t('backupNow')}</span>}
               prefix={<FingerdownOutline />}
               onClick={() => setManualBackupVisible(true)}
             >
-              Manual (Write Down)
+              {t('manualWriteDown')}
             </List.Item>
           </List>
 
@@ -470,7 +475,7 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
               className="w-full"
               onClick={() => setStep('confirm')}
             >
-              Continue to Migration
+              {t('continueToMigration')}
             </Button>
           )}
         </div>
@@ -478,31 +483,31 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
 
       {step === 'confirm' && (
         <div className="p-4 flex flex-col gap-4">
-          <div className="text-xl font-semibold text-center">Confirm Migration</div>
+          <div className="text-xl font-semibold text-center">{t('confirmMigration')}</div>
           <div className="text-sm" style={{ color: 'var(--adm-color-text-secondary)' }}>
-            The following funds will be transferred to your new wallet:
+            {t('fundsWillBeTransferred')}
           </div>
           {loadingPreview ? (
             <div className="flex justify-center py-4"><DotLoading color="primary" /></div>
           ) : transfers.length === 0 ? (
             <div className="rounded-xl p-3 text-sm text-center" style={{ background: 'var(--adm-color-box)', color: 'var(--adm-color-text-secondary)' }}>
-              No funds to transfer — accounts are empty.
+              {t('noFundsToTransfer')}
             </div>
           ) : (
             <List mode="card">
-              {transfers.map((t, i) => (
+              {transfers.map((transfer, i) => (
                 <List.Item
                   key={i}
                   description={
                     <div className="text-sm font-mono break-all">
-                      <div>(Account #{t.index})</div>
-                      <div>From: {t.fromAddr.slice(0, 14)}…{t.fromAddr.slice(-6)} </div>
-                      <div>To:&nbsp;&nbsp; {t.toAddr.slice(0, 14)}…{t.toAddr.slice(-6)}</div>
+                      <div>{t('accountNumber', { index: transfer.index })}</div>
+                      <div>{t('from')}: {transfer.fromAddr.slice(0, 14)}…{transfer.fromAddr.slice(-6)} </div>
+                      <div>{t('to')}:&nbsp;&nbsp; {transfer.toAddr.slice(0, 14)}…{transfer.toAddr.slice(-6)}</div>
                     </div>
                   }
                 >
                   <span style={{  }}>
-                    {formatAmountMega(rawToMega(t.ticker, t.balance), t.ticker)} {t.ticker}
+                    {formatAmountMega(rawToMega(transfer.ticker, transfer.balance), transfer.ticker)} {transfer.ticker}
                   </span>
                 </List.Item>
               ))}
@@ -521,7 +526,7 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
             style={{marginBottom: 128}}
             onClick={performMigration}
           >
-            Start Migration
+            {t('startMigration')}
           </Button>
         </div>
       )}
@@ -529,9 +534,9 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
       {step === 'migrating' && (
         <div className="p-8 flex flex-col items-center gap-6">
           <DotLoading color="primary" />
-          <div className="text-center text-base">{progressMsg || 'Migrating…'}</div>
+          <div className="text-center text-base">{progressMsg || t('migrating')}</div>
           <div className="text-sm text-center" style={{ color: 'var(--adm-color-text-secondary)' }}>
-            Please keep the app open. This may take a few minutes.
+            {t('keepAppOpenMigration')}
           </div>
         </div>
       )}
@@ -543,24 +548,24 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
           ) : (
             <CheckCircleOutline fontSize={64} color="var(--adm-color-success)" />
           )}
-          <div className="text-2xl font-semibold text-center">Migration Complete!</div>
+          <div className="text-2xl font-semibold text-center">{t('migrationComplete')}</div>
           {failedTransfers.length > 0 ? (
             <div className="w-full rounded-xl p-4" style={{ background: 'var(--adm-color-box)', border: '1px solid var(--adm-color-warning)' }}>
               <div className="text-sm font-semibold mb-2" style={{ color: 'var(--adm-color-warning)' }}>
-                {failedTransfers.length} account{failedTransfers.length > 1 ? 's' : ''} could not be transferred automatically:
+                {t('accountsNotTransferred', { count: failedTransfers.length })}
               </div>
-              {failedTransfers.map((t, i) => (
+              {failedTransfers.map((transfer, i) => (
                 <div key={i} className="text-xs font-mono mb-1" style={{ color: 'var(--adm-color-text-secondary)' }}>
-                  {t.ticker} #{t.index}: {formatAmountMega(rawToMega(t.ticker, t.balance), t.ticker)} — use Switch Wallet to send manually
+                  {transfer.ticker} #{transfer.index}: {formatAmountMega(rawToMega(transfer.ticker, transfer.balance), transfer.ticker)} — {t('sendManuallyViaSwitchWallet')}
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center flex flex-col gap-2" style={{ color: 'var(--adm-color-text-secondary)' }}>
-              <div>Your new secure wallet is now active. The old wallet is accessible via "Switch Wallet" in settings.</div>
+              <div>{t('newSecureWalletActive')}</div>
               {completedNewAddrRef.current && (
                 <div>
-                  Your new main address is
+                  {t('newMainAddressIs')}
                 <div className="text-sm font-mono break-all" style={{ color: 'var(--adm-color-text)' }}>
                   {completedNewAddrRef.current}
                 </div> </div>
@@ -576,14 +581,14 @@ else {        console.warn('Failed to get migration token, skipping chat migrati
               window.location.replace('/');
             }}
           >
-            Reload App
+            {t('reloadApp')}
           </Button>
         </div>
       )}
 
       <PinAuthPopup
         location="change-secret-phrase"
-        description="Authenticate to generate a new recovery phrase"
+        description={t('authenticateToGenerateRecoveryPhrase')}
         visible={pinVisible}
         setVisible={setPinVisible}
         onAuthenticated={onPinAuthenticated}
