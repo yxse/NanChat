@@ -387,7 +387,7 @@
   "signSignButton": "Firma",
   "signResponseFrom": "Risposta da {{hostname}}:",
   "signError": "Si è verificato un errore durante la firma del messaggio: {{error}}",
-  "signLoginOriginWarning": "Continua solo se hai appena avviato tu stesso questo accesso su {{service}}. Se qualcuno ti ha inviato questo link o codice QR, annulla: potrebbe impossessarsi del tuo account {{service}}.",
+  "signLoginOriginWarning": "Non accedere mai da un link che qualcuno ti ha inviato. Potrebbe impossessarsi del tuo account {{service}}.",
   "signRequestOriginWarning": "Firma solo se hai avviato tu stesso questa richiesta su {{hostname}}. Se qualcuno ti ha inviato questo link o codice QR, annulla.",
   "compromisedWalletBanner": "Questo wallet usa una frase segreta compromessa. Non tenere fondi su di esso.",
   "switchWallet": "Cambia wallet",

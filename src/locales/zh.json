@@ -387,7 +387,7 @@
   "signSignButton": "签名",
   "signResponseFrom": "来自 {{hostname}} 的响应：",
   "signError": "签名消息时出错：{{error}}",
-  "signLoginOriginWarning": "仅当您刚刚亲自在 {{service}} 上发起此登录时才继续。如果是别人发给您的链接或二维码，请取消：对方可能会接管您的 {{service}} 账户。",
+  "signLoginOriginWarning": "切勿通过别人发给您的链接登录。对方可能会接管您的 {{service}} 账户。",
   "signRequestOriginWarning": "仅当您亲自在 {{hostname}} 上发起此请求时才签名。如果是别人发给您的链接或二维码，请取消。",
   "compromisedWalletBanner": "此钱包使用的密语已泄露。请勿在其中存放资金。",
   "switchWallet": "切换钱包",

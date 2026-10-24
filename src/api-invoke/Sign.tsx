@@ -290,9 +290,8 @@ export default function Sign({uri, onClose, origin}: {uri?: string, onClose?: ()
         showOriginWarning &&
         <div
           className="mx-4 p-3 rounded-md text-sm flex items-start gap-2"
-          style={{ backgroundColor: "var(--main-background-color)", color: "var(--adm-color-warning)" }}
+          style={{ backgroundColor: "var(--main-background-color)", color: "var(--adm-color-text-secondary)" }}
         >
-          <ExclamationCircleFill style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
             {isLogin
               ? t("signLoginOriginWarning", { service: serviceLabel })

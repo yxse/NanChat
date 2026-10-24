@@ -387,7 +387,7 @@
   "signSignButton": "Firmar",
   "signResponseFrom": "Respuesta de {{hostname}}:",
   "signError": "Se produjo un error al firmar el mensaje: {{error}}",
-  "signLoginOriginWarning": "Continúa solo si acabas de iniciar tú mismo este inicio de sesión en {{service}}. Si alguien te envió este enlace o código QR, cancela: podría apoderarse de tu cuenta de {{service}}.",
+  "signLoginOriginWarning": "Nunca inicies sesión desde un enlace que alguien te haya enviado. Podría apoderarse de tu cuenta de {{service}}.",
   "signRequestOriginWarning": "Firma solo si iniciaste tú mismo esta solicitud en {{hostname}}. Si alguien te envió este enlace o código QR, cancela.",
   "compromisedWalletBanner": "Esta billetera usa una frase secreta comprometida. No guardes fondos en ella.",
   "switchWallet": "Cambiar de billetera",

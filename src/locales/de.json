@@ -387,7 +387,7 @@
   "signSignButton": "Signieren",
   "signResponseFrom": "Antwort von {{hostname}}:",
   "signError": "Beim Signieren der Nachricht ist ein Fehler aufgetreten: {{error}}",
-  "signLoginOriginWarning": "Fahren Sie nur fort, wenn Sie diese Anmeldung gerade selbst auf {{service}} gestartet haben. Wenn Ihnen jemand diesen Link oder QR-Code geschickt hat, brechen Sie ab: Diese Person könnte Ihr {{service}}-Konto übernehmen.",
+  "signLoginOriginWarning": "Melden Sie sich nie über einen Link an, den Ihnen jemand geschickt hat. Diese Person könnte Ihr {{service}}-Konto übernehmen.",
   "signRequestOriginWarning": "Signieren Sie nur, wenn Sie diese Anfrage selbst auf {{hostname}} gestartet haben. Wenn Ihnen jemand diesen Link oder QR-Code geschickt hat, brechen Sie ab.",
   "compromisedWalletBanner": "Diese Wallet verwendet eine kompromittierte geheime Phrase. Bewahre kein Guthaben darauf auf.",
   "switchWallet": "Wallet wechseln",

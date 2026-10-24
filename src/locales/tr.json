@@ -387,7 +387,7 @@
   "signSignButton": "İmzala",
   "signResponseFrom": "{{hostname}} yanıtı:",
   "signError": "Mesaj imzalanırken bir hata oluştu: {{error}}",
-  "signLoginOriginWarning": "Yalnızca bu girişi az önce {{service}} üzerinde kendiniz başlattıysanız devam edin. Bu bağlantıyı veya QR kodunu size biri gönderdiyse iptal edin: bu kişi {{service}} hesabınızı ele geçirebilir.",
+  "signLoginOriginWarning": "Size birinin gönderdiği bir bağlantıdan asla giriş yapmayın. Bu kişi {{service}} hesabınızı ele geçirebilir.",
   "signRequestOriginWarning": "Yalnızca bu isteği {{hostname}} üzerinde kendiniz başlattıysanız imzalayın. Bu bağlantıyı veya QR kodunu size biri gönderdiyse iptal edin.",
   "compromisedWalletBanner": "Bu cüzdan güvenliği ihlal edilmiş bir gizli ifade kullanıyor. Üzerinde fon tutmayın.",
   "switchWallet": "Cüzdan değiştir",

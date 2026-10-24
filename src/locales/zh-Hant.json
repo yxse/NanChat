@@ -387,7 +387,7 @@
   "signSignButton": "簽署",
   "signResponseFrom": "來自 {{hostname}} 的回應：",
   "signError": "簽署訊息時發生錯誤：{{error}}",
-  "signLoginOriginWarning": "僅當您剛剛親自在 {{service}} 上發起此登入時才繼續。如果是別人傳給您的連結或 QR 碼，請取消：對方可能會接管您的 {{service}} 帳戶。",
+  "signLoginOriginWarning": "切勿透過別人傳給您的連結登入。對方可能會接管您的 {{service}} 帳戶。",
   "signRequestOriginWarning": "僅當您親自在 {{hostname}} 上發起此請求時才簽署。如果是別人傳給您的連結或 QR 碼，請取消。",
   "compromisedWalletBanner": "此錢包使用的祕密詞已外洩。請勿在其中存放資金。",
   "switchWallet": "切換錢包",

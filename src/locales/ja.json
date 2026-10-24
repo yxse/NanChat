@@ -387,7 +387,7 @@
   "signSignButton": "署名",
   "signResponseFrom": "{{hostname}} からの応答:",
   "signError": "メッセージの署名中にエラーが発生しました: {{error}}",
-  "signLoginOriginWarning": "このログインをたった今ご自身で {{service}} で開始した場合のみ続行してください。誰かからこのリンクやQRコードが送られてきた場合はキャンセルしてください。あなたの {{service}} アカウントが乗っ取られる可能性があります。",
+  "signLoginOriginWarning": "誰かから送られてきたリンクから絶対にログインしないでください。あなたの {{service}} アカウントが乗っ取られる可能性があります。",
   "signRequestOriginWarning": "このリクエストをご自身で {{hostname}} で開始した場合のみ署名してください。誰かからこのリンクやQRコードが送られてきた場合はキャンセルしてください。",
   "compromisedWalletBanner": "このウォレットは漏洩したシークレットフレーズを使用しています。資金を保管しないでください。",
   "switchWallet": "ウォレットを切り替える",

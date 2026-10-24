@@ -387,7 +387,7 @@
   "signSignButton": "Ondertekenen",
   "signResponseFrom": "Antwoord van {{hostname}}:",
   "signError": "Er is een fout opgetreden bij het ondertekenen van het bericht: {{error}}",
-  "signLoginOriginWarning": "Ga alleen verder als u deze login zojuist zelf op {{service}} hebt gestart. Als iemand u deze link of QR-code heeft gestuurd, annuleer dan: diegene zou uw {{service}}-account kunnen overnemen.",
+  "signLoginOriginWarning": "Log nooit in via een link die iemand u heeft gestuurd. Diegene zou uw {{service}}-account kunnen overnemen.",
   "signRequestOriginWarning": "Onderteken alleen als u dit verzoek zelf op {{hostname}} hebt gestart. Als iemand u deze link of QR-code heeft gestuurd, annuleer dan.",
   "compromisedWalletBanner": "Deze wallet gebruikt een gecompromitteerde geheime zin. Bewaar er geen geld op.",
   "switchWallet": "Wallet wisselen",

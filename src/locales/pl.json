@@ -387,7 +387,7 @@
   "signSignButton": "Podpisz",
   "signResponseFrom": "Odpowiedź od {{hostname}}:",
   "signError": "Wystąpił błąd podczas podpisywania wiadomości: {{error}}",
-  "signLoginOriginWarning": "Kontynuuj tylko, jeśli właśnie sam rozpocząłeś to logowanie w {{service}}. Jeśli ktoś wysłał ci ten link lub kod QR, anuluj: ta osoba mogłaby przejąć twoje konto {{service}}.",
+  "signLoginOriginWarning": "Nigdy nie loguj się przez link, który ktoś ci wysłał. Ta osoba mogłaby przejąć twoje konto {{service}}.",
   "signRequestOriginWarning": "Podpisz tylko, jeśli sam rozpocząłeś tę prośbę w {{hostname}}. Jeśli ktoś wysłał ci ten link lub kod QR, anuluj.",
   "compromisedWalletBanner": "Ten portfel używa skompromitowanej sekretnej frazy. Nie przechowuj na nim środków.",
   "switchWallet": "Zmień portfel",

@@ -112,6 +112,12 @@ function filterServices(services, searchText) {
     });
 }
 
+// Last web page shown in the mobile in-app browser. Used when the native side doesn't
+// give the page that triggered a link: missing, or about:blank when the site opened an
+// empty window first (iOS loads window.open("") into the same webview). Module level:
+// there is one native webview, and the Art screen mounts a second Discover.
+let lastPageUrl = "";
+
 export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const { t } = useTranslation();
     const { activeAccount } = useWallet()
@@ -231,7 +237,8 @@ WebviewOverlay.onPageLoaded(() => {
         console.log('navigationHandler', JSON.stringify(event));
         if (event.url.startsWith('https://nanchat.com/?uri=') || /^(nano|nan|nanauth|ban|xdg|ana|xro):/i.test(event.url)){
             // pageUrl comes from the native webview (the page that triggered the link), see AppUrlListener
-            emit('open-url', { url: event.url, pageUrl: event.pageUrl });
+            const pageUrl = /^https?:\/\//i.test(event.pageUrl || "") ? event.pageUrl : lastPageUrl;
+            emit('open-url', { url: event.url, pageUrl });
             event.complete(false) // should prevent the page to open in the inappbroswer
             return
         }
@@ -241,6 +248,9 @@ WebviewOverlay.onPageLoaded(() => {
             return
         }
         setOpenService({...openService, link: event.url});
+        if (!event.newWindow && /^https?:\/\//i.test(event.url)) {
+            lastPageUrl = event.url;
+        }
         if (Capacitor.getPlatform() === "ios") {
             // or else webview not opening when navigationhandler is used
             if (event.newWindow){
@@ -267,6 +277,7 @@ WebviewOverlay.onPageLoaded(() => {
             })
 
             setOpenService(service);
+            lastPageUrl = url;
             const element = document.getElementById('webview-overlay') as HTMLElement;
             element.style.zIndex = "1000";
             element.style.backgroundColor = "var(--adm-color-background)"
