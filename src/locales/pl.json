@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Nie udało się usunąć modelu",
   "searchLanguage": "Szukaj języka",
   "downloaded": "Pobrano",
-  "translationOnlyOnMobile": "Tłumaczenie wiadomości jest dostępne tylko w aplikacjach na iOS i Androida."
+  "translationOnlyOnMobile": "Tłumaczenie wiadomości jest dostępne tylko w aplikacjach na iOS i Androida.",
+  "signMessageTitle": "Podpisz wiadomość",
+  "signLoginTo": "Zaloguj się do {{service}}",
+  "signSignatureRequest": "Prośba o podpis",
+  "signAddressShared": "Twój publiczny adres zostanie udostępniony {{service}}.",
+  "signConfirmIfApprove": "Potwierdź tę wiadomość tylko, jeśli akceptujesz jej treść.",
+  "signHostnameMismatchToast": "Domena w wiadomości nie zgadza się z domeną docelową. Anulowano, aby zapobiec phishingowi.",
+  "signHostnameMismatch": "Nieprawidłowa prośba o logowanie. Domena w wiadomości (<b>{{loginService}}</b>) nie zgadza się z domeną docelową (<b>{{hostname}}</b>). Jeśli jesteś twórcą <b>{{service}}</b>, zaktualizuj wiadomość logowania, podając poprawną domenę.",
+  "signSubmitTo": "Wyślij do:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Wiadomość:",
+  "signLoginButton": "Zaloguj",
+  "signSignButton": "Podpisz",
+  "signResponseFrom": "Odpowiedź od {{hostname}}:",
+  "signError": "Wystąpił błąd podczas podpisywania wiadomości: {{error}}",
+  "signLoginOriginWarning": "Kontynuuj tylko, jeśli właśnie sam rozpocząłeś to logowanie w {{service}}. Jeśli ktoś wysłał ci ten link lub kod QR, anuluj: ta osoba mogłaby przejąć twoje konto {{service}}.",
+  "signRequestOriginWarning": "Podpisz tylko, jeśli sam rozpocząłeś tę prośbę w {{hostname}}. Jeśli ktoś wysłał ci ten link lub kod QR, anuluj."
 }

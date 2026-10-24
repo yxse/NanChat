@@ -1,4 +1,5 @@
 import { BiX } from "react-icons/bi";
+import { ExclamationCircleFill } from "antd-mobile-icons";
 import { tools } from 'multi-nano-web'
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Button, Result, TextArea, Toast } from "antd-mobile";
@@ -17,18 +18,20 @@ import { fetcherMessagesNoAuth } from "../components/messaging/fetcher";
 import { focusLastBrowserWindow } from "../components/messaging/utils";
 import { isTauri } from "@tauri-apps/api/core";
 import useSWR from "swr";
+import { Trans, useTranslation } from "react-i18next";
+import type { UriOrigin } from "../components/app/AppUrlListener";
 
 
-export const SignPopup = ({visible, setVisible, uri, setUri}) => {
-
+export const SignPopup = ({visible, setVisible, uri, setUri, origin}: {visible: boolean, setVisible: (visible: boolean) => void, uri: string, setUri?: (uri: string) => void, origin?: UriOrigin, onSign?: (result: string) => void}) => {
+  const { t } = useTranslation()
   return (
     <ResponsivePopup
     destroyOnClose
     visible={visible}
     setVisible={setVisible}
-    title="Sign Message"
+    title={t("signMessageTitle")}
     >
-      <Sign uri={uri} onClose={() => {
+      <Sign uri={uri} origin={origin} onClose={() => {
         setVisible(false)
         if (setUri){
           setUri("")
@@ -39,10 +42,21 @@ export const SignPopup = ({visible, setVisible, uri, setUri}) => {
 }
 
 
-export default function Sign({uri, onClose}) {
+// The hostname referenced in the message must match the submit hostname to prevent phishing
+const hostnamesMatch = (a: string, b: string) => {
+  if (!a || !b) return false
+  a = a.toLowerCase().replace(/^www\./, "")
+  b = b.toLowerCase().replace(/^www\./, "")
+  return a === b || a.endsWith("." + b) || b.endsWith("." + a)
+}
+
+// `origin` says where the request came from. Without it (e.g. the /sign route),
+// it is treated as coming from outside the app.
+export default function Sign({uri, onClose, origin}: {uri?: string, onClose?: () => void, origin?: UriOrigin}) {
+  const { t } = useTranslation()
   const {wallet} = useContext(WalletContext)
   const [message, setMessage] = useState("")
-  const [callback, setCallback] = useState(false)
+  const [callback, setCallback] = useState<string | null>(null)
   const [hostname, setHostname] = useState("")
   const [hostnameCallback, setHostnameCallback] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -59,13 +73,16 @@ export default function Sign({uri, onClose}) {
       
       setMessage(searchParams.get("message"))
       try {
-        setCallback(searchParams.get("callback"))
+        const callbackParam = searchParams.get("callback") // optional, login links usually have none
+        setCallback(callbackParam)
         setSubmitURL(searchParams.get("url"))
         setHostname(new URL(searchParams.get("url")).hostname)
-        setHostnameCallback(new URL(searchParams.get("callback")).hostname)
+        if (callbackParam) {
+          setHostnameCallback(new URL(callbackParam).hostname)
+        }
       } catch (error) {
         console.log(error)
-        Toast.show({content: error, icon: 'fail'})
+        Toast.show({content: String(error), icon: 'fail'})
       }
     }
     else{
@@ -109,19 +126,27 @@ export default function Sign({uri, onClose}) {
   }, [services, loginService])
   const serviceLabel = resolvedService?.name || loginService
 
-  // The hostname referenced in the message must match the submit hostname to prevent phishing
-  const hostnamesMatch = (a, b) => {
-    if (!a || !b) return false
-    a = a.toLowerCase().replace(/^www\./, "")
-    b = b.toLowerCase().replace(/^www\./, "")
-    return a === b || a.endsWith("." + b) || b.endsWith("." + a)
-  }
   const hostnameMismatch = isLogin && !!hostname && !hostnamesMatch(loginService, hostname)
+
+  // A request is only trusted as user-initiated when it was triggered by the page
+  // open in the in-app browser, on the same site it submits to. Anything else
+  // (outside deep link, QR code, paste, other site) may be a relayed request:
+  // an attacker starts a login on the real site and sends the link/QR code to
+  // the victim, whose signature would then log the attacker's session in.
+  const pageHost = useMemo(() => {
+    try {
+      return new URL(origin?.pageUrl || "").hostname
+    } catch {
+      return ""
+    }
+  }, [origin])
+  const fromCurrentSite = origin?.source === "in-app" && hostnamesMatch(pageHost, hostname)
+  const showOriginWarning = !!hostname && !hostnameMismatch && !fromCurrentSite
 
   const handleSign = async () => {
     if (hostnameMismatch) {
       Toast.show({
-        content: "The hostname in the message does not match the submit hostname. Aborting to prevent phishing.",
+        content: t("signHostnameMismatchToast"),
         icon: 'fail',
       })
       return
@@ -157,12 +182,15 @@ export default function Sign({uri, onClose}) {
           if (onClose) onClose()
         }
         else {
-          window.open(callback, "_blank")
+          // callback comes from the request: only open web links, never javascript: etc.
+          if (callback && /^https?:\/\//i.test(callback)) {
+            window.open(callback, "_blank", "noopener,noreferrer")
+          }
         }
       })
       .catch((error) => {
         Toast.show({
-          content: "An error occurred while signing the message: " + error,
+          content: t("signError", { error: String(error) }),
           icon: 'fail'
         })
         console.log(error)
@@ -193,7 +221,7 @@ export default function Sign({uri, onClose}) {
                
               </div>
               <p className="text-lg font-semibold">
-              {isLogin ? `Login to ${serviceLabel}` : "Signature request"}
+              {isLogin ? t("signLoginTo", { service: serviceLabel }) : t("signSignatureRequest")}
               </p>
               {
                 isLogin &&
@@ -208,8 +236,8 @@ export default function Sign({uri, onClose}) {
               }
                 <p style={{color: "var(--adm-color-text-secondary)", marginTop: 32}} className="text-sm">
                 {isLogin
-                  ? `Your public address will be shared with ${serviceLabel}.`
-                  : "Only confirm this message if you approve the content."}
+                  ? t("signAddressShared", { service: serviceLabel })
+                  : t("signConfirmIfApprove")}
                 </p>
             </div>
           </div>
@@ -219,19 +247,22 @@ export default function Sign({uri, onClose}) {
               className="p-3 rounded-md mb-2 text-sm"
               style={{ backgroundColor: "var(--main-background-color)", color: "var(--adm-color-text-secondary)" }}
             >
-              Invalid login request. The hostname in the message (<b>{loginService}</b>) does not match the
-              submit hostname (<b>{hostname}</b>). If you are the developer of <b>{serviceLabel}</b>, please update your login message to include the correct hostname. 
+              <Trans
+                i18nKey="signHostnameMismatch"
+                values={{ loginService, hostname, service: serviceLabel }}
+                components={{ b: <b /> }}
+              />
             </div>
           }
           {
-           !isLogin && hostname && <><p>Submit to:</p>
+           !isLogin && hostname && <><p>{t("signSubmitTo")}</p>
           <div className="p-3  rounded-md " style={{backgroundColor: "var(--main-background-color)"}}>
           {hostname}
           </div>
             </>
           }
           {
-           !isLogin && callback && <><p>Callback:</p>
+           !isLogin && callback && <><p>{t("signCallback")}</p>
           <div className="p-3  rounded-md " style={{backgroundColor: "var(--main-background-color)"}}>
           {hostnameCallback}
           </div>
@@ -240,7 +271,7 @@ export default function Sign({uri, onClose}) {
           {
             !isLogin && <>
             
-          <p>Message:</p>
+          <p>{t("signMessageLabel")}</p>
           <div
           // autoSize={{ minRows: 3}}
             // value={message}
@@ -254,6 +285,21 @@ export default function Sign({uri, onClose}) {
           }
         </div>
       </div>
+
+      {
+        showOriginWarning &&
+        <div
+          className="mx-4 p-3 rounded-md text-sm flex items-start gap-2"
+          style={{ backgroundColor: "var(--main-background-color)", color: "var(--adm-color-warning)" }}
+        >
+          <ExclamationCircleFill style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            {isLogin
+              ? t("signLoginOriginWarning", { service: serviceLabel })
+              : t("signRequestOriginWarning", { hostname })}
+          </div>
+        </div>
+      }
 
       <div className="relative select-none justify-end">
         {/** buttons */}
@@ -274,7 +320,7 @@ export default function Sign({uri, onClose}) {
             shape="rounded"
             color="default"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
           loading={isLoading}
@@ -285,7 +331,7 @@ export default function Sign({uri, onClose}) {
             shape="rounded"
             color="primary"
           >
-            {isLogin ? "Login" : "Sign"}
+            {isLogin ? t("signLoginButton") : t("signSignButton")}
           </Button>
         </div>
       </div>
@@ -295,10 +341,10 @@ export default function Sign({uri, onClose}) {
       <Result
       className="text-xl"
                 status="success"
-                title={<div className="text-2xl text-gray-100">Success</div>}
+                title={<div className="text-2xl text-gray-100">{t("success")}</div>}
                 description={<>
                   <div className="text-lg">
-                  Response from {hostname}: 
+                  {t("signResponseFrom", { hostname })}
                   </div>
                   <div className="text-base mt-2 flex justify-center space-x-2 items-baseline">
                     <div className="text-gray-400">
@@ -317,7 +363,7 @@ export default function Sign({uri, onClose}) {
             shape="rounded"
             color="primary"
           >
-            Close
+            {t("close")}
           </Button>
                 </>
                 }

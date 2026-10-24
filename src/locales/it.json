@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Impossibile rimuovere il modello",
   "searchLanguage": "Cerca lingua",
   "downloaded": "Scaricato",
-  "translationOnlyOnMobile": "La traduzione dei messaggi è disponibile solo nelle app iOS e Android."
+  "translationOnlyOnMobile": "La traduzione dei messaggi è disponibile solo nelle app iOS e Android.",
+  "signMessageTitle": "Firma messaggio",
+  "signLoginTo": "Accedi a {{service}}",
+  "signSignatureRequest": "Richiesta di firma",
+  "signAddressShared": "Il tuo indirizzo pubblico sarà condiviso con {{service}}.",
+  "signConfirmIfApprove": "Conferma questo messaggio solo se ne approvi il contenuto.",
+  "signHostnameMismatchToast": "Il dominio nel messaggio non corrisponde al dominio di invio. Operazione annullata per prevenire il phishing.",
+  "signHostnameMismatch": "Richiesta di accesso non valida. Il dominio nel messaggio (<b>{{loginService}}</b>) non corrisponde al dominio di invio (<b>{{hostname}}</b>). Se sei lo sviluppatore di <b>{{service}}</b>, aggiorna il messaggio di accesso con il dominio corretto.",
+  "signSubmitTo": "Invia a:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Messaggio:",
+  "signLoginButton": "Accedi",
+  "signSignButton": "Firma",
+  "signResponseFrom": "Risposta da {{hostname}}:",
+  "signError": "Si è verificato un errore durante la firma del messaggio: {{error}}",
+  "signLoginOriginWarning": "Continua solo se hai appena avviato tu stesso questo accesso su {{service}}. Se qualcuno ti ha inviato questo link o codice QR, annulla: potrebbe impossessarsi del tuo account {{service}}.",
+  "signRequestOriginWarning": "Firma solo se hai avviato tu stesso questa richiesta su {{hostname}}. Se qualcuno ti ha inviato questo link o codice QR, annulla."
 }

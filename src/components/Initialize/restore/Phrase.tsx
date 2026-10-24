@@ -108,7 +108,7 @@ export default function ImportPhrase({
                   let seed;
                   if (mnemonicInputs[0].length === 64 || mnemonicInputs[0].length === 128) {
                     seed = mnemonicInputs[0];
-                    console.log(seed);
+                    // console.log(seed);
                   } else if (tools.validateMnemonic(mnemonicInputs.join(" "))) {
                     seed = walletLib.fromLegacyMnemonic(mnemonicInputs.join(" ")).seed;
                   } else {

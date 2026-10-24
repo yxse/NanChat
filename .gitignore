@@ -19,3 +19,4 @@ yarn-error.log
 myapp.key
 .env
 bun.lockb
+.idea/

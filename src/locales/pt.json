@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Não foi possível remover o modelo",
   "searchLanguage": "Pesquisar idioma",
   "downloaded": "Baixado",
-  "translationOnlyOnMobile": "A tradução de mensagens está disponível apenas nos aplicativos iOS e Android."
+  "translationOnlyOnMobile": "A tradução de mensagens está disponível apenas nos aplicativos iOS e Android.",
+  "signMessageTitle": "Assinar mensagem",
+  "signLoginTo": "Entrar em {{service}}",
+  "signSignatureRequest": "Solicitação de assinatura",
+  "signAddressShared": "Seu endereço público será compartilhado com {{service}}.",
+  "signConfirmIfApprove": "Confirme esta mensagem apenas se você aprovar o conteúdo.",
+  "signHostnameMismatchToast": "O domínio na mensagem não corresponde ao domínio de envio. Cancelado para evitar phishing.",
+  "signHostnameMismatch": "Solicitação de login inválida. O domínio na mensagem (<b>{{loginService}}</b>) não corresponde ao domínio de envio (<b>{{hostname}}</b>). Se você é o desenvolvedor de <b>{{service}}</b>, atualize sua mensagem de login com o domínio correto.",
+  "signSubmitTo": "Enviar para:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Mensagem:",
+  "signLoginButton": "Entrar",
+  "signSignButton": "Assinar",
+  "signResponseFrom": "Resposta de {{hostname}}:",
+  "signError": "Ocorreu um erro ao assinar a mensagem: {{error}}",
+  "signLoginOriginWarning": "Continue apenas se você mesmo acabou de iniciar este login em {{service}}. Se alguém enviou este link ou QR code para você, cancele: essa pessoa poderia assumir sua conta {{service}}.",
+  "signRequestOriginWarning": "Assine apenas se você mesmo iniciou esta solicitação em {{hostname}}. Se alguém enviou este link ou QR code para você, cancele."
 }

@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Kan model niet verwijderen",
   "searchLanguage": "Taal zoeken",
   "downloaded": "Gedownload",
-  "translationOnlyOnMobile": "Vertaling van berichten is alleen beschikbaar in de iOS- en Android-apps."
+  "translationOnlyOnMobile": "Vertaling van berichten is alleen beschikbaar in de iOS- en Android-apps.",
+  "signMessageTitle": "Bericht ondertekenen",
+  "signLoginTo": "Inloggen bij {{service}}",
+  "signSignatureRequest": "Ondertekeningsverzoek",
+  "signAddressShared": "Uw openbare adres wordt gedeeld met {{service}}.",
+  "signConfirmIfApprove": "Bevestig dit bericht alleen als u akkoord gaat met de inhoud.",
+  "signHostnameMismatchToast": "De hostnaam in het bericht komt niet overeen met de hostnaam waarnaar wordt verzonden. Afgebroken om phishing te voorkomen.",
+  "signHostnameMismatch": "Ongeldig inlogverzoek. De hostnaam in het bericht (<b>{{loginService}}</b>) komt niet overeen met de hostnaam waarnaar wordt verzonden (<b>{{hostname}}</b>). Als u de ontwikkelaar van <b>{{service}}</b> bent, werk dan uw inlogbericht bij met de juiste hostnaam.",
+  "signSubmitTo": "Verzenden naar:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Bericht:",
+  "signLoginButton": "Inloggen",
+  "signSignButton": "Ondertekenen",
+  "signResponseFrom": "Antwoord van {{hostname}}:",
+  "signError": "Er is een fout opgetreden bij het ondertekenen van het bericht: {{error}}",
+  "signLoginOriginWarning": "Ga alleen verder als u deze login zojuist zelf op {{service}} hebt gestart. Als iemand u deze link of QR-code heeft gestuurd, annuleer dan: diegene zou uw {{service}}-account kunnen overnemen.",
+  "signRequestOriginWarning": "Onderteken alleen als u dit verzoek zelf op {{hostname}} hebt gestart. Als iemand u deze link of QR-code heeft gestuurd, annuleer dan."
 }

@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Не удалось удалить модель",
   "searchLanguage": "Поиск языка",
   "downloaded": "Загружено",
-  "translationOnlyOnMobile": "Перевод сообщений доступен только в приложениях для iOS и Android."
+  "translationOnlyOnMobile": "Перевод сообщений доступен только в приложениях для iOS и Android.",
+  "signMessageTitle": "Подписать сообщение",
+  "signLoginTo": "Вход в {{service}}",
+  "signSignatureRequest": "Запрос подписи",
+  "signAddressShared": "Ваш публичный адрес будет передан {{service}}.",
+  "signConfirmIfApprove": "Подтверждайте это сообщение, только если вы согласны с его содержимым.",
+  "signHostnameMismatchToast": "Домен в сообщении не совпадает с доменом отправки. Отменено для защиты от фишинга.",
+  "signHostnameMismatch": "Недействительный запрос на вход. Домен в сообщении (<b>{{loginService}}</b>) не совпадает с доменом отправки (<b>{{hostname}}</b>). Если вы разработчик <b>{{service}}</b>, укажите правильный домен в сообщении для входа.",
+  "signSubmitTo": "Отправить на:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Сообщение:",
+  "signLoginButton": "Войти",
+  "signSignButton": "Подписать",
+  "signResponseFrom": "Ответ от {{hostname}}:",
+  "signError": "Ошибка при подписании сообщения: {{error}}",
+  "signLoginOriginWarning": "Продолжайте, только если вы сами только что начали этот вход на {{service}}. Если кто-то прислал вам эту ссылку или QR-код, отмените: этот человек может захватить ваш аккаунт {{service}}.",
+  "signRequestOriginWarning": "Подписывайте, только если вы сами начали этот запрос на {{hostname}}. Если кто-то прислал вам эту ссылку или QR-код, отмените."
 }

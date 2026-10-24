@@ -229,8 +229,9 @@ WebviewOverlay.onPageLoaded(() => {
             return;
         }
         console.log('navigationHandler', JSON.stringify(event));
-        if (event.url.startsWith('https://nanchat.com/?uri=')){
-            emit('open-url', event.url);
+        if (event.url.startsWith('https://nanchat.com/?uri=') || /^(nano|nan|nanauth|ban|xdg|ana|xro):/i.test(event.url)){
+            // pageUrl comes from the native webview (the page that triggered the link), see AppUrlListener
+            emit('open-url', { url: event.url, pageUrl: event.pageUrl });
             event.complete(false) // should prevent the page to open in the inappbroswer
             return
         }
@@ -254,8 +255,10 @@ WebviewOverlay.onPageLoaded(() => {
     const handleServiceClick = async (service) => {
         console.log("open: ", service);
         let url = service.link;
-        if (service?.includeAddress) {
-            url = url + "?address=" + activeAccount;
+        if (service?.includeAddress && activeAccount) {
+            const withAddress = new URL(url);
+            withAddress.searchParams.set("address", activeAccount);
+            url = withAddress.toString();
         }
         
         if (Capacitor.isNativePlatform()) {
@@ -269,13 +272,16 @@ WebviewOverlay.onPageLoaded(() => {
             element.style.backgroundColor = "var(--adm-color-background)"
             // WebviewOverlay.toggleFullscreen();
             await WebviewOverlay.open({
-                url: service.link,
+                url: url,
                 element: element,
                 userAgent: "NanChat/1.0.0",
             })
 
         } else {
-            openInBrowser(service.link, service?.name || new URL(service.link).hostname);
+            openInBrowser(url, service?.name || new URL(service.link).hostname, ({ url, title }) => {
+                // Same shape as extractMetadata() on mobile; the history only shows the title.
+                saveHistory(url, JSON.stringify({ title: title || new URL(url).hostname, url }));
+            });
         }
     };
     async function closeNanoApp(save = true) {
@@ -357,7 +363,7 @@ WebviewOverlay.onPageLoaded(() => {
                     key={index}
                     prefix={<img 
                         src={service.favicon}
-                         alt={service.name} style={{width: 40}} />}
+                         alt={service.name} style={{width: 40, borderRadius: 6}} />}
                     onClick={() => handleServiceClick(service)}
                     description={service.description}
                 >

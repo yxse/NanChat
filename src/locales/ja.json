@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "モデルを削除できませんでした",
   "searchLanguage": "言語を検索",
   "downloaded": "ダウンロード済み",
-  "translationOnlyOnMobile": "メッセージの翻訳はiOSおよびAndroidアプリでのみ利用できます。"
+  "translationOnlyOnMobile": "メッセージの翻訳はiOSおよびAndroidアプリでのみ利用できます。",
+  "signMessageTitle": "メッセージに署名",
+  "signLoginTo": "{{service}} にログイン",
+  "signSignatureRequest": "署名リクエスト",
+  "signAddressShared": "あなたの公開アドレスが {{service}} に共有されます。",
+  "signConfirmIfApprove": "内容に同意する場合のみ、このメッセージを承認してください。",
+  "signHostnameMismatchToast": "メッセージ内のホスト名が送信先のホスト名と一致しません。フィッシング防止のため中止しました。",
+  "signHostnameMismatch": "無効なログインリクエストです。メッセージ内のホスト名（<b>{{loginService}}</b>）が送信先のホスト名（<b>{{hostname}}</b>）と一致しません。<b>{{service}}</b> の開発者の方は、正しいホスト名を含むようにログインメッセージを更新してください。",
+  "signSubmitTo": "送信先:",
+  "signCallback": "コールバック:",
+  "signMessageLabel": "メッセージ:",
+  "signLoginButton": "ログイン",
+  "signSignButton": "署名",
+  "signResponseFrom": "{{hostname}} からの応答:",
+  "signError": "メッセージの署名中にエラーが発生しました: {{error}}",
+  "signLoginOriginWarning": "このログインをたった今ご自身で {{service}} で開始した場合のみ続行してください。誰かからこのリンクやQRコードが送られてきた場合はキャンセルしてください。あなたの {{service}} アカウントが乗っ取られる可能性があります。",
+  "signRequestOriginWarning": "このリクエストをご自身で {{hostname}} で開始した場合のみ署名してください。誰かからこのリンクやQRコードが送られてきた場合はキャンセルしてください。"
 }

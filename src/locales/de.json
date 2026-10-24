@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Modell konnte nicht entfernt werden",
   "searchLanguage": "Sprache suchen",
   "downloaded": "Heruntergeladen",
-  "translationOnlyOnMobile": "Die Übersetzung von Nachrichten ist nur in den iOS- und Android-Apps verfügbar."
+  "translationOnlyOnMobile": "Die Übersetzung von Nachrichten ist nur in den iOS- und Android-Apps verfügbar.",
+  "signMessageTitle": "Nachricht signieren",
+  "signLoginTo": "Bei {{service}} anmelden",
+  "signSignatureRequest": "Signaturanfrage",
+  "signAddressShared": "Ihre öffentliche Adresse wird mit {{service}} geteilt.",
+  "signConfirmIfApprove": "Bestätigen Sie diese Nachricht nur, wenn Sie mit dem Inhalt einverstanden sind.",
+  "signHostnameMismatchToast": "Der Hostname in der Nachricht stimmt nicht mit dem Ziel-Hostname überein. Abbruch zum Schutz vor Phishing.",
+  "signHostnameMismatch": "Ungültige Anmeldeanfrage. Der Hostname in der Nachricht (<b>{{loginService}}</b>) stimmt nicht mit dem Ziel-Hostname (<b>{{hostname}}</b>) überein. Wenn Sie der Entwickler von <b>{{service}}</b> sind, aktualisieren Sie bitte Ihre Anmeldenachricht mit dem richtigen Hostname.",
+  "signSubmitTo": "Senden an:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Nachricht:",
+  "signLoginButton": "Anmelden",
+  "signSignButton": "Signieren",
+  "signResponseFrom": "Antwort von {{hostname}}:",
+  "signError": "Beim Signieren der Nachricht ist ein Fehler aufgetreten: {{error}}",
+  "signLoginOriginWarning": "Fahren Sie nur fort, wenn Sie diese Anmeldung gerade selbst auf {{service}} gestartet haben. Wenn Ihnen jemand diesen Link oder QR-Code geschickt hat, brechen Sie ab: Diese Person könnte Ihr {{service}}-Konto übernehmen.",
+  "signRequestOriginWarning": "Signieren Sie nur, wenn Sie diese Anfrage selbst auf {{hostname}} gestartet haben. Wenn Ihnen jemand diesen Link oder QR-Code geschickt hat, brechen Sie ab."
 }

@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "無法移除模型",
   "searchLanguage": "搜尋語言",
   "downloaded": "已下載",
-  "translationOnlyOnMobile": "訊息翻譯僅在 iOS 和 Android 應用程式中可用。"
+  "translationOnlyOnMobile": "訊息翻譯僅在 iOS 和 Android 應用程式中可用。",
+  "signMessageTitle": "簽署訊息",
+  "signLoginTo": "登入 {{service}}",
+  "signSignatureRequest": "簽署請求",
+  "signAddressShared": "您的公開地址將與 {{service}} 共享。",
+  "signConfirmIfApprove": "僅在您認可內容時才確認此訊息。",
+  "signHostnameMismatchToast": "訊息中的主機名稱與提交的主機名稱不符。為防止網路釣魚已中止。",
+  "signHostnameMismatch": "無效的登入請求。訊息中的主機名稱（<b>{{loginService}}</b>）與提交的主機名稱（<b>{{hostname}}</b>）不符。如果您是 <b>{{service}}</b> 的開發者，請更新登入訊息以包含正確的主機名稱。",
+  "signSubmitTo": "提交至：",
+  "signCallback": "回呼：",
+  "signMessageLabel": "訊息：",
+  "signLoginButton": "登入",
+  "signSignButton": "簽署",
+  "signResponseFrom": "來自 {{hostname}} 的回應：",
+  "signError": "簽署訊息時發生錯誤：{{error}}",
+  "signLoginOriginWarning": "僅當您剛剛親自在 {{service}} 上發起此登入時才繼續。如果是別人傳給您的連結或 QR 碼，請取消：對方可能會接管您的 {{service}} 帳戶。",
+  "signRequestOriginWarning": "僅當您親自在 {{hostname}} 上發起此請求時才簽署。如果是別人傳給您的連結或 QR 碼，請取消。"
 }

@@ -253,8 +253,8 @@ function BackupSecretPhrase() {
                 }}
                 encryptedSeed={encryptedSeed}
                 onImportSuccess={(importedSeed) => {
-                    console.log({ importedSeed })
-                    console.log({ seed })
+                    // console.log({ importedSeed })
+                    // console.log({ seed })
                     if (importedSeed === seed) {
                         Toast.show({
                             icon: 'success',

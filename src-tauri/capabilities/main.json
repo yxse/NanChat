@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "app commands (keyring, in-app browser) restricted to the bundled main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "allow-save-secret",
+    "allow-get-secret",
+    "allow-delete-secret",
+    "allow-open-browser-window"
+  ]
+}

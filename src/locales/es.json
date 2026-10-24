@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "No se pudo eliminar el modelo",
   "searchLanguage": "Buscar idioma",
   "downloaded": "Descargado",
-  "translationOnlyOnMobile": "La traducción de mensajes solo está disponible en las aplicaciones de iOS y Android."
+  "translationOnlyOnMobile": "La traducción de mensajes solo está disponible en las aplicaciones de iOS y Android.",
+  "signMessageTitle": "Firmar mensaje",
+  "signLoginTo": "Iniciar sesión en {{service}}",
+  "signSignatureRequest": "Solicitud de firma",
+  "signAddressShared": "Tu dirección pública se compartirá con {{service}}.",
+  "signConfirmIfApprove": "Confirma este mensaje solo si apruebas su contenido.",
+  "signHostnameMismatchToast": "El dominio del mensaje no coincide con el dominio de envío. Se cancela para evitar phishing.",
+  "signHostnameMismatch": "Solicitud de inicio de sesión no válida. El dominio del mensaje (<b>{{loginService}}</b>) no coincide con el dominio de envío (<b>{{hostname}}</b>). Si eres el desarrollador de <b>{{service}}</b>, actualiza tu mensaje de inicio de sesión para incluir el dominio correcto.",
+  "signSubmitTo": "Enviar a:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Mensaje:",
+  "signLoginButton": "Iniciar sesión",
+  "signSignButton": "Firmar",
+  "signResponseFrom": "Respuesta de {{hostname}}:",
+  "signError": "Se produjo un error al firmar el mensaje: {{error}}",
+  "signLoginOriginWarning": "Continúa solo si acabas de iniciar tú mismo este inicio de sesión en {{service}}. Si alguien te envió este enlace o código QR, cancela: podría apoderarse de tu cuenta de {{service}}.",
+  "signRequestOriginWarning": "Firma solo si iniciaste tú mismo esta solicitud en {{hostname}}. Si alguien te envió este enlace o código QR, cancela."
 }

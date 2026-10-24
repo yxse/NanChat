@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Model kaldırılamadı",
   "searchLanguage": "Dil ara",
   "downloaded": "İndirildi",
-  "translationOnlyOnMobile": "Mesaj çevirisi yalnızca iOS ve Android uygulamalarında kullanılabilir."
+  "translationOnlyOnMobile": "Mesaj çevirisi yalnızca iOS ve Android uygulamalarında kullanılabilir.",
+  "signMessageTitle": "Mesajı imzala",
+  "signLoginTo": "{{service}} hizmetine giriş",
+  "signSignatureRequest": "İmza isteği",
+  "signAddressShared": "Herkese açık adresiniz {{service}} ile paylaşılacak.",
+  "signConfirmIfApprove": "Bu mesajı yalnızca içeriğini onaylıyorsanız onaylayın.",
+  "signHostnameMismatchToast": "Mesajdaki alan adı, gönderim alan adıyla eşleşmiyor. Kimlik avını önlemek için iptal edildi.",
+  "signHostnameMismatch": "Geçersiz giriş isteği. Mesajdaki alan adı (<b>{{loginService}}</b>) gönderim alan adıyla (<b>{{hostname}}</b>) eşleşmiyor. <b>{{service}}</b> geliştiricisiyseniz, lütfen giriş mesajınızı doğru alan adıyla güncelleyin.",
+  "signSubmitTo": "Gönderilecek adres:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Mesaj:",
+  "signLoginButton": "Giriş yap",
+  "signSignButton": "İmzala",
+  "signResponseFrom": "{{hostname}} yanıtı:",
+  "signError": "Mesaj imzalanırken bir hata oluştu: {{error}}",
+  "signLoginOriginWarning": "Yalnızca bu girişi az önce {{service}} üzerinde kendiniz başlattıysanız devam edin. Bu bağlantıyı veya QR kodunu size biri gönderdiyse iptal edin: bu kişi {{service}} hesabınızı ele geçirebilir.",
+  "signRequestOriginWarning": "Yalnızca bu isteği {{hostname}} üzerinde kendiniz başlattıysanız imzalayın. Bu bağlantıyı veya QR kodunu size biri gönderdiyse iptal edin."
 }

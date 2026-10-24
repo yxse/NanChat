@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "تعذرت إزالة النموذج",
   "searchLanguage": "البحث عن لغة",
   "downloaded": "تم التنزيل",
-  "translationOnlyOnMobile": "ترجمة الرسائل متاحة فقط في تطبيقي iOS وAndroid."
+  "translationOnlyOnMobile": "ترجمة الرسائل متاحة فقط في تطبيقي iOS وAndroid.",
+  "signMessageTitle": "توقيع رسالة",
+  "signLoginTo": "تسجيل الدخول إلى {{service}}",
+  "signSignatureRequest": "طلب توقيع",
+  "signAddressShared": "ستتم مشاركة عنوانك العام مع {{service}}.",
+  "signConfirmIfApprove": "لا تؤكد هذه الرسالة إلا إذا كنت توافق على محتواها.",
+  "signHostnameMismatchToast": "اسم النطاق في الرسالة لا يطابق نطاق الإرسال. تم الإلغاء لمنع التصيد الاحتيالي.",
+  "signHostnameMismatch": "طلب تسجيل دخول غير صالح. اسم النطاق في الرسالة (<b>{{loginService}}</b>) لا يطابق نطاق الإرسال (<b>{{hostname}}</b>). إذا كنت مطور <b>{{service}}</b>، يرجى تحديث رسالة تسجيل الدخول لتتضمن النطاق الصحيح.",
+  "signSubmitTo": "الإرسال إلى:",
+  "signCallback": "رد الاتصال:",
+  "signMessageLabel": "الرسالة:",
+  "signLoginButton": "تسجيل الدخول",
+  "signSignButton": "توقيع",
+  "signResponseFrom": "الرد من {{hostname}}:",
+  "signError": "حدث خطأ أثناء توقيع الرسالة: {{error}}",
+  "signLoginOriginWarning": "لا تتابع إلا إذا كنت قد بدأت تسجيل الدخول هذا بنفسك للتو على {{service}}. إذا أرسل إليك أحدهم هذا الرابط أو رمز QR، فألغِ العملية: قد يستولي على حسابك في {{service}}.",
+  "signRequestOriginWarning": "لا توقّع إلا إذا كنت قد بدأت هذا الطلب بنفسك على {{hostname}}. إذا أرسل إليك أحدهم هذا الرابط أو رمز QR، فألغِ العملية."
 }

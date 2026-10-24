@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Impossible de supprimer le modèle",
   "searchLanguage": "Rechercher une langue",
   "downloaded": "Téléchargé",
-  "translationOnlyOnMobile": "La traduction des messages n'est disponible que sur les applications iOS et Android."
+  "translationOnlyOnMobile": "La traduction des messages n'est disponible que sur les applications iOS et Android.",
+  "signMessageTitle": "Signer un message",
+  "signLoginTo": "Connexion à {{service}}",
+  "signSignatureRequest": "Demande de signature",
+  "signAddressShared": "Votre adresse publique sera partagée avec {{service}}.",
+  "signConfirmIfApprove": "Ne confirmez ce message que si vous en approuvez le contenu.",
+  "signHostnameMismatchToast": "Le nom de domaine du message ne correspond pas au domaine d'envoi. Annulation pour éviter le phishing.",
+  "signHostnameMismatch": "Demande de connexion invalide. Le nom de domaine du message (<b>{{loginService}}</b>) ne correspond pas au domaine d'envoi (<b>{{hostname}}</b>). Si vous êtes le développeur de <b>{{service}}</b>, mettez à jour votre message de connexion avec le bon nom de domaine.",
+  "signSubmitTo": "Envoyer à :",
+  "signCallback": "Callback :",
+  "signMessageLabel": "Message :",
+  "signLoginButton": "Se connecter",
+  "signSignButton": "Signer",
+  "signResponseFrom": "Réponse de {{hostname}} :",
+  "signError": "Une erreur est survenue lors de la signature du message : {{error}}",
+  "signLoginOriginWarning": "Continuez uniquement si vous venez de lancer vous-même cette connexion sur {{service}}. Si quelqu'un vous a envoyé ce lien ou ce QR code, annulez : cette personne pourrait prendre le contrôle de votre compte {{service}}.",
+  "signRequestOriginWarning": "Signez uniquement si vous avez lancé vous-même cette demande sur {{hostname}}. Si quelqu'un vous a envoyé ce lien ou ce QR code, annulez."
 }

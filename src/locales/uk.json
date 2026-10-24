@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Не вдалося видалити модель",
   "searchLanguage": "Пошук мови",
   "downloaded": "Завантажено",
-  "translationOnlyOnMobile": "Переклад повідомлень доступний лише в застосунках для iOS та Android."
+  "translationOnlyOnMobile": "Переклад повідомлень доступний лише в застосунках для iOS та Android.",
+  "signMessageTitle": "Підписати повідомлення",
+  "signLoginTo": "Вхід у {{service}}",
+  "signSignatureRequest": "Запит на підпис",
+  "signAddressShared": "Ваша публічна адреса буде передана {{service}}.",
+  "signConfirmIfApprove": "Підтверджуйте це повідомлення, лише якщо ви погоджуєтеся з його змістом.",
+  "signHostnameMismatchToast": "Домен у повідомленні не збігається з доменом надсилання. Скасовано для захисту від фішингу.",
+  "signHostnameMismatch": "Недійсний запит на вхід. Домен у повідомленні (<b>{{loginService}}</b>) не збігається з доменом надсилання (<b>{{hostname}}</b>). Якщо ви розробник <b>{{service}}</b>, вкажіть правильний домен у повідомленні для входу.",
+  "signSubmitTo": "Надіслати на:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Повідомлення:",
+  "signLoginButton": "Увійти",
+  "signSignButton": "Підписати",
+  "signResponseFrom": "Відповідь від {{hostname}}:",
+  "signError": "Помилка під час підписання повідомлення: {{error}}",
+  "signLoginOriginWarning": "Продовжуйте, лише якщо ви самі щойно почали цей вхід на {{service}}. Якщо хтось надіслав вам це посилання або QR-код, скасуйте: ця людина може захопити ваш акаунт {{service}}.",
+  "signRequestOriginWarning": "Підписуйте, лише якщо ви самі почали цей запит на {{hostname}}. Якщо хтось надіслав вам це посилання або QR-код, скасуйте."
 }

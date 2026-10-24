@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "无法移除模型",
   "searchLanguage": "搜索语言",
   "downloaded": "已下载",
-  "translationOnlyOnMobile": "消息翻译仅在 iOS 和 Android 应用中可用。"
+  "translationOnlyOnMobile": "消息翻译仅在 iOS 和 Android 应用中可用。",
+  "signMessageTitle": "签名消息",
+  "signLoginTo": "登录 {{service}}",
+  "signSignatureRequest": "签名请求",
+  "signAddressShared": "您的公开地址将与 {{service}} 共享。",
+  "signConfirmIfApprove": "仅在您认可内容时才确认此消息。",
+  "signHostnameMismatchToast": "消息中的主机名与提交的主机名不匹配。为防止网络钓鱼已中止。",
+  "signHostnameMismatch": "无效的登录请求。消息中的主机名（<b>{{loginService}}</b>）与提交的主机名（<b>{{hostname}}</b>）不匹配。如果您是 <b>{{service}}</b> 的开发者，请更新登录消息以包含正确的主机名。",
+  "signSubmitTo": "提交至：",
+  "signCallback": "回调：",
+  "signMessageLabel": "消息：",
+  "signLoginButton": "登录",
+  "signSignButton": "签名",
+  "signResponseFrom": "来自 {{hostname}} 的响应：",
+  "signError": "签名消息时出错：{{error}}",
+  "signLoginOriginWarning": "仅当您刚刚亲自在 {{service}} 上发起此登录时才继续。如果是别人发给您的链接或二维码，请取消：对方可能会接管您的 {{service}} 账户。",
+  "signRequestOriginWarning": "仅当您亲自在 {{hostname}} 上发起此请求时才签名。如果是别人发给您的链接或二维码，请取消。"
 }

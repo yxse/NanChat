@@ -372,5 +372,21 @@
   "couldNotRemoveModel": "Could not remove model",
   "searchLanguage": "Search language",
   "downloaded": "Downloaded",
-  "translationOnlyOnMobile": "Message translation is only available on the iOS and Android apps."
+  "translationOnlyOnMobile": "Message translation is only available on the iOS and Android apps.",
+  "signMessageTitle": "Sign Message",
+  "signLoginTo": "Login to {{service}}",
+  "signSignatureRequest": "Signature request",
+  "signAddressShared": "Your public address will be shared with {{service}}.",
+  "signConfirmIfApprove": "Only confirm this message if you approve the content.",
+  "signHostnameMismatchToast": "The hostname in the message does not match the submit hostname. Aborting to prevent phishing.",
+  "signHostnameMismatch": "Invalid login request. The hostname in the message (<b>{{loginService}}</b>) does not match the submit hostname (<b>{{hostname}}</b>). If you are the developer of <b>{{service}}</b>, please update your login message to include the correct hostname.",
+  "signSubmitTo": "Submit to:",
+  "signCallback": "Callback:",
+  "signMessageLabel": "Message:",
+  "signLoginButton": "Login",
+  "signSignButton": "Sign",
+  "signResponseFrom": "Response from {{hostname}}:",
+  "signError": "An error occurred while signing the message: {{error}}",
+  "signLoginOriginWarning": "Only continue if you just started this login on {{service}} yourself. If someone sent you this link or QR code, cancel: they could take over your {{service}} account.",
+  "signRequestOriginWarning": "Only sign if you started this request yourself on {{hostname}}. If someone sent you this link or QR code, cancel."
 }

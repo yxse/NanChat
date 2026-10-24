@@ -200,10 +200,19 @@ export const focusMainWindow = async () => {
   await mainWin?.setFocus();
 }
 
-export const openInBrowser = async (url: string, title: string) => {
+export type BrowserClosedPage = { label: string; url: string; title: string };
+
+// `onClose` (desktop only) receives the last page shown when the in-app
+// browser window is closed.
+export const openInBrowser = async (
+  url: string,
+  title: string,
+  onClose?: (page: BrowserClosedPage) => void
+) => {
   if (isTauri()) {
     const { Window } = await import("@tauri-apps/api/window");
     const { invoke } = await import("@tauri-apps/api/core");
+    const { listen } = await import("@tauri-apps/api/event");
     const label = `browser-${Date.now()}`;
     lastBrowserWebviewLabel = label;
     const { width, height, x, y, maximized } = getSavedBrowserWindowRect();
@@ -219,6 +228,14 @@ export const openInBrowser = async (url: string, title: string) => {
       y: y ?? null,
       maximized,
     });
+
+    if (onClose) {
+      const unlisten = await listen<BrowserClosedPage>("browser-closed", (event) => {
+        if (event.payload.label !== label) return;
+        unlisten();
+        onClose(event.payload);
+      });
+    }
 
     const win = await Window.getByLabel(label);
     if (!win) return;

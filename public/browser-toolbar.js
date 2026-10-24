@@ -16,8 +16,23 @@
     try { return new URL(url).hostname || url; } catch (_) { return url; }
   }
 
+  // The provided title (e.g. the app name) is shown only while the page stays
+  // on the host it was opened on; once it navigates elsewhere the real hostname
+  // is shown so the user can tell which site they are on.
+  var initialHost = hostnameOrUrl(currentUrl);
+  var title = window.__BROWSER_TITLE__;
+  if (title === currentUrl) title = "";
+
+  function label(url) {
+    var host = hostnameOrUrl(url);
+    return title && host === initialHost ? title : host;
+  }
+
   var urlEl = document.getElementById("url");
-  if (urlEl) urlEl.textContent = window.__BROWSER_TITLE__ || hostnameOrUrl(currentUrl);
+  if (urlEl) {
+    urlEl.textContent = label(currentUrl);
+    urlEl.title = currentUrl;
+  }
 
   // Rust pushes URL updates by calling this global (via webview.eval) whenever
   // the content webview navigates (real loads + SPA history changes). This is
@@ -25,7 +40,10 @@
   window.__setBrowserUrl = function (url) {
     if (!url) return;
     currentUrl = url;
-    if (urlEl) urlEl.textContent = window.__BROWSER_TITLE__ || hostnameOrUrl(url);
+    if (urlEl) {
+      urlEl.textContent = label(url);
+      urlEl.title = url;
+    }
   };
 
   function winInvoke(cmd) {

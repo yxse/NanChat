@@ -9,21 +9,26 @@ import { ScanCodeOutline } from 'antd-mobile-icons';
 import { Scanner } from './Scanner';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { SignPopup } from '../../api-invoke/Sign';
+import type { UriOrigin } from './AppUrlListener';
 
-function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanOpen}) {
+// pasted and scanned URIs come from outside the app
+const EXTERNAL_ORIGIN: UriOrigin = { source: "external" };
+
+function PasteAction({mode = "paste", uri = "", uriOrigin = EXTERNAL_ORIGIN, setUri, text, scanOpen, setScanOpen}) {
   const [visible, setVisible] = React.useState(false);
   const [visibleSign, setVisibleSign] = React.useState(false);
   const [activeTicker, setActiveTicker] = React.useState<string | null>(null);
   const [newURI, setNewURI] = useState<string | null>(null);
+  const [signOrigin, setSignOrigin] = useState<UriOrigin>(EXTERNAL_ORIGIN);
   const navigate = useNavigate();
   useEffect(() => {
     if (uri && uri !== "") {
-      executeURI(uri);
+      executeURI(uri, uriOrigin);
     }
   }
   , [uri]);
 
-  function executeURI(uri: string) {
+  function executeURI(uri: string, origin: UriOrigin = EXTERNAL_ORIGIN) {
     let tmpUri = uri;
     try {
       if (uri.startsWith("https://nanchat.com/?uri=")) { // handle universal link
@@ -36,6 +41,7 @@ function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanO
         || tmpUri.startsWith("nanauth://sign/?") // for tauri
       ) { 
         // navigate(uri.replace("nanauth://sign?", "/sign?"));
+        setSignOrigin(origin);
         setVisibleSign(true);
         setNewURI(tmpUri);
         return;
@@ -146,6 +152,7 @@ function PasteAction({mode = "paste", uri = "", setUri, text, scanOpen, setScanO
         visible={visibleSign}
         setVisible={setVisibleSign}
         uri={newURI}
+        origin={signOrigin}
         setUri={setUri}
         onSign={(result) => {
           WebviewOverlay.toggleSnapshot(false);

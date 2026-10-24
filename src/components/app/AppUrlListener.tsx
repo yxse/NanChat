@@ -37,16 +37,23 @@ const isContactImport = (url: string) => {
   return false;
 }
 
+// Where a URI comes from, so the Sign screen can warn about requests the user
+// may not have started (outside deep links, QR codes, pasted text).
+export type UriOrigin = { source: "in-app" | "external", pageUrl?: string };
+const EXTERNAL_ORIGIN: UriOrigin = { source: "external" };
+const isWalletDeepLink = (url: string) => /^(nano|nan|nanauth|ban|xdg|ana|xro):/i.test(url);
+
 const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [uri, setUri] = useState('');
+    const [uriOrigin, setUriOrigin] = useState<UriOrigin>(EXTERNAL_ORIGIN);
     const {mutateChats} = useChats()
     const {activeAccount, activeAccountPk} = useWallet()
     const {mutate: globalMutate} = useSWRConfig()
     const eventOpenUrl = useEvent('open-url'); // handle open url from discover nano apps
     const emit = useEmit()
-    const handleURL = (url) => {
+    const handleURL = (url: string, origin: UriOrigin = EXTERNAL_ORIGIN) => {
       console.log("handle", url)
       let contactsFile = isContactImport(url);
       if (contactsFile){
@@ -62,6 +69,7 @@ const AppUrlListener: React.FC<any> = () => {
         navigate(url.replace('nan://nanchat.com/', '/').replace("https://nanchat.com/", "/"))
         return; 
       }
+      setUriOrigin(origin);
       setUri(url);
     }
     useEffect(() => {
@@ -75,11 +83,12 @@ const AppUrlListener: React.FC<any> = () => {
       if (isTauri()){
         handleOpenUrl();
         import('@tauri-apps/api/event').then(({ listen }) => {
-          listen('nanchat-navigation', (event) => {
-            const url = event.payload as string;
+          // links from the desktop in-app browser, with the page that triggered them
+          listen<{url: string, pageUrl: string}>('nanchat-navigation', (event) => {
+            const { url, pageUrl } = event.payload;
             console.log('[nanchat-navigation] intercepted url:', url);
-            if (url.startsWith("https://nanchat.com/") || url.startsWith("nan://nanchat.com/")) {
-            handleURL(url);
+            if (url.startsWith("https://nanchat.com/") || url.startsWith("nan://nanchat.com/") || isWalletDeepLink(url)) {
+            handleURL(url, { source: "in-app", pageUrl });
             focusMainWindow();
             }
           }).then((unlisten) => {
@@ -108,7 +117,8 @@ const AppUrlListener: React.FC<any> = () => {
         if (eventOpenUrl && Capacitor.isNativePlatform()) {
           console.log("eventOpenUrl data url", eventOpenUrl);
           WebviewOverlay.toggleSnapshot(true);
-          handleURL(eventOpenUrl);
+          // links from the mobile in-app browser, with the page that triggered them
+          handleURL(eventOpenUrl.url, { source: "in-app", pageUrl: eventOpenUrl.pageUrl });
           emit('open-url', null);
       }
 
@@ -230,7 +240,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let accounts = seed?.length === 128 ? wallet.accounts(seed, index, index) : wallet.legacyAccounts(seed, index, index );
   let decryptionKey = accounts[0].privateKey;
   // console.log("decryptionKey", decryptionKey);
-  console.log("accounts", accounts);
+  // console.log("accounts", accounts);
   console.log("activeAddresses", activeAddresses);
   console.log("index", index);
   console.log("targetAccount", targetAccount);
@@ -299,7 +309,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
     }
 
     , [location.pathname]);
-    return <PasteAction mode="invisible" uri={uri} setUri={setUri} />;
+    return <PasteAction mode="invisible" uri={uri} uriOrigin={uriOrigin} setUri={setUri} />;
   };
   
   export default AppUrlListener;
