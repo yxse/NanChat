@@ -272,6 +272,8 @@
   "passwordWarning": "Parolanızı unutursanız geri alınamaz!",
   "passwordEnabled": "Parola etkinleştirildi",
   "enablePassword": "Parolayı etkinleştir",
+  "skipPassword": "Atla, şifre kullanma",
+  "desktopPasswordRecommended": "Masaüstünde önerilir: şifre olmadan bilgisayarınızdaki diğer programlar cüzdanınızı okuyabilir.",
   "setPassword": "Parola belirle",
   "securitySettings": "Güvenlik ayarları",
   "disablePasswordTitle": "Parolayı devre dışı bırak",

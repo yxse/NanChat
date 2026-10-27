@@ -272,6 +272,8 @@
   "passwordWarning": "Votre mot de passe ne peut pas être récupéré si vous l'oubliez !",
   "passwordEnabled": "Mot de passe activé",
   "enablePassword": "Activer le mot de passe",
+  "skipPassword": "Passer, ne pas utiliser de mot de passe",
+  "desktopPasswordRecommended": "Recommandé sur ordinateur : sans mot de passe, d'autres programmes de votre ordinateur pourraient lire votre portefeuille.",
   "setPassword": "Définir un mot de passe",
   "securitySettings": "Paramètres de sécurité",
   "disablePasswordTitle": "Désactiver le mot de passe",

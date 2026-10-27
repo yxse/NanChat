@@ -272,6 +272,8 @@
   "passwordWarning": "如果您忘记密码，将无法恢复！",
   "passwordEnabled": "密码已启用",
   "enablePassword": "启用密码",
+  "skipPassword": "跳过，不使用密码",
+  "desktopPasswordRecommended": "建议在电脑上设置：如果没有密码，您电脑上的其他程序可能会读取您的钱包。",
   "setPassword": "设置密码",
   "securitySettings": "安全设置",
   "disablePasswordTitle": "禁用密码",

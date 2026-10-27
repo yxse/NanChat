@@ -244,6 +244,8 @@
   "passwordWarning": "Twoje hasło nie może zostać odzyskane, jeśli je zapomnisz!",
   "passwordEnabled": "Hasło włączone",
   "enablePassword": "Włącz hasło",
+  "skipPassword": "Pomiń, nie używaj hasła",
+  "desktopPasswordRecommended": "Zalecane na komputerze: bez hasła inne programy na Twoim komputerze mogą odczytać Twój portfel.",
   "setPassword": "Ustaw hasło",
   "securitySettings": "Ustawienia bezpieczeństwa",
   "disablePasswordTitle": "Wyłącz hasło",

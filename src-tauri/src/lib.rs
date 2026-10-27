@@ -43,7 +43,32 @@ fn save_secret(service: String, username: String, password: String) -> Result<()
 fn get_secret(service: String, username: String) -> Result<String, AppError> {
     // Similar pattern for get_secret
     let entry = KeyringEntry::new(&service, &username)?;
-    let password = entry.get_password()?;
+    match entry.get_password() {
+        Ok(password) => Ok(password),
+        #[cfg(target_os = "linux")]
+        Err(KeyringError::NoEntry) => migrate_from_keyutils(&entry, &service, &username),
+        Err(err) => Err(err.into()),
+    }
+}
+
+// Older Linux builds stored secrets only in the kernel keyring (keyutils),
+// which is wiped on reboot. If the secret is still there, copy it into the
+// Secret Service store (persistent) and drop the keyutils copy.
+#[cfg(target_os = "linux")]
+fn migrate_from_keyutils(
+    entry: &KeyringEntry,
+    service: &str,
+    username: &str,
+) -> Result<String, AppError> {
+    use keyring::credential::CredentialApi;
+    use keyring::keyutils::KeyutilsCredential;
+
+    let legacy = KeyutilsCredential::new_with_target(None, service, username)?;
+    let password = legacy.get_password()?;
+    entry.set_password(&password)?;
+    if let Err(err) = legacy.delete_credential() {
+        log::warn!("Failed to delete legacy keyutils secret {service}/{username}: {err}");
+    }
     Ok(password)
 }
 // delete keyring entry
@@ -51,6 +76,11 @@ fn get_secret(service: String, username: String) -> Result<String, AppError> {
 #[tauri::command]
 fn delete_secret(service: String, username: String) -> Result<(), AppError> {
     let entry = KeyringEntry::new(&service, &username)?;
+    // Also clear any legacy keyutils copy, otherwise get_secret would migrate it back
+    #[cfg(target_os = "linux")]
+    if let Ok(legacy) = keyring::keyutils::KeyutilsCredential::new_with_target(None, &service, &username) {
+        let _ = keyring::credential::CredentialApi::delete_credential(&legacy);
+    }
     entry.delete_credential()?;
     Ok(())
 }

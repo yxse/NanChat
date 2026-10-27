@@ -272,6 +272,8 @@
   "passwordWarning": "パスワードを忘れると復元できません！",
   "passwordEnabled": "パスワードが有効になりました",
   "enablePassword": "パスワードを有効にする",
+  "skipPassword": "スキップ（パスワードを使用しない）",
+  "desktopPasswordRecommended": "デスクトップでは推奨：パスワードがないと、コンピューター上の他のプログラムがウォレットを読み取れる可能性があります。",
   "setPassword": "パスワードを設定",
   "securitySettings": "セキュリティ設定",
   "disablePasswordTitle": "パスワードを無効にする",

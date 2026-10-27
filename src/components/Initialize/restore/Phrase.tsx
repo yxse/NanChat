@@ -81,6 +81,16 @@ export default function ImportPhrase({
     }
   };
 
+  const onPinSet = async () => {
+    await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
+    if (isTauri()) { // desktop: offer optional password encryption before entering the app
+      setW(2);
+      return
+    }
+    setWalletState("unlocked");
+    onCreated()
+  };
+
   const handleWalletSelected = (encryptedSeed: string) => {
     setEncryptedSeed(encryptedSeed);
     setImportFileVisible(true);
@@ -160,18 +170,8 @@ export default function ImportPhrase({
                 authRegisterCanceled({t, setCreatePinVisible, setPinVisible})
               }}
               // description="Enter your PIN to secure your wallet"
-              onAuthenticated={async () => {
-                await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
-                setWalletState("unlocked");
-                onCreated()
-              }
-              } />
-              <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={async () => {
-                await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
-                setWalletState("unlocked");
-                onCreated()
-              }
-              } />
+              onAuthenticated={onPinSet} />
+              <CreatePin visible={createPinVisible} setVisible={setCreatePinVisible} onAuthenticated={onPinSet} />
            
       
       </div>

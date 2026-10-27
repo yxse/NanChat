@@ -269,6 +269,8 @@
   "passwordWarning": "若您忘記密碼，將無法復原！",
   "passwordEnabled": "已啟用密碼",
   "enablePassword": "啟用密碼",
+  "skipPassword": "跳過，不使用密碼",
+  "desktopPasswordRecommended": "建議在電腦上設定：如果沒有密碼，您電腦上的其他程式可能會讀取您的錢包。",
   "setPassword": "設定密碼",
   "securitySettings": "安全設定",
   "disablePasswordTitle": "停用密碼",

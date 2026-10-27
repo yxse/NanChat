@@ -89,6 +89,10 @@ const Register: React.FC = ({setW, onCreated, setWalletState}) => {
 
 const registerNative = async () => {
     if (skip){
+        if (isTauri()) { // desktop: offer optional password encryption before entering the app
+            setW(20);
+            return
+        }
         setWalletState("unlocked");
         onCreated({callback: "/wallet"});
         preload('/services', fetcherChat);
@@ -107,10 +111,15 @@ const registerNative = async () => {
             await mutateChats(); // preload chats
                 // navigate('/chat');
                 // setW(3);
+                preload('/services', fetcherChat);
+                if (isTauri()) { // desktop: offer optional password encryption before entering the app
+                    Toast.clear()
+                    setW(2);
+                    return
+                }
                 setWalletState("unlocked");
                 onCreated()
                 Toast.show({icon: 'success'})
-                preload('/services', fetcherChat);
         }).catch((err) => {
             console.log(err);
             Toast.show({icon: 'fail', content: err.message});

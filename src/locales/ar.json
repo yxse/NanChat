@@ -272,6 +272,8 @@
   "passwordWarning": "لا يمكن استرجاع كلمة المرور إذا نسيتها!",
   "passwordEnabled": "تم تفعيل كلمة المرور",
   "enablePassword": "تفعيل كلمة المرور",
+  "skipPassword": "تخطٍّ، لا تستخدم كلمة مرور",
+  "desktopPasswordRecommended": "موصى به على الحاسوب: بدون كلمة مرور، قد تتمكن برامج أخرى على جهازك من قراءة محفظتك.",
   "setPassword": "تعيين كلمة مرور",
   "securitySettings": "إعدادات الأمان",
   "disablePasswordTitle": "تعطيل كلمة المرور",

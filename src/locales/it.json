@@ -272,6 +272,8 @@
   "passwordWarning": "La tua password non potrà essere recuperata se la dimentichi!",
   "passwordEnabled": "Password abilitata",
   "enablePassword": "Abilita password",
+  "skipPassword": "Salta, non usare una password",
+  "desktopPasswordRecommended": "Consigliato su desktop: senza password, altri programmi sul tuo computer potrebbero leggere il tuo portafoglio.",
   "setPassword": "Imposta password",
   "securitySettings": "Impostazioni di sicurezza",
   "disablePasswordTitle": "Disabilita password",

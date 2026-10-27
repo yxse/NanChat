@@ -266,6 +266,8 @@
   "passwordWarning": "Your password cannot be recovered if you forget it!",
   "passwordEnabled": "Password enabled",
   "enablePassword": "Enable Password",
+  "skipPassword": "Skip, don't use a password",
+  "desktopPasswordRecommended": "Recommended on desktop: without a password, other programs on your computer may be able to read your wallet.",
   "setPassword": "Set a Password",
   "securitySettings": "Security Settings",
   "disablePasswordTitle": "Disable Password",

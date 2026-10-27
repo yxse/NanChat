@@ -154,11 +154,13 @@ export default function Password({
   theme,
   setWalletState,
   onCreated,
+  optional = false,
 }: {
   setW: Dispatch<React.SetStateAction<number>>;
   theme: "light" | "dark";
   setWalletState: React.Dispatch<React.SetStateAction<"locked" | "unlocked" | "no-wallet" | "loading">>;
   onCreated: () => any;
+  optional?: boolean; // desktop: seed is already in secure storage and PIN is set, password is an extra layer
 }) {
   const {wallet} = useContext(WalletContext);
   const [passLen, setPassLen] = useState<number>(0);
@@ -213,10 +215,11 @@ export default function Password({
   return (
     <div className={``}>
       <NavBar
-                                  onBack={() => setW(6)}
+                                  // no back when optional: going back to Register would generate a new seed after the PIN was set
+                                  onBack={optional ? undefined : () => setW(6)}
                                   // onBack={() => navigate('/me')}
                           className="app-navbar "
-                          backArrow={true}>
+                          backArrow={!optional}>
                            
                           </NavBar>
        <Card
@@ -247,8 +250,16 @@ export default function Password({
             </p>
           <p className="mb-2 mt-4" style={{color: "var(--adm-color-text-secondary)", textAlign: "center"}}>
            
-           Password will be used to encrypt your secret phrase and will be required to unlock NanChat.
+           {t('passwordWillEncryptSecretPhrase')}
           </p>
+          {optional && <>
+            <p className="mb-2" style={{color: "var(--adm-color-text-secondary)", textAlign: "center"}}>
+              {t('desktopPasswordRecommended')}
+            </p>
+            <p className="mb-2" style={{color: "var(--adm-color-warning)", textAlign: "center"}}>
+              {t('passwordWarning')}
+            </p>
+          </>}
         </div>
         <div>
         {/* <List mode="card">
@@ -262,7 +273,21 @@ export default function Password({
                           setWalletState("unlocked")
                           onCreated()
                         }}
+                        buttonText={optional ? t('enablePassword') : undefined}
                         />
+                        {optional && <Button
+                          shape="rounded"
+                          size="large"
+                          fill="none"
+                          className="w-full mt-2"
+                          onClick={async () => {
+                            await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
+                            setWalletState("unlocked")
+                            onCreated()
+                          }}
+                        >
+                          {t('skipPassword')}
+                        </Button>}
                       </div>
         {/* <div className="w-full">
             <Button

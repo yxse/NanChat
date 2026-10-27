@@ -272,6 +272,8 @@
   "passwordWarning": "Ihr Passwort kann nicht wiederhergestellt werden, wenn Sie es vergessen!",
   "passwordEnabled": "Passwort aktiviert",
   "enablePassword": "Passwort aktivieren",
+  "skipPassword": "Überspringen, kein Passwort verwenden",
+  "desktopPasswordRecommended": "Auf dem Desktop empfohlen: Ohne Passwort könnten andere Programme auf deinem Computer deine Wallet auslesen.",
   "setPassword": "Passwort festlegen",
   "securitySettings": "Sicherheitseinstellungen",
   "disablePasswordTitle": "Passwort deaktivieren",

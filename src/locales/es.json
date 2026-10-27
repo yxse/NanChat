@@ -272,6 +272,8 @@
   "passwordWarning": "¡Tu contraseña no podrá recuperarse si la olvidas!",
   "passwordEnabled": "Contraseña habilitada",
   "enablePassword": "Habilitar contraseña",
+  "skipPassword": "Omitir, no usar contraseña",
+  "desktopPasswordRecommended": "Recomendado en escritorio: sin contraseña, otros programas de tu ordenador podrían leer tu billetera.",
   "setPassword": "Establecer contraseña",
   "securitySettings": "Configuración de seguridad",
   "disablePasswordTitle": "Deshabilitar contraseña",

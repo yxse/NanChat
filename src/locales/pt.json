@@ -272,6 +272,8 @@
   "passwordWarning": "Sua senha não poderá ser recuperada se você esquecê-la!",
   "passwordEnabled": "Senha ativada",
   "enablePassword": "Ativar senha",
+  "skipPassword": "Pular, não usar senha",
+  "desktopPasswordRecommended": "Recomendado no desktop: sem senha, outros programas no seu computador podem conseguir ler sua carteira.",
   "setPassword": "Definir uma senha",
   "securitySettings": "Configurações de segurança",
   "disablePasswordTitle": "Desativar senha",

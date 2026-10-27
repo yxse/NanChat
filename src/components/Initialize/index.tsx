@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isTauri } from "@tauri-apps/api/core";
 
 import Start from "./Start";
 import Password from "./create/Password";
@@ -37,8 +38,8 @@ export default function InitializeScreen({
       {wizardI == 6 && <Register setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
       {wizardI == 0 && <Start setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated}/>}
       {wizardI == 1 && <Mnemonic setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
-      {wizardI == 2 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} />}
-      {wizardI == 20 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={() => { 
+      {wizardI == 2 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} onCreated={onCreated} optional={isTauri()} />}
+      {wizardI == 20 && <Password setW={setWizardI} theme={theme} setWalletState={setWalletState} optional={isTauri()} onCreated={() => { 
         onCreated({callback: "/wallet"}); // for skip to wallet
       }} />}
       {wizardI == 3 && <Done setW={setWizardI} theme={theme} />}

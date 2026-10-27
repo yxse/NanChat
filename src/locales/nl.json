@@ -272,6 +272,8 @@
   "passwordWarning": "Uw wachtwoord kan niet worden hersteld als u het vergeet!",
   "passwordEnabled": "Wachtwoord ingeschakeld",
   "enablePassword": "Wachtwoord inschakelen",
+  "skipPassword": "Overslaan, geen wachtwoord gebruiken",
+  "desktopPasswordRecommended": "Aanbevolen op desktop: zonder wachtwoord kunnen andere programma's op je computer je wallet mogelijk lezen.",
   "setPassword": "Wachtwoord instellen",
   "securitySettings": "Beveiligingsinstellingen",
   "disablePasswordTitle": "Wachtwoord uitschakelen",
