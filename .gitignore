@@ -20,3 +20,5 @@ myapp.key
 .env
 bun.lockb
 .idea/
+.claude
+android/app/release/
