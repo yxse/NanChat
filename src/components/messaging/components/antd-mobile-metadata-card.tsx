@@ -23,8 +23,9 @@ import { formatAddress } from '../../../utils/format';
 const CONTACT_LINK_REGEX = /^https:\/\/nanchat\.com\/chat\/(nano_[13][13456789abcdefghijkmnopqrstuwxyz]{59})\/?$/;
 
 // returns the nano address if the url is a shared contact link (https://nanchat.com/chat/nano_xxx)
-export const getSharedContactAddress = (url: string) => {
-  return url?.match(CONTACT_LINK_REGEX)?.[1] || null;
+export const getSharedContactAddress = (url: unknown) => {
+  if (typeof url !== 'string') return null; // decrypted content is not always a string
+  return url.match(CONTACT_LINK_REGEX)?.[1] || null;
 }
 
 const ContactCard = ({ address }) => {
