@@ -7,7 +7,8 @@ export const WrapperArt = ({ openInApp, onImageClick }) => {
     const [openUrl, setOpenUrl] = useState(false);
 
     return <>
-        <ArtImages onImageClick={({ url }) => {
+        <ArtImages onImageClick={(art) => {
+            const { url } = art;
             console.log(url);
             if (openInApp && url.startsWith('https://nanswap.com/art/assets/')) {
                 setOpenUrl(url);
@@ -17,7 +18,7 @@ export const WrapperArt = ({ openInApp, onImageClick }) => {
             }
             else {
                 if (onImageClick) {
-                    onImageClick({ url });
+                    onImageClick(art); // forward image too (used by upload-pfp)
                 }
             }
         }} />
