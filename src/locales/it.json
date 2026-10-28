@@ -437,5 +437,14 @@
   "reloadApp": "Ricarica app",
   "authenticateToGenerateRecoveryPhrase": "Autenticati per generare una nuova frase di recupero",
   "addWallet": "Aggiungi wallet",
-  "importAnotherSecretPhrase": "Importa un'altra frase segreta. Il tuo wallet attuale resta disponibile in «Cambia wallet»."
+  "importAnotherSecretPhrase": "Importa un'altra frase segreta. Il tuo wallet attuale resta disponibile in «Cambia wallet».",
+  "contact": "Contatto",
+  "shareContact": "Condividi contatto",
+  "shareToChat": "Condividi in chat",
+  "sendTo": "Invia a",
+  "createGroupWith": "Crea gruppo con {{name}}",
+  "addToGroup": "Aggiungi a un gruppo",
+  "addToGroupConfirm": "Aggiungere {{name}} a {{group}}?",
+  "noGroupToAddTo": "Nessun gruppo disponibile",
+  "seeAll": "Vedi tutti"
 }

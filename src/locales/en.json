@@ -437,5 +437,14 @@
   "reloadApp": "Reload App",
   "authenticateToGenerateRecoveryPhrase": "Authenticate to generate a new recovery phrase",
   "addWallet": "Add Wallet",
-  "importAnotherSecretPhrase": "Import another secret phrase. Your current wallet stays available in \"Switch Wallet\"."
+  "importAnotherSecretPhrase": "Import another secret phrase. Your current wallet stays available in \"Switch Wallet\".",
+  "contact": "Contact",
+  "shareContact": "Share Contact",
+  "shareToChat": "Share to Chat",
+  "sendTo": "Send to",
+  "createGroupWith": "Create group with {{name}}",
+  "addToGroup": "Add to group",
+  "addToGroupConfirm": "Add {{name}} to {{group}}?",
+  "noGroupToAddTo": "No group to add to",
+  "seeAll": "See all"
 }

@@ -437,5 +437,14 @@
   "reloadApp": "Перезапустити застосунок",
   "authenticateToGenerateRecoveryPhrase": "Підтвердьте особу, щоб створити нову фразу відновлення",
   "addWallet": "Додати гаманець",
-  "importAnotherSecretPhrase": "Імпортуйте іншу секретну фразу. Поточний гаманець залишиться доступним у «Змінити гаманець»."
+  "importAnotherSecretPhrase": "Імпортуйте іншу секретну фразу. Поточний гаманець залишиться доступним у «Змінити гаманець».",
+  "contact": "Контакт",
+  "shareContact": "Поділитися контактом",
+  "shareToChat": "Поділитися в чаті",
+  "sendTo": "Надіслати",
+  "createGroupWith": "Створити групу з {{name}}",
+  "addToGroup": "Додати до групи",
+  "addToGroupConfirm": "Додати {{name}} до {{group}}?",
+  "noGroupToAddTo": "Немає доступних груп",
+  "seeAll": "Показати всі"
 }

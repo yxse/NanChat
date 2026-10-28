@@ -437,5 +437,14 @@
   "reloadApp": "Uygulamayı Yeniden Yükle",
   "authenticateToGenerateRecoveryPhrase": "Yeni bir kurtarma ifadesi oluşturmak için kimliğinizi doğrulayın",
   "addWallet": "Cüzdan Ekle",
-  "importAnotherSecretPhrase": "Başka bir gizli ifade içe aktarın. Mevcut cüzdanınız \"Cüzdan değiştir\" içinde kullanılabilir kalır."
+  "importAnotherSecretPhrase": "Başka bir gizli ifade içe aktarın. Mevcut cüzdanınız \"Cüzdan değiştir\" içinde kullanılabilir kalır.",
+  "contact": "Kişi",
+  "shareContact": "Kişiyi paylaş",
+  "shareToChat": "Sohbette paylaş",
+  "sendTo": "Gönder:",
+  "createGroupWith": "{{name}} ile grup oluştur",
+  "addToGroup": "Gruba ekle",
+  "addToGroupConfirm": "{{name}}, {{group}} grubuna eklensin mi?",
+  "noGroupToAddTo": "Eklenecek grup yok",
+  "seeAll": "Tümünü gör"
 }

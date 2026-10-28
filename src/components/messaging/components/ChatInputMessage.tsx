@@ -184,6 +184,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     setNewMessage(defaultMesageText)
   }, [account]);
    useEffect(() => {
+    if (defaultNewMessage) return; // sharing popup (nano app / contact), don't overwrite the chat draft
     debouncedSave(DRAFT_KEY, newMessage);
   }, [newMessage, account, debouncedSave]);
     useEffect(() => {

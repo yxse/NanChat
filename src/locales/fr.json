@@ -437,5 +437,14 @@
   "reloadApp": "Recharger l'application",
   "authenticateToGenerateRecoveryPhrase": "Authentifiez-vous pour générer une nouvelle phrase secrète",
   "addWallet": "Ajouter un portefeuille",
-  "importAnotherSecretPhrase": "Importez une autre phrase secrète. Votre portefeuille actuel reste disponible dans « Changer de portefeuille »."
+  "importAnotherSecretPhrase": "Importez une autre phrase secrète. Votre portefeuille actuel reste disponible dans « Changer de portefeuille ».",
+  "contact": "Contact",
+  "shareContact": "Partager le contact",
+  "shareToChat": "Partager dans un chat",
+  "sendTo": "Envoyer à",
+  "createGroupWith": "Créer un groupe avec {{name}}",
+  "addToGroup": "Ajouter à un groupe",
+  "addToGroupConfirm": "Ajouter {{name}} à {{group}} ?",
+  "noGroupToAddTo": "Aucun groupe disponible",
+  "seeAll": "Tout voir"
 }

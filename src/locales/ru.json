@@ -437,5 +437,14 @@
   "reloadApp": "Перезапустить приложение",
   "authenticateToGenerateRecoveryPhrase": "Подтвердите личность, чтобы создать новую фразу восстановления",
   "addWallet": "Добавить кошелёк",
-  "importAnotherSecretPhrase": "Импортируйте другую секретную фразу. Текущий кошелёк останется доступен в «Сменить кошелёк»."
+  "importAnotherSecretPhrase": "Импортируйте другую секретную фразу. Текущий кошелёк останется доступен в «Сменить кошелёк».",
+  "contact": "Контакт",
+  "shareContact": "Поделиться контактом",
+  "shareToChat": "Поделиться в чате",
+  "sendTo": "Отправить",
+  "createGroupWith": "Создать группу с {{name}}",
+  "addToGroup": "Добавить в группу",
+  "addToGroupConfirm": "Добавить {{name}} в {{group}}?",
+  "noGroupToAddTo": "Нет доступных групп",
+  "seeAll": "Показать все"
 }

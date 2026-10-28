@@ -57,7 +57,10 @@ export function BlockChatButton({chat, onSuccess, mode='button'}) {
         })
     }
     if (mode === 'list') {
-        return <List mode='card'><List.Item
+        return <List 
+        style={{paddingBottom: 16}}
+        mode='card'><List.Item
+        arrowIcon={false}
             onClick={async () => {
                 showModal();
             }}

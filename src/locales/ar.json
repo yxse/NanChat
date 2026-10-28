@@ -437,5 +437,14 @@
   "reloadApp": "إعادة تحميل التطبيق",
   "authenticateToGenerateRecoveryPhrase": "قم بالمصادقة لإنشاء عبارة استرداد جديدة",
   "addWallet": "إضافة محفظة",
-  "importAnotherSecretPhrase": "استورد عبارة سرية أخرى. ستظل محفظتك الحالية متاحة في \"تبديل المحفظة\"."
+  "importAnotherSecretPhrase": "استورد عبارة سرية أخرى. ستظل محفظتك الحالية متاحة في \"تبديل المحفظة\".",
+  "contact": "جهة اتصال",
+  "shareContact": "مشاركة جهة الاتصال",
+  "shareToChat": "مشاركة في دردشة",
+  "sendTo": "إرسال إلى",
+  "createGroupWith": "إنشاء مجموعة مع {{name}}",
+  "addToGroup": "إضافة إلى مجموعة",
+  "addToGroupConfirm": "إضافة {{name}} إلى {{group}}؟",
+  "noGroupToAddTo": "لا توجد مجموعة متاحة",
+  "seeAll": "عرض الكل"
 }

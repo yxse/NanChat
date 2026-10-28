@@ -437,5 +437,14 @@
   "reloadApp": "Uruchom ponownie aplikację",
   "authenticateToGenerateRecoveryPhrase": "Uwierzytelnij się, aby wygenerować nową frazę odzyskiwania",
   "addWallet": "Dodaj portfel",
-  "importAnotherSecretPhrase": "Zaimportuj inną sekretną frazę. Twój obecny portfel pozostanie dostępny w „Zmień portfel”."
+  "importAnotherSecretPhrase": "Zaimportuj inną sekretną frazę. Twój obecny portfel pozostanie dostępny w „Zmień portfel”.",
+  "contact": "Kontakt",
+  "shareContact": "Udostępnij kontakt",
+  "shareToChat": "Udostępnij na czacie",
+  "sendTo": "Wyślij do",
+  "createGroupWith": "Utwórz grupę z {{name}}",
+  "addToGroup": "Dodaj do grupy",
+  "addToGroupConfirm": "Dodać {{name}} do {{group}}?",
+  "noGroupToAddTo": "Brak dostępnych grup",
+  "seeAll": "Zobacz wszystkie"
 }

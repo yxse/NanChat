@@ -437,5 +437,14 @@
   "reloadApp": "App neu laden",
   "authenticateToGenerateRecoveryPhrase": "Authentifiziere dich, um eine neue Wiederherstellungsphrase zu erstellen",
   "addWallet": "Wallet hinzufügen",
-  "importAnotherSecretPhrase": "Importiere eine weitere geheime Phrase. Deine aktuelle Wallet bleibt unter „Wallet wechseln“ verfügbar."
+  "importAnotherSecretPhrase": "Importiere eine weitere geheime Phrase. Deine aktuelle Wallet bleibt unter „Wallet wechseln“ verfügbar.",
+  "contact": "Kontakt",
+  "shareContact": "Kontakt teilen",
+  "shareToChat": "In Chat teilen",
+  "sendTo": "Senden an",
+  "createGroupWith": "Gruppe mit {{name}} erstellen",
+  "addToGroup": "Zu Gruppe hinzufügen",
+  "addToGroupConfirm": "{{name}} zu {{group}} hinzufügen?",
+  "noGroupToAddTo": "Keine Gruppe verfügbar",
+  "seeAll": "Alle anzeigen"
 }

@@ -3,24 +3,25 @@ import GroupName from './GroupName';
 import { ChatAvatar } from '../ChatList';
 import { useNavigate } from 'react-router-dom';
 
-function GroupList({groups}) {
-    const navigate = useNavigate();
-    const GroupItem = ({chat}) => {
+export const GroupItem = ({chat, arrowIcon = false, compact = false}) => {
+        const navigate = useNavigate();
         return <List.Item
             key={chat.id}
-            arrowIcon={false}
+            arrowIcon={arrowIcon}
             onClick={() => {
                 navigate(`/chat/${chat.id}`);
             }}
             prefix={
-                <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+                <div style={compact ? { paddingTop: 2, paddingBottom: 2, zoom: 0.75 } : { paddingTop: 8, paddingBottom: 8 }}>
                     <ChatAvatar chat={chat} />
                 </div>
             }
         >
             <GroupName chat={chat} isInVirtualList={false} />
         </List.Item>
-    }
+}
+
+function GroupList({groups}) {
     return (
         <div>
 

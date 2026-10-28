@@ -437,5 +437,14 @@
   "reloadApp": "アプリを再読み込み",
   "authenticateToGenerateRecoveryPhrase": "新しいリカバリーフレーズを生成するには認証してください",
   "addWallet": "ウォレットを追加",
-  "importAnotherSecretPhrase": "別のシークレットフレーズをインポートします。現在のウォレットは「ウォレットを切り替える」から引き続き利用できます。"
+  "importAnotherSecretPhrase": "別のシークレットフレーズをインポートします。現在のウォレットは「ウォレットを切り替える」から引き続き利用できます。",
+  "contact": "連絡先",
+  "shareContact": "連絡先を共有",
+  "shareToChat": "チャットで共有",
+  "sendTo": "送信先",
+  "createGroupWith": "{{name}}とグループを作成",
+  "addToGroup": "グループに追加",
+  "addToGroupConfirm": "{{name}}を{{group}}に追加しますか？",
+  "noGroupToAddTo": "追加できるグループがありません",
+  "seeAll": "すべて表示"
 }

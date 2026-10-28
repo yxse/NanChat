@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { Avatar, Card, Divider, DotLoading, Ellipsis, Image, List } from 'antd-mobile';
 import useSWR from 'swr';
 import { hasLink, confirmAndOpenExternalUrl } from '../utils';
-import { CompassOutline } from 'antd-mobile-icons';
+import { CompassOutline, UserOutline } from 'antd-mobile-icons';
 import { fetcherMessagesNoAuth } from '../fetcher';
 import { useNavigate } from 'react-router-dom';
 import { Discover } from '../../app/discover/Discover';
+import { useTranslation } from 'react-i18next';
+import ProfilePicture from './profile/ProfilePicture';
+import ProfileName from './profile/ProfileName';
+import { formatAddress } from '../../../utils/format';
 
 /**
  * Compact card component to display website metadata in chat messages
@@ -16,10 +20,44 @@ import { Discover } from '../../app/discover/Discover';
  * @param {string} props.url - Original website URL
  * @returns {JSX.Element}
  */
+const CONTACT_LINK_REGEX = /^https:\/\/nanchat\.com\/chat\/(nano_[13][13456789abcdefghijkmnopqrstuwxyz]{59})\/?$/;
+
+// returns the nano address if the url is a shared contact link (https://nanchat.com/chat/nano_xxx)
+export const getSharedContactAddress = (url: string) => {
+  return url?.match(CONTACT_LINK_REGEX)?.[1] || null;
+}
+
+const ContactCard = ({ address }) => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  return (
+    <Card
+      onClick={() => navigate(`/chat/${address}/info`)}
+      style={{maxWidth: 300, minWidth: 200, marginTop: 0, cursor: "pointer"}}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <ProfilePicture address={address} width={40} />
+        <div style={{color: 'var(--adm-color-text)', minWidth: 0}}>
+          <ProfileName address={address} />
+          <div className='text-xs' style={{color: 'var(--adm-color-text-secondary)'}}>
+            {formatAddress(address)}
+          </div>
+        </div>
+      </div>
+      <div className='text-xs' style={{color: 'var(--adm-color-text-secondary)'}}>
+        <Divider style={{margin: '8px 0'}}/>
+        <UserOutline style={{display: "inline", marginRight: 4}}/>
+        {t('contact')}
+      </div>
+    </Card>
+  );
+}
+
 export const MetadataCard = ({ message, messageData }) => {
   const link = hasLink(message)
   if (!link) return null;
   const url = link[0];
+  const contactAddress = getSharedContactAddress(url);
+  if (contactAddress) return <ContactCard address={contactAddress} />;
   console.log({url});
   const [openKey, setOpenKey] = useState<number | null>(null);
   const { data: services } = useSWR('/services', fetcherMessagesNoAuth);

@@ -437,5 +437,14 @@
   "reloadApp": "Recarregar aplicativo",
   "authenticateToGenerateRecoveryPhrase": "Autentique-se para gerar uma nova frase de recuperação",
   "addWallet": "Adicionar carteira",
-  "importAnotherSecretPhrase": "Importe outra frase secreta. Sua carteira atual continua disponível em \"Trocar de carteira\"."
+  "importAnotherSecretPhrase": "Importe outra frase secreta. Sua carteira atual continua disponível em \"Trocar de carteira\".",
+  "contact": "Contato",
+  "shareContact": "Compartilhar contato",
+  "shareToChat": "Compartilhar no chat",
+  "sendTo": "Enviar para",
+  "createGroupWith": "Criar grupo com {{name}}",
+  "addToGroup": "Adicionar a um grupo",
+  "addToGroupConfirm": "Adicionar {{name}} a {{group}}?",
+  "noGroupToAddTo": "Nenhum grupo disponível",
+  "seeAll": "Ver todos"
 }

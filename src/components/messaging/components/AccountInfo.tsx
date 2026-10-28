@@ -33,6 +33,9 @@ import AddContacts from "../../app/AddContacts";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
 import MuteNotif from "./MuteNotif";
+import ShareContactButton from "./contacts/ShareContactButton";
+import ContactGroupActions from "./group/ContactGroupActions";
+import { GroupItem } from "./group/GroupList";
 
 const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const { t } = useTranslation();
@@ -110,7 +113,19 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 <ProfileName address={convertAddress(account, 'XNO')} includeVerified={inContacts ? false : true}  /> {inContacts  &&  <UserOutline  />}
                 </div>
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
-                    {t('nanChatId')}: {name?.username}
+                    {t('nanChatId')}: <span
+                    role="button"
+                    style={{userSelect: 'all', WebkitUserSelect: 'all', cursor: 'pointer'}}
+                    onClick={() => {
+                        if (!name?.username) return;
+                        copyToClipboard(name.username);
+                        Toast.show({
+                            icon: 'success',
+                            content: t('copied'),
+                            duration: 1000,
+                        });
+                    }}
+                    >{name?.username}</span>
                 </div>
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
                     {t('name')}: <ProfileName address={convertAddress(account, 'XNO')} fromContact={false} /> 
@@ -194,7 +209,7 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     }
                     }} />
                 </List>
-                <ChatInputMessage 
+                <ChatInputMessage
                 hideInput
                     onSent={async () => {
                         // Toast.show({
@@ -267,28 +282,45 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                                 <LockOutline style={{display: 'inline-block', marginRight: 8}} />
                                 {t('address')}
                     </List.Item>
-                    <List.Item
-                    prefix={<TeamOutline />}
-                    arrowIcon={chatsInCommonLength > 0 ? true : false}
-                    onClick={() => {
-                        if (chatsInCommonLength > 0) {
-                            navigate(`/chat/${account}/info/groups`);
-                        }
-                    }}
-                    >
-                        {
-                    chatsInCommonLength > 0 ?
-                <div>
-                    {chatsInCommonLength > 1 ? t('groupsInCommon', {count: chatsInCommonLength}) : t('groupInCommon', {count: chatsInCommonLength})}
-                </div>
-                :
-                <div>
-                    {t('noGroupInCommon')}
-                </div>
-                }
-                    </List.Item>
                     </List>
-                   
+                    <List
+                    mode="card"
+                    header={
+                        <div className="text-base" style={{color: 'var(--adm-color-text)', fontWeight: 500}}>
+                        {
+                        chatsInCommonLength > 0 ?
+                        (chatsInCommonLength > 1 ? t('groupsInCommon', {count: chatsInCommonLength}) : t('groupInCommon', {count: chatsInCommonLength}))
+                        :
+                        t('noGroupInCommon')
+                        }
+                        </div>
+                    }
+                    >
+                    {
+                        inOnNanchat &&
+                        <ContactGroupActions account={convertAddress(account, 'XNO')} name={nameOrAccount} />
+                    }
+                    {
+                        chatsInCommon?.slice(0, 3).map((group) => <GroupItem key={group.id} chat={group} arrowIcon compact />)
+                    }
+                    {
+                        chatsInCommonLength > 3 &&
+                        <List.Item
+                        onClick={() => {
+                            navigate(`/chat/${account}/info/groups`);
+                        }}
+                        >
+                            {t('seeAll')}
+                        </List.Item>
+                    }
+                    </List>
+                    {
+                        inOnNanchat &&
+                        <List mode="card">
+                            <ShareContactButton address={convertAddress(account, 'XNO')} />
+                        </List>
+                    }
+
               <div style={{ marginBottom: 16}}>
                     
                             <BlockChatButton 

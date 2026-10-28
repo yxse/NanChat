@@ -10,6 +10,21 @@ import { useTranslation } from 'react-i18next'
 import { useWallet } from "../../../useWallet"
 import { useNavigate } from 'react-router-dom'
 
+export const addAccountsToGroup = async (chat, accounts: string[], activeAccountPk: string) => {
+    const MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE = 2
+    const currentParticipants = chat.participants.map((participant) => participant._id)
+    // for optimization purposes, if there are more than MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE participants, we will not regenerate a new
+    // shared key for all participants but reuse the existing shared key
+    if (currentParticipants.length > MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE && chat.sharedAccount) {
+        const newAccounts = accounts.filter((account) => !currentParticipants.includes(account))
+        await addSharedKeyForParticipants(chat.id, newAccounts, chat.sharedAccount, activeAccountPk)
+    } else {
+        const newParticipants = Array.from(new Set(currentParticipants.concat(accounts)))
+        await updateSharedKeys(chat.id, newParticipants, activeAccountPk)
+    }
+    return addParticipants(chat.id, accounts)
+}
+
 function GroupParticipants({chatId}) {
         const [visibleAdd, setVisibleAdd] = useState(false);
         const [visibleRemove, setVisibleRemove] = useState(false);
@@ -57,19 +72,8 @@ function GroupParticipants({chatId}) {
                     <NewChatPopup 
                     alreadySelected={chat?.participants.map((participant) => participant._id)}
                     onAccountSelect={async (accounts) => {
-                        const MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE = 2
                         if (!chat) return
-                        const currentParticipants = chat.participants.map((participant) => participant._id)
-                        // for optimization purposes, if there are more than MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE participants, we will not regenerate a new 
-                        // shared key for all participants but reuse the existing shared key
-                        if (currentParticipants.length > MAX_PARTICIPANTS_BEFORE_SHARED_KEY_REUSE && chat.sharedAccount) {
-                            const newAccounts = accounts.filter((account) => !currentParticipants.includes(account))
-                            await addSharedKeyForParticipants(chat.id, newAccounts, chat.sharedAccount, activeAccountPk)
-                        } else {
-                            const newParticipants = Array.from(new Set(currentParticipants.concat(accounts)))
-                            await updateSharedKeys(chat.id, newParticipants, activeAccountPk)
-                        }
-                        let r = await addParticipants(chat.id, accounts)
+                        let r = await addAccountsToGroup(chat, accounts, activeAccountPk)
                         if (r.error) {
                             Toast.show({icon: 'fail', content: r.error})
                             return

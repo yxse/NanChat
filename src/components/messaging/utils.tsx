@@ -304,6 +304,13 @@ export const getTrustedDomains = (): string[] => {
   }
 };
 
+// always trusted, no "You're leaving NanChat" warning (also matches subdomains)
+const BUILT_IN_TRUSTED_DOMAINS = ["nanchat.com"];
+
+const isBuiltInTrustedDomain = (hostname: string) => {
+  return BUILT_IN_TRUSTED_DOMAINS.some((domain) => hostname === domain || hostname.endsWith("." + domain));
+};
+
 const addTrustedDomain = (hostname: string) => {
   const list = getTrustedDomains();
   if (!list.includes(hostname)) {
@@ -362,7 +369,7 @@ export const confirmAndOpenExternalUrl = (url: string) => {
   } catch {
     return openExternalUrl(url);
   }
-  if (!hostname || getTrustedDomains().includes(hostname)) {
+  if (!hostname || isBuiltInTrustedDomain(hostname) || getTrustedDomains().includes(hostname)) {
     return openExternalUrl(url);
   }
   const trustRef = { current: false };

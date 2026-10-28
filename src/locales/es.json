@@ -437,5 +437,14 @@
   "reloadApp": "Recargar la aplicación",
   "authenticateToGenerateRecoveryPhrase": "Autentícate para generar una nueva frase de recuperación",
   "addWallet": "Añadir billetera",
-  "importAnotherSecretPhrase": "Importa otra frase secreta. Tu billetera actual seguirá disponible en «Cambiar de billetera»."
+  "importAnotherSecretPhrase": "Importa otra frase secreta. Tu billetera actual seguirá disponible en «Cambiar de billetera».",
+  "contact": "Contacto",
+  "shareContact": "Compartir contacto",
+  "shareToChat": "Compartir en chat",
+  "sendTo": "Enviar a",
+  "createGroupWith": "Crear grupo con {{name}}",
+  "addToGroup": "Añadir a un grupo",
+  "addToGroupConfirm": "¿Añadir a {{name}} a {{group}}?",
+  "noGroupToAddTo": "No hay grupos disponibles",
+  "seeAll": "Ver todo"
 }

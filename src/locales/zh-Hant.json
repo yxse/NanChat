@@ -437,5 +437,14 @@
   "reloadApp": "重新載入應用程式",
   "authenticateToGenerateRecoveryPhrase": "請進行身分驗證以產生新的還原祕密詞",
   "addWallet": "新增錢包",
-  "importAnotherSecretPhrase": "匯入另一個祕密詞。您目前的錢包仍可在「切換錢包」中使用。"
+  "importAnotherSecretPhrase": "匯入另一個祕密詞。您目前的錢包仍可在「切換錢包」中使用。",
+  "contact": "聯絡人",
+  "shareContact": "分享聯絡人",
+  "shareToChat": "分享到聊天",
+  "sendTo": "傳送給",
+  "createGroupWith": "與 {{name}} 建立群組",
+  "addToGroup": "加入群組",
+  "addToGroupConfirm": "將 {{name}} 加入 {{group}}？",
+  "noGroupToAddTo": "沒有可加入的群組",
+  "seeAll": "查看全部"
 }

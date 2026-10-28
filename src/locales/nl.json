@@ -437,5 +437,14 @@
   "reloadApp": "App herladen",
   "authenticateToGenerateRecoveryPhrase": "Verifieer jezelf om een nieuwe herstelzin te genereren",
   "addWallet": "Wallet toevoegen",
-  "importAnotherSecretPhrase": "Importeer een andere geheime zin. Je huidige wallet blijft beschikbaar via ‘Wallet wisselen’."
+  "importAnotherSecretPhrase": "Importeer een andere geheime zin. Je huidige wallet blijft beschikbaar via ‘Wallet wisselen’.",
+  "contact": "Contact",
+  "shareContact": "Contact delen",
+  "shareToChat": "Delen in chat",
+  "sendTo": "Verzenden naar",
+  "createGroupWith": "Groep maken met {{name}}",
+  "addToGroup": "Toevoegen aan groep",
+  "addToGroupConfirm": "{{name}} toevoegen aan {{group}}?",
+  "noGroupToAddTo": "Geen groep beschikbaar",
+  "seeAll": "Alles bekijken"
 }

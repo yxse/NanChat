@@ -437,5 +437,14 @@
   "reloadApp": "重新加载应用",
   "authenticateToGenerateRecoveryPhrase": "请进行身份验证以生成新的恢复密语",
   "addWallet": "添加钱包",
-  "importAnotherSecretPhrase": "导入另一个密语。您当前的钱包仍可在“切换钱包”中使用。"
+  "importAnotherSecretPhrase": "导入另一个密语。您当前的钱包仍可在“切换钱包”中使用。",
+  "contact": "联系人",
+  "shareContact": "分享联系人",
+  "shareToChat": "分享到聊天",
+  "sendTo": "发送给",
+  "createGroupWith": "与 {{name}} 创建群组",
+  "addToGroup": "添加到群组",
+  "addToGroupConfirm": "将 {{name}} 添加到 {{group}}？",
+  "noGroupToAddTo": "没有可添加的群组",
+  "seeAll": "查看全部"
 }

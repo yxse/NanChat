@@ -6,7 +6,8 @@ import { CloseCircleFill } from "antd-mobile-icons";
 import MessageFile from "./MessageFile";
 import Sticker from "./Sticker";
 import MessageSystem from "./MessageSystem";
-import { MetadataCard } from "./antd-mobile-metadata-card";
+import { getSharedContactAddress, MetadataCard } from "./antd-mobile-metadata-card";
+import { t } from "i18next";
 import MessageTip from "./MessageTip";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
 import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
@@ -56,6 +57,14 @@ export const MessageRaw = memo(({message, ellipsis, maxHeight="42px", includePro
     }
     
     const decrypted = useMessageDecryption({message})
+    // chat list messages are built from chat.lastMessage and don't carry nanoApp, so detect the contact link from the content
+    const contactAddress = ellipsis && getSharedContactAddress(decrypted);
+    if (contactAddress){
+        return <div style={style}>
+            {includeProfileName && <><ProfileName includeVerified={false} address={message.fromAccount} />{": "}</>}
+            [{t('contact')}] <ProfileName includeVerified={false} address={contactAddress} />
+        </div>
+    }
     if (message.nanoApp){
         return <MetadataCard message={decrypted} messageData={message} />
     }
