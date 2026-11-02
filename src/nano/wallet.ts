@@ -8,10 +8,27 @@ import { rawToMega } from "./accounts";
 import { getRepresentative, setRepresentative } from "../components/getRepresentative";
 import { convertAddress } from "../utils/convertAddress";
 import { sendNotificationTauri } from "./notifications";
+import { showInAppNotification } from "../utils/in-app-notification";
+import { networks } from "../utils/networks";
+import { formatAmountMega } from "../utils/format";
 import { Preferences } from '@capacitor/preferences';
 import { App as CapacitorApp } from '@capacitor/app';
 
 var lock = new AsyncLock();
+
+// Contact name of the sender if saved, else shortened address
+const senderLabel = (address: string) => {
+  if (!address) return "";
+  try {
+    const contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+    const target = convertAddress(address, "XNO");
+    const contact = contacts.find((c) => c.addresses?.some((a) => a?.address && convertAddress(a.address, "XNO") === target));
+    if (contact?.name) return contact.name;
+  } catch (error) {
+    console.error(error);
+  }
+  return address.slice(0, address.indexOf("_") + 7) + "…" + address.slice(-5);
+};
 
 export class Wallet {
   /**
@@ -908,11 +925,17 @@ Ledger should show nano unit (${amountForLedgerDisplay} NANO) and nano prefix (n
         pk,
         pubk,
       );
-      Toast.show({
-        icon: "success",
-        content: "Received " + +this.rawToMega(pendingTx.amount) + " " + this.ticker,
+      const receivedText = "Received " + formatAmountMega(this.rawToMega(pendingTx.amount), this.ticker) + " " + this.ticker;
+      const shown = showInAppNotification({
+        title: receivedText,
+        body: "From " + senderLabel(data_json.message.account),
+        icon: networks[this.ticker]?.logo,
+        url: "/" + this.ticker,
       });
-      sendNotificationTauri(`Received ${+this.rawToMega(pendingTx.amount)} ${this.ticker}`);
+      if (!shown) {
+        Toast.show({ icon: "success", content: receivedText });
+      }
+      sendNotificationTauri(receivedText);
       // localStorage.setItem("lastReceivedHash", received.hash);
       
       console.log(received);

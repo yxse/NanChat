@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Toast } from 'antd-mobile';
 import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { Capacitor } from '@capacitor/core';
@@ -21,6 +20,7 @@ import { useWallet } from '../useWallet';
 import { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr/infinite';
 import { getKey } from '../messaging/hooks/useChat';
+import InAppNotification, { showInAppNotification } from './InAppNotification';
 
 
 const isContactImport = (url: string) => {
@@ -158,14 +158,12 @@ const AppUrlListener: React.FC<any> = () => {
         if (!event.notification.body?.includes("New message")) { // only show toast notification for message since already showing toast when receiving crypto
           return 
         }
-        Toast.show({
-          position: "top",
-          content: <div>
-            {/* <div><b>{event.notification.data.url}</b></div> */}
-            {/* <div><b>{window.location.pathname }</b></div> */}
-            <div><b>{event.notification.title}</b></div>
-            <div>{event.notification.body}</div>
-          </div>
+        const data = (event.notification.data || {}) as Record<string, string>;
+        showInAppNotification({
+          title: event.notification.title || "",
+          body: event.notification.body || "",
+          address: data.type === "group" ? undefined : data.fromAccount, // group avatars need the chat, fall back to app icon
+          url: data.url,
         })
         
         
@@ -309,7 +307,16 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
     }
 
     , [location.pathname]);
-    return <PasteAction mode="invisible" uri={uri} uriOrigin={uriOrigin} setUri={setUri} />;
+    return <>
+      <PasteAction mode="invisible" uri={uri} uriOrigin={uriOrigin} setUri={setUri} />
+      <InAppNotification
+        onOpen={(notification) => {
+          if (!notification.url) return;
+          navigate('/') // to prevent bug when navigating back
+          navigate(notification.url)
+        }}
+      />
+    </>;
   };
   
   export default AppUrlListener;
