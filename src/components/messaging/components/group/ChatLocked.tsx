@@ -5,10 +5,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { LockOutline } from 'antd-mobile-icons';
 import useSWR from 'swr';
 import { useChats } from '../../hooks/use-chats';
+import { useTranslation } from 'react-i18next';
+import ProfilePicture from '../profile/ProfilePicture';
+import ProfileName from '../profile/ProfileName';
+import { formatAddress } from '../../../../utils/format';
 
 function ChatLocked() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
-    const {mutateChats} = useChats()
+    const {mutateChats, unblockChat} = useChats()
     const {
             account
         } = useParams();
@@ -17,11 +22,53 @@ function ChatLocked() {
     const [isAsked, setIsAsked] = useState(false);
     
     useEffect(() => {
-        if (chatName?.type === "private"){
+        if (chatName?.type === "private" && !chatName?.blocked){
             mutateChats();
             navigate('/chat/' + account);
         }
     }, [chatName])
+  if (chatName?.type === "private" && chatName?.blocked){
+    // blocked chats are excluded from the chat list, once unblocked the chat is added back and ChatRoom renders it
+    return (<div>
+        <NavBar
+                    className="app-navbar "
+                    backIcon={true}
+                    onBack={() => {
+                        navigate('/chat');
+                    }}
+                    >
+                </NavBar>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginTop: 32, padding: 16, textAlign: 'center'}}>
+                {chatName.participant && <>
+                    <ProfilePicture address={chatName.participant} width={72} />
+                    <div className="text-xl">
+                        <ProfileName address={chatName.participant} fallback={formatAddress(chatName.participant)} />
+                    </div>
+                </>}
+                <div className="mt-4">{t('blockedAccount')}</div>
+                <div className="text-sm" style={{color: 'var(--adm-color-text-secondary)'}}>
+                    {t('unblockAccount')}
+                </div>
+                <Button
+                style={{marginTop: 16}}
+                shape="rounded"
+                size="large"
+                color="primary"
+                onClick={async () => {
+                    Toast.show({icon: 'loading'});
+                    try {
+                        await unblockChat(account);
+                        Toast.show({icon: 'success'});
+                    } catch (error) {
+                        Toast.show({icon: 'fail', content: error?.message});
+                    }
+                }}
+                >
+                    {t('unblock')}
+                </Button>
+            </div>
+    </div>);
+  }
   if (chatNotFound) {
     return (
       <div style={{ padding: 20, textAlign: 'center' }}>

@@ -13,6 +13,7 @@ interface UseChatsReturn {
   mutateChats: typeof mutate;
   profilePictures: any;
   blockChat: (chatId: string) => Promise<void>;
+  unblockChat: (chatId: string) => Promise<void>;
   removeChat: (chatId: string) => Promise<void>;
 }
 
@@ -129,6 +130,25 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
       throw new Error(r.error)
   }
   }
+  async function unblockChat(chatId: string) {
+    let r = await fetcherMessagesPost('/unblock-chat', {
+      chatId: chatId
+    })
+    if (r.error) {
+      throw new Error(r.error)
+    }
+    if (r.chat) {
+      // incremental sync only returns chats with a newer lastMessageTimestamp, so add the unblocked chat back manually
+      await mutateChats(
+          current => {
+              const others = current.filter((chat) => chat.id !== r.chat.id)
+              const index = others.findIndex((chat) => new Date(chat.lastMessageTimestamp) < new Date(r.chat.lastMessageTimestamp))
+              return index === -1 ? [...others, r.chat] : [...others.slice(0, index), r.chat, ...others.slice(index)]
+          }
+          , false
+      )
+    }
+  }
   async function removeChat(chatId: string) {
     if (chatId == null) return;
     // this is used to remove chat when no longer have access to it (removed from group)
@@ -181,6 +201,7 @@ async function muteNotifChat(mute) {
     clearCache,
     mutateChats,
     blockChat,
+    unblockChat,
     muteNotifChat,
     removeChat
     // isLoadingChat, 

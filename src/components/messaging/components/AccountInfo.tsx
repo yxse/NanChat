@@ -47,13 +47,13 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
  
-    const {chats} = useChats();
+    const {chats, unblockChat} = useChats();
     const chat =  chats?.find((chat) => chat.type === "private" && chat?.participants?.find((participant) => participant._id === account));
     const chatsInCommon = chats?.filter(
         (chat) => chat.type === "group" && chat?.participants?.find((participant) => participant._id === account) && chat?.accepted === true && chat?.blocked === false)
     const chatsInCommonLength = chatsInCommon?.length || 0;
     const { data: name } = useSWR<Chat[]>('nano_' + account?.split('_')[1], fetcherAccount);
-    const {data: isBlocked} = useSWR(`/is-blocked?address=${account}`, fetcherMessages, {fallback: false});
+    const {data: isBlocked, mutate: mutateIsBlocked} = useSWR(`/is-blocked?address=${account}`, fetcherMessages, {fallback: false});
 
     const nameOrAccount = name?.name || formatAddress(account);
     const {getContact} = useContact();
@@ -151,14 +151,50 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 </Card>
                 </div>
                 {
-                    isBlocked?.blocked ? <div className="text-center "><div className="mt-4 mb-4" style={{wordBreak: 'break-all', padding: 16}}>
+                    isBlocked?.blocked ? <div style={{maxWidth: 600, margin: 'auto'}}>
+                        <div className="text-center "><div className="mt-4 mb-4" style={{wordBreak: 'break-all', padding: 16}}>
                         {t('blockedAccount', { account })}
                         </div>
-                        <div className="text-sm" style={{color: 'var(--adm-color-text-secondary)'}}>
+                        <div className="text-sm mb-4" style={{color: 'var(--adm-color-text-secondary)'}}>
                         {t('unblockAccount', { account })}
                         </div>
                         </div>
-                        : 
+                        <List mode="card">
+                            <List.Item
+                            arrowIcon={false}
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                                Modal.show({
+                                    closeOnMaskClick: true,
+                                    closeOnAction: true,
+                                    title: <div>{t('unblock')} {nameOrAccount} ?</div>,
+                                    actions: [
+                                        {
+                                            key: 'unblock',
+                                            text: t('unblock'),
+                                            onClick: async () => {
+                                                Toast.show({icon: 'loading'});
+                                                try {
+                                                    await unblockChat(convertAddress(account, 'XNO'));
+                                                    await mutateIsBlocked();
+                                                    Toast.show({icon: 'success'});
+                                                } catch (error) {
+                                                    Toast.show({icon: 'fail', content: error?.message});
+                                                }
+                                            }
+                                        },
+                                        { key: 'cancel', text: t('cancel') }
+                                    ]
+                                });
+                            }}
+                            >
+                                <div style={{color: 'var(--adm-color-primary)'}}>
+                                {t('unblock')}
+                                </div>
+                            </List.Item>
+                        </List>
+                        </div>
+                        :
                 
                 <div style={{maxWidth: 600, margin: 'auto', marginTop: 16}}>
                     {

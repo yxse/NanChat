@@ -34,7 +34,7 @@ function BlockedChats() {
     //   }
     // });
     // const {data: privacySettings, mutate, isLoading } = useSWR("/config-privacy", fetcherMessages);
-    const {mutateChats} = useChats();
+    const {unblockChat} = useChats();
     const {data: chats, isLoading, mutate} = useSWR("/blocked-chats", fetcherMessages);
 
     // async function updatePrivacySettings(key, value) {
@@ -78,8 +78,7 @@ function BlockedChats() {
                                               text: "Unblock",
                                               danger: true,
                                               onClick: async () => {
-                                                await fetcherMessagesPost("/unblock-chat", {chatId: chat.id});
-                                                await mutateChats();
+                                                await unblockChat(chat.id);
                                                 await mutate();
                                                 Toast.show({icon: 'success'});
                                               }
