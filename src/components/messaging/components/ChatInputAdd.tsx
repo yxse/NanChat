@@ -13,6 +13,7 @@ import ChatInputFile from './ChatInputFile';
 import ChatInputTip from './ChatInputTip';
 import ChatInputRedPacket from './ChatInputRedPacket';
 import { useEmit } from './EventContext';
+import ChatInputCall from '../call/ChatInputCall';
 
 
 const ActionWrapper = ({ children }) => {
@@ -47,6 +48,9 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadStart, onUploadSuccess, on
   }, [visible]);
   
   if (hideInput) return null;
+
+  // a chat request must be accepted before calling (also enforced by the server)
+  const canCall = (chat?.type === "private" || chat?.type === "group") && chat?.accepted;
 
   return (
     <div style={{ maxWidth: 400, margin: "0 auto" }}>
@@ -100,6 +104,25 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadStart, onUploadSuccess, on
         <ActionWrapper>
           <ChatInputRedPacket chat={chat} />
         </ActionWrapper>
+
+        {canCall && (
+          <>
+            {/* calls on their own row: 6 buttons don't fit one row and the labels overlap */}
+            <div style={{ flexBasis: "100%", height: 0, margin: "-8px 0" }} />
+
+            <ActionWrapper>
+              <ChatInputCall chat={chat} toAddress={toAddress} video={false} />
+            </ActionWrapper>
+
+            <ActionWrapper>
+              <ChatInputCall chat={chat} toAddress={toAddress} video />
+            </ActionWrapper>
+
+            {/* empty slots so the call buttons line up under the first two columns */}
+            <ActionWrapper>{null}</ActionWrapper>
+            <ActionWrapper>{null}</ActionWrapper>
+          </>
+        )}
       </div>
     </div>
   );

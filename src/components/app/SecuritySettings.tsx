@@ -15,6 +15,7 @@ import { PinAuthPopup } from "../Lock/PinLock";
 import { PasswordForm } from "../Initialize/create/Password";
 import { WalletContext } from "../useWallet";
 import PrivacySettings from "./BlockedChats";
+import CallPrivacySettings from "./CallPrivacySettings";
 import { ChatWrongOutline, DeleteOutline, LeftOutline } from "antd-mobile-icons";
 import { deleteAccount, fetcherMessages, setMinReceive } from "../messaging/fetcher";
 import useSWR from "swr";
@@ -517,6 +518,7 @@ function SecuritySettings() {
                 Min. Receive Amount
             </List.Item>
         </List>
+        <CallPrivacySettings />
         <Divider />
         <List mode="card">
             <List.Item

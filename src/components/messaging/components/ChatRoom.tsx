@@ -45,6 +45,7 @@ import InfiniteScrollingMessages from "./messages/InfiniteScrollingMessages";
 import { DelayedSpinner } from "./DelayedSpinner";
 import { App } from "@capacitor/app";
 import ChatLocked from "./group/ChatLocked";
+import ActiveCallBanner from "../call/ActiveCallBanner";
 
 
 const ChatRoom: React.FC<{}> = ({  }) => {
@@ -491,6 +492,7 @@ useEffect(() => {
                         {
                             chat?.type === 'group' ? <HeaderGroup /> : <HeaderPrivate />
                         }
+                        {chat?.type === 'group' && <ActiveCallBanner chatId={chat.id} />}
                     </div>
                 )
             }

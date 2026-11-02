@@ -28,6 +28,7 @@ import { DateHeader } from "../../app/History";
 import { formatTelegramDate } from "../../../utils/telegram-date-formatter";
 import ProfileName from "./profile/ProfileName";
 import { RedPacketIcon } from "../../app/redpacket/RedPacketIcon";
+import MessageCall from "../call/MessageCall";
 
 const RedPacketLink = ({id}) => {
   return <Link to={"/chat/red-packet-result?id=" + id} style={{color: "var(--gold-color)"}}>Red Packet</Link>
@@ -35,6 +36,10 @@ const RedPacketLink = ({id}) => {
 
 const MessageSystem: React.FC<{ message, raw }> = ({ message, raw }) => {
   const { activeAccount } = useWallet();
+
+  if (message.content.split(' ')[1] === 'call') {
+    return <MessageCall message={message} raw={raw} />;
+  }
 
   const addresses = message.content.match(/nano_[a-zA-Z0-9]{60}/g);
   let actionMessage = message.content.split(' ')[1];

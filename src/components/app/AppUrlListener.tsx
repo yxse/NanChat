@@ -20,6 +20,7 @@ import { useWallet } from '../useWallet';
 import { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr/infinite';
 import { getKey } from '../messaging/hooks/useChat';
+import { isSavedContact } from '../messaging/call/call-signaling';
 import InAppNotification, { showInAppNotification } from './InAppNotification';
 
 
@@ -42,6 +43,30 @@ const isContactImport = (url: string) => {
 export type UriOrigin = { source: "in-app" | "external", pageUrl?: string };
 const EXTERNAL_ORIGIN: UriOrigin = { source: "external" };
 const isWalletDeepLink = (url: string) => /^(nano|nan|nanauth|ban|xdg|ana|xro):/i.test(url);
+
+// Incoming / missed call push. Visible ones are shown by the OS; data-only ones
+// are sent to accounts accepting calls from their contacts only, which only
+// this app can check (contacts are end-to-end encrypted).
+const showCallNotification = (data: Record<string, string>, isActive: boolean) => {
+  if (data.silent !== "1" || isActive) return; // in the app, the call screen rings over the socket
+  let contacts = [];
+  try {
+    contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+  } catch (error) {
+    console.error(error);
+  }
+  if (!isSavedContact(contacts, data.fromAccount)) return;
+  LocalNotifications.schedule({
+    notifications: [{
+      id: parseInt(data.callId.slice(-7), 16), // same id: the missed call notification replaces the incoming one
+      threadIdentifier: data.chatId,
+      title: data.title,
+      body: data.body,
+      schedule: { at: new Date(Date.now() + 100) },
+      extra: { url: data.url },
+    }],
+  });
+};
 
 const AppUrlListener: React.FC<any> = () => {
     const navigate = useNavigate();
@@ -186,6 +211,11 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
 
     let {isActive} = await App.getState();
   console.log("notificationReceived: ", { event });
+  const callData = event.notification.data as Record<string, string>;
+  if (callData?.callId) {
+    showCallNotification(callData, isActive);
+    return;
+  }
   let chatId = event.notification.data.chatId;
   let url = event.notification.data.url;
   let messagePreview = event.notification.data.messagePreview;

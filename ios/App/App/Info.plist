@@ -143,7 +143,7 @@
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Uses Bluetooth to connect and interact with Ledger devices</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Scan qrcode</string>
+	<string>Camera access is used to scan QR codes and for video calls</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow contacts to send invitation with ease. Contacts are stored locally only.</string>
 	<key>NSExtensionAttributes</key>
@@ -176,6 +176,8 @@
 	<string>Authenticate</string>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is required for audio calls</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Access to photo library is required to select images</string>
 	<key>NSUbiquitousContainers</key>

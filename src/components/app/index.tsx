@@ -74,6 +74,7 @@ import SetUsername from "../messaging/components/profile/SetUsername";
 import AppUrlListener from "./AppUrlListener";
 import Buy from "./Buy";
 import ChatSocket from "../messaging/socket";
+import { CallProvider } from "../messaging/call/CallProvider";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
@@ -500,6 +501,7 @@ export default function App({callback}) {
       <ReloadPrompt />
       <Router>
       <SafeAreaWrapper callback={callback}>
+      <CallProvider>
       <ChatSocket />
         <div className="w-full body " 
         // style={{overflow: 'auto'}}
@@ -577,6 +579,7 @@ export default function App({callback}) {
             "var(--main-background-color)"
              : "var(--adm-color-background)"
         }} position="bottom" /> */}
+      </CallProvider>
       </SafeAreaWrapper>
       </Router>
       </div>

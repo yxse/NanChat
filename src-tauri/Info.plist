@@ -3,6 +3,8 @@
 <plist version="1.0">
 <dict>
   <key>NSCameraUsageDescription</key>
-  <string>Request camera access for QRCode scanning</string>
+  <string>Camera access is used to scan QR codes and for video calls</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Microphone access is required for audio calls</string>
 </dict>
 </plist>
