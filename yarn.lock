@@ -956,10 +956,15 @@
   resolved "https://registry.yarnpkg.com/@capacitor-mlkit/translation/-/translation-8.1.0.tgz#49823ea441d71b469c2748ba167398c2d5d4d8f4"
   integrity sha512-OyNGHkhDGebWrQmTAuSOlC7s9w2Ow4jcKNX+DRS71izljSgubCU1O0NGC0y2ZhC7GyJ5GANSLeVxhZCIJNapvQ==
 
-"@capacitor/android@^6.1.0", "@capacitor/android@^6.2.0":
+"@capacitor/android@^6.1.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-6.2.0.tgz#4cbb29e45457839dfd391ff0744b437ef4d4034b"
   integrity sha512-3YIDPylV0Q2adEQ/H568p496QdYG0jK/XGMdx7OGSqdBZen92ciAsYdyhLtyl91UVsN1lBhDi5H6j3T2KS6aJg==
+
+"@capacitor/android@^6.2.2":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-6.2.3.tgz#7f5c82d6702233d8d10072068d32c7192d2d0b21"
+  integrity sha512-1x7HUUy5XdQUmAwkMcI8qz0pAmSDXGHVq0XVdCvFswqbE74VGxRuGeo7hUGcgQUWkmqXkVWzMSlAm3Z8NrmQjA==
 
 "@capacitor/app@^6.0.0", "@capacitor/app@^6.0.2":
   version "6.0.2"
@@ -1012,10 +1017,10 @@
     tslib "^2.4.0"
     xml2js "^0.5.0"
 
-"@capacitor/cli@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-6.2.0.tgz#721a91421a98d4e4693df9d610210f1e23608de6"
-  integrity sha512-EWcXG39mZh35zrHhOqzN1ILeSyMRyEqWVtQDXqMGjCXYRH6b6p5TvyvLDN8ZNy26tbhI3i79gfrgirt+mNwuuw==
+"@capacitor/cli@^6.2.2":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-6.2.3.tgz#78bb5e52bf8265b7321a565a1237343eda45c9c6"
+  integrity sha512-jqmqpe8K/kdw2/imsii+taG7qsv0bbYKsxwrOfcgPpm+omxBGg4j81Hf9FIvlxB3zV2EAORPBKeUfCkkV+o83A==
   dependencies:
     "@ionic/cli-framework-output" "^2.2.5"
     "@ionic/utils-fs" "^3.1.6"
@@ -1040,10 +1045,17 @@
   resolved "https://registry.yarnpkg.com/@capacitor/clipboard/-/clipboard-6.0.2.tgz#4d2a797e8f5c3494c61d50a2355075d92687b7b2"
   integrity sha512-jQ6UeFra5NP58THNZNb7HtzOZU7cHsjgrbQGVuMTgsK1uTILZpNeh+pfqHbKggba6KaNh5DAsJvEVQGpIR1VBA==
 
-"@capacitor/core@^6.1.0", "@capacitor/core@^6.2.0":
+"@capacitor/core@^6.1.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-6.2.0.tgz#b12b4e451b221972e2a41aa6fd1b7678e611e74d"
   integrity sha512-B9IlJtDpUqhhYb+T8+cp2Db/3RETX36STgjeU2kQZBs/SLAcFiMama227o+msRjLeo3DO+7HJjWVA1+XlyyPEg==
+  dependencies:
+    tslib "^2.1.0"
+
+"@capacitor/core@^6.2.2":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-6.2.3.tgz#30085147f2116e55632158e384e04982757f5ce5"
+  integrity sha512-zajW/Fu1RFi42CC6KDjjgOIJ57hCl0Mo9FixpWpm6wXYAsFOU04dk+CBLvRt6rtO3sd6Lce4xxu68Pvi1oR99w==
   dependencies:
     tslib "^2.1.0"
 
@@ -1067,10 +1079,15 @@
   resolved "https://registry.yarnpkg.com/@capacitor/inappbrowser/-/inappbrowser-1.0.3.tgz#1e032e444087a3e56855693c4701803b281291ab"
   integrity sha512-zw3k8UAiYqTylTOtIokw587mp2XnOULMCKptisO/bi+1kGatNRL11NBMc3Jn39TqDAQ85smqk1ztQn4cQ7IH7A==
 
-"@capacitor/ios@^6.1.0", "@capacitor/ios@^6.2.0":
+"@capacitor/ios@^6.1.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-6.2.0.tgz#7cd4db0471d1cc270962061b64b28f79f3f89103"
   integrity sha512-gisvZBIrKT1siiumgpLPY63HmJe69Ed/dOmfQQ+U1MIJmOR5gWGWvfO7QSj/FMatVZS4Xt/8jCoUgzDD1U6kSw==
+
+"@capacitor/ios@^6.2.2":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-6.2.3.tgz#adf495e53f27b83cacfb772b341ca13b23760003"
+  integrity sha512-IqYhQH6yOrsNLwmKgUj51UWemRuNw2+wIi/mwpkDP3SennxmovjdpnCpbSmapjA4CmCn56yd4D1AVdPHWKVj4Q==
 
 "@capacitor/keyboard@https://github.com/Benskalz/capacitor-plugins.git#0b553028bd3c20657f278f072acd5dc8d12bde62":
   version "7.0.2"
@@ -1080,6 +1097,11 @@
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/@capacitor/local-notifications/-/local-notifications-6.1.2.tgz#d5495bce6f27229b8c040f77a3323153668b14c2"
   integrity sha512-LZrwkuh+EaIbpIOeqotUUB31MWA3BF+Hdf9ZdOK9MVJyHG7hL27ja/mx50tO6VW3+nlaXSeygkRZPIuuV4UQRQ==
+
+"@capacitor/network@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@capacitor/network/-/network-6.0.4.tgz#80e9a4d98f55cb787f0746698b0fcbb4cdd1eddd"
+  integrity sha512-ywtlM3wJ3evci0T9zl3aGXGvd96pkiQDeoxrGR3rAqcBpf9DQubMGdFRmHma3frn2Fd/MBDYlgleu+nWDXunAg==
 
 "@capacitor/preferences@^6":
   version "6.0.3"
@@ -2660,9 +2682,9 @@
   dependencies:
     "@tauri-apps/api" "^2.10.1"
 
-"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#d47955b3ca256b2433d59e1def4fdfb60488150a":
+"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#78910ed8b037ecdb85d09efa44232b1e5fbc1221":
   version "3.1.1"
-  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#d47955b3ca256b2433d59e1def4fdfb60488150a"
+  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#78910ed8b037ecdb85d09efa44232b1e5fbc1221"
   dependencies:
     resize-observer-polyfill "^1.5.1"
 
@@ -7890,10 +7912,10 @@ shebang-regex@^3.0.0:
   resolved "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-shell-quote@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.npmjs.org/shell-quote/-/shell-quote-1.8.1.tgz"
-  integrity sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==
+shell-quote@^1.8.4:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.12.0.tgz#e98fdfd2e921d8a58ae2820f4fc0f75c39f09675"
+  integrity sha512-PcByqNyT/38F2kDNi006HAMRJaULuBzq/FOsw3qdZvX/GA9W/jamDaRskgHjubHiftXK5sIFxLNkvrXUwcof6Q==
 
 side-channel@^1.0.4, side-channel@^1.0.6:
   version "1.0.6"

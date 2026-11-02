@@ -474,5 +474,15 @@
   "uploadPreparing": "Preparing...",
   "uploadEncrypting": "Encrypting...",
   "uploadFailed": "Failed to send",
-  "uploadRetry": "tap to retry"
+  "uploadRetry": "tap to retry",
+  "permissionCameraTitle": "Camera access needed",
+  "permissionMicrophoneTitle": "Microphone access needed",
+  "permissionScanDesc": "NanChat needs camera access to scan QR codes.",
+  "permissionCallDesc": "NanChat needs microphone access for calls.",
+  "permissionVideoCallDesc": "NanChat needs camera access for video calls.",
+  "permissionSettingsHint": "It was previously denied. Allow it in the app settings, then try again.",
+  "permissionBrowserHint": "Allow it in your browser's site settings, then try again.",
+  "openSettings": "Open Settings",
+  "downloadModelMobileDataTitle": "Download over mobile data?",
+  "downloadModelMobileDataContent": "You're not on Wi-Fi. Translating requires downloading the {{languages}} language model (about {{size}} MB)."
 }

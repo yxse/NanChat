@@ -319,7 +319,7 @@ const addTrustedDomain = (hostname: string) => {
   }
 };
 
-const openExternalUrl = async (url: string) => {
+export const openExternalUrl = async (url: string) => {
   if (isTauri()) {
     return tauriOpenUrl(url);
   }

@@ -12,6 +12,7 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 
 import "barcode-detector/polyfill";
 import { useTranslation } from 'react-i18next';
+import { ensureScannerCameraPermission, isPermissionError, showPermissionDenied } from '../../utils/permissions';
 
 const defaultScanButton = <ScanCodeOutline
 fontSize={24}
@@ -24,6 +25,8 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
     let isScanning = false;
 
     const handleScanClick = () => {
+        // clicks inside the popup (photos button) bubble up through the portal
+        if (visible) return;
         setVisible(true);
         // let modal = Modal.show({
         //     onClose: () => {
@@ -54,7 +57,7 @@ const ScannerNative = ({onScan, children = defaultScanButton, defaultOpen, onClo
     };
     useEffect(() => {
         if (!isScanning && defaultOpen) {
-            handleScanClick();
+            startScan(onScan, setVisible);
             isScanning = true; // Prevent multiple opening
         }
     }
@@ -199,7 +202,9 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
     // }
 };
   const startScan = async (onScan, setVisible) => {
-    
+    // Without camera access the popup stays open: picking the QR code from photos still works
+    if (!(await ensureScannerCameraPermission())) return;
+
     // The camera is visible behind the WebView, so that you can customize the UI in the WebView.
     // However, this means that you have to hide all elements that should not be visible.
     // You can find an example in our demo repository.
@@ -242,10 +247,20 @@ export const Scanner = ({onScan, children = defaultScanButton, defaultOpen = fal
     );
   
     // Start the barcode scanner
-    await BarcodeScanner.startScan({
-      formats: [BarcodeFormat.QrCode],
-      videoElement: Capacitor.getPlatform() === 'web' ? videoElement : undefined,
-    });
+    try {
+      await BarcodeScanner.startScan({
+        formats: [BarcodeFormat.QrCode],
+        videoElement: Capacitor.getPlatform() === 'web' ? videoElement : undefined,
+      });
+    } catch (error) {
+      console.error('Cannot start the scanner', error);
+      await stopScan().catch(() => {});
+      if (isPermissionError(error) || /denied|permission/i.test((error as any)?.message)) {
+        showPermissionDenied('camera', 'scan');
+      } else {
+        Toast.show({ icon: 'fail', content: 'Unable to start the camera' });
+      }
+    }
     // await setZoomRatio();
   };
   

@@ -11,7 +11,8 @@ import MessageFile from "./MessageFile";
 import MessageSystem from "./MessageSystem";
 import MessageJoinRequest from "./MessageJoinRequest";
 import { DateHeader } from "./date-header-component";
-import { isNanoAppMessage, isSpecialMessage, TEAM_ACCOUNT, confirmAndOpenExternalUrl } from "../utils";
+import { isNanoAppMessage, isSpecialMessage, TEAM_ACCOUNT, confirmAndOpenExternalUrl, openExternalUrl } from "../utils";
+import { isTauri } from "@tauri-apps/api/core";
 import { useLongPress } from "../../../hooks/use-long-press";
 import { HapticsImpact } from "../../../utils/haptic";
 import { ImpactStyle } from "@capacitor/haptics";
@@ -27,11 +28,10 @@ import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
 import { MdOutlineReply, MdOutlineSync } from "react-icons/md";
 import { BsTranslate } from "react-icons/bs";
-import { isAutoTranslateEnabled, isTranslationAvailable, translateText } from "../../../services/translation.service";
+import { isAutoTranslateEnabled, isTranslationAvailable, ModelDownloadDeclinedError, translateText } from "../../../services/translation.service";
 import { useTranslation } from "react-i18next";
 import MessageRaw from "./MessageRaw";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
-import { isTauri } from "@tauri-apps/api/core";
 
 const Message = memo(({
   message,
@@ -255,7 +255,7 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
               } else {
                 Toast.show({ icon: 'loading', content: t('translating'), duration: 0 });
                 try {
-                  const result = await translateText(decrypted);
+                  const result = await translateText(decrypted, undefined, { interactive: true });
                   Toast.clear();
                   if (result) {
                     setTranslated(result);
@@ -263,6 +263,7 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
                     Toast.show({ content: t('nothingToTranslate') });
                   }
                 } catch (error) {
+                  if (error instanceof ModelDownloadDeclinedError) return;
                   console.log('translation failed', error);
                   Toast.show({ icon: 'fail', content: t('translationFailed') });
                 }
@@ -514,23 +515,27 @@ const MessageContentLink = ({ message }) => {
       parts.push(decrypted.substring(lastIndex, urlIndex));
     }
     
-    // Add the URL as a link
+    // Render the URL as a clickable span rather than an <a>: with no href the
+    // in-app WebView can never perform the navigation itself 
+    const openLink = () => {
+      confirmAndOpenExternalUrl(url);
+    };
     parts.push(
-      <a 
-        onClick={(e) => {
-          if (isTauri()) {
+      <span
+        role="link"
+        tabIndex={0}
+        onClick={openLink}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            confirmAndOpenExternalUrl(url);
+            openLink();
           }
         }}
         key={urlIndex}
-        style={{ textDecoration: 'underline' }}
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
+        style={{ textDecoration: 'underline', cursor: 'pointer' }}
       >
         {url}
-      </a>
+      </span>
     );
     
     lastIndex = urlIndex + url.length;
@@ -546,12 +551,49 @@ const MessageContentLink = ({ message }) => {
 };
 
 
+// A URL is refused for linkification if it could be used to reach the app's own
+// WebView origin or the native HTTP proxy 
+// Such URLs are left as plain text instead of becoming clickable links.
+function isSafeToLinkify(raw: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    return false;
+  }
+  // Only http(s) links are ever linkified.
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return false;
+  }
+  // Userinfo (user:pass@host) is a classic trick to disguise the real host,
+  // e.g. https://trusted.com@localhost/... — refuse it outright.
+  if (parsed.username || parsed.password || raw.includes("@")) {
+    return false;
+  }
+  const host = parsed.hostname.toLowerCase();
+  // Refuse loopback / the app's own WebView origin.
+  if (host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]") {
+    return false;
+  }
+  // Refuse bare hosts with no dot (they can resolve to the app origin on native).
+  if (!host.includes(".")) {
+    return false;
+  }
+  // Refuse the Capacitor native HTTP proxy paths regardless of host.
+  const path = parsed.pathname.toLowerCase();
+  if (path.startsWith("/_capacitor_http") || path.startsWith("/_capacitor_https")) {
+    return false;
+  }
+  return true;
+}
+
 function extractUrls(message) {
   // More comprehensive URL regex pattern
   const urlPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
-  
-  // Find all matches in the message
-  const urls = message.match(urlPattern) || [];
+
+  // Find all matches in the message, then refuse any that could target the
+  // app's own origin or the native HTTP proxy.
+  const urls = (message.match(urlPattern) || []).filter(isSafeToLinkify);
   return urls;
 }
 

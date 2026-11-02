@@ -27,6 +27,7 @@ dependencies {
     implementation project(':capacitor-inappbrowser')
     implementation project(':capacitor-keyboard')
     implementation project(':capacitor-local-notifications')
+    implementation project(':capacitor-network')
     implementation project(':capacitor-preferences')
     implementation project(':capacitor-share')
     implementation project(':capacitor-splash-screen')

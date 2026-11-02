@@ -20,6 +20,9 @@
  * Made a video for you collaborators here: https://www.youtube.com/watch?v=dQw4w9WgXcQ
  */
 
+import { installVersionHeaders } from "./utils/client-version";
+installVersionHeaders();
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 import Popup from "./components/Popup";

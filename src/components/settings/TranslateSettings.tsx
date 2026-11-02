@@ -7,6 +7,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { Language, Translation } from "@capacitor-mlkit/translation";
 import {
   SUPPORTED_LANGUAGES,
+  confirmModelDownload,
   getDefaultTargetLanguage,
   isTranslationAvailable,
   languageName,
@@ -64,6 +65,8 @@ function TranslateSettings() {
     setLanguagePickerVisible(false);
     setSearchText("");
     if (isTranslationAvailable() && !downloadedModels.includes(language)) {
+      // declined on mobile data: translate() downloads it later, once on Wi-Fi
+      if (!(await confirmModelDownload([language]))) return;
       Toast.show({ icon: "loading", content: t('downloadingLanguageModel'), duration: 0 });
       try {
         await Translation.downloadModel({ language: language as Language });

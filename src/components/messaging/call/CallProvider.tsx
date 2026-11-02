@@ -14,6 +14,7 @@ import {
 } from "./call-signaling";
 import { createTonePlayer } from "./call-tones";
 import CallScreen from "./CallScreen";
+import { isPermissionError, showPermissionDenied } from "../../../utils/permissions";
 
 export type CallStatus = "outgoing" | "incoming" | "connecting" | "active" | "ended";
 export type ChatType = "private" | "group";
@@ -292,7 +293,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             stream = await navigator.mediaDevices.getUserMedia({ audio: AUDIO_CONSTRAINTS });
         } catch (error) {
-            Toast.show({ content: "Microphone access is required for calls", icon: "fail" });
+            if (isPermissionError(error)) showPermissionDenied("microphone", "call");
+            else Toast.show({ content: "Microphone unavailable", icon: "fail" });
             throw error;
         }
         localStreamRef.current = stream;
@@ -304,7 +306,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setCall((c) => (c ? { ...c, cameraOn: true } : c));
             } catch (error) {
                 console.error("camera unavailable", error);
-                Toast.show({ content: "Camera unavailable, continuing with audio only" });
+                if (isPermissionError(error)) showPermissionDenied("camera", "videoCall");
+                else Toast.show({ content: "Camera unavailable, continuing with audio only" });
             }
         }
         navigator.mediaDevices.enumerateDevices()
@@ -604,7 +607,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     track = await getCamera(nextFacing);
                 } catch (error) {
                     console.error("camera unavailable", error);
-                    Toast.show({ content: "Camera unavailable", icon: "fail" });
+                    if (isPermissionError(error)) showPermissionDenied("camera", "videoCall");
+                    else Toast.show({ content: "Camera unavailable", icon: "fail" });
                 }
             }
             if (!isCurrent(callId)) {

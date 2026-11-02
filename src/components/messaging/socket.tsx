@@ -1,7 +1,10 @@
 import { io } from 'socket.io-client';
+import { APP_PLATFORM, APP_VERSION } from '../../utils/client-version';
 
 export const socket = io(import.meta.env.VITE_PUBLIC_BACKEND, {
     autoConnect: false,
+    // in query rather than auth: socket.auth is overwritten with the chat token on connect
+    query: { appVersion: APP_VERSION, appPlatform: APP_PLATFORM },
 });
 
 import React, { useContext, useEffect } from 'react';
