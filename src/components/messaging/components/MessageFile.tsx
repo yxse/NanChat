@@ -3,7 +3,7 @@ import { memo, useContext, useEffect, useMemo, useState, useCallback } from "rea
 import { BiMessageSquare } from "react-icons/bi";
 import { WalletContext } from "../../useWallet";
 import { useWallet } from "../../useWallet";
-import { Card, DotLoading, ImageViewer, Modal, Popover, Skeleton, Toast } from "antd-mobile";
+import { Card, DotLoading, ImageViewer, Modal, Popover, ProgressBar, ProgressCircle, Skeleton, SpinLoading, Toast } from "antd-mobile";
 import { formatAmountRaw, formatSize } from "../../../utils/format";
 import { convertAddress } from "../../../utils/convertAddress";
 import { networks } from "../../../utils/networks";
@@ -11,7 +11,7 @@ import useSWR from "swr";
 import { fetchAccountInfo, fetchBlock } from "../../app/Network";
 import { rawToMega } from "../../../nano/accounts";
 import { fetcherMessages, fetcherMessagesNoAuth } from "../fetcher";
-import { DownlandOutline, ExclamationCircleFill, FileWrongOutline } from "antd-mobile-icons";
+import { CloseOutline, DownlandOutline, ExclamationCircleFill, FileWrongOutline, RedoOutline } from "antd-mobile-icons";
 import { decryptGroupMessage, getSharedKey } from "../../../services/sharedkey";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
@@ -20,6 +20,8 @@ import { fileIDsBeingDecrypted, readFileToBlobUrl, writeUint8ArrayToFile } from 
 import { setData } from "../../../services/database.service";
 import { dangerousExtensions } from "../utils";
 import { useChats } from "../hooks/use-chats";
+import { useUploadState } from "../../../services/upload-progress";
+import { useTranslation } from "react-i18next";
 
 const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
     const download = async () => {
@@ -89,13 +91,66 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
   };
 
 
+// Progress indicator of a file being sent: ring over the preview for media, bar under the name for other files
+const UploadProgress = ({ localId, compact = false }) => {
+    const upload = useUploadState(localId)
+    const stage = upload?.stage || 'preparing'
+    const size = compact ? 32 : 48
+    const color = compact ? 'var(--adm-color-primary)' : '#fff' // compact: on a file card, otherwise over a dimmed preview
+
+    if (stage === 'error') {
+        return (
+            <div onClick={(e) => { e.stopPropagation(); upload?.retry?.() }} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <div className={compact ? "upload-progress-button compact" : "upload-progress-button"} style={{ width: size, height: size }}>
+                    <RedoOutline fontSize={size / 2} />
+                </div>
+                <div className={compact ? "upload-progress-button compact" : "upload-progress-button"} style={{ width: size, height: size }} onClick={(e) => { e.stopPropagation(); upload?.cancel?.() }}>
+                    <CloseOutline fontSize={size / 2} />
+                </div>
+            </div>
+        )
+    }
+    return (
+        <div onClick={(e) => { e.stopPropagation(); upload?.cancel?.() }} style={{ position: 'relative', width: size, height: size, cursor: 'pointer' }}>
+            <div className={compact ? "upload-progress-button compact" : "upload-progress-button"} style={{ width: size, height: size }}>
+                <CloseOutline fontSize={size / 2.4} />
+            </div>
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                {stage === 'uploading' ?
+                    <ProgressCircle
+                        percent={Math.max(4, Math.round((upload?.progress || 0) * 100))}
+                        style={{ '--size': `${size}px`, '--track-width': '3px', '--track-color': 'transparent', '--fill-color': color }}
+                    />
+                    :
+                    <SpinLoading color={color} style={{ '--size': `${size}px` }} />
+                }
+            </div>
+        </div>
+    )
+}
+
+const UploadStatusText = ({ localId, fileSize }) => {
+    const { t } = useTranslation()
+    const upload = useUploadState(localId)
+    const stage = upload?.stage || 'preparing'
+    if (stage === 'error') return <span style={{ color: 'var(--adm-color-danger)' }}>{upload?.error || t('uploadFailed')} · {t('uploadRetry')}</span>
+    if (stage === 'uploading') return <span>{formatSize((upload?.progress || 0) * fileSize)} / {formatSize(fileSize)}</span>
+    return <span>{stage === 'encrypting' ? t('uploadEncrypting') : t('uploadPreparing')}</span>
+}
+
+const UploadProgressBar = ({ localId }) => {
+    const upload = useUploadState(localId)
+    if (upload?.stage !== 'uploading') return null
+    return <ProgressBar percent={Math.round((upload?.progress || 0) * 100)} style={{ '--track-width': '3px', marginTop: 6 }} />
+}
+
 // Global promise map to track ongoing decryptions
 const decryptionPromises = new Map();
 
 const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" }) => {
     const {chat} = useChats(message.chatId)
     const isAccepted = chat?.accepted || deleteMode 
-    const [decrypted, setDecrypted] = useState(null)
+    const [decrypted, setDecrypted] = useState(file.previewUrl || null) // previewUrl: local copy of a file we just sent, no need to wait for the cache
     const [canDecrypt, setCanDecrypt] = useState(true)
     const {activeAccount, activeAccountPk} = useWallet()
     
@@ -200,7 +255,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         let isMounted = true;
         
         async function decryptFile() {
-            if (!isAccepted || !activeAccountPk) return;
+            if (!isAccepted || !activeAccountPk || message.uploading) return;
             
             try {
                 let decryptionPromise;
@@ -251,7 +306,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
             isMounted = false;
             ImageViewer.clear(); // close the image viewer on unmount
         };
-    }, [isAccepted, activeAccountPk, fileID, createDecryptionPromise]);
+    }, [isAccepted, activeAccountPk, fileID, createDecryptionPromise, message.uploading]);
 
     const fileType = file.meta?.type
     const fileSize = file.meta?.size
@@ -288,7 +343,45 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         }
     }
     
+    const isSVG = fileType === 'image/svg+xml';
+    const isMedia = !isSVG && (fileType?.startsWith('image') || fileType?.startsWith('video'))
+
     // Early returns for different states
+    if (message.uploading) {
+        if (isMedia) return (
+            <div key={message._id + "file"} style={{ height: heightImage }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                    {fileType?.startsWith('image') ?
+                        <img src={file.previewUrl} style={{ borderRadius: 8, maxHeight: maxHeight, display: 'block' }} />
+                        :
+                        <video src={file.previewUrl + '#t=0.05'} preload="metadata" muted playsInline style={{ borderRadius: 8, height: maxHeight, display: 'block' }} />
+                    }
+                    <div className="upload-progress-overlay">
+                        <UploadProgress localId={message._id} />
+                    </div>
+                </div>
+            </div>
+        )
+        return (
+            <div key={message._id + "file"}>
+                <Card style={{ minWidth: 220 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                            <b style={{ fontSize: 16, color: 'var(--adm-color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {fileName}
+                            </b>
+                            <div style={{ color: 'var(--adm-color-text-secondary)' }}>
+                                <UploadStatusText localId={message._id} fileSize={fileSize} />
+                            </div>
+                            <UploadProgressBar localId={message._id} />
+                        </div>
+                        <UploadProgress localId={message._id} compact />
+                    </div>
+                </Card>
+            </div>
+        )
+    }
+
     if (!isAccepted) return (
         <div>
             <div>
@@ -313,7 +406,6 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         <Skeleton animated style={{"--height": `${maxHeight}`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
         }
     </div>
-    const isSVG = fileType === 'image/svg+xml';
     if (isSVG || !fileType?.startsWith('image') && !fileType?.startsWith('video')) {
         maxHeight = "72px"
         heightImage = 72

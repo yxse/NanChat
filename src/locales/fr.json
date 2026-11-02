@@ -449,5 +449,9 @@
   "addToGroup": "Ajouter à un groupe",
   "addToGroupConfirm": "Ajouter {{name}} à {{group}} ?",
   "noGroupToAddTo": "Aucun groupe disponible",
-  "seeAll": "Tout voir"
+  "seeAll": "Tout voir",
+  "uploadPreparing": "Préparation...",
+  "uploadEncrypting": "Chiffrement...",
+  "uploadFailed": "Échec de l'envoi",
+  "uploadRetry": "appuyez pour réessayer"
 }

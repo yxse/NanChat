@@ -28,7 +28,7 @@ const ActionWrapper = ({ children }) => {
   );
 };
 
-const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat, hideInput }) => {
+const ChatInputAdd = ({ toAddress, onTipSent, onUploadStart, onUploadSuccess, onUploadCancel, visible, chat, hideInput }) => {
   const inputAddRef = useRef();
   const emit = useEmit();
   const marginTop = 32;
@@ -63,7 +63,9 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat, hi
         <ActionWrapper>
           <ChatInputFile 
             accountTo={toAddress} 
-            onUploadSuccess={onUploadSuccess} 
+            onUploadStart={onUploadStart}
+            onUploadSuccess={onUploadSuccess}
+            onUploadCancel={onUploadCancel}
             type="media" 
           />
         </ActionWrapper>
@@ -71,7 +73,9 @@ const ChatInputAdd = ({ toAddress, onTipSent, onUploadSuccess, visible, chat, hi
         <ActionWrapper>
           <ChatInputFile 
             accountTo={toAddress} 
-            onUploadSuccess={onUploadSuccess} 
+            onUploadStart={onUploadStart}
+            onUploadSuccess={onUploadSuccess}
+            onUploadCancel={onUploadCancel}
             type="file" 
             allowPaste 
           />

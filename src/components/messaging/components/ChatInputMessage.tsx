@@ -432,20 +432,68 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     //   }
      socket.emit('message', messageEncrypted,  (response) => callbackSocket(response, message));
     }
-    const sendFileMessage = async (file) => {
-      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+    // local file messages waiting for their upload to finish, keyed by local id
+    const pendingFileMessages = useRef(new Map<string, Promise<any>>());
 
-      // let messageTip = 'Tip ' + ticker + ' ' + hash;
+    const replaceLocalMessage = (localId: string, replace: (message) => Message | null) => {
+      mutateMessages(currentPages => {
+        const newPages = [...(currentPages || [])];
+        newPages[0] = (newPages[0] || []).flatMap(m => {
+          if (m._id !== localId) return [m];
+          const replaced = replace(m);
+          return replaced ? [replaced] : [];
+        });
+        return newPages;
+      }, false);
+    }
+
+    // show the file in the chat immediately with upload progress, it is sent once the upload succeeds
+    const startFileMessage = (file) => {
+      const pending = (async () => {
+        const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+        const message: Message = {
+          content: "File",
+          fromAccount: activeAccount,
+          timestamp: new Date(),
+          chatId: chatId,
+          height: height,
+          _id: file.localId,
+          uploading: true,
+          file: {
+            url: file.localId,
+            previewUrl: file.previewUrl, // local blob url, displayed while uploading and until the sent file is loaded from cache
+            meta: {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              ...file?.imageDimensions
+            }
+          }
+        };
+        if (chat?.type === "group") {
+          message.toAccount = chat.sharedAccount;
+        }
+        if (replyMessage) {
+          message.replyMessage = replyMessage;
+          resetReply();
+        }
+        onSent(message);
+        await mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+        return message;
+      })();
+      pendingFileMessages.current.set(file.localId, pending);
+    }
+
+    const sendFileMessage = async (file) => {
+      const pending = await pendingFileMessages.current.get(file.localId);
+      pendingFileMessages.current.delete(file.localId);
+      if (!pending) return;
+      const { uploading, ...rest } = pending;
       const message: Message = {
-        content: "File",
-        fromAccount: activeAccount,
-        // toAccount: account,
-        timestamp: new Date(),
-        chatId: chatId,
-        height: height,
-        _id: Math.random().toString(),
+        ...rest,
         file: {
           url: file.url,
+          previewUrl: pending.file.previewUrl,
           meta: {
             name: file.name,
             type: file.type,
@@ -454,20 +502,28 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           }
         }
       };
-      if (chat?.type === "group") {
-        message.toAccount = chat.sharedAccount;
-      }
-      if (replyMessage) {
-        message.replyMessage = replyMessage;
-        resetReply();
-      }
-      onSent(message);
-      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
-      socket.emit('message', message, (response) => callbackSocket(response, message));
+      replaceLocalMessage(file.localId, (m) => ({ ...m, ...message }));
+      const { previewUrl, ...fileToSend } = message.file;
+      socket.emit('message', { ...message, file: fileToSend }, (response) => callbackSocket(response, message));
     }
+
+    const cancelFileMessage = async (localId: string) => {
+      const pending = await pendingFileMessages.current.get(localId);
+      pendingFileMessages.current.delete(localId);
+      replaceLocalMessage(localId, () => null);
+      if (pending?.file?.previewUrl) URL.revokeObjectURL(pending.file.previewUrl);
+    }
+
+const onUploadStart = useCallback((file) => {
+  startFileMessage(file);
+}, [activeAccount, chat, replyMessage]);
 
 const onUploadSuccess = useCallback((file) => {
   sendFileMessage(file);
+}, [activeAccount, chat, replyMessage]);
+
+const onUploadCancel = useCallback((localId) => {
+  cancelFileMessage(localId);
 }, [activeAccount, chat, replyMessage]);
 
 const onTipSent = useCallback((ticker, hash, destinationAddress) => {
@@ -616,7 +672,9 @@ const onStickerSelect = useCallback((stickerId) => {
           undefined
         }
         chat={chat}
+        onUploadStart={onUploadStart}
         onUploadSuccess={onUploadSuccess}
+        onUploadCancel={onUploadCancel}
         onTipSent={onTipSent}
            />
 

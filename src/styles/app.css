@@ -703,6 +703,38 @@ body.light-theme .adm-button:hover:not(.adm-button-danger):not(.adm-button-prima
   }
 }
 
+/* File being sent: dimmed preview with progress ring */
+.upload-progress-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  animation: upload-fade-in 0.2s ease-out;
+}
+.upload-progress-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+}
+.upload-progress-button.compact {
+  color: var(--adm-color-primary);
+  background: var(--adm-color-fill-content);
+}
+@keyframes upload-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Hide all elements */
 body.barcode-scanner-active {
   visibility: hidden;

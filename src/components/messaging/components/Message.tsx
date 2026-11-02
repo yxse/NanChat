@@ -118,7 +118,7 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
   useEffect(() => {
     // set sending after 2 seconds
     setTimeout(() => {
-      if (message.status === 'sent_local') {
+      if (message.status === 'sent_local' && !message.uploading) { // uploading files show their own progress
         setSending(true);
       }
     }, 2000)

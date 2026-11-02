@@ -17,12 +17,12 @@ import { Keyboard } from '@capacitor/keyboard';
 import { MdHd, MdOutlineHd } from 'react-icons/md';
 import Compressor from 'compressorjs';
 import piexif from 'piexifjs';
+import { clearUploadState, setUploadState } from '../../../services/upload-progress';
 
-const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste = false }) => {
+const ChatInputFile = ({ username, onUploadStart, onUploadSuccess, onUploadCancel, accountTo, type, allowPaste = false }) => {
     const { activeAccount, activeAccountPk } = useWallet();
     const pasteAreaRef = useRef(null);
     const { t } = useTranslation();
-    const [loading, setLoading] = useState(false);
     const [fileList, setFileList] = useState([]);
     
     // Handle paste events
@@ -88,114 +88,19 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
     
 
     
-    const handleUpload = async (file) => {
-        if (!beforeUpload(file)) {
-            return;
-        }
-         const isImage = file.type.startsWith('image');
-         let imageDimensions = undefined
-        // Get image dimensions if it's an image
-        if (isImage) {
-            try {
-            imageDimensions = await getImageDimensions(file);
-            } catch (error) {
-            console.warn('Could not get image dimensions:', error);
-            }
-        }
-        setLoading(true);
-        try {
-            const formData = new FormData();
-            
-            // Encrypt the file
-            Toast.show({
-                icon: 'loading',
-                content: 'Encrypting file...',
-                duration: 0,
-            });
-            // await new Promise((resolve) => setTimeout(resolve, 200)); 
-            // add delay to allow the toast to show, eventually encrypting should be done in a web worker/separate thread to avoid blocking the UI
-            // without the delay the box encrypt might takes too much cpu preventing the toast to show
+    const encryptInWorker = (fileUint8Array, onWorker) => {
+        return new Promise((resolve, reject) => {
             const worker = new Worker(new URL("../../../../src/worker/fileWorker.js", import.meta.url), { type: "module" });
-            let fileUint8Array = new Uint8Array(await file.arrayBuffer());
-            worker.onmessage = async (e) => {
-                if (e.data.status === 'success') {
-                    console.time('encrypt');
-                    // console.timeLog('encrypt');
-                    // const encrypted = box.encryptFile(fileUint8Array, accountTo, activeAccountPk);
-                    let encrypted = e.data.encrypted;
-                    console.timeEnd('encrypt');
-                    // debugger
-                    // return
-                    Toast.show({
-                        icon: 'loading',
-                        content: 'Uploading file...',
-                    });
-                    debugger
-                    formData.append('file', new Blob([encrypted], { type: file.type }));
-                    formData.append('fileName', file.name);
-                    formData.append('fileType', file.type);
-                    formData.append('fileSize', file.size);
-                    if (imageDimensions){
-                        formData.append('imageHeight', imageDimensions.height);
-                        formData.append('imageWidth', imageDimensions.width);
-                    }
-                    formData.append('account', activeAccount);
-                    
-                    const response = await fetch(import.meta.env.VITE_PUBLIC_BACKEND +
-                        '/upload/upload-encrypted-file', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'token': await getChatToken(),
-                        },
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (!response.ok || data.error) {
-                        // throw new Error(data.error || 'Upload failed');
-                        Toast.show({
-                            icon: 'fail',
-                            content: data.error || 'Upload failed',
-                            position: 'center',
-                        });
-                        return;
-                    }
-        
-                    let fileId = data.url.split('/').pop();
-                    await writeUint8ArrayToFile(fileId, fileUint8Array, {
-                        name: file.name,
-                        type: file.type,
-                    })
-                     // save the file to the filesystem, before to send, so we can retrieve it instantly on the sender side without need to decrypt again
-        
-                    onUploadSuccess?.({
-                        url: data.url,
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        imageDimensions: imageDimensions
-                    });
-                    
-                    Toast.show({
-                        icon: 'success',
-                        content: 'File sent',
-                    });
-                    
-                    return {
-                        url: data.url,
-                    }
-                } else {
-                // Handle error
-                console.error("Encryption failed:", e.data.error);
-                Toast.show({content: 'Encryption failed', icon: 'error'});
-                }
-                
-                // Terminate the worker when done
+            onWorker(worker);
+            worker.onmessage = (e) => {
                 worker.terminate();
+                if (e.data.status === 'success') resolve(e.data.encrypted);
+                else reject(new Error(e.data.error || 'Encryption failed'));
             };
-            
-            // Start the worker with the necessary data
+            worker.onerror = (error) => {
+                worker.terminate();
+                reject(new Error(error.message || 'Encryption failed'));
+            };
             worker.postMessage({
                 file: fileUint8Array,
                 targetAccount: accountTo,
@@ -203,18 +108,131 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
                 message: 'file',
                 type: 'encrypt'
             });
-
-
-            
-            
-        } catch (error) {
-           
-            throw new Error(error.message);
-        } finally {
-            setLoading(false);
-        }
+        });
     };
-    
+
+    // XHR instead of fetch: fetch doesn't report upload progress
+    const uploadWithProgress = (formData, token, onProgress, onXhr) => {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            onXhr(xhr);
+            xhr.open('POST', import.meta.env.VITE_PUBLIC_BACKEND + '/upload/upload-encrypted-file');
+            xhr.setRequestHeader('token', token);
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) onProgress(e.loaded / e.total);
+            };
+            xhr.onload = () => {
+                let data = {};
+                try { data = JSON.parse(xhr.responseText); } catch (error) {}
+                if (xhr.status >= 200 && xhr.status < 300 && !data.error) resolve(data);
+                else reject(new Error(data.error || 'Upload failed'));
+            };
+            xhr.onerror = () => reject(new Error('Network error'));
+            xhr.onabort = () => reject(new Error('Upload cancelled'));
+            xhr.send(formData);
+        });
+    };
+
+    // Shows the file in the chat right away (onUploadStart), then compresses/encrypts/uploads it
+    // while the bubble displays the progress. getFileToUpload resolves the final file (eg. compressed image).
+    const sendFile = async (originalFile, getFileToUpload) => {
+        const localId = 'upload-' + Math.random().toString(36).slice(2);
+        const isImage = originalFile.type.startsWith('image');
+        let imageDimensions = undefined;
+        if (isImage) {
+            try {
+                imageDimensions = await getImageDimensions(originalFile);
+            } catch (error) {
+                console.warn('Could not get image dimensions:', error);
+            }
+        }
+
+        let cancelled = false;
+        let worker = null;
+        let xhr = null;
+        const cancel = () => {
+            cancelled = true;
+            worker?.terminate();
+            xhr?.abort();
+            clearUploadState(localId);
+            onUploadCancel?.(localId);
+        };
+
+        const run = async () => {
+            setUploadState(localId, { stage: 'preparing', progress: 0, error: undefined, retry: undefined });
+            try {
+                const file = await getFileToUpload();
+                if (cancelled) return;
+                if (file.size / 1024 / 1024 >= 100) {
+                    throw new Error('File must be smaller than 100MB');
+                }
+                if (isImage && file !== originalFile) {
+                    try {
+                        imageDimensions = await getImageDimensions(file);
+                    } catch (error) {}
+                }
+
+                setUploadState(localId, { stage: 'encrypting' });
+                const fileUint8Array = new Uint8Array(await file.arrayBuffer());
+                const encrypted = await encryptInWorker(fileUint8Array, (w) => worker = w);
+                if (cancelled) return;
+
+                const formData = new FormData();
+                formData.append('file', new Blob([encrypted], { type: file.type }));
+                formData.append('fileName', file.name);
+                formData.append('fileType', file.type);
+                formData.append('fileSize', file.size);
+                if (imageDimensions) {
+                    formData.append('imageHeight', imageDimensions.height);
+                    formData.append('imageWidth', imageDimensions.width);
+                }
+                formData.append('account', activeAccount);
+
+                setUploadState(localId, { stage: 'uploading', progress: 0 });
+                let lastPercent = 0;
+                const data = await uploadWithProgress(formData, await getChatToken(), (progress) => {
+                    const percent = Math.floor(progress * 100);
+                    if (percent === lastPercent) return; // avoid re-rendering on every chunk
+                    lastPercent = percent;
+                    setUploadState(localId, { progress });
+                }, (x) => xhr = x);
+                if (cancelled) return;
+
+                // save the file to the filesystem before sending, so we can retrieve it instantly on the sender side without need to decrypt again
+                const fileId = data.url.split('/').pop();
+                await writeUint8ArrayToFile(fileId, fileUint8Array, {
+                    name: file.name,
+                    type: file.type,
+                });
+
+                onUploadSuccess?.({
+                    localId,
+                    url: data.url,
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    imageDimensions: imageDimensions
+                });
+                clearUploadState(localId);
+            } catch (error) {
+                if (cancelled) return;
+                console.error('File upload failed:', error);
+                setUploadState(localId, { stage: 'error', error: error.message, retry: run });
+            }
+        };
+
+        setUploadState(localId, { stage: 'preparing', progress: 0, cancel });
+        onUploadStart?.({
+            localId,
+            previewUrl: URL.createObjectURL(originalFile),
+            name: originalFile.name,
+            type: originalFile.type,
+            size: originalFile.size,
+            imageDimensions,
+        });
+        run();
+    };
+
     const compressImage = (file) => {
       return new Promise((resolve, reject) => {
         new Compressor(file, {
@@ -349,32 +367,25 @@ const ChatInputFile = ({ username, onUploadSuccess, accountTo, type, allowPaste 
     confirmText: 'Send',
     cancelText: 'Cancel',
     content: <ConfirmContent />,
-    onConfirm: async () => {
+    onConfirm: () => {
       if (droppedFiles && droppedFiles.length > 0) {
-        let fileToUpload = file;
-        if (isImage && !isHd) {
-          try {
-            Toast.show({ icon: 'loading', content: 'Compressing image...', duration: 0 });
-            fileToUpload = await compressPromise || file;
-            Toast.clear();
-          } catch (error) {
-            console.warn('Image compression failed, sending original:', error);
+        setFileList([{ url: objectURL, file }]);
+        sendFile(file, async () => {
+          if (isImage && !isHd) {
+            try {
+              return await compressPromise || file;
+            } catch (error) {
+              console.warn('Image compression failed, sending original:', error);
+            }
+          } else if (isImage && isHd) {
+            try {
+              return await stripExifData(file);
+            } catch (error) {
+              console.warn('EXIF stripping failed, sending original:', error);
+            }
           }
-        } else if (isImage && isHd) {
-          try {
-            fileToUpload = await stripExifData(file);
-          } catch (error) {
-            console.warn('EXIF stripping failed, sending original:', error);
-          }
-        }
-        if (beforeUpload(fileToUpload)) {
-          const droppedFile = {
-            url: objectURL,
-            file: fileToUpload,
-          };
-          setFileList([droppedFile]);
-          handleUpload(fileToUpload);
-        }
+          return file;
+        });
       }
     },
     onCancel: cleanup,
@@ -471,7 +482,8 @@ const getImageDimensions = (file) => {
                   return false;
                 }}
                 upload={async (file) => {
-                    return handleUpload(file);
+                    // never called: beforeUpload returns false and confirmSend handles the upload
+                    return { url: '' };
                 }}
                 renderItem={() => null}
                 children={
@@ -483,13 +495,10 @@ const getImageDimensions = (file) => {
                   className='input-file-button'
                   style={{"--border-radius": "12px", "--background-color": isHovering ? "var(--adm-color-primary)" : "var(--adm-color-border)"}}
                   size='large'
-                  loading={loading}
-                  disabled={loading}
                   color={isHovering ? 'primary' : 'default'}
                   
                   >
-                      {loading ? 'Uploading...' : 
-                        type === 'file' ?
+                      {type === 'file' ?
                         <div style={{fontSize: 34}}>
                         <FolderOutline />
             </div>
