@@ -6,15 +6,17 @@ import GroupAvatar from "../components/group-avatar";
 import { useChats } from "../hooks/use-chats";
 import { formatAddress } from "../../../utils/format";
 import { useWallet } from "../../useWallet";
+import { Trans, useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import type { CallState, PeerState } from "./CallProvider";
 
 const END_REASONS: Record<string, string> = {
-    declined: "Call declined",
-    busy: "Busy",
-    timeout: "No answer",
-    failed: "Connection lost",
-    unavailable: "Unavailable",
-    hangup: "Call ended",
+    declined: "callDeclined",
+    busy: "callBusy",
+    timeout: "callNoAnswer",
+    failed: "callConnectionLost",
+    unavailable: "callUnavailable",
+    hangup: "callEnded",
 };
 
 export const formatDuration = (ms: number) => {
@@ -35,21 +37,21 @@ const useDuration = (connectedAt?: number) => {
     return connectedAt ? formatDuration(now - connectedAt) : null;
 };
 
-const statusText = (call: CallState, duration: string | null) => {
-    const kind = call.video ? "video call" : "audio call";
+const statusText = (t: TFunction, call: CallState, duration: string | null) => {
     switch (call.status) {
         case "outgoing":
-            return call.chatType === "group" ? "Ringing the group…" : "Calling…";
+            return call.chatType === "group" ? t("callRingingGroup") : t("callCalling");
         case "incoming":
-            return call.chatType === "group" ? `Incoming group ${kind}` : `Incoming ${kind}`;
+            if (call.chatType === "group") return call.video ? t("incomingGroupVideoCall") : t("incomingGroupAudioCall");
+            return call.video ? t("incomingVideoCall") : t("incomingAudioCall");
         case "connecting":
-            return "Connecting…";
+            return t("callConnecting");
         case "active":
-            if (call.chatType === "group" && Object.keys(call.peers).length === 0) return "Waiting for others to join…";
+            if (call.chatType === "group" && Object.keys(call.peers).length === 0) return t("callWaitingForOthers");
             return duration;
         case "ended":
-            if (call.endReason === "timeout" && call.direction === "incoming") return "Missed call";
-            return (call.endReason && END_REASONS[call.endReason]) || "Call ended";
+            if (call.endReason === "timeout" && call.direction === "incoming") return t("missedCall");
+            return t((call.endReason && END_REASONS[call.endReason]) || "callEnded");
     }
 };
 
@@ -161,8 +163,8 @@ const fill: React.CSSProperties = { position: "absolute", inset: 0, width: "100%
 const peerHasVideo = (call: CallState, peer: PeerState | undefined, stream: MediaStream | undefined) =>
     call.video && !!peer?.camera && !!stream?.getVideoTracks().length;
 
-const peerStatusText = (peer: PeerState) =>
-    peer.status === "connecting" ? "Connecting…" : peer.status === "reconnecting" ? "Reconnecting…" : null;
+const peerStatusText = (t: TFunction, peer: PeerState) =>
+    peer.status === "connecting" ? t("callConnecting") : peer.status === "reconnecting" ? t("callReconnecting") : null;
 
 // one participant of a group call (us included)
 const Tile: React.FC<{
@@ -281,13 +283,14 @@ const CallScreen: React.FC<CallScreenProps> = ({
     onToggleCamera,
     onSwitchCamera,
 }) => {
+    const { t } = useTranslation();
     const { chats } = useChats();
     const { activeAccount } = useWallet();
     const [localAspect, setLocalAspect] = useState(3 / 4);
     const chat = call.chatType === "group" ? chats?.find((c) => c.id === call.chatId) : undefined;
-    const groupName = (chat as any)?.name || "Group call";
+    const groupName = (chat as any)?.name || t("groupCall");
     const duration = useDuration(call.connectedAt);
-    const status = statusText(call, duration);
+    const status = statusText(t, call, duration);
     const localStream = useMemo(() => (localVideoTrack ? new MediaStream([localVideoTrack]) : null), [localVideoTrack]);
     const mirrorLocal = call.facingMode === "user";
 
@@ -387,7 +390,7 @@ const CallScreen: React.FC<CallScreenProps> = ({
                 <div style={{ width: "100%", display: "flex", alignItems: "center", minHeight: 32 }}>
                     {call.status !== "incoming" && call.status !== "ended" && (
                         <DownOutline
-                            aria-label="Minimize"
+                            aria-label={t("callMinimize")}
                             fontSize={24}
                             style={{ cursor: "pointer" }}
                             onClick={() => onMinimize(true)}
@@ -395,7 +398,7 @@ const CallScreen: React.FC<CallScreenProps> = ({
                     )}
                     <div style={{ flex: 1, textAlign: "center", fontSize: 13, opacity: 0.8 }}>
                         <LockFill style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }} />
-                        End-to-end encrypted
+                        {t("endToEndEncrypted")}
                     </div>
                     <div style={{ width: 24 }} />
                 </div>
@@ -404,11 +407,11 @@ const CallScreen: React.FC<CallScreenProps> = ({
                     <div style={{ width: "100%", flex: 1, display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
                         <div style={{ alignSelf: "flex-start", maxWidth: "100%" }}>
                             <div style={{ fontSize: 18, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{groupName}</div>
-                            <div style={{ fontSize: 14, opacity: 0.9 }}>{status} · {peerAccounts.length + 1} participants</div>
+                            <div style={{ fontSize: 14, opacity: 0.9 }}>{status} · {t("callParticipants", { count: peerAccounts.length + 1 })}</div>
                         </div>
                         <CallGrid
                             tiles={[
-                                <Tile key="self" account={activeAccount} stream={localStream} mirrored={mirrorLocal} muted={call.muted} label="You" />,
+                                <Tile key="self" account={activeAccount} stream={localStream} mirrored={mirrorLocal} muted={call.muted} label={t("callYou")} />,
                                 ...peerAccounts.map((account) => {
                                     const peer = call.peers[account];
                                     const stream = remoteStreams[account];
@@ -419,7 +422,7 @@ const CallScreen: React.FC<CallScreenProps> = ({
                                             stream={peerHasVideo(call, peer, stream) && peer.status === "connected" ? stream : null}
                                             muted={peer.muted}
                                             label={<Name address={account} />}
-                                            status={peerStatusText(peer)}
+                                            status={peerStatusText(t, peer)}
                                         />
                                     );
                                 }),
@@ -440,13 +443,13 @@ const CallScreen: React.FC<CallScreenProps> = ({
                         <div style={{ fontSize: 24, fontWeight: 600, textAlign: "center" }}>{title}</div>
                         {isGroup && call.status === "incoming" && (
                             <div style={{ fontSize: 15, opacity: 0.85 }}>
-                                <Name address={call.from} /> is calling
+                                <Trans i18nKey="callIsCalling" components={{ name: <Name address={call.from} /> }} />
                             </div>
                         )}
                         <div style={{ fontSize: 16, opacity: 0.85, minHeight: 22 }}>{status}</div>
                         {!isGroup && soloPeer && call.status === "active" && (call.peers[soloPeer]?.muted || (call.video && !call.peers[soloPeer]?.camera)) && (
                             <div style={{ fontSize: 13, opacity: 0.7 }}>
-                                {[call.video && !call.peers[soloPeer]?.camera && "Camera off", call.peers[soloPeer]?.muted && "Muted"].filter(Boolean).join(" · ")}
+                                {[call.video && !call.peers[soloPeer]?.camera && t("callCameraOff"), call.peers[soloPeer]?.muted && t("callMuted")].filter(Boolean).join(" · ")}
                             </div>
                         )}
                         {unknownCaller && call.status === "incoming" && (
@@ -464,11 +467,10 @@ const CallScreen: React.FC<CallScreenProps> = ({
                             >
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: WARNING_ORANGE, marginBottom: 4 }}>
                                     <ExclamationTriangleOutline fontSize={16} />
-                                    {isGroup ? "The caller is not in your contacts" : "Not in your contacts"}
+                                    {isGroup ? t("callerNotInContacts") : t("notInContacts")}
                                 </div>
-                                Never share your secret phrase or send funds because someone asks during a call.
-                                Scammers may pretend to be someone you know.
-                                {ipHidden && " Your IP address is hidden from this caller."}
+                                {t("callScamWarning")}
+                                {ipHidden && ` ${t("callIpHidden")}`}
                             </div>
                         )}
                     </div>
@@ -477,15 +479,15 @@ const CallScreen: React.FC<CallScreenProps> = ({
                 <div style={{ display: "flex", gap: call.video || call.status === "incoming" ? 20 : 64, justifyContent: "center", flexWrap: "wrap", minHeight: 88 }}>
                     {call.status === "incoming" && (
                         <>
-                            <RoundButton label="Decline" background={HANGUP_RED} onClick={onDecline}>
+                            <RoundButton label={t("callDecline")} background={HANGUP_RED} onClick={onDecline}>
                                 <PhoneFill fontSize={28} style={{ transform: "rotate(135deg)" }} />
                             </RoundButton>
                             {call.video && (
-                                <RoundButton label="Audio only" background={IDLE_BUTTON} onClick={() => onAccept(false)}>
+                                <RoundButton label={t("callAudioOnly")} background={IDLE_BUTTON} onClick={() => onAccept(false)}>
                                     <PhoneFill fontSize={28} />
                                 </RoundButton>
                             )}
-                            <RoundButton label="Accept" background={ACCEPT_GREEN} onClick={() => onAccept(true)}>
+                            <RoundButton label={t("callAccept")} background={ACCEPT_GREEN} onClick={() => onAccept(true)}>
                                 {call.video ? <VideoOutline fontSize={28} /> : <PhoneFill fontSize={28} />}
                             </RoundButton>
                         </>
@@ -493,7 +495,7 @@ const CallScreen: React.FC<CallScreenProps> = ({
                     {inCall && (
                         <>
                             <RoundButton
-                                label={call.muted ? "Unmute" : "Mute"}
+                                label={call.muted ? t("callUnmute") : t("callMute")}
                                 background={call.muted ? "#fff" : IDLE_BUTTON}
                                 onClick={onToggleMute}
                             >
@@ -501,7 +503,7 @@ const CallScreen: React.FC<CallScreenProps> = ({
                             </RoundButton>
                             {call.video && (
                                 <RoundButton
-                                    label={call.cameraOn ? "Camera" : "Camera off"}
+                                    label={call.cameraOn ? t("camera") : t("callCameraOff")}
                                     background={call.cameraOn ? IDLE_BUTTON : "#fff"}
                                     onClick={onToggleCamera}
                                 >
@@ -509,11 +511,11 @@ const CallScreen: React.FC<CallScreenProps> = ({
                                 </RoundButton>
                             )}
                             {call.video && call.cameraOn && canSwitchCamera && (
-                                <RoundButton label="Flip" background={IDLE_BUTTON} onClick={onSwitchCamera}>
+                                <RoundButton label={t("callFlip")} background={IDLE_BUTTON} onClick={onSwitchCamera}>
                                     <LoopOutline fontSize={28} />
                                 </RoundButton>
                             )}
-                            <RoundButton label={isGroup ? "Leave" : "End"} background={HANGUP_RED} onClick={onHangUp}>
+                            <RoundButton label={isGroup ? t("leave") : t("callEnd")} background={HANGUP_RED} onClick={onHangUp}>
                                 <PhoneFill fontSize={28} style={{ transform: "rotate(135deg)" }} />
                             </RoundButton>
                         </>
