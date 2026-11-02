@@ -388,14 +388,17 @@ const CallScreen: React.FC<CallScreenProps> = ({
                 }}
             >
                 <div style={{ width: "100%", display: "flex", alignItems: "center", minHeight: 32 }}>
-                    {call.status !== "incoming" && call.status !== "ended" && (
-                        <DownOutline
-                            aria-label={t("callMinimize")}
-                            fontSize={24}
-                            style={{ cursor: "pointer" }}
-                            onClick={() => onMinimize(true)}
-                        />
-                    )}
+                    {/* fixed-width slot, balanced by the spacer on the right so the label stays centered */}
+                    <div style={{ width: 24, display: "flex" }}>
+                        {call.status !== "incoming" && call.status !== "ended" && (
+                            <DownOutline
+                                aria-label={t("callMinimize")}
+                                fontSize={24}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => onMinimize(true)}
+                            />
+                        )}
+                    </div>
                     <div style={{ flex: 1, textAlign: "center", fontSize: 13, opacity: 0.8 }}>
                         <LockFill style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }} />
                         {t("endToEndEncrypted")}
