@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import words from "../../../utils/words";
 import { Button, Form, TextArea } from "antd-mobile";
 import { useSensitiveScreen } from "../../../utils/sensitiveScreen";
+import { useInCall } from "../../messaging/call/CallProvider";
 import { useTranslation } from "react-i18next";
 
 interface MnemonicInputProps {
@@ -17,6 +18,8 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isCaptured } = useSensitiveScreen();
+  const inCall = useInCall();
+  const hidden = isCaptured || inCall;
     const [mnemonicInputs, setMnemonicInputs] = useState<string[]>(
         new Array(0).fill(""),
       );
@@ -62,12 +65,12 @@ export const MnemonicInput: React.FC<MnemonicInputProps> = ({
 
   return (
     <div>
-      {isCaptured && (
+      {hidden && (
         <div className="m-3 text-sm text-center" style={{ color: "var(--adm-color-warning)" }}>
-          {t("hiddenWhileScreenCaptured")}
+          {t(inCall ? "hiddenDuringCall" : "hiddenWhileScreenCaptured")}
         </div>
       )}
-      <div style={isCaptured ? { filter: "blur(8px)", pointerEvents: "none" } : undefined}>
+      <div style={hidden ? { filter: "blur(8px)", pointerEvents: "none" } : undefined}>
       <Form
      
                 className="form-mnemonic"

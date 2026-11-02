@@ -69,7 +69,8 @@ const usePasswordStrength = (password: string) => {
   return result
 }
 
-export const PasswordForm = ({onFinish,  buttonText = "Next"}) => {
+// `compact`: tighter spacing, for popups that must fit above the keyboard
+export const PasswordForm = ({onFinish,  buttonText = "Next", compact = false}) => {
   const [form] = Form.useForm();
   const password = Form.useWatch('password', form);
   console.log(password)
@@ -88,7 +89,7 @@ export const PasswordForm = ({onFinish,  buttonText = "Next"}) => {
           size="large"
           color="primary"
           shape="rounded"
-          className="mt-4 w-full"
+          className={`${compact ? "mt-1" : "mt-4"} w-full`}
           >
             {buttonText}
           </Button>
@@ -105,12 +106,13 @@ export const PasswordForm = ({onFinish,  buttonText = "Next"}) => {
                         type="password"
                         autoComplete="new-password"
                         placeholder="Password"
-                        className="mt-2"
+                        className={compact ? undefined : "mt-2"}
                       />
                       </Form.Item>
-                        <div className="text-sm pl-4 pr-4 mr-2 mb-4" style={{textAlign: "start"}}>
+                        <div className={`text-sm pl-4 pr-4 mr-2 ${compact ? "mb-2" : "mb-4"}`} style={{textAlign: "start"}}>
                           <ProgressBar
-                           text={password?.length > 0 ? <p style={{color: getColorClass(result.score)}}>{getStrengthText(result.score)}</p> : null}
+                           // only once scored: it's computed (debounced) after typing starts
+                           text={password?.length > 0 && result ? <p style={{color: getColorClass(result.score)}}>{getStrengthText(result.score)}</p> : null}
             percent={result ? result?.score * 25 : 0}
             style={{
               '--fill-color':  getColorClass(result?.score),
@@ -140,7 +142,7 @@ export const PasswordForm = ({onFinish,  buttonText = "Next"}) => {
                         type="password"
                         autoComplete="new-password"
                         placeholder="Confirm Password"
-                        className="mt-2"
+                        className={compact ? undefined : "mt-2"}
                       />
                       </Form.Item>
                    

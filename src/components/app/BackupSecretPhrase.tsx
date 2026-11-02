@@ -11,7 +11,7 @@ import { useWallet } from "../useWallet";
 import { authenticate } from '../../utils/biometrics';
 import { PinAuthPopup } from '../Lock/PinLock';
 import { ResponsivePopup } from '../Settings';
-import { DownlandOutline, EditSOutline, ExclamationCircleOutline, FingerdownOutline } from 'antd-mobile-icons';
+import { DownlandOutline, EditSOutline, ExclamationCircleOutline, FingerdownOutline, LockOutline } from 'antd-mobile-icons';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { encrypt } from '../../worker/crypto';
 import ManualBackup from './backup/ManualBackup';
@@ -312,17 +312,20 @@ const BackupWithPassword = ({ setBackupVisible, setBackupType, setVisible, text,
 
     return (
         <div className="">
-            <div className="text-2xl text-center p-2">
+            {/* condensed so the title stays above the keyboard */}
+            <div className="text-lg text-center px-10 pt-3 pb-1 mt-4" style={{ fontWeight: 600 }}>
+                <LockOutline style={{ display: 'inline', marginRight: 6, verticalAlign: '-2px' }} />
                 {t('createPassword')}
             </div>
-            <div className='p-2 mb-2 text-center' style={{
-                // marginBottom: 350
-                }}>
-                {t('thisPasswordWillEncryptYourSecretPhraseFile')}
-                <div style={{ color: 'var(--adm-color-warning)' }}>
+            <div className='px-2 pb-1 text-center text-sm'>
+                <span style={{ color: 'var(--adm-color-text-secondary)' }}>
+                    {t('thisPasswordWillEncryptYourSecretPhraseFile')}
+                </span>{' '}
+                <span style={{ color: 'var(--adm-color-warning)' }}>
                     {t('doNotLoseYourPasswordOrYourBackupWillBeUnrecoverable')}
-                </div>
+                </span>
                 <PasswordForm
+                    compact
                     onFinish={async (values) => {
 
                         try {

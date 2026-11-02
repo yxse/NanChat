@@ -28,6 +28,7 @@ import { copyToClipboard } from "../../../utils/format";
 import { EyeFill, EyeOutline } from "antd-mobile-icons";
 import { EyeInvisibleFill } from "antd-mobile-icons";
 import { useSensitiveScreen } from "../../../utils/sensitiveScreen";
+import { useInCall } from "../../messaging/call/CallProvider";
 import { useTranslation } from "react-i18next";
 
 export default function Mnemonic({
@@ -164,32 +165,59 @@ export default function Mnemonic({
   );
 
 }
+// Asked before the phrase is first revealed on a screen: stolen phrases are
+// mostly read out, typed or scanned for someone on the other end (a fake
+// support agent, a "friend", a call), not taken from the device.
+const confirmReveal = (t: (key: string) => string) => new Promise<boolean>((resolve) => {
+  Modal.show({
+    title: t("revealWarningTitle"),
+    content: (
+      <div>
+        <ul style={{ paddingLeft: 18, listStyle: "disc", display: "flex", flexDirection: "column", gap: 8 }}>
+          <li>{t("revealWarningNobodyAsks")}</li>
+          <li>{t("revealWarningAnyoneAsking")}</li>
+          <li>{t("revealWarningStoreOffline")}</li>
+        </ul>
+        <div className="mt-4" style={{ fontWeight: 600 }}>{t("revealWarningQuestion")}</div>
+      </div>
+    ),
+    closeOnAction: true,
+    actions: [
+      { key: "self", text: t("revealNoOneAsked"), primary: true },
+      { key: "asked", text: t("revealSomeoneAsked") },
+    ],
+    onAction: (action) => {
+      if (action.key === "asked") {
+        Modal.alert({ title: t("scamStopTitle"), content: t("scamStopContent"), confirmText: t("iUnderstand") });
+        resolve(false);
+        return;
+      }
+      resolve(true);
+    },
+    onClose: () => resolve(false), // dismissed: no-op once resolved by an action
+  });
+});
+
 export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideButton = false, colorCopy}: { mnemonic: string, defaultIsRevealed?: boolean, showHideButton?: boolean, colorCopy?: string }) {
   const { t } = useTranslation();
   const [isRevealed, setIsRevealed] = useState<boolean>(defaultIsRevealed);
   const { isCaptured } = useSensitiveScreen({ onScreenshot: () => setIsRevealed(false) });
+  const inCall = useInCall();
+  const hidden = isCaptured || inCall;
   const [copied, setCopied] = useState<boolean>(false);
-  const [warningShown, setWarningShown] = useState<boolean>(defaultIsRevealed); // don't show warning when init wallet
-  const warningModal = () => {
-    return
-    Modal.confirm({
-      title: "Do not share your Secret Recovery Phrase",
-      content: "Support will never ask for your Secret Recovery Phrase. Do not share it with anyone and store it securely.",
-      confirmText: "I understand",
-      cancelText: "I don't understand",
-      onCancel: () => {
-        copyToClipboard("") // clear clipboard
-        setIsRevealed(false)
-        setWarningShown(false)
-      }
-    })
-  }
-  const triggerReveal = () => {
-    if (!isRevealed && !warningShown) {
-      warningModal()
-      setWarningShown(true)
+  const [warningShown, setWarningShown] = useState<boolean>(defaultIsRevealed);
+  // a call starting hides it again, it isn't shown back when the call ends
+  useEffect(() => {
+    if (inCall) setIsRevealed(false);
+  }, [inCall]);
+  const triggerReveal = async () => {
+    if (isRevealed) return setIsRevealed(false);
+    if (inCall) return;
+    if (!warningShown) {
+      if (!(await confirmReveal(t))) return;
+      setWarningShown(true);
     }
-    setIsRevealed(!isRevealed)
+    setIsRevealed(true);
   }
   return <div>
   <div 
@@ -217,20 +245,20 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
         </span>
         <span className={`select-none`} style={{wordBreak: "break-word"}}>
           {
-            isRevealed && !isCaptured ? word : "********"
+            isRevealed && !hidden ? word : "********"
           }
         </span>
       </div>
     ))}
       </div>
       {
-        isCaptured &&
+        hidden &&
         <div className="mt-4 text-sm text-center" style={{ color: "var(--adm-color-warning)" }}>
-          {t("hiddenWhileScreenCaptured")}
+          {t(inCall ? "hiddenDuringCall" : "hiddenWhileScreenCaptured")}
         </div>
       }
       {
-        showHideButton &&
+        showHideButton && !inCall &&
       <div className="mt-4 mb-0 cursor-pointer text-base text-center w-full" onClick={() => triggerReveal()}>
                     {isRevealed ? 
                     <div className="flex items-center gap-2 justify-center">
@@ -248,15 +276,12 @@ export function MnemonicWords({ mnemonic, defaultIsRevealed = false, showHideBut
       }
     <div className="mt-4">
       {
-        colorCopy && 
-    <CopyButton 
+        // only once revealed, so the warning comes first
+        colorCopy && isRevealed && !hidden &&
+    <CopyButton
     textToCopy={mnemonic} copiedText={t("copiedForOneMinute")} copyText={t("copyToClipboard")} color={colorCopy}
     onCopy={() => {
       setCopied(true)
-      if (!warningShown){
-        warningModal()
-        setWarningShown(true)
-      }
       setTimeout(() => {
         copyToClipboard("empty", "Failed to clear secret phrase from clipboard") // clear clipboard
         setCopied(false)
