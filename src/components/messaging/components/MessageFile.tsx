@@ -35,6 +35,7 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
               const diskName = fileId.endsWith('.txt') ? getOpenableFileName(safeName) : null
               if (diskName) {
                 await Filesystem.rmdir({directory: Directory.Cache, path: 'opened-files', recursive: true}).catch(() => {}) // previous copies
+                await Filesystem.mkdir({directory: Directory.Cache, path: `opened-files/${fileId}`, recursive: true}) // copy does not create it on iOS
                 await Filesystem.copy({from: fileId, directory: Directory.Data, to: `opened-files/${fileId}/${diskName}`, toDirectory: Directory.Cache})
                 filePath = await Filesystem.getUri({directory: Directory.Cache, path: `opened-files/${fileId}/${diskName}`})
               }
