@@ -116,12 +116,10 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
       .catch(() => {});
   }, [decrypted]);
   useEffect(() => {
-    // set sending after 2 seconds
-    setTimeout(() => {
-      if (message.status === 'sent_local' && !message.uploading) { // uploading files show their own progress
-        setSending(true);
-      }
-    }, 2000)
+    // set sending after 2 seconds (only for local messages: avoids a timer per rendered message)
+    if (message.status !== 'sent_local' || message.uploading) return; // uploading files show their own progress
+    const timer = setTimeout(() => setSending(true), 2000);
+    return () => clearTimeout(timer);
   }, [message]);
   if (!decrypted) { // only showing the message when decrypted
     return null;

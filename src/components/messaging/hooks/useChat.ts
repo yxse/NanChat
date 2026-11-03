@@ -1,5 +1,5 @@
 import useSWR, { useSWRConfig } from 'swr';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
 import { useWallet } from "../../useWallet";
@@ -94,13 +94,14 @@ export function useChat(chatId) {
   // const prevSizeRef = useRef(1)
 
   // Flatten all pages into a single array
-  let messages = pages ? pages.flat() : [];
+  // memoized: a new array on every render would re-render the whole message list on any ChatRoom update
+  const messages = useMemo(() => pages ? pages.flat() : [], [pages]);
   // console.log('messages fetch', pages, error)
   // const isLoadingInitial = !pages && !error;
   const isLoadingInitial = isLoading
-  // const isLoadingMore = size > 0 && pages && pages[size - 1] === "undefined";
-  const isLoadingMore = isValidating
-  const isLoadingNextPage = isValidating
+  // true only while an older page is being fetched (not for any other revalidation)
+  const isLoadingMore = isValidating && size > (pages?.length ?? 0)
+  const isLoadingNextPage = isLoadingMore
   const isLoadingFirstPage = (isValidating && size <= 1) && !isLoadingInitial
   // const isLoadingNextPage = isValidating && size > prevSizeRef.current
  // Update the ref when validation completes
@@ -121,7 +122,7 @@ export function useChat(chatId) {
     // return
     // we use this function to reduce the number of message loaded
     // for optimization purpose, as when too much messages loaded the DOM becomes slower
-    if (Capacitor.getPlatform() !== "ios") return // we reset only for ios since not using virtualizer
+    if (Capacitor.getPlatform() === "android") return // android uses the virtualizer, others render every loaded message
   // Keep only the first page of messages
   if (pages && pages.length > 0) {
     // await mutate([pages[0]], false); // Keep only first page, no revalidation
@@ -148,72 +149,18 @@ export function useChat(chatId) {
   } 
   
 }
-  // // Load more messages
-  // const loadMore = useCallback(() => {
-  //   setSize(size + 1);
-  // }, [setSize, size]);
- // Store pending load promises
-  const loadPromisesRef = useRef(new Map());
-  
-  // Effect to resolve load promises when new pages arrive
-  useEffect(() => {
-    if (pages) {
-      const currentPageCount = pages.length;
-      // Check for any pending promises that can now be resolved
-      loadPromisesRef.current.forEach((resolve, expectedSize) => {
-        if (currentPageCount >= expectedSize) {
-          resolve(true);
-          loadPromisesRef.current.delete(expectedSize);
-        }
-      });
-    }
-  }, [pages]);
-
-  // Effect to reject promises on error
-  useEffect(() => {
-    if (error) {
-      // Reject all pending promises
-      loadPromisesRef.current.forEach((resolve, expectedSize) => {
-        resolve(Promise.reject(error));
-        loadPromisesRef.current.delete(expectedSize);
-      });
-    }
-  }, [error]);
-    // Load more messages - now async and resolves when the new page is loaded
-  const loadMore = useCallback(async (limit) => {
-    const newSize = size + 1;
-    
-    // Create promise for this specific load
-    const loadPromise = new Promise((resolve, reject) => {
-      loadPromisesRef.current.set(newSize, resolve);
-      
-      // If we already have enough pages, resolve immediately
-      if (pages && pages.length >= newSize) {
-        resolve(true);
-        loadPromisesRef.current.delete(newSize);
-        return;
-      }
-      
-      // If there's already an error, reject immediately
-      if (error) {
-        reject(error);
-        loadPromisesRef.current.delete(newSize);
-        return;
-      }
-    });
-    
-    // Trigger the fetch
-    setSize(newSize);
-    
-    return loadPromise;
-  }, [setSize, size, pages, error]);
+  // Load the next (older) page. setSize resolves once the new page has been fetched.
+  // The page size is fixed by getKey, the optional argument is only kept for existing callers.
+  const loadMore = useCallback((_limit?: number) => setSize(s => s + 1), [setSize]);
 
   useEffect(() => {
-    // mutate unreadCount to 0 when chat is opened
-    if (chatId) {
+    // mutate unreadCount to 0 when chat is opened or receives messages while open.
+    // Only when needed: every mutation of the chats store notifies all its subscribers (one ProfileName per rendered
+    // message), so doing it unconditionally on each page load made loading older messages slower and slower.
+    if (chat?.id && chat.unreadCount > 0) {
       mutateChats(currentChats => {
         const newChats = [...(currentChats || [])];
-        const chatIndex = newChats.findIndex(chat => chat.id === chatId);
+        const chatIndex = newChats.findIndex(c => c.id === chat.id);
         if (chatIndex !== -1) {
           const newChat = { ...newChats[chatIndex] };
           newChat.unreadCount = 0;
@@ -222,7 +169,7 @@ export function useChat(chatId) {
         return newChats;
       }, false);
     }
-  }, [pages]);
+  }, [pages, chat?.id, chat?.unreadCount]);
 
   useEffect(() => {
     const handleChatNotFound = async () => {

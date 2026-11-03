@@ -4,6 +4,7 @@ import useSWRInfinite from 'swr/infinite';
 import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
 import { useWallet } from "../../useWallet";
 import { Toast } from 'antd-mobile';
+import { flushParticipantChanges, indexChats } from './participants-store';
 
 interface UseChatsReturn {
   chats: Chat[] | undefined;
@@ -37,6 +38,11 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
       dedupingInterval: 10000
     }
   );
+  // keep the address -> participant index used by ProfileName in sync (no-op when chats did not change)
+  indexChats(chats, !isLoading);
+  useEffect(() => {
+    flushParticipantChanges();
+  }, [chats, isLoading]);
   // console.log(chats[0])
   const lastSaveTime = useRef(0);
 

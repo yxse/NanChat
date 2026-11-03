@@ -18,7 +18,6 @@ import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
 import { getKey, useChat } from "../hooks/useChat";
-import InfiniteScroll from 'react-infinite-scroll-component';
 import Message, { InfoMessageEncrypted, WelcomeMessage } from "./Message";
 import useDetectKeyboardOpen from "../../../hooks/use-keyboard-open";
 import GroupAvatar from "./group-avatar";
@@ -41,7 +40,7 @@ import { debounce } from 'lodash';
 import { removeData } from "../../../services/database.service";
 import { Capacitor } from "@capacitor/core";
 import { VirtualizedMessagesVirtua } from "./VirtualizedMessagesVirtua";
-import InfiniteScrollingMessages from "./messages/InfiniteScrollingMessages";
+import MessageList, { MessageListHandle } from "./messages/MessageList";
 import { DelayedSpinner } from "./DelayedSpinner";
 import { App } from "@capacitor/app";
 import ChatLocked from "./group/ChatLocked";
@@ -54,15 +53,13 @@ const ChatRoom: React.FC<{}> = ({  }) => {
         account
     } = useParams();
     // const [messages, setMessages] = useState<Message[]>([]);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const infiniteScrollRef = useRef<HTMLDivElement>(null);
+    const messageListRef = useRef<MessageListHandle>(null);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { wallet } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
     // const { data: messagesHistory } = useSWR<Message[]>(`/messages?chatId=${account}`, fetcherMessages);
-    const [autoScroll, setAutoScroll] = useState(true);
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
     // const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
     const {width} = useBreakpoint();
@@ -70,20 +67,6 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     //     persist: 'localStorage',
     //   });
     const virtuaRef = useRef(null);
-    const scrollKeyStore = `scrollTop-chat-room`
-    // const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
-
-const saveScrollPosition = useCallback(
-  debounce((position) => {
-    try {
-      localStorage.setItem(scrollKeyStore, position.toString());
-      console.log('Scroll position saved:', position);
-    } catch (error) {
-      console.error('Error saving scroll position to localStorage:', error);
-    }
-  }, 200), // 200ms debounce time - adjust as needed
-  []
-);
     const { inviteFriends } = useInviteFriends();
     const {
         messages,
@@ -97,52 +80,10 @@ const saveScrollPosition = useCallback(
     } = useChat(account);
     const {isMobile, isTablet} = useBreakpoint()
     const {chat, isLoading} = useChats(account);
-    const messagesRef = useRef(messages);
-    useEffect(() => { messagesRef.current = messages; }, [messages]);
-    const loadMoreRef = useRef(loadMore);
-    useEffect(() => { loadMoreRef.current = loadMore; }, [loadMore]);
-
-    const goToMessageIos = useCallback(async (replyMessage: { _id: string; height: number }) => {
-        const scrollToElement = () => {
-            const el = document.querySelector(`[data-message-id="${replyMessage._id}"]`);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const observer = new IntersectionObserver((entries) => {
-                    if (entries[0].isIntersecting) {
-                        observer.disconnect();
-                        el.classList.add('message-highlight');
-                        el.addEventListener('animationend', () => el.classList.remove('message-highlight'), { once: true });
-                    }
-                }, { threshold: 0.5 });
-                observer.observe(el);
-                setTimeout(() => observer.disconnect(), 8000);
-                return true;
-            }
-            return false;
-        };
-
-        if (scrollToElement()) return;
-
-        const currentMessages = messagesRef.current;
-        const lowestLoadedHeight = currentMessages[currentMessages.length - 1]?.height;
-        if (!lowestLoadedHeight || !replyMessage.height || replyMessage.height >= lowestLoadedHeight) return;
-
-        const pagesToLoad = Math.ceil((lowestLoadedHeight - replyMessage.height) / LIMIT_MESSAGES) + 1;
-
-        for (let i = 0; i < pagesToLoad; i++) {
-            try {
-                await loadMoreRef.current(LIMIT_MESSAGES);
-                await new Promise(r => setTimeout(r, 100));
-                if (scrollToElement()) return;
-            } catch (e) {
-                break;
-            }
-        }
-
-        scrollToElement();
-    }, []);
     const safeMutate = useImmediateSafeMutate(mutate);
-    const virtualized = Capacitor.getPlatform() !== "ios"
+    // android and web/desktop use the virtua virtualizer; ios uses the non-virtualized MessageList
+    // (virtua has scroll inertia issues on webkit, see https://github.com/inokawa/virtua/issues/473)
+    const virtualized = Capacitor.getPlatform() !== 'ios'
     // console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
@@ -255,40 +196,10 @@ const saveScrollPosition = useCallback(
 
 
     const scrollToBottom = () => {
-        if (virtualized) return
-        // return
-        // debugger
-        // messagesEndRef.current?.
-        // scroll({
-        //     top: messagesEndRef.current.scrollHeight,
-        //     behavior: 'instant',
-        // })
-        // window.scrollTo(0,document.body.scrollHeight);
-        // window.scrollTo(0, document.body.scrollHeight);
-        // messagesEndRef.current?.scrollTo(0, -1);
-        // messagesEndRef.current?.scrollTo(0, messagesEndRef.current.offsetHeight + 1000);
-        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
-
+        messageListRef.current?.scrollToBottom();
     };
 
-
-
-    useEffect(() => {
-        // debugger
-        // console.log(location.state)
-        if (!isMobile){
-            scrollToBottom(); // scroll bottom by default when coming back cause infiste scroll bug if scrolled top and coming back,  todo scroll restoration react router
-            reset() // on larger screen we force reset as it will not be reseted by the other scrollTop reset
-            // debugger
-        }
-    }, [account]);
-
     useHideNavbarOnMobile(account);
-    useEffect(() => {
-        // console.log("height", infiniteScrollRef.current?.scrollTop);
-        // console.log("height", infiniteScrollRef.current?.scrollHeight);
-        // console.log("height", infiniteScrollRef.current?.clientHeight);
-    }, [chat, messages])
 
     useEffect(() => {
         if (messages[0]?.error && messages[0]?.chatId !== null && messages[0]?.error == "Chat already exists"){ // chat already exists
@@ -315,43 +226,13 @@ const saveScrollPosition = useCallback(
       )
         
     }
-}, [scrollToBottom, messages.length]); 
-  useEffect(() => {
-      return () => {
-        saveScrollPosition.cancel();
-      };
-    }, [saveScrollPosition]);
+}, [scrollToBottom, messages.length]);
 useEffect(() => {
-    if (
-        ((!isMobile && !isTablet) ||
-        (!sessionStorage.getItem("list-cache-" + chat?.id)))
-        && virtualized
-    ){
-        // debugger
+    // virtua only: trim loaded pages unless its scroll cache will restore the position (MessageList handles this itself)
+    if (virtualized && ((!isMobile && !isTablet) || !sessionStorage.getItem("list-cache-v2-" + chat?.id))) {
         reset()
     }
-    if (virtualized) return
-      // restore scroll position
-      const scrollTop = localStorage.getItem(scrollKeyStore);
-      if (scrollTop) {
-        // debugger
-          const scrollTopInt = parseInt(scrollTop);
-          if (!isNaN(scrollTopInt)) {
-            // debugger
-              if (infiniteScrollRef.current) {
-                  (infiniteScrollRef.current as any).scrollTo(0, scrollTopInt);
-                // setTimeout(() => {
-                // }, 0)
-              }
-          }
-      }
-      else{
-        reset()
-        // debugger
-      }
-      return () => {
-      }
-      }, [infiniteScrollRef]);
+}, [account]);
     const StartConversation = ({address}) => {
         if (!accountExists) return null;
         return (  <div
@@ -395,13 +276,15 @@ useEffect(() => {
                 }
                 >
                    <div 
-                   style={{cursor: "pointer"}}
+                   // contain inline-size: the name width must not count in the min-content width of the parent
+                   // flex layouts, otherwise a long name widens the whole page (horizontal scroll)
+                   style={{cursor: "pointer", contain: "inline-size"}}
                    onClick={() => {
                     navigate(`/chat/${address}/info`);
                 }}
-                   className="flex-1 text-center">
-                    <h2 className="flex items-center justify-center gap-2">
-                    <ProfileName address={address} fallback={formatAddress(address)} />
+                   className="flex-1 min-w-0 text-center">
+                    <h2 className="flex items-center justify-center gap-2 min-w-0">
+                    <span className="truncate min-w-0"><ProfileName address={address} fallback={formatAddress(address)} /></span>
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     {/* <DotLoading /> */}
                     <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 0 : 400} spinnerProps={{style:{width: 24}}}/>
@@ -544,75 +427,42 @@ useEffect(() => {
                         //   flexGrow: 1,
                     }}
                 >
-                    <div
-                        ref={infiniteScrollRef}
-                        id="scrollableDiv"
-                        //   className="scrollableDiv"
-                        style={{
-                            height: "100%",
-                            width: '100%',
-                            overflow: !virtualized ? "scroll": "hidden",
-                            display: !virtualized ? "flex": "block",
-                            // flexDirection: "column-reverse",
-                            flexDirection: !virtualized ? "column-reverse": "column",
-                            // overflowAnchor: 'auto',
-                            // touchAction: 'none', // don't or ios scroll glitch
-                        }}
-                    >
-{
-    ((messages.length === 0 && !isLoadingInitial) && account != null) && (
-        <div>
-        <InfoMessageEncrypted />
-        {
-             chat?.creator === TEAM_ACCOUNT ? <WelcomeMessage /> : 
-             
-                 <StartConversation address={address} />
-        }
-      
-
-        </div>
-    )
-}
-                        {
-                            isLoadingInitial ? <div style={{
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: 'calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
-  width: '100%'
-}}>
-  <SpinLoading style={{width: 48}} />
-</div>:
-                                <div>
-                                    {/* {
-
-                                        hasMore && isLoadingMore && (
-                            <div style={{display: "flex", justifyContent: "center", marginTop: 32, marginBottom: 32}}>
-                                <SpinLoading />
-                            </div>
-                        )
-                    } */}
-                    {/* 
-                    
-                    on ios not using virtualizer as already good performances without it and scroll much smoother,
-                    lot of scroll intertia issue with ios/webkit, see: 
-                        https://github.com/inokawa/virtua/issues/473
-                        https://github.com/inokawa/virtua/issues/403#issuecomment-1978126177
-                    */}
                     {
-                        !virtualized ? 
-                        <InfiniteScrollingMessages
-                        saveScrollPosition={saveScrollPosition}
-                        loadMore={loadMore} chat={chat} isLoadingMore={isLoadingMore} hasMore={hasMore}
-                        messages={messages.reverse()}
-                        infiniteScrollRef={infiniteScrollRef} isLoadingInitial={isLoadingInitial} setAutoScroll={setAutoScroll}
-                        onGoToMessage={goToMessageIos} />
-                                 :   
-                                    <VirtualizedMessagesVirtua
+                        isLoadingInitial ? (
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: 'calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
+                                width: '100%'
+                            }}>
+                                <SpinLoading style={{width: 48}} />
+                            </div>
+                        ) : (messages.length === 0 && account != null) ? (
+                            <div style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end"}}>
+                                <InfoMessageEncrypted />
+                                {chat?.creator === TEAM_ACCOUNT ? <WelcomeMessage /> : <StartConversation address={address} />}
+                            </div>
+                        ) : account == null ? null : !virtualized ? (
+                            <MessageList
+                                key={account}
+                                ref={messageListRef}
+                                chatId={account}
+                                chatType={chat?.type}
+                                isFromTeam={chat?.creator === TEAM_ACCOUNT}
+                                messages={messages}
+                                hasMore={hasMore}
+                                isLoadingMore={isLoadingMore}
+                                loadMore={loadMore}
+                                restoreScroll={isMobile}
+                                onOpenAtBottom={reset}
+                            />
+                        ) : (
+                            <div id="scrollableDiv" style={{height: "100%", width: '100%', overflow: "hidden", display: "block"}}>
+                                <VirtualizedMessagesVirtua
                                     isNewChat={isNewChat}
                                     isLoadingFirstPage={isLoadingFirstPage}
                                     virtuaRef={virtuaRef}
-                                    saveScrollPosition={saveScrollPosition}
                                     activeAccount={activeAccount}
                                     activeAccountPk={activeAccountPk}
                                     chat={chat}
@@ -620,27 +470,11 @@ useEffect(() => {
                                     messages={messages}
                                     fetchNextPage={loadMore}
                                     isFetchingNextPage={isLoadingMore}
-                                    />
-}
-                                     <div
-                                        id="endOfMessages"
-                                        ref={messagesEndRef} />
-                                </div>
-                        }
-
-                    </div>
+                                />
+                            </div>
+                        )
+                    }
                 </div>
-                {/* <Button 
-                onClick={() => {
-                    setAutoScroll(false);
-                    loadMore();
-                }}
-                className="w-full"
-                size="small"
-                color="primary">
-                    Load more
-                </Button> */}
-                
                 <div
                     style={(account == null
                         || (!accountExists)

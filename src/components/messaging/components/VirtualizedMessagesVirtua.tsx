@@ -2,7 +2,7 @@ import { useMemo, useRef, useEffect, useState, useLayoutEffect, useCallback } fr
 import Message, { HeaderMessage } from './Message';
 import { TEAM_ACCOUNT, LIMIT_MESSAGES } from '../utils';
 import { Button, DotLoading, SpinLoading, Toast } from 'antd-mobile';
-import { CacheSnapshot, VList, VListHandle } from "virtua";
+import { CacheSnapshot, Virtualizer } from "virtua";
 import { debounce } from 'lodash';
 import { Keyboard } from '@capacitor/keyboard';
 import { socket } from '../socket';
@@ -14,7 +14,12 @@ import { DateHeader, shouldShowDate } from './date-header-component';
 import { useBreakpoint } from '../../../hooks/use-windows-dimensions';
 import NewMessageWarning from './NewMessageWarning';
 
-export const VirtualizedMessagesVirtua = ({ 
+const PRELOAD_MARGIN = 400; // px from the top at which the next page starts loading
+const LOAD_COOLDOWN_MS = 100; // minimum time between two page loads
+const LOAD_TIMEOUT_MS = 10000; // give up waiting for a page after this long
+const MAX_LOADS_WITHOUT_PROGRESS = 2;
+
+export const VirtualizedMessagesVirtua = ({
   messages, 
   activeAccount, 
   activeAccountPk, 
@@ -22,13 +27,11 @@ export const VirtualizedMessagesVirtua = ({
   hasMore, 
   fetchNextPage, 
   isFetchingNextPage,
-  saveScrollPosition,
   isLoadingFirstPage,
   virtuaRef,
   isNewChat
 }) => {
   
-  const isPrepend = useRef(false);
   const [mountTimestamp, setMountTimestamp] = useState(null);
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
@@ -42,6 +45,7 @@ export const VirtualizedMessagesVirtua = ({
   const {isMobile, isTablet} = useBreakpoint()
   
   // Add these new refs to manage state better
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const isRestoringScroll = useRef(false);
   const pendingShouldStick = useRef(null);
   const scrollTimeoutRef = useRef(null);
@@ -50,7 +54,26 @@ export const VirtualizedMessagesVirtua = ({
   const displayMessages = useMemo(() => {
     return [...messages].reverse();
   }, [messages]);
-  
+
+  // virtua only reads `shift` on the render where the item count changes, so derive it from the data:
+  // older messages were prepended iff the first displayed message changed and the list grew.
+  // (a ref toggled by timers was racy, especially when pages come instantly from the local cache)
+  const prevFirstId = useRef<string | undefined>(undefined);
+  const prevLength = useRef(0);
+  const prevChatId = useRef(chat?.id);
+  const firstId = displayMessages[0]?._id;
+  const shift =
+    prevChatId.current === chat?.id &&
+    prevLength.current > 0 &&
+    displayMessages.length > prevLength.current &&
+    firstId !== prevFirstId.current;
+  useLayoutEffect(() => {
+    prevFirstId.current = firstId;
+    prevLength.current = displayMessages.length;
+    prevChatId.current = chat?.id;
+  });
+  const isLoadingMoreRef = useRef(false);
+
   const isFirstLoadMore = useRef(true);
   const timeoutRef = useRef(null);
 
@@ -58,7 +81,7 @@ export const VirtualizedMessagesVirtua = ({
   const displayMessagesRef = useRef(displayMessages);
   useEffect(() => { displayMessagesRef.current = displayMessages; }, [displayMessages]);
   const messagesRef = useRef(messages);
-  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  messagesRef.current = messages; // updated during render: read right after a page commit by maybeLoadOlder
   const fetchNextPageRef = useRef(fetchNextPage);
   useEffect(() => { fetchNextPageRef.current = fetchNextPage; }, [fetchNextPage]);
 
@@ -136,7 +159,6 @@ export const VirtualizedMessagesVirtua = ({
 
     const pagesToLoad = Math.ceil((lowestLoadedHeight - replyMessage.height) / LIMIT_MESSAGES) + 1;
 
-    isPrepend.current = true;
     setPendingScrollTarget(replyMessage._id);
 
     for (let i = 0; i < pagesToLoad; i++) {
@@ -148,11 +170,10 @@ export const VirtualizedMessagesVirtua = ({
       }
     }
 
-    isPrepend.current = false;
     // isGoingToMessage.current is reset by the pendingScrollTarget effect after the scroll completes
   }, []);
 
-  const cacheKey = "list-cache-" + chat?.id;
+  const cacheKey = "list-cache-v2-" + chat?.id; // v2: virtua 0.54 cache snapshot
 
   const scrollToBottom = () => {
       console.log("scroll to bottom", displayMessages.length)
@@ -215,7 +236,6 @@ export const VirtualizedMessagesVirtua = ({
     return () => {
       clearTimeout(timeoutRef.current);
       clearTimeout(scrollTimeoutRef.current);
-      isPrepend.current = false
       if (isMobile || isTablet) {
         sessionStorage.setItem(
           cacheKey,
@@ -261,17 +281,27 @@ export const VirtualizedMessagesVirtua = ({
 
   useEffect(() => {
     if (Capacitor.getPlatform() === 'web') return; // Keyboard events are only relevant for native platforms
-    Keyboard.addListener('keyboardWillShow', info => {
-      const safeAreaBottomValue = parseInt(window.getComputedStyle(document.body).getPropertyValue('--android-inset-bottom-buttons').split('px')[0] || 0)
-      console.log('keyboard will show with height:', info.keyboardHeight);
-      setKeyboardHeight(info.keyboardHeight - safeAreaBottomValue)
-      scrollToBottom(false)
-    })
-    
-    Keyboard.addListener('keyboardWillHide', info => {
-      setKeyboardHeight(0)
-    })
-  }, [virtuaRef, displayMessages.length])
+    const listeners = [
+      Keyboard.addListener('keyboardWillShow', info => {
+        const safeAreaBottomValue = parseInt(window.getComputedStyle(document.body).getPropertyValue('--android-inset-bottom-buttons').split('px')[0] || 0)
+        console.log('keyboard will show with height:', info.keyboardHeight);
+        setKeyboardHeight(info.keyboardHeight - safeAreaBottomValue)
+        scrollToBottom(false)
+      }),
+      Keyboard.addListener('keyboardWillHide', () => {
+        setKeyboardHeight(0)
+      }),
+    ];
+    return () => listeners.forEach(l => l.then(h => h.remove()));
+  }, [])
+
+  // the viewport shrinks/grows with the keyboard, sticker and add panels (and items resize while measuring):
+  // keep the bottom in view if we were there, virtua does not do it by itself
+  const handleResize = () => {
+    if (!shouldStickToBottom.current || isRestoringScroll.current || isGoingToMessage.current) return;
+    const el = scrollerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }
 
   // Auto-scroll to bottom for new messages (improved logic)
   useEffect(() => {
@@ -336,37 +366,59 @@ export const VirtualizedMessagesVirtua = ({
       scrollTimeoutRef.current = null;
     }, 100);
     
-    if (isCloseToBottom){
-      isPrepend.current = false
+    maybeLoadOlder(offsetScroll);
+  }
+
+  // Preload older pages well before the top (a page is ~3000px) so fast scrolls do not hit it, same rules as MessageList:
+  // one load at a time, short cooldown, re-check after each page to stay ahead, stop if loads make no progress.
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+  const lastLoadEnd = useRef(0);
+  const loadsWithoutProgress = useRef(0);
+  const cooldownTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const maybeLoadOlder = async (offsetScroll = virtuaRef.current?.scrollOffset) => {
+    if (offsetScroll == null || offsetScroll > PRELOAD_MARGIN) return;
+    if (!hasMoreRef.current || isLoadingMoreRef.current || isRestoringScroll.current) return;
+    if (loadsWithoutProgress.current >= MAX_LOADS_WITHOUT_PROGRESS) return;
+    const sinceLastLoad = performance.now() - lastLoadEnd.current;
+    if (sinceLastLoad < LOAD_COOLDOWN_MS) {
+      clearTimeout(cooldownTimer.current);
+      cooldownTimer.current = setTimeout(() => maybeLoadOlder(), LOAD_COOLDOWN_MS - sinceLastLoad);
+      return;
     }
 
-    let threshold = 500
-    if (scrollSize < 2000){
-      threshold = 100
+    isLoadingMoreRef.current = true;
+    isFirstLoadMore.current = false;
+    const countBefore = messagesRef.current.length;
+    try {
+      await Promise.race([fetchNextPageRef.current(), new Promise(r => setTimeout(r, LOAD_TIMEOUT_MS))]);
+      await new Promise(r => requestAnimationFrame(r)); // let React commit the new page
+    } catch (error) {
+      console.log("cannot load next page", error)
+    } finally {
+      isLoadingMoreRef.current = false;
+      lastLoadEnd.current = performance.now();
     }
-    
-    if (offsetScroll < threshold && hasMore && !isFetchingNextPage) { 
-      isPrepend.current = true;
-  
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-      
-      console.log("loading more at top via scroll");
-      isFirstLoadMore.current = false;
-      
-      try {
-        await fetchNextPage(100);
-        timeoutRef.current = setTimeout(() => {
-          isPrepend.current = false
-          timeoutRef.current = null;
-        }, 1000)
-      } catch (error) {
-        console.log("cannot load next page", error)        
-      }
+    if (messagesRef.current.length > countBefore) {
+      loadsWithoutProgress.current = 0;
+    } else if (++loadsWithoutProgress.current >= MAX_LOADS_WITHOUT_PROGRESS) {
+      console.warn("loading older messages made no progress, stop loading until new messages arrive");
     }
+    maybeLoadOlder(); // still within the margin (fast scroll): load the next page to stay ahead
   }
+
+  // the list changed (page loaded, new message, hasMore known): allow loading again and check the position.
+  // Not while stuck to the bottom (e.g. on open, scrollOffset is still 0 before the initial scroll to bottom),
+  // unless the messages do not fill the viewport: then there is no scroll to trigger loading older ones.
+  useEffect(() => {
+    loadsWithoutProgress.current = 0;
+    const handle = virtuaRef.current;
+    if (!handle || handle.viewportSize === 0 || isLoadingMoreRef.current) return;
+    const fillsViewport = handle.scrollSize > handle.viewportSize;
+    if (shouldStickToBottom.current && fillsViewport) return;
+    maybeLoadOlder();
+  }, [hasMore, messages.length]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -378,6 +430,7 @@ export const VirtualizedMessagesVirtua = ({
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      clearTimeout(cooldownTimer.current);
     };
   }, [chat?.id]);
 
@@ -394,16 +447,19 @@ export const VirtualizedMessagesVirtua = ({
         overflowAnchor: "none"
       }}
     >
-      <VList
+      <div
         key={"list" + chat?.id}
         id='vlist'
+        ref={scrollerRef}
+        style={{overflowY: "auto", contain: "strict", width: "100%", height: "100%", display: "block"}}
+      >
+      <Virtualizer
         cache={cache}
-        overscan={4}
         ref={virtuaRef}
-        reverse
-        shift={isPrepend.current}
+        scrollRef={scrollerRef}
+        shift={shift}
         onScroll={handleScroll}
-        style={{overflow: "auto", display: "block"}}
+        onResize={handleResize}
       >
         {displayMessages.map((message, index) => {
           const prevMessage = displayMessages[index + 1];
@@ -427,7 +483,8 @@ export const VirtualizedMessagesVirtua = ({
           );
         })}
         <div style={{height: 29}} key={"padding-typing" + chat?.id}>{" "}</div>
-      </VList>
+      </Virtualizer>
+      </div>
     </div>
   );
 };

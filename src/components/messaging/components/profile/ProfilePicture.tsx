@@ -56,7 +56,7 @@ const ProfilePicture = ({ address, width = 40, borderRadius = 8, clickable = fal
 
     const finalSrc = src ?? data?.profilePicture?.url ?? null;
 
-    if (shouldFetchData && isLoadingData) return null;
+    if (shouldFetchData && isLoadingData) return <div style={{ width, height: width }} />;
 
     if (!finalSrc) {
         return <NoAvatar width={width as any} height={width as any} borderRadius={borderRadius} />;
@@ -64,9 +64,12 @@ const ProfilePicture = ({ address, width = 40, borderRadius = 8, clickable = fal
 
     return (
         <div style={{ width, height: width }}>
+            {/* No loading="lazy": lists using this are virtualized already, and on iOS WebKit
+                a remounted lazy/async-decoded <img> paints blank for a frame even when cached,
+                which shows as a flash when going back to the chat list. */}
             <img
                 onClick={clickable ? () => ImageViewer.show({ image: finalSrc }) : undefined}
-                loading="lazy"
+                decoding="sync"
                 style={{
                     borderRadius,
                     objectFit: "cover",

@@ -2,6 +2,7 @@ import useSWR from "swr";
 import { fetcherAccount } from "../../fetcher";
 import { DotLoading } from "antd-mobile";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { useParticipant } from "../../hooks/participants-store";
 import { useChats } from "../../hooks/use-chats";
 import { memo } from "react";
 import { useContact } from "../contacts/ImportContactsFromShare";
@@ -27,18 +28,17 @@ const ProfileLookup = ({ address }) => {
     return data2;
 }
 
-export const useProfile = (address) => {
-    const {chats, isLoading} = useChats();
-    let data = null;
-    for (const chat of chats) {
-        const participant = chat.participants.find(p => p._id === address);
-        if (participant) {
-          data = participant;
-        break;
-        }
-    }
+// loads and indexes the chats for the participant store, only rendered while it is not ready yet
+// (on pages where nothing else uses useChats)
+const ChatsIndexer = () => {
+    useChats();
+    return null;
+}
 
-    if (isLoading) return null
+export const useProfile = (address) => {
+    const {participant: data, ready} = useParticipant(address);
+
+    if (!ready) return null
     if (data == null) { // first try to get the name from the chats (without new request) then fallback to the request
         return <ProfileLookup address={address} />
     }
@@ -46,19 +46,11 @@ export const useProfile = (address) => {
 }
 
 const ProfileName = memo(({ address, fallback, includeVerified = true, fromContact = true }) => {
-    const {chats, isLoading} = useChats();
+    const {participant: data, ready} = useParticipant(address);
     const {getContact} = useContact();
     const contact = getContact(address);
-    let data = null;
-    for (const chat of chats) {
-        const participant = chat.participants.find(p => p._id === address);
-        if (participant) {
-          data = participant;
-        break;
-        }
-    }
 
-    if (isLoading) return null
+    if (!ready) return <ChatsIndexer />
     if (data == null) { // first try to get the name from the chats (without new request) then fallback to the request
         return <ProfileNameLookup address={address} fallback={fallback} />
     }

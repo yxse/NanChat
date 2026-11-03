@@ -108,9 +108,10 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                 <div>
                     <div style={{display: "flex", alignItems: "center", gap: 8}} className="text-2xl">
                 <ProfilePicture address={convertAddress(account, 'XNO')} width={72} clickable/>
-                <div style={{display: "flex", flexDirection: "column", gap: 4}}>
+                <div style={{display: "flex", flexDirection: "column", gap: 4, minWidth: 0}}>
                     <div style={{display: "flex", alignItems: "center", gap: 8}}>
-                <ProfileName address={convertAddress(account, 'XNO')} includeVerified={inContacts ? false : true}  /> {inContacts  &&  <UserOutline  />}
+                {/* long names wrap instead of widening the page (horizontal scroll) */}
+                <span style={{minWidth: 0, overflowWrap: "anywhere"}}><ProfileName address={convertAddress(account, 'XNO')} includeVerified={inContacts ? false : true}  /></span> {inContacts  &&  <UserOutline style={{flexShrink: 0}} />}
                 </div>
                 <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
                     {t('nanChatId')}: <span
@@ -127,8 +128,8 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                     }}
                     >{name?.username}</span>
                 </div>
-                <div style={{color: 'var(--adm-color-text-secondary)'}} className="text-base">
-                    {t('name')}: <ProfileName address={convertAddress(account, 'XNO')} fromContact={false} /> 
+                <div style={{color: 'var(--adm-color-text-secondary)', overflowWrap: "anywhere"}} className="text-base">
+                    {t('name')}:<ProfileName address={convertAddress(account, 'XNO')} fromContact={false} /> 
                     {/* this shows the original name */}
                 </div>
                 
