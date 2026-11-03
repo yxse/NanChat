@@ -19,7 +19,7 @@ import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener'
 import { fileIDsBeingDecrypted, readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
 import { setData } from "../../../services/database.service";
 import { isDangerousFileName, isDangerousMimeType, sanitizeFileName } from "../utils";
-import { getLocalFileName } from "../../../services/file-url";
+import { getLocalFileName, getOpenableFileName } from "../../../services/file-url";
 import { useChats } from "../hooks/use-chats";
 import { useUploadState } from "../../../services/upload-progress";
 import { useTranslation } from "react-i18next";
@@ -30,6 +30,14 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
             Toast.show({icon: 'loading'})
             let filePath = await Filesystem.getUri({directory: Directory.Data, path: fileId})
             try {
+              // the cached copy may carry a .txt suffix (see getLocalFileName), but the native opener picks
+              // the document type from the extension: open a copy named after the real file instead
+              const diskName = fileId.endsWith('.txt') ? getOpenableFileName(safeName) : null
+              if (diskName) {
+                await Filesystem.rmdir({directory: Directory.Cache, path: 'opened-files', recursive: true}).catch(() => {}) // previous copies
+                await Filesystem.copy({from: fileId, directory: Directory.Data, to: `opened-files/${fileId}/${diskName}`, toDirectory: Directory.Cache})
+                filePath = await Filesystem.getUri({directory: Directory.Cache, path: `opened-files/${fileId}/${diskName}`})
+              }
               const fileOpenerOptions: FileOpenerOptions = {
                   filePath: filePath.uri,
                   contentType: fileType,

@@ -14,7 +14,15 @@ const SAFE_LOCAL_EXTENSIONS = [
   "txt",
 ];
 
-export const isAllowedFileUrl = (url: unknown): url is string => {
+// Documents can keep their real extension in the copy handed to the native opener (it picks the app
+// from it). Like above, only types a webview never renders as a page: html, svg, xml... and unknown
+// extensions (whose content gets sniffed) stay .txt even there.
+const OPENABLE_EXTENSIONS = [
+  "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "pages", "numbers", "key",
+  "csv", "epub", "zip", "rar", "7z", "tar", "gz",
+];
+
+export const isAllowedFileUrl =(url: unknown): url is string => {
   if (typeof url !== "string") return false;
   let parsed: URL;
   try {
@@ -34,4 +42,11 @@ export const getLocalFileName = (url: unknown): string | null => {
   const fileID = new URL(url).pathname.split("/")[2];
   const extension = fileID.includes(".") ? fileID.split(".")[1].toLowerCase() : "";
   return SAFE_LOCAL_EXTENSIONS.includes(extension) ? fileID : `${fileID}.txt`;
+};
+
+// Name of the copy opened with the native opener: the sender's file name if its extension is openable, else null (keep the .txt)
+export const getOpenableFileName = (fileName: string): string | null => {
+  const name = fileName.replace(/[\/\\:\x00-\x1f]/g, "_").slice(-200).replace(/^\.+/, "");
+  const extension = name.includes(".") ? name.split(".").pop()!.toLowerCase() : "";
+  return OPENABLE_EXTENSIONS.includes(extension) ? name : null;
 };
