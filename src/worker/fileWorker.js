@@ -1,4 +1,5 @@
 import { box } from 'multi-nano-web';
+import { isAllowedFileUrl } from '../services/file-url';
 
 // decryptWorker.js
 self.onmessage = async function(e) {
@@ -8,16 +9,20 @@ self.onmessage = async function(e) {
     const { file, targetAccount, decryptionKey, message } = e.data;
     console.log("web worker Decrypting file", file.url);
     try {
+      // the url comes from the sender's message: never fetch anything else than our bucket (ip leak)
+      if (!isAllowedFileUrl(file.url)) {
+        throw new Error('File url not allowed');
+      }
       let fileURL = new URL(file.url);
       let fileID = fileURL.pathname.split('/').pop();
-      
+
       // Note: You'll need to implement cache reading logic for workers
       // or move that to the main thread
       let data = await fetch(file.url);
       let fileData;
 
       try {
-        fileData = await response.bytes(); 
+        fileData = await data.bytes();
       } catch (error) {
         // fallback if byte not available (eg on iOS 17.5)
         const arrayBuffer = await data.arrayBuffer();

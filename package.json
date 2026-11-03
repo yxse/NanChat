@@ -71,7 +71,7 @@
     "@tauri-apps/plugin-opener": "~2.5.4",
     "@tauri-apps/plugin-process": "~2",
     "@tauri-apps/plugin-updater": "~2.10.1",
-    "@teamhive/capacitor-webview-overlay": "https://github.com/Benskalz/capacitor-webview-overlay.git#78910ed8b037ecdb85d09efa44232b1e5fbc1221",
+    "@teamhive/capacitor-webview-overlay": "https://github.com/Benskalz/capacitor-webview-overlay.git#01852a3bc90b7724d5b2415c1c8bf73a2b80d258",
     "@zxcvbn-ts/core": "^3.0.4",
     "@zxcvbn-ts/language-common": "^3.0.4",
     "@zxcvbn-ts/language-en": "^3.0.2",

@@ -10,6 +10,7 @@ import {
   useLocation,
   useSearchParams,
   useParams,
+  Navigate,
 } from "react-router-dom";
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 // when using `"withGlobalTauri": true`, you may use
@@ -304,6 +305,15 @@ hideHistory={true} defaultFrom={ticker} defaultTo={"BAN"} />}
     </>
   );
 };
+// The ticker can come from a deep link (nan://nanchat.com/FOO/send): pages read networks[ticker].name
+// without checking, so an unknown one would crash the app. hasOwn also refuses "constructor", "toString"...
+function KnownTicker({ children }) {
+  const { ticker } = useParams();
+  if (!ticker || !Object.prototype.hasOwnProperty.call(networks, ticker)) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
 function SafeAreaWrapper({ children, callback }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -374,7 +384,7 @@ function SafeAreaWrapper({ children, callback }) {
         if (title && contactsFileName.find((name) => title.startsWith(name))){
         let json = JSON.stringify(result)
           console.log('Import contact Intent received: ', json);
-          navigate('/contacts?import_url=' + decodeURIComponent(result.payload[0]?.url))
+          navigate('/contacts', { state: { contactsImport: decodeURIComponent(result.payload[0]?.url) } })
         }
       }
   } catch (err) {
@@ -459,7 +469,7 @@ export default function App({callback}) {
         getIsPasswordEncrypted().then((isPasswordEncrypted) => {
           if (isPasswordEncrypted) { // no need to lock wallet if no password is set
             Toast.show("Locking wallet due to inactivity");
-            window.location.reload();
+            window.location.replace("/");
           }
         });
       }
@@ -542,13 +552,13 @@ export default function App({callback}) {
             <Route path="/sign" element={<Sign />} />
             <Route path="/art" element={<Art />} />
             <Route path="/protocol_handler" element={<Protocol_handler />} />
-            <Route path="/:ticker" element={<Network defaultReceiveVisible={false}/>} />
+            <Route path="/:ticker" element={<KnownTicker><Network defaultReceiveVisible={false}/></KnownTicker>} />
             <Route
               path="/:ticker/receive"
-              element={<Network defaultReceiveVisible={true} defaultAction="receive" />} />
-            <Route path="/:ticker/red-packet" element={<RedPacket  />}/>
-            <Route path="/:ticker/send" element={<Send ticker={"XNO"} />} />
-            <Route path="/:ticker/representative" element={<ChangeRep />} />
+              element={<KnownTicker><Network defaultReceiveVisible={true} defaultAction="receive" /></KnownTicker>} />
+            <Route path="/:ticker/red-packet" element={<KnownTicker><RedPacket  /></KnownTicker>}/>
+            <Route path="/:ticker/send" element={<KnownTicker><Send ticker={"XNO"} /></KnownTicker>} />
+            <Route path="/:ticker/representative" element={<KnownTicker><ChangeRep /></KnownTicker>} />
             {/* <Route path="/messages" element={<Messaging />} />
             <Route path="/messages/:account" element={<ChatRoom />} />
             <Route path="/messages/g/:roomId" element={<Messaging />} /> */}

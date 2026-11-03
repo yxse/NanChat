@@ -24,16 +24,44 @@ import { isSavedContact } from '../messaging/call/call-signaling';
 import InAppNotification, { showInAppNotification } from './InAppNotification';
 
 
+const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
+
+// The iOS share extension (NanChatShare) copies the shared file into the App Group container
+// and opens nanchat://;?title=...&url=file:///.../Shared/AppGroup/<uuid>/<file>.
+// Any app or website can open such a link too, so only files in that container are accepted:
+// the path is read from disk, it must never point to a received attachment or other app files.
+const isSharedContactsFile = (fileUrl: string) => {
+  let parsed: URL;
+  let path: string;
+  try {
+    parsed = new URL(fileUrl); // also resolves "..", "%2e%2e"
+    path = decodeURIComponent(parsed.pathname);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== "file:" || parsed.host) return false;
+  const match = path.match(/\/Containers\/Shared\/AppGroup\/[0-9A-F-]{36}\/([^/]+)$/i);
+  return !!match && !path.split("/").includes("..") && contactsFileName.some((name) => match[1].startsWith(name));
+}
+
 const isContactImport = (url: string) => {
-  console.log({url})
-  const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
-  const urlData = new URL(url);
-  const searchParams = urlData.searchParams;
+  if (Capacitor.getPlatform() !== "ios") return false; // android shares go through the send intent (see checkIntent)
+  let searchParams: URLSearchParams;
+  try {
+    searchParams = new URL(url).searchParams;
+  } catch {
+    return false;
+  }
   const title = searchParams.get('title');
   const urlFile = searchParams.get('url');
   if (urlFile && title && contactsFileName.find((name) => title.startsWith(name))){
-    const urlFileDecoded = decodeURIComponent(urlFile);
-    return urlFileDecoded;
+    let urlFileDecoded: string;
+    try {
+      urlFileDecoded = decodeURIComponent(urlFile); // percent-encoded twice by the share extension
+    } catch {
+      return false;
+    }
+    return isSharedContactsFile(urlFileDecoded) ? urlFileDecoded : false;
   }
   return false;
 }
@@ -43,6 +71,20 @@ const isContactImport = (url: string) => {
 export type UriOrigin = { source: "in-app" | "external", pageUrl?: string };
 const EXTERNAL_ORIGIN: UriOrigin = { source: "external" };
 const isWalletDeepLink = (url: string) => /^(nano|nan|nanauth|ban|xdg|ana|xro):/i.test(url);
+
+// Paths under /_capacitor_* are served by the native local server (files on disk, http proxy).
+// Putting one in the address bar would let the next page load render a received file
+// (e.g. html) on the app origin, so they are never navigated to.
+export const isSafeAppPath = (path: unknown): path is string => {
+  if (typeof path !== "string" || !path.startsWith("/") || path.startsWith("//")) return false;
+  let decoded = path;
+  try {
+    decoded = decodeURIComponent(path);
+  } catch {
+    return false;
+  }
+  return !decoded.toLowerCase().includes("_capacitor");
+};
 
 // Incoming / missed call push. Visible ones are shown by the OS; data-only ones
 // are sent to accounts accepting calls from their contacts only, which only
@@ -82,7 +124,7 @@ const AppUrlListener: React.FC<any> = () => {
       console.log("handle", url)
       let contactsFile = isContactImport(url);
       if (contactsFile){
-        navigate("/contacts?import_url=" + contactsFile);
+        navigate("/contacts", { state: { contactsImport: contactsFile } });
         return;
       }
       if (
@@ -90,8 +132,9 @@ const AppUrlListener: React.FC<any> = () => {
         && !url.includes("?uri="))
         {
         // no valid action detected, we just open the app and redirect to the correct page
+        const path = url.replace('nan://nanchat.com/', '/').replace("https://nanchat.com/", "/")
         navigate("/")
-        navigate(url.replace('nan://nanchat.com/', '/').replace("https://nanchat.com/", "/"))
+        if (isSafeAppPath(path)) navigate(path)
         return; 
       }
       setUriOrigin(origin);
@@ -156,7 +199,7 @@ const AppUrlListener: React.FC<any> = () => {
           //   content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
           // })
           navigate('/') // to prevent bug when navigating back
-          navigate(event.notification.data.url);
+          if (isSafeAppPath(event.notification.data.url)) navigate(event.notification.data.url);
            setTimeout(() => {
             // using delay or else it seems that chats list not correctly update
                mutateChats() 
@@ -199,7 +242,7 @@ const AppUrlListener: React.FC<any> = () => {
         console.log("adding service worker web event listenerw");
         navigator.serviceWorker.addEventListener("message", (event: any) => {
           console.log("serviceWorker message: ", { event });
-          if (event.data.messageType === "notification-clicked" && event.data.data.url) {
+          if (event.data.messageType === "notification-clicked" && isSafeAppPath(event.data.data.url)) {
             navigate(event.data.data.url); // navigate to url only when clicked
           }
         });
@@ -322,7 +365,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
         console.log("extra", extra);
         // navigate to the url
         navigate("/");
-        navigate(extra.url);
+        if (isSafeAppPath(extra?.url)) navigate(extra.url);
         LocalNotifications.getDeliveredNotifications().then((notifications) => {
           // remove notification of the chat
           const notificationsChat = notifications.notifications.filter((notification) => notification.extra?.url === extra.url);
@@ -341,7 +384,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
       <PasteAction mode="invisible" uri={uri} uriOrigin={uriOrigin} setUri={setUri} />
       <InAppNotification
         onOpen={(notification) => {
-          if (!notification.url) return;
+          if (!isSafeAppPath(notification.url)) return;
           navigate('/') // to prevent bug when navigating back
           navigate(notification.url)
         }}

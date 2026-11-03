@@ -60,6 +60,9 @@ const Name: React.FC<{ address: string }> = ({ address }) => (
     <ProfileName address={address} fallback={formatAddress(address)} />
 );
 
+// transparent 1x1 gif, replacing the WebView's default poster
+const BLANK_POSTER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
 // Always muted: remote audio plays through the provider's <audio> elements, so
 // it keeps playing while this screen is minimized.
 //
@@ -75,11 +78,17 @@ const VideoView: React.FC<{
     const ref = useRef<HTMLVideoElement>(null);
     const [videoAspect, setVideoAspect] = useState(0);
     const [frameAspect, setFrameAspect] = useState(0);
+    const [playing, setPlaying] = useState(false);
     useEffect(() => {
         const video = ref.current;
         if (!video) return;
+        // hidden until the first frame: meanwhile the Android WebView draws a play icon
+        setPlaying(false);
+        const onPlaying = () => setPlaying(true);
+        video.addEventListener("playing", onPlaying);
         video.srcObject = stream;
         video.play().catch(() => {});
+        return () => video.removeEventListener("playing", onPlaying);
     }, [stream]);
     useEffect(() => {
         const video = ref.current;
@@ -112,11 +121,13 @@ const VideoView: React.FC<{
             autoPlay
             playsInline
             muted
+            poster={BLANK_POSTER}
             style={{
                 objectFit: sameOrientation ? "cover" : "contain",
                 background: "#000",
                 transform: mirrored ? "scaleX(-1)" : undefined,
                 ...style,
+                visibility: playing ? "visible" : "hidden",
             }}
         />
     );

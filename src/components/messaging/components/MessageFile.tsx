@@ -18,7 +18,8 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { fileIDsBeingDecrypted, readFileToBlobUrl, writeUint8ArrayToFile } from "../../../services/capacitor-chunked-file-writer";
 import { setData } from "../../../services/database.service";
-import { dangerousExtensions } from "../utils";
+import { isDangerousFileName, isDangerousMimeType, sanitizeFileName } from "../utils";
+import { getLocalFileName } from "../../../services/file-url";
 import { useChats } from "../hooks/use-chats";
 import { useUploadState } from "../../../services/upload-progress";
 import { useTranslation } from "react-i18next";
@@ -54,12 +55,14 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
             // Web approach 
             const a = document.createElement('a');
             a.href = content;
-            a.download = fileName;
+            a.download = safeName;
             a.click();
           }
     }
-    let extension = "." + fileName.split('.').pop()
-    if (dangerousExtensions.includes(extension)) {
+    const safeName = sanitizeFileName(fileName)
+    let extension = "." + safeName.split('.').pop()
+    const dangerousType = !isDangerousFileName(fileName) && isDangerousMimeType(fileType) // e.g. "photo.jpg" sent as an apk
+    if (isDangerousFileName(fileName) || dangerousType) {
         Modal.confirm({
             closeOnMaskClick: true,
             header: (
@@ -72,7 +75,7 @@ const downloadFile = async (content: string, fileName: string, fileType: string,
               ),
             title: "File potentially dangerous",
             content: <div style={{textAlign: 'center', maxWidth: '300px'}}>
-                This file has the extension <b>{extension}</b> <br/> It may steal your funds or harm your computed if executed. Continue only if you trust the contact.
+                {dangerousType ? <>This file has the type <b>{fileType}</b></> : <>This file has the extension <b>{extension}</b></>} <br/> It may steal your funds or harm your computed if executed. Continue only if you trust the contact.
             </div>,
             cancelText: 'Download anyway',
             confirmText: 'Cancel',
@@ -164,14 +167,18 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         targetAccount = message.fromAccount
     }
 
-    const fileID = file.url.split('/').pop()
+    const fileID = getLocalFileName(file.url) // null if the url is not one of our attachments
 
     // Create decryption function that returns a promise
     const createDecryptionPromise = useCallback(async () => {
         return new Promise(async (resolve, reject) => {
             let worker = null;
-            
+
             try {
+                if (!fileID) {
+                    resolve(null); // shown as unavailable
+                    return;
+                }
                 // Check if file is already cached first
                 const cachedFile = await readFileToBlobUrl(fileID);
                 if (cachedFile) {
@@ -193,14 +200,14 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                             
                             // Save the file
                             await writeUint8ArrayToFile(
-                                e.data.fileID,
+                                fileID,
                                 e.data.decrypted, 
                                 {name: file.meta?.name, type: file.meta?.type}
                             );
                             
                             console.log("file saved");
                             
-                            const uri = await readFileToBlobUrl(e.data.fileID);
+                            const uri = await readFileToBlobUrl(fileID);
                             console.log({uri, decrypted: uri});
                             resolve(uri);
                         } else {
@@ -310,8 +317,8 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
 
     const fileType = file.meta?.type
     const fileSize = file.meta?.size
-    const fileName = file.meta?.name
-    
+    const fileName = sanitizeFileName(file.meta?.name) // what is shown must match the extension checked before opening
+
     let heightImage = +(maxHeight.split('px')[0])
     let widthImage = file.meta?.width
     let heightConstrained = false
@@ -385,7 +392,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     if (!isAccepted) return (
         <div>
             <div>
-                {file.meta?.name} - {formatSize(file.meta?.size)}
+                {fileName} - {formatSize(file.meta?.size)}
             </div>
             <div>File blocked because chat not accepted</div>
         </div>
@@ -430,7 +437,8 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                         />
                     }
                     {fileType?.startsWith('video') && 
-                        <video 
+                        <video
+                            key={decrypted} // a <video> ignores <source> changes: remount when the preview blob is replaced by the cached file
                             preload="metadata"
                             controls
                             style={{
@@ -445,7 +453,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                         <Card>
                             <div 
                                 onClick={async () => {
-                                    await downloadFile(decrypted, fileName, fileType, file.url.split('/').pop())
+                                    await downloadFile(decrypted, fileName, fileType, fileID!)
                                 }}
                                 style={{
                                     display: 'flex', 

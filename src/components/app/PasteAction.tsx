@@ -9,7 +9,7 @@ import { ScanCodeOutline } from 'antd-mobile-icons';
 import { Scanner } from './Scanner';
 import { WebviewOverlay } from '@teamhive/capacitor-webview-overlay';
 import { SignPopup } from '../../api-invoke/Sign';
-import type { UriOrigin } from './AppUrlListener';
+import { isSafeAppPath, type UriOrigin } from './AppUrlListener';
 
 // pasted and scanned URIs come from outside the app
 const EXTERNAL_ORIGIN: UriOrigin = { source: "external" };
@@ -48,7 +48,8 @@ function PasteAction({mode = "paste", uri = "", uriOrigin = EXTERNAL_ORIGIN, set
       }
       if (uri.startsWith("https://nanchat.com/chat/")) { // handle chat group/my qrcode join
         tmpUri = uri.replace("https://nanchat.com", "");
-        navigate(tmpUri)
+        // "/chat/../_capacitor_file_/..." would resolve to a native local server path
+        if (isSafeAppPath(tmpUri)) navigate(tmpUri)
         return
       }
         

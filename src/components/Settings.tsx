@@ -265,7 +265,7 @@ function SwitchWalletSection() {
 
   const handleSwitch = (i: number) => {
     setActiveSeedIndex(i);
-    window.location.reload();
+    window.location.replace("/");
   };
 
   const handleRemove = async (i: number) => {
@@ -883,7 +883,7 @@ className="mb-24"
               size="large"
                 className="w-full"
                 onClick={() => {
-                  window.location.reload();
+                  window.location.replace("/");
                 }}
               >
                 <Space className="flex items-center justify-center">

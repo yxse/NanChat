@@ -2682,9 +2682,9 @@
   dependencies:
     "@tauri-apps/api" "^2.10.1"
 
-"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#78910ed8b037ecdb85d09efa44232b1e5fbc1221":
+"@teamhive/capacitor-webview-overlay@https://github.com/Benskalz/capacitor-webview-overlay.git#01852a3bc90b7724d5b2415c1c8bf73a2b80d258":
   version "3.1.1"
-  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#78910ed8b037ecdb85d09efa44232b1e5fbc1221"
+  resolved "https://github.com/Benskalz/capacitor-webview-overlay.git#01852a3bc90b7724d5b2415c1c8bf73a2b80d258"
   dependencies:
     resize-observer-polyfill "^1.5.1"
 
@@ -8882,10 +8882,10 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-virtua@^0.43.0:
-  version "0.43.0"
-  resolved "https://registry.yarnpkg.com/virtua/-/virtua-0.43.0.tgz#93e0c3b6a532dd990958ea07f2512c9cdda53654"
-  integrity sha512-sUjpvYcJ2UBq3RoES65BFt8SQvVllN8JWScGR1ETKW15GgocaDW4+R1ZriYdUGejFfFZkPEF02WsFOMhiyjqEw==
+virtua@^0.54.1:
+  version "0.54.1"
+  resolved "https://registry.yarnpkg.com/virtua/-/virtua-0.54.1.tgz#8b94ea4bda6d6545397d3f473bd19b6357d89ac3"
+  integrity sha512-qUl89ncxNDKLihVdIok8CnKxUPF9J+P6Uz58KDqsq8G9dIoMInif6KJ4oe9SkvtNsHkSzw0iV25Vr73L9L1BcQ==
 
 vite-plugin-node-polyfills@^0.22.0:
   version "0.22.0"

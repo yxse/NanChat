@@ -90,7 +90,43 @@ export function extractMetadata() {
 
 
 // https://filesec.io/
-export const dangerousExtensions = [".7z",".a3x",".appinstaller",".applescript",".application",".appref",".appx",".appxbundle",".arj",".asd",".bat",".bgi",".bz2",".cab",".chm",".cmd",".com",".cpl",".cs",".daa",".desktopthemepackfile",".diagcab",".dll",".dmg",".doc",".docm",".dot",".dotm",".eml",".exe",".gadget",".gz",".hta",".htm",".html",".hwpx",".ics",".img",".iqy",".iso",".jar",".jnlp",".js",".jse",".library",".lnk",".mam",".mht",".mhtml",".mof",".msc",".msi",".msrcincident",".ocx",".odt",".oxps",".pdf",".pif",".pot",".potm",".ppa",".ppam",".ppkg",".pps",".ppsm",".ppt",".pptm",".ps1",".pub",".py",".pyc",".pyo",".pyw",".pyz",".pyzw",".rar",".reg",".rtf",".scf",".scpt",".scr",".sct",".searchConnector",".service",".settingcontent",".sh",".sldm",".slk",".so",".svg",".tar",".theme",".themepack",".timer",".url",".uue",".vb",".vbe",".vbs",".vhd",".vhdx",".wbk",".website",".wim",".wiz",".ws",".wsf",".wsh",".xlam",".xll",".xlm",".xls",".xlsb",".xlsm",".xlt",".xltm",".xps",".xsl",".xz",".z",".zip"]
+export const dangerousExtensions = [".7z",".a3x",".appinstaller",".applescript",".application",".appref",".appx",".appxbundle",".arj",".asd",".bat",".bgi",".bz2",".cab",".chm",".cmd",".com",".cpl",".cs",".daa",".desktopthemepackfile",".diagcab",".dll",".dmg",".doc",".docm",".dot",".dotm",".eml",".exe",".gadget",".gz",".hta",".htm",".html",".hwpx",".ics",".img",".iqy",".iso",".jar",".jnlp",".js",".jse",".library",".lnk",".mam",".mht",".mhtml",".mof",".msc",".msi",".msrcincident",".ocx",".odt",".oxps",".pdf",".pif",".pot",".potm",".ppa",".ppam",".ppkg",".pps",".ppsm",".ppt",".pptm",".ps1",".pub",".py",".pyc",".pyo",".pyw",".pyz",".pyzw",".rar",".reg",".rtf",".scf",".scpt",".scr",".sct",".searchconnector",".service",".settingcontent",".sh",".sldm",".slk",".so",".svg",".tar",".theme",".themepack",".timer",".url",".uue",".vb",".vbe",".vbs",".vhd",".vhdx",".wbk",".website",".wim",".wiz",".ws",".wsf",".wsh",".xlam",".xll",".xlm",".xls",".xlsb",".xlsm",".xlt",".xltm",".xps",".xsl",".xz",".z",".zip",
+  // installers / launchers for mobile, mac and linux, and other formats that can run script
+  ".apk",".apks",".xapk",".apkm",".aab",".ipa",".msix",".msixbundle",".app",".pkg",".mpkg",".command",".tool",".workflow",".desktop",".deb",".rpm",".appimage",".run",".bin",".elf",
+  ".xhtml",".xht",".shtml",".svgz",".xml",".xslt",".swf",".htc",".mjs",".cjs",".wasm",".php",".pl",".rb",".lua",".jsp",".asp",".aspx",".hta"]
+
+// Unicode bidi controls (e.g. U+202E right-to-left override) can make a name ending in ".exe" display as ".pdf",
+// and Windows ignores trailing dots and spaces ("evil.exe. " runs as evil.exe)
+export const sanitizeFileName = (name: unknown): string => {
+  if (typeof name !== "string") return "";
+  return name.replace(/[\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, "").replace(/[.\s]+$/, "");
+};
+
+// The type is chosen by the sender and passed as is to the native file opener, which picks the app from it.
+// Only types that install or run code are listed: browsers report odd types for harmless files
+// (.csv as application/vnd.ms-excel, unknown ones as octet-stream), so comparing type and extension would warn on normal files.
+const DANGEROUS_MIME_TYPES = [
+  "application/vnd.android.package-archive", "application/x-msdownload", "application/x-msdos-program",
+  "application/x-ms-installer", "application/x-msi", "application/x-ms-application", "application/x-apple-diskimage",
+  "application/x-newton-compatible-pkg", "application/vnd.apple.installer+xml", "application/x-sh", "application/x-csh",
+  "application/x-shellscript", "application/x-bat", "application/java-archive", "application/x-java-jnlp-file",
+  "application/x-executable", "application/x-elf", "application/x-mach-binary", "application/x-debian-package",
+  "application/x-rpm", "application/x-iso9660-image", "application/hta", "application/x-ms-shortcut",
+  "text/html", "application/xhtml+xml", "image/svg+xml", "text/javascript", "application/javascript",
+  "application/ecmascript", "text/ecmascript", "application/x-javascript", "text/vbscript", "application/x-python-code",
+  "text/x-python", "application/x-powershell", "text/xml", "application/xml", "application/xslt+xml",
+];
+
+export const isDangerousMimeType = (type: unknown): boolean => {
+  if (typeof type !== "string") return false;
+  return DANGEROUS_MIME_TYPES.includes(type.split(";")[0].trim().toLowerCase());
+};
+
+export const isDangerousFileName = (name: unknown): boolean => {
+  const safeName = sanitizeFileName(name).toLowerCase();
+  if (!safeName.includes(".")) return false;
+  return dangerousExtensions.includes("." + safeName.split(".").pop());
+};
 
 
 export const SeedVerifiedBadge = ({children, icon = false, count=0}) => {

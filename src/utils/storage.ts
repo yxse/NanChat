@@ -110,7 +110,7 @@ export async function verifyPin(pin: string): Promise<{error: string, nextAttemp
     if (pinObj.attemptsRemaining <= 0) {
       console.log("Erasing wallet after too many failed pin attempts");
       await removeSeed();
-      window.location.reload();
+      window.location.replace("/");
       return;
     }
     await saveInSecureStorage('pin', JSON.stringify(pinObj));
@@ -354,7 +354,7 @@ export function autoLockAfterInactivity(): void {
   window.addEventListener("mousemove", () => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      window.location.reload();
+      window.location.replace("/");
     }, 60000);
   });
 }

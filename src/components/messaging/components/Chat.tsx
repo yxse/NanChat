@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, useNavigate, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Route, useNavigate, Routes, useParams, Navigate } from 'react-router-dom';
 import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { socket } from '../socket';
@@ -173,6 +173,8 @@ const Chat: React.FC = () => {
                         <ChatRoom key={"chat-room-2"}  />
                         </div>}
                     </div>} />
+                {/* unknown paths (e.g. from a deep link) go home instead of a blank page */}
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </>
     );

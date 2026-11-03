@@ -64,7 +64,7 @@ export default function Forgot({
             } hover:!bg-red-400`}
             onClick={async () => {
               await removeSeed();
-              return window.location.reload();
+              return window.location.replace("/");
             }}
           >
             Reset Secret Phrase

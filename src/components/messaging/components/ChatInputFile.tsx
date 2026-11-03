@@ -10,6 +10,7 @@ import { formatSize } from '../../../utils/format';
 import { saveFileInCache } from '../../../services/database.service';
 import { AiOutlineSwap } from 'react-icons/ai';
 import { writeUint8ArrayToFile } from '../../../services/capacitor-chunked-file-writer';
+import { getLocalFileName } from '../../../services/file-url';
 import { getChatToken } from '../../../utils/storage';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
@@ -199,11 +200,13 @@ const ChatInputFile = ({ username, onUploadStart, onUploadSuccess, onUploadCance
                 if (cancelled) return;
 
                 // save the file to the filesystem before sending, so we can retrieve it instantly on the sender side without need to decrypt again
-                const fileId = data.url.split('/').pop();
-                await writeUint8ArrayToFile(fileId, fileUint8Array, {
-                    name: file.name,
-                    type: file.type,
-                });
+                const fileId = getLocalFileName(data.url); // same name MessageFile reads it back from
+                if (fileId) {
+                    await writeUint8ArrayToFile(fileId, fileUint8Array, {
+                        name: file.name,
+                        type: file.type,
+                    });
+                }
 
                 onUploadSuccess?.({
                     localId,

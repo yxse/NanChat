@@ -33,6 +33,7 @@ import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { createPortal } from "react-dom";
 import { ResponsivePopup } from "../../Settings";
 import { useWalletBalance } from "../../../hooks/use-wallet-balance";
+import { isSafeAppPath } from "../AppUrlListener";
 const HistoryApps = ({history, handleServiceClick, setHistory}) => {
     if (!history || history.length === 0) return null;
     return <List mode="card">
@@ -236,15 +237,18 @@ WebviewOverlay.onPageLoaded(() => {
         }
         console.log('navigationHandler', JSON.stringify(event));
         if (event.url.startsWith('https://nanchat.com/?uri=') || /^(nano|nan|nanauth|ban|xdg|ana|xro):/i.test(event.url)){
-            // pageUrl comes from the native webview (the page that triggered the link), see AppUrlListener
-            const pageUrl = /^https?:\/\//i.test(event.pageUrl || "") ? event.pageUrl : lastPageUrl;
+            // pageUrl comes from the native webview (the page that triggered the link), see AppUrlListener.
+            // isMainFrame false: started by an iframe (ad, embed), so no page is trusted, not even lastPageUrl
+            const pageUrl = event.isMainFrame === false ? ""
+                : /^https?:\/\//i.test(event.pageUrl || "") ? event.pageUrl : lastPageUrl;
             emit('open-url', { url: event.url, pageUrl });
             event.complete(false) // should prevent the page to open in the inappbroswer
             return
         }
         else if (event.url.startsWith('https://nanchat.com/')){
             closeNanoApp()
-            navigate(event.url.replace('https://nanchat.com', ''))
+            const path = event.url.replace('https://nanchat.com', '')
+            if (isSafeAppPath(path)) navigate(path)
             return
         }
         setOpenService({...openService, link: event.url});

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useEffect } from 'react';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { List, Modal, Toast } from 'antd-mobile';
 import PasteAction from './PasteAction';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
@@ -184,15 +184,18 @@ export const useContacts = () => {
 
 
 function ImportContactsFromShare() {
-    const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
-    const [searchParams] = useSearchParams();
-    const urlFile = searchParams.get('import_url');
+    // The file path is read from disk, so it is only taken from router state, which only the
+    // share handlers set (see AppUrlListener and checkIntent). A query param could be set by any
+    // link, e.g. https://nanchat.com/contacts?import_url=file:///<received attachment>
+    const location = useLocation();
+    const navigate = useNavigate();
+    const urlFile: string | null = typeof location.state?.contactsImport === "string" ? location.state.contactsImport : null;
     const { addContacts } = useContacts();
     useEffect(() => {
-        const handleOpenUrl = async () => {
+        const handleOpenUrl = async (path: string) => {
             try {
                 const file = await Filesystem.readFile({
-                    path: urlFile,
+                    path,
                 });
                 const data = file.data; // base64 encoded string
                 const dataText = atob(data);
@@ -212,7 +215,8 @@ function ImportContactsFromShare() {
             }
         }
         if (urlFile) {
-            handleOpenUrl();
+            navigate(location.pathname + location.search, { replace: true, state: null }); // don't import again when coming back
+            handleOpenUrl(urlFile);
         }
     }, [urlFile]);
 
