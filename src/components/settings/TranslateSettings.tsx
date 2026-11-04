@@ -1,15 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckList, List, Modal, NavBar, NoticeBar, SearchBar, Switch, Toast } from "antd-mobile";
+import { CheckList, List, Modal, NavBar, SearchBar, Switch, Toast } from "antd-mobile";
 import { DeleteOutline } from "antd-mobile-icons";
 import { BsTranslate } from "react-icons/bs";
+import { MdOutlineCloud } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { Language, Translation } from "@capacitor-mlkit/translation";
 import {
-  SUPPORTED_LANGUAGES,
+  PROVIDER_NAMES,
+  TranslationProvider,
+  checkAppleTranslationAvailable,
   confirmModelDownload,
+  getAppleSupportedLanguages,
+  getDefaultProvider,
   getDefaultTargetLanguage,
-  isTranslationAvailable,
+  getPlatformProviders,
+  getProviderLanguages,
+  isCloudProvider,
   languageName,
 } from "../../services/translation.service";
 import { ResponsivePopup } from "../Settings";
@@ -28,12 +35,25 @@ function TranslateSettings() {
     "autoTranslateMessages",
     { defaultValue: false },
   );
+  const [storedProvider, setProvider] = useLocalStorageState<TranslationProvider>(
+    "translateProvider",
+    { defaultValue: getDefaultProvider() },
+  );
+  const [platformProviders, setPlatformProviders] = useState(getPlatformProviders());
+  const [appleLanguages, setAppleLanguages] = useState<string[]>([]);
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
+  const [providerPickerVisible, setProviderPickerVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [downloadedModels, setDownloadedModels] = useState<string[]>([]);
 
+  const provider: TranslationProvider = platformProviders.includes(storedProvider)
+    ? storedProvider
+    : getDefaultProvider();
+  const isCloud = isCloudProvider(provider);
+  const mlkitAvailable = platformProviders.includes("mlkit");
+
   const loadDownloadedModels = async () => {
-    if (!isTranslationAvailable()) return;
+    if (!mlkitAvailable) return;
     try {
       const { languages } = await Translation.getDownloadedModels();
       setDownloadedModels(languages);
@@ -44,11 +64,20 @@ function TranslateSettings() {
 
   useEffect(() => {
     loadDownloadedModels();
+    checkAppleTranslationAvailable().then(async (available) => {
+      setPlatformProviders(getPlatformProviders());
+      if (available) setAppleLanguages(await getAppleSupportedLanguages());
+    });
   }, []);
+
+  const providerLanguages = useMemo(
+    () => (provider === "apple" ? appleLanguages : getProviderLanguages(provider)),
+    [provider, appleLanguages],
+  );
 
   const sortedLanguages = useMemo(
     () =>
-      [...SUPPORTED_LANGUAGES]
+      [...providerLanguages]
         .map((code) => ({ code, name: languageName(code) }))
         .sort((a, b) => a.name.localeCompare(b.name))
         .filter(
@@ -57,26 +86,57 @@ function TranslateSettings() {
             name.toLowerCase().includes(searchText.toLowerCase()) ||
             code.toLowerCase().includes(searchText.toLowerCase()),
         ),
-    [searchText],
+    [searchText, providerLanguages],
   );
+
+  const providerLabel = (p: TranslationProvider) => t(`translationProvider_${p}`);
+
+  const downloadModel = async (language: string) => {
+    if (!mlkitAvailable || downloadedModels.includes(language)) return;
+    // declined on mobile data: translate() downloads it later, once on Wi-Fi
+    if (!(await confirmModelDownload([language]))) return;
+    Toast.show({ icon: "loading", content: t('downloadingLanguageModel'), duration: 0 });
+    try {
+      await Translation.downloadModel({ language: language as Language });
+      Toast.show({ icon: "success" });
+    } catch (error) {
+      console.log("cannot download model", error);
+      Toast.show({ icon: "fail", content: t('couldNotDownloadLanguageModel') });
+    }
+    loadDownloadedModels();
+  };
 
   const selectTargetLanguage = async (language: string) => {
     setTargetLanguage(language);
     setLanguagePickerVisible(false);
     setSearchText("");
-    if (isTranslationAvailable() && !downloadedModels.includes(language)) {
-      // declined on mobile data: translate() downloads it later, once on Wi-Fi
-      if (!(await confirmModelDownload([language]))) return;
-      Toast.show({ icon: "loading", content: t('downloadingLanguageModel'), duration: 0 });
-      try {
-        await Translation.downloadModel({ language: language as Language });
-        Toast.show({ icon: "success" });
-      } catch (error) {
-        console.log("cannot download model", error);
-        Toast.show({ icon: "fail", content: t('couldNotDownloadLanguageModel') });
-      }
-      loadDownloadedModels();
+    if (provider === "mlkit") await downloadModel(language);
+  };
+
+  const selectProvider = (newProvider: TranslationProvider) => {
+    setProviderPickerVisible(false);
+    if (newProvider === provider) return;
+    setProvider(newProvider);
+    // the target language may not be offered by the new provider
+    const languages = newProvider === "apple" ? appleLanguages : getProviderLanguages(newProvider);
+    if (languages.length > 0 && !languages.includes(targetLanguage)) {
+      setTargetLanguage(languages.includes("en") ? "en" : languages[0]);
     }
+    if (newProvider === "mlkit") downloadModel(targetLanguage);
+  };
+
+  const toggleAutoTranslate = async (checked: boolean) => {
+    HapticsImpact({ style: ImpactStyle.Medium });
+    if (checked && isCloud) {
+      const confirmed = await Modal.confirm({
+        title: t('autoTranslateCloudTitle'),
+        content: t('autoTranslateCloudContent', { service: PROVIDER_NAMES[provider] }),
+        confirmText: t('enable'),
+        cancelText: t('cancel'),
+      });
+      if (!confirmed) return;
+    }
+    setAutoTranslate(checked);
   };
 
   const removeModel = (language: string) => {
@@ -109,23 +169,29 @@ function TranslateSettings() {
     });
   };
 
+  const note = isCloud
+    ? t('translationCloudNote', { service: PROVIDER_NAMES[provider] })
+    : provider === "apple"
+      ? t('translationAppleNote')
+      : t('translationLocalNote');
+
   return (
     <div className="mb-24">
       <NavBar
         className="app-navbar"
-        onBack={() => navigate(-1)} 
+        onBack={() => navigate(-1)}
         backArrow={true}
       >
         {t('translate')}
       </NavBar>
-      {!isTranslationAvailable() && (
-        <NoticeBar
-          className="mx-4 rounded-lg"
-          color="info"
-          content={t('translationOnlyOnMobile')}
-        />
-      )}
       <List mode="card">
+        <List.Item
+          prefix={<MdOutlineCloud size={24} />}
+          onClick={() => setProviderPickerVisible(true)}
+          extra={providerLabel(provider)}
+        >
+          {t('translationService')}
+        </List.Item>
         <List.Item
           prefix={<BsTranslate size={24} />}
           onClick={() => setLanguagePickerVisible(true)}
@@ -139,10 +205,7 @@ function TranslateSettings() {
           extra={
             <Switch
               checked={autoTranslate}
-              onChange={(checked) => {
-                HapticsImpact({ style: ImpactStyle.Medium });
-                setAutoTranslate(checked);
-              }}
+              onChange={toggleAutoTranslate}
             />
           }
         >
@@ -151,12 +214,12 @@ function TranslateSettings() {
       </List>
       <div
         className="text-sm mx-6 mt-2"
-        style={{ color: "var(--adm-color-text-secondary)" }}
+        style={{ color: isCloud ? "var(--adm-color-warning)" : "var(--adm-color-text-secondary)" }}
       >
-        {t('translationLocalNote')}
+        {note}
       </div>
       <div className="my-4" />
-      {isTranslationAvailable() && (
+      {provider === "mlkit" && (
         <List mode="card" header={t('downloadedLanguageModels')}>
           {downloadedModels.length === 0 && (
             <List.Item arrow={null}>
@@ -183,6 +246,34 @@ function TranslateSettings() {
         </List>
       )}
       <ResponsivePopup
+        visible={providerPickerVisible}
+        onClose={() => setProviderPickerVisible(false)}
+        closeOnMaskClick={true}
+        destroyOnClose
+      >
+        <div className="checkListContainer">
+          <CheckList
+            defaultValue={[provider]}
+            onChange={(value) => {
+              if (value.length === 0) return;
+              selectProvider(value[0] as TranslationProvider);
+            }}
+          >
+            {platformProviders.map((p) => (
+              <CheckList.Item
+                key={p}
+                value={p}
+              >
+                <div>{providerLabel(p)}</div>
+                <div className="text-xs" style={{ color: "var(--adm-color-text-secondary)" }}>
+                  {t(`translationProviderDesc_${p}`)}
+                </div>
+              </CheckList.Item>
+            ))}
+          </CheckList>
+        </div>
+      </ResponsivePopup>
+      <ResponsivePopup
         visible={languagePickerVisible}
         onClose={() => setLanguagePickerVisible(false)}
         closeOnMaskClick={true}
@@ -206,7 +297,7 @@ function TranslateSettings() {
             {sortedLanguages.map(({ code, name }) => (
               <CheckList.Item key={code} value={code}>
                 {name}
-                {downloadedModels.includes(code) && (
+                {provider === "mlkit" && downloadedModels.includes(code) && (
                   <span
                     className="text-xs ml-2"
                     style={{ color: "var(--adm-color-text-secondary)" }}

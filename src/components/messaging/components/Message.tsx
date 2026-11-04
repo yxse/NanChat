@@ -28,7 +28,7 @@ import { useEmit } from "./EventContext";
 import { MetadataCard } from "./antd-mobile-metadata-card";
 import { MdOutlineReply, MdOutlineSync } from "react-icons/md";
 import { BsTranslate } from "react-icons/bs";
-import { isAutoTranslateEnabled, isTranslationAvailable, ModelDownloadDeclinedError, translateText } from "../../../services/translation.service";
+import { isAutoTranslateEnabled, isTranslationAvailable, ModelDownloadDeclinedError, TranslationRateLimitError, translateText } from "../../../services/translation.service";
 import { useTranslation } from "react-i18next";
 import MessageRaw from "./MessageRaw";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
@@ -263,7 +263,7 @@ const { data: favorites, mutate: mutateFavorites } = useFavoriteStickers();
                 } catch (error) {
                   if (error instanceof ModelDownloadDeclinedError) return;
                   console.log('translation failed', error);
-                  Toast.show({ icon: 'fail', content: t('translationFailed') });
+                  Toast.show({ icon: 'fail', content: error instanceof TranslationRateLimitError ? t('translationRateLimited') : t('translationFailed') });
                 }
               }
             }

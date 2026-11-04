@@ -9,6 +9,7 @@ class MyViewController: CAPBridgeViewController {
 
     override open func capacitorDidLoad() {
         bridge?.registerPluginInstance(SensitiveScreenPlugin())
+        bridge?.registerPluginInstance(AppleTranslationPlugin())
     }
 }
 
