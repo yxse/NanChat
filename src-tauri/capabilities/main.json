@@ -9,6 +9,7 @@
     "allow-save-secret",
     "allow-get-secret",
     "allow-delete-secret",
+    "allow-secure-storage-status",
     "allow-open-browser-window"
   ]
 }

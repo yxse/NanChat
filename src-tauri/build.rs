@@ -8,6 +8,7 @@ fn main() {
             "save_secret",
             "get_secret",
             "delete_secret",
+            "secure_storage_status",
             "open_browser_window",
         ])),
     )
