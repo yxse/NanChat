@@ -524,5 +524,15 @@
   "permissionBrowserHint": "اسمح به في إعدادات الموقع في متصفحك، ثم حاول مرة أخرى.",
   "openSettings": "فتح الإعدادات",
   "downloadModelMobileDataTitle": "التنزيل عبر بيانات الجوال؟",
-  "downloadModelMobileDataContent": "أنت غير متصل بشبكة Wi-Fi. تتطلب الترجمة تنزيل نموذج اللغة {{languages}} (حوالي {{size}} ميغابايت)."
+  "downloadModelMobileDataContent": "أنت غير متصل بشبكة Wi-Fi. تتطلب الترجمة تنزيل نموذج اللغة {{languages}} (حوالي {{size}} ميغابايت).",
+  "secureStorageSaveErrorTitle": "تعذّر الحفظ في التخزين الآمن",
+  "secureStorageUnavailableTitle": "التخزين الآمن غير متاح",
+  "secureStorageErrorDesc": "لم يتمكن NanChat من استخدام سلسلة مفاتيح النظام لتخزين محفظتك. على Linux، تأكد من تشغيل موفّر Secret Service (مثل GNOME Keyring أو KWallet مع تفعيل Secret Service أو KeePassXC) وأنه غير مقفل، ثم حاول مرة أخرى.",
+  "noSystemKeyringTitle": "لا توجد سلسلة مفاتيح للنظام",
+  "noSystemKeyringPasswordRequired": "لم يتم العثور على سلسلة مفاتيح للنظام على هذا الكمبيوتر، لذلك تُحفظ محفظتك في ملف داخل مجلد التطبيق. كلمة المرور مطلوبة لتشفير عبارتك السرية.",
+  "noSystemKeyringEnablePassword": "لم يتم العثور على سلسلة مفاتيح للنظام على هذا الكمبيوتر، لذلك تُحفظ محفظتك في ملف داخل مجلد التطبيق. فعّل كلمة مرور من الإعدادات > الأمان لتشفير عبارتك السرية.",
+  "retry": "إعادة المحاولة",
+  "keyringWalletUnreachableTitle": "تعذّر الوصول إلى محفظتك",
+  "keyringWalletUnreachableDesc": "قد تكون محفظتك مخزّنة في سلسلة مفاتيح النظام، لكن NanChat لا يستطيع الوصول إليها. افتح قفل سلسلة المفاتيح ثم اضغط إعادة المحاولة. إذا لم تتمكن من ذلك، استعد محفظتك باستخدام عبارتها السرية: ستُحفظ في ملف محمي بكلمة مرور.",
+  "keyringWalletUseFile": "الاستعادة بعبارتي السرية"
 }

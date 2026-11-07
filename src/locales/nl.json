@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Sta het toe in de site-instellingen van je browser en probeer het opnieuw.",
   "openSettings": "Instellingen openen",
   "downloadModelMobileDataTitle": "Downloaden via mobiele data?",
-  "downloadModelMobileDataContent": "Je bent niet verbonden met wifi. Voor vertalen moet het {{languages}}-taalmodel worden gedownload (ongeveer {{size}} MB)."
+  "downloadModelMobileDataContent": "Je bent niet verbonden met wifi. Voor vertalen moet het {{languages}}-taalmodel worden gedownload (ongeveer {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Opslaan in beveiligde opslag mislukt",
+  "secureStorageUnavailableTitle": "Beveiligde opslag niet beschikbaar",
+  "secureStorageErrorDesc": "NanChat kon de systeemsleutelbos niet gebruiken om je wallet op te slaan. Zorg er op Linux voor dat een Secret Service-provider (GNOME Keyring, KWallet met Secret Service ingeschakeld, of KeePassXC) actief en ontgrendeld is en probeer het opnieuw.",
+  "noSystemKeyringTitle": "Geen systeemsleutelbos",
+  "noSystemKeyringPasswordRequired": "Er is geen systeemsleutelbos gevonden op deze computer, dus je wallet wordt opgeslagen in een bestand in de app-map. Een wachtwoord is vereist om je geheime zin te versleutelen.",
+  "noSystemKeyringEnablePassword": "Er is geen systeemsleutelbos gevonden op deze computer, dus je wallet wordt opgeslagen in een bestand in de app-map. Schakel een wachtwoord in via Instellingen > Beveiliging om je geheime zin te versleutelen.",
+  "retry": "Opnieuw proberen",
+  "keyringWalletUnreachableTitle": "Geen toegang tot je wallet",
+  "keyringWalletUnreachableDesc": "Je wallet staat mogelijk in de systeemsleutelbos, maar NanChat heeft er geen toegang toe. Ontgrendel de sleutelbos en tik op Opnieuw proberen. Lukt dat niet, herstel je wallet dan met de geheime zin: hij wordt dan opgeslagen in een met wachtwoord beveiligd bestand.",
+  "keyringWalletUseFile": "Herstellen met mijn geheime zin"
 }

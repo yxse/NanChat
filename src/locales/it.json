@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Consentilo nelle impostazioni del sito del browser, poi riprova.",
   "openSettings": "Apri impostazioni",
   "downloadModelMobileDataTitle": "Scaricare con i dati mobili?",
-  "downloadModelMobileDataContent": "Non sei connesso al Wi-Fi. Per tradurre è necessario scaricare il modello linguistico {{languages}} (circa {{size}} MB)."
+  "downloadModelMobileDataContent": "Non sei connesso al Wi-Fi. Per tradurre è necessario scaricare il modello linguistico {{languages}} (circa {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Impossibile salvare nell'archivio sicuro",
+  "secureStorageUnavailableTitle": "Archivio sicuro non disponibile",
+  "secureStorageErrorDesc": "NanChat non è riuscito a usare il portachiavi di sistema per salvare il tuo wallet. Su Linux, assicurati che un provider Secret Service (GNOME Keyring, KWallet con Secret Service attivo o KeePassXC) sia in esecuzione e sbloccato, poi riprova.",
+  "noSystemKeyringTitle": "Nessun portachiavi di sistema",
+  "noSystemKeyringPasswordRequired": "Nessun portachiavi di sistema trovato su questo computer, quindi il tuo wallet è salvato in un file nella cartella dell'app. È richiesta una password per cifrare la tua frase segreta.",
+  "noSystemKeyringEnablePassword": "Nessun portachiavi di sistema trovato su questo computer, quindi il tuo wallet è salvato in un file nella cartella dell'app. Attiva una password in Impostazioni > Sicurezza per cifrare la tua frase segreta.",
+  "retry": "Riprova",
+  "keyringWalletUnreachableTitle": "Impossibile accedere al tuo wallet",
+  "keyringWalletUnreachableDesc": "Il tuo wallet potrebbe essere salvato nel portachiavi di sistema, ma NanChat non riesce ad accedervi. Sblocca il portachiavi e premi Riprova. Se non puoi, ripristina il wallet con la sua frase segreta: verrà salvato in un file protetto da password.",
+  "keyringWalletUseFile": "Ripristina con la mia frase segreta"
 }

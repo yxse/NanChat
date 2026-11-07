@@ -1,5 +1,8 @@
 import { isTauri } from "@tauri-apps/api/core";
-import KeyringService from "../services/tauri-keyring-frontend";
+import KeyringService, { SecureStorageError, getSecureStorageStatus } from "../services/tauri-keyring-frontend";
+import { Modal } from "antd-mobile";
+import { createElement } from "react";
+import { t } from "i18next";
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { mutate } from "swr";
 import { getNewChatToken } from "../components/messaging/fetcher";
@@ -166,7 +169,9 @@ export async function getSeeds(): Promise<Array<{seed: string, isPasswordEncrypt
     if (Array.isArray(json)) return json;
     if (json?.seed) return [json];
     return [];
-  } catch {
+  } catch (error) {
+    // storage unreadable: callers that save after this would overwrite every wallet with []
+    if (error instanceof SecureStorageError) throw error;
     return [];
   }
 }
@@ -283,9 +288,66 @@ export function invalidateChatTokensCache(): void {
   tokensCache = null;
 }
 
+// Desktop: no system keyring on this computer (some Linux setups), secrets are
+// kept in a file in the app folder, so the seed must be password-encrypted.
+export async function isFileSecureStorage(): Promise<boolean> {
+  if (!isTauri()) return false;
+  return (await getSecureStorageStatus()).backend === "file";
+}
+
+export function showSecureStorageError(error: unknown, title = t("secureStorageSaveErrorTitle")): void {
+  Modal.alert({
+    title,
+    content: createElement("div", {style: {textAlign: "start"}},
+      createElement("div", null, t("secureStorageErrorDesc")),
+      error instanceof Error && createElement("div", {className: "text-sm mt-2", style: {color: "var(--adm-color-text-secondary)", wordBreak: "break-word"}}, error.message),
+    ),
+    confirmText: t("close"),
+  });
+}
+
+// File storage (no system keyring): during onboarding the seed is saved in plain
+// text when the PIN is set, then encrypted at the (mandatory) password step.
+// Until then it's kept in memory only, so it never reaches the disk unencrypted.
+// Quitting before the password step loses it, like any unfinished onboarding.
+let pendingPlainSeed: string | null = null;
+
+function hasPlaintextSeed(value: string): boolean {
+  try {
+    const json = JSON.parse(value);
+    const entries = Array.isArray(json) ? json : [json];
+    return entries.some((entry) => entry?.seed && !entry.isPasswordEncrypted);
+  } catch {
+    return false;
+  }
+}
+
+// true when the seed was kept in memory instead of being written
+async function holdPlainSeedInMemory(value: string): Promise<boolean> {
+  if (!hasPlaintextSeed(value) || !(await isFileSecureStorage())) {
+    pendingPlainSeed = null;
+    return false;
+  }
+  // Only while nothing is saved yet (onboarding). If a wallet is already on disk
+  // (e.g. Change Secret Phrase), write it: losing a seed is worse, and the user
+  // is asked to set a password at next launch.
+  if (pendingPlainSeed === null && await KeyringService.getSecret('nanwallet', 'seed') !== null) {
+    return false;
+  }
+  pendingPlainSeed = value;
+  return true;
+}
+
 export async function saveInSecureStorage(key: string, value: string): Promise<void> {
   if (isTauri()) {
-    await KeyringService.saveSecret('nanwallet', key, value);
+    try {
+      if (key === 'seed' && await holdPlainSeedInMemory(value)) return;
+      await KeyringService.saveSecret('nanwallet', key, value);
+    } catch (error) {
+      // never let the user continue believing it was saved (e.g. onboarding a wallet that's gone after restart)
+      showSecureStorageError(error);
+      throw error;
+    }
   }
   else {
     await SecureStoragePlugin.set({key: key, value: value});
@@ -293,6 +355,7 @@ export async function saveInSecureStorage(key: string, value: string): Promise<v
 }
 export async function getFromSecureStorage(key: string): Promise<string> {
   if (isTauri()) {
+    if (key === 'seed' && pendingPlainSeed !== null) return pendingPlainSeed;
     return await KeyringService.getSecret('nanwallet', key);
   }
   else {
@@ -324,6 +387,7 @@ export async function getSeed(): Promise<string> {
     return json
   } catch (error) {
     console.error("Error getting seed: ", error);
+    if (error instanceof SecureStorageError) throw error; // not the same as "no wallet"
     return null
   }
 }
@@ -333,6 +397,7 @@ export async function removeSeed(): Promise<void> {
   try {
     localStorage.clear();
     if (isTauri()) {
+      pendingPlainSeed = null;
       await KeyringService.deleteSecret('nanwallet', 'seed');
       await KeyringService.deleteSecret('nanwallet', keyTokenChat);
       await KeyringService.deleteSecret('nanwallet', 'pin');

@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Permítelo en los ajustes del sitio de tu navegador y vuelve a intentarlo.",
   "openSettings": "Abrir ajustes",
   "downloadModelMobileDataTitle": "¿Descargar con datos móviles?",
-  "downloadModelMobileDataContent": "No estás conectado a Wi-Fi. Para traducir es necesario descargar el modelo de idioma {{languages}} (unos {{size}} MB)."
+  "downloadModelMobileDataContent": "No estás conectado a Wi-Fi. Para traducir es necesario descargar el modelo de idioma {{languages}} (unos {{size}} MB).",
+  "secureStorageSaveErrorTitle": "No se pudo guardar en el almacenamiento seguro",
+  "secureStorageUnavailableTitle": "Almacenamiento seguro no disponible",
+  "secureStorageErrorDesc": "NanChat no pudo usar el llavero del sistema para guardar tu billetera. En Linux, asegúrate de que un proveedor de Secret Service (GNOME Keyring, KWallet con Secret Service activado o KeePassXC) esté en ejecución y desbloqueado, y vuelve a intentarlo.",
+  "noSystemKeyringTitle": "Sin llavero del sistema",
+  "noSystemKeyringPasswordRequired": "No se encontró ningún llavero del sistema en este equipo, así que tu billetera se guarda en un archivo en la carpeta de la app. Se requiere una contraseña para cifrar tu frase secreta.",
+  "noSystemKeyringEnablePassword": "No se encontró ningún llavero del sistema en este equipo, así que tu billetera se guarda en un archivo en la carpeta de la app. Activa una contraseña en Ajustes > Seguridad para cifrar tu frase secreta.",
+  "retry": "Reintentar",
+  "keyringWalletUnreachableTitle": "No se puede acceder a tu billetera",
+  "keyringWalletUnreachableDesc": "Puede que tu billetera esté guardada en el llavero del sistema, pero NanChat no puede acceder a él. Desbloquea el llavero y pulsa Reintentar. Si no puedes, restaura tu billetera con su frase secreta: se guardará en un archivo protegido con contraseña.",
+  "keyringWalletUseFile": "Restaurar con mi frase secreta"
 }

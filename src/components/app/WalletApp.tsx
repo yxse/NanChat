@@ -8,6 +8,7 @@ import { WalletProvider } from './WalletProvider';
 import useSWR from 'swr';
 import { fetcherChat } from '../messaging/fetcher';
 import { networks } from '../../utils/networks';
+import { SecureStorageCheck } from './desktop/SecureStorageCheck';
 
 export function WalletApp({ }) {
     const [walletState, setWalletState] = useState<"locked" | "pin-locked" | "unlocked" | "no-wallet" | "loading">("loading");
@@ -27,6 +28,7 @@ if (newNetworks) {
     return (
         <LedgerContext.Provider value={{ ledger, setLedger, setWalletState }}>
             <WalletProvider setWalletState={setWalletState} walletState={walletState}>
+                <SecureStorageCheck />
 
                 {walletState === "locked" && <Lockscreen setWalletState={setWalletState} theme={"theme"} />}
                 {walletState === "unlocked" && <App callback={callback} />}

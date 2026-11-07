@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Autorisez-le dans les paramètres du site de votre navigateur, puis réessayez.",
   "openSettings": "Ouvrir les réglages",
   "downloadModelMobileDataTitle": "Télécharger avec les données mobiles ?",
-  "downloadModelMobileDataContent": "Vous n'êtes pas connecté au Wi-Fi. La traduction nécessite le téléchargement du modèle de langue {{languages}} (environ {{size}} Mo)."
+  "downloadModelMobileDataContent": "Vous n'êtes pas connecté au Wi-Fi. La traduction nécessite le téléchargement du modèle de langue {{languages}} (environ {{size}} Mo).",
+  "secureStorageSaveErrorTitle": "Impossible d'enregistrer dans le stockage sécurisé",
+  "secureStorageUnavailableTitle": "Stockage sécurisé indisponible",
+  "secureStorageErrorDesc": "NanChat n'a pas pu utiliser le trousseau du système pour stocker votre portefeuille. Sous Linux, vérifiez qu'un fournisseur Secret Service (GNOME Keyring, KWallet avec Secret Service activé, ou KeePassXC) est lancé et déverrouillé, puis réessayez.",
+  "noSystemKeyringTitle": "Aucun trousseau système",
+  "noSystemKeyringPasswordRequired": "Aucun trousseau système n'a été trouvé sur cet ordinateur : votre portefeuille est enregistré dans un fichier du dossier de l'application. Un mot de passe est requis pour chiffrer votre phrase secrète.",
+  "noSystemKeyringEnablePassword": "Aucun trousseau système n'a été trouvé sur cet ordinateur : votre portefeuille est enregistré dans un fichier du dossier de l'application. Activez un mot de passe dans Paramètres > Sécurité pour chiffrer votre phrase secrète.",
+  "retry": "Réessayer",
+  "keyringWalletUnreachableTitle": "Impossible d'accéder à votre portefeuille",
+  "keyringWalletUnreachableDesc": "Votre portefeuille est peut-être stocké dans le trousseau du système, mais NanChat ne peut pas y accéder. Déverrouillez le trousseau puis appuyez sur Réessayer. Sinon, restaurez votre portefeuille avec sa phrase secrète : il sera enregistré dans un fichier protégé par mot de passe.",
+  "keyringWalletUseFile": "Restaurer avec ma phrase secrète"
 }

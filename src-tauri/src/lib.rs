@@ -1,5 +1,4 @@
-use keyring::{error::Error as KeyringError, Entry as KeyringEntry};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use tauri::webview::{NewWindowResponse, WebviewBuilder};
 use tauri::window::WindowBuilder;
 use tauri::{
@@ -19,70 +18,32 @@ const BROWSER_TOOLBAR_HEIGHT: f64 = 44.0;
 /// navigations, which don't trigger on_navigation.
 const BROWSER_URL_POLL_INTERVAL: Duration = Duration::from_millis(500);
 
-// Custom error type to handle conversion
-#[derive(Debug, Serialize, Deserialize)]
-enum AppError {
-    KeyringError(String),
-    Other(String),
-}
-// Convert KeyringError to our custom AppError
-impl From<KeyringError> for AppError {
-    fn from(error: KeyringError) -> Self {
-        AppError::KeyringError(error.to_string())
-    }
+mod secure_store;
+
+// Secrets (seed, PIN, chat tokens). get_secret returns null when the secret
+// doesn't exist; every command returns an error when the storage can't be used,
+// so the frontend never mistakes a storage failure for a missing wallet.
+#[tauri::command]
+fn save_secret(app: AppHandle, service: String, username: String, password: String) -> Result<(), String> {
+    secure_store::save(&app, &service, &username, &password)
 }
 
 #[tauri::command]
-fn save_secret(service: String, username: String, password: String) -> Result<(), AppError> {
-    // Explicitly handle the Result from KeyringEntry::new()
-    let entry = KeyringEntry::new(&service, &username)?;
-    entry.set_password(&password)?;
-    Ok(())
+fn get_secret(app: AppHandle, service: String, username: String) -> Result<Option<String>, String> {
+    secure_store::get(&app, &service, &username)
 }
-#[tauri::command]
-fn get_secret(service: String, username: String) -> Result<String, AppError> {
-    // Similar pattern for get_secret
-    let entry = KeyringEntry::new(&service, &username)?;
-    match entry.get_password() {
-        Ok(password) => Ok(password),
-        #[cfg(target_os = "linux")]
-        Err(KeyringError::NoEntry) => migrate_from_keyutils(&entry, &service, &username),
-        Err(err) => Err(err.into()),
-    }
-}
-
-// Older Linux builds stored secrets only in the kernel keyring (keyutils),
-// which is wiped on reboot. If the secret is still there, copy it into the
-// Secret Service store (persistent) and drop the keyutils copy.
-#[cfg(target_os = "linux")]
-fn migrate_from_keyutils(
-    entry: &KeyringEntry,
-    service: &str,
-    username: &str,
-) -> Result<String, AppError> {
-    use keyring::credential::CredentialApi;
-    use keyring::keyutils::KeyutilsCredential;
-
-    let legacy = KeyutilsCredential::new_with_target(None, service, username)?;
-    let password = legacy.get_password()?;
-    entry.set_password(&password)?;
-    if let Err(err) = legacy.delete_credential() {
-        log::warn!("Failed to delete legacy keyutils secret {service}/{username}: {err}");
-    }
-    Ok(password)
-}
-// delete keyring entry
 
 #[tauri::command]
-fn delete_secret(service: String, username: String) -> Result<(), AppError> {
-    let entry = KeyringEntry::new(&service, &username)?;
-    // Also clear any legacy keyutils copy, otherwise get_secret would migrate it back
-    #[cfg(target_os = "linux")]
-    if let Ok(legacy) = keyring::keyutils::KeyutilsCredential::new_with_target(None, &service, &username) {
-        let _ = keyring::credential::CredentialApi::delete_credential(&legacy);
-    }
-    entry.delete_credential()?;
-    Ok(())
+fn delete_secret(app: AppHandle, service: String, username: String) -> Result<(), String> {
+    secure_store::delete(&app, &service, &username)
+}
+
+/// Which storage holds secrets ("keyring" or "file"), or an error when none is
+/// usable (e.g. Linux keyring locked). `recheck` checks again after the user
+/// fixed the problem.
+#[tauri::command]
+fn secure_storage_status(app: AppHandle, recheck: bool) -> secure_store::StorageStatus {
+    secure_store::status(&app, recheck)
 }
 
 /// Last page shown in an in-app browser window, sent to the main window as
@@ -429,6 +390,7 @@ pub fn run() {
             save_secret,
             get_secret,
             delete_secret,
+            secure_storage_status,
             open_browser_window
         ])
         .run(tauri::generate_context!())

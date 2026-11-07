@@ -522,5 +522,15 @@
   "permissionBrowserHint": "Zezwól na niego w ustawieniach witryny w przeglądarce i spróbuj ponownie.",
   "openSettings": "Otwórz ustawienia",
   "downloadModelMobileDataTitle": "Pobrać przez dane komórkowe?",
-  "downloadModelMobileDataContent": "Nie masz połączenia z Wi-Fi. Tłumaczenie wymaga pobrania modelu językowego {{languages}} (około {{size}} MB)."
+  "downloadModelMobileDataContent": "Nie masz połączenia z Wi-Fi. Tłumaczenie wymaga pobrania modelu językowego {{languages}} (około {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Nie udało się zapisać w bezpiecznym magazynie",
+  "secureStorageUnavailableTitle": "Bezpieczny magazyn niedostępny",
+  "secureStorageErrorDesc": "NanChat nie mógł użyć systemowego pęku kluczy do zapisania portfela. W systemie Linux upewnij się, że dostawca Secret Service (GNOME Keyring, KWallet z włączonym Secret Service lub KeePassXC) działa i jest odblokowany, a następnie spróbuj ponownie.",
+  "noSystemKeyringTitle": "Brak systemowego pęku kluczy",
+  "noSystemKeyringPasswordRequired": "Na tym komputerze nie znaleziono systemowego pęku kluczy, więc portfel jest zapisany w pliku w folderze aplikacji. Hasło jest wymagane do zaszyfrowania frazy odzyskiwania.",
+  "noSystemKeyringEnablePassword": "Na tym komputerze nie znaleziono systemowego pęku kluczy, więc portfel jest zapisany w pliku w folderze aplikacji. Włącz hasło w Ustawienia > Bezpieczeństwo, aby zaszyfrować frazę odzyskiwania.",
+  "retry": "Spróbuj ponownie",
+  "keyringWalletUnreachableTitle": "Brak dostępu do portfela",
+  "keyringWalletUnreachableDesc": "Twój portfel może być zapisany w systemowym pęku kluczy, ale NanChat nie ma do niego dostępu. Odblokuj pęk kluczy i naciśnij Spróbuj ponownie. Jeśli to niemożliwe, przywróć portfel za pomocą frazy odzyskiwania: zostanie zapisany w pliku chronionym hasłem.",
+  "keyringWalletUseFile": "Przywróć za pomocą frazy odzyskiwania"
 }

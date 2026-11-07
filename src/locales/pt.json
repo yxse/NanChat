@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Permita-o nas definições do site do seu navegador e tente novamente.",
   "openSettings": "Abrir definições",
   "downloadModelMobileDataTitle": "Transferir com dados móveis?",
-  "downloadModelMobileDataContent": "Não está ligado a uma rede Wi-Fi. A tradução requer a transferência do modelo de idioma {{languages}} (cerca de {{size}} MB)."
+  "downloadModelMobileDataContent": "Não está ligado a uma rede Wi-Fi. A tradução requer a transferência do modelo de idioma {{languages}} (cerca de {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Não foi possível salvar no armazenamento seguro",
+  "secureStorageUnavailableTitle": "Armazenamento seguro indisponível",
+  "secureStorageErrorDesc": "O NanChat não conseguiu usar o chaveiro do sistema para guardar sua carteira. No Linux, verifique se um provedor Secret Service (GNOME Keyring, KWallet com Secret Service ativado ou KeePassXC) está em execução e desbloqueado, e tente novamente.",
+  "noSystemKeyringTitle": "Nenhum chaveiro do sistema",
+  "noSystemKeyringPasswordRequired": "Nenhum chaveiro do sistema foi encontrado neste computador, então sua carteira é salva em um arquivo na pasta do app. Uma senha é necessária para criptografar sua frase secreta.",
+  "noSystemKeyringEnablePassword": "Nenhum chaveiro do sistema foi encontrado neste computador, então sua carteira é salva em um arquivo na pasta do app. Ative uma senha em Configurações > Segurança para criptografar sua frase secreta.",
+  "retry": "Tentar novamente",
+  "keyringWalletUnreachableTitle": "Não foi possível acessar sua carteira",
+  "keyringWalletUnreachableDesc": "Sua carteira pode estar guardada no chaveiro do sistema, mas o NanChat não consegue acessá-lo. Desbloqueie o chaveiro e toque em Tentar novamente. Se não conseguir, restaure sua carteira com a frase secreta: ela será salva em um arquivo protegido por senha.",
+  "keyringWalletUseFile": "Restaurar com minha frase secreta"
 }

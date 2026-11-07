@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Tarayıcınızın site ayarlarından izin verin ve tekrar deneyin.",
   "openSettings": "Ayarları Aç",
   "downloadModelMobileDataTitle": "Mobil veriyle indirilsin mi?",
-  "downloadModelMobileDataContent": "Wi-Fi'ye bağlı değilsiniz. Çeviri için {{languages}} dil modelinin indirilmesi gerekiyor (yaklaşık {{size}} MB)."
+  "downloadModelMobileDataContent": "Wi-Fi'ye bağlı değilsiniz. Çeviri için {{languages}} dil modelinin indirilmesi gerekiyor (yaklaşık {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Güvenli depolamaya kaydedilemedi",
+  "secureStorageUnavailableTitle": "Güvenli depolama kullanılamıyor",
+  "secureStorageErrorDesc": "NanChat cüzdanınızı saklamak için sistem anahtarlığını kullanamadı. Linux'ta bir Secret Service sağlayıcısının (GNOME Keyring, Secret Service etkin KWallet veya KeePassXC) çalıştığından ve kilidinin açık olduğundan emin olun, ardından tekrar deneyin.",
+  "noSystemKeyringTitle": "Sistem anahtarlığı yok",
+  "noSystemKeyringPasswordRequired": "Bu bilgisayarda sistem anahtarlığı bulunamadı, bu yüzden cüzdanınız uygulama klasöründeki bir dosyada saklanıyor. Gizli ifadenizi şifrelemek için bir parola gerekli.",
+  "noSystemKeyringEnablePassword": "Bu bilgisayarda sistem anahtarlığı bulunamadı, bu yüzden cüzdanınız uygulama klasöründeki bir dosyada saklanıyor. Gizli ifadenizi şifrelemek için Ayarlar > Güvenlik bölümünden bir parola etkinleştirin.",
+  "retry": "Tekrar dene",
+  "keyringWalletUnreachableTitle": "Cüzdanınıza erişilemiyor",
+  "keyringWalletUnreachableDesc": "Cüzdanınız sistem anahtarlığında saklanıyor olabilir, ancak NanChat ona erişemiyor. Anahtarlığın kilidini açıp Tekrar dene'ye basın. Bunu yapamıyorsanız cüzdanınızı gizli ifadesiyle geri yükleyin: parola korumalı bir dosyaya kaydedilecek.",
+  "keyringWalletUseFile": "Gizli ifademle geri yükle"
 }

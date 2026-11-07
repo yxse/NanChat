@@ -519,5 +519,15 @@
   "permissionBrowserHint": "请在浏览器的网站设置中允许，然后重试。",
   "openSettings": "打开设置",
   "downloadModelMobileDataTitle": "使用移动数据下载？",
-  "downloadModelMobileDataContent": "你当前未连接 Wi-Fi。翻译需要下载 {{languages}} 语言模型（约 {{size}} MB）。"
+  "downloadModelMobileDataContent": "你当前未连接 Wi-Fi。翻译需要下载 {{languages}} 语言模型（约 {{size}} MB）。",
+  "secureStorageSaveErrorTitle": "无法保存到安全存储",
+  "secureStorageUnavailableTitle": "安全存储不可用",
+  "secureStorageErrorDesc": "NanChat 无法使用系统密钥环来存储你的钱包。在 Linux 上，请确保 Secret Service 提供程序（GNOME Keyring、已启用 Secret Service 的 KWallet 或 KeePassXC）正在运行且已解锁，然后重试。",
+  "noSystemKeyringTitle": "没有系统密钥环",
+  "noSystemKeyringPasswordRequired": "此电脑上未找到系统密钥环，因此你的钱包保存在应用文件夹中的一个文件里。需要设置密码来加密你的助记词。",
+  "noSystemKeyringEnablePassword": "此电脑上未找到系统密钥环，因此你的钱包保存在应用文件夹中的一个文件里。请在 设置 > 安全 中启用密码以加密你的助记词。",
+  "retry": "重试",
+  "keyringWalletUnreachableTitle": "无法访问你的钱包",
+  "keyringWalletUnreachableDesc": "你的钱包可能存储在系统密钥环中，但 NanChat 无法访问它。请解锁密钥环后点击重试。如果无法解锁，请用助记词恢复钱包：它将改为保存在受密码保护的文件中。",
+  "keyringWalletUseFile": "用助记词恢复"
 }

@@ -6,7 +6,7 @@ import { decrypt, encrypt } from "../../worker/crypto";
 import { useNavigate } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import { useContext, useEffect, useState } from "react";
-import { getSeed, removeSeed, setSeed } from "../../utils/storage";
+import { getSeed, isFileSecureStorage, removeSeed, setSeed } from "../../utils/storage";
 import {BiometricAuth} from '@aparajita/capacitor-biometric-auth'
 import { authenticate, biometricAuthIfAvailable, webauthnAuthIfAvailable } from "../../utils/biometrics";
 import { Capacitor } from "@capacitor/core";
@@ -38,6 +38,10 @@ function SecuritySettings() {
     const {data: minReceive, isLoading, mutate} = useSWR("/min-receive", fetcherMessages);
     const isPasswordMandatory = Capacitor.getPlatform() === "web" ? true : false; // Password is only mandatory on web version
     const { t } = useTranslation();
+    const [fileStorage, setFileStorage] = useState(false);
+    useEffect(() => {
+      isFileSecureStorage().then(setFileStorage).catch(() => {});
+    }, []);
       const valuesLock = [
         { value: "-1", label: "Disabled" },
         { value: "60", label: "1 minute" },
@@ -112,7 +116,8 @@ function SecuritySettings() {
         </NavBar>
         <List mode="card">
             {
-                seed?.isPasswordEncrypted &&
+                // no system keyring: the seed is in a file, it must stay encrypted
+                seed?.isPasswordEncrypted && !fileStorage &&
         <List.Item
               prefix={<MdOutlinePassword size={24} />}
               onClick={() => {

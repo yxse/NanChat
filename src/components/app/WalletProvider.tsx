@@ -11,7 +11,8 @@ import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 import { WalletContext } from "../useWallet";
 import { PinAuthPopup } from '../Lock/PinLock';
 import { SplashScreen } from '@capacitor/splash-screen';
-import { getSeed } from '../../utils/storage';
+import { getSeed, showSecureStorageError } from '../../utils/storage';
+import { t } from 'i18next';
 import { networks } from '../../utils/networks';
 import { initWallet } from '../../nano/accounts';
 import { ClipLoader as HashSpinner } from "react-spinners";
@@ -155,7 +156,15 @@ export const WalletProvider = ({ children, setWalletState, walletState }) => {
       <PinAuthPopup
         location={"launch"}
         description={"Unlock your wallet"} visible={authVisible} setVisible={setAuthVisible} onAuthenticated={async () => {
-          const seed = await getSeed()
+          let seed
+          try {
+            seed = await getSeed()
+          } catch (error) {
+            // storage unreadable (e.g. locked keyring): don't show onboarding as if there was no wallet
+            console.error("Cannot read wallet from secure storage", error)
+            showSecureStorageError(error, t("secureStorageUnavailableTitle"))
+            return
+          }
           if (seed?.seed && !seed?.isPasswordEncrypted) {
             setWalletState("unlocked");
           }

@@ -519,5 +519,15 @@
   "permissionBrowserHint": "ブラウザのサイト設定で許可してから、もう一度お試しください。",
   "openSettings": "設定を開く",
   "downloadModelMobileDataTitle": "モバイルデータでダウンロードしますか？",
-  "downloadModelMobileDataContent": "Wi-Fiに接続されていません。翻訳するには{{languages}}の言語モデル（約{{size}} MB）をダウンロードする必要があります。"
+  "downloadModelMobileDataContent": "Wi-Fiに接続されていません。翻訳するには{{languages}}の言語モデル（約{{size}} MB）をダウンロードする必要があります。",
+  "secureStorageSaveErrorTitle": "セキュアストレージに保存できませんでした",
+  "secureStorageUnavailableTitle": "セキュアストレージを利用できません",
+  "secureStorageErrorDesc": "NanChat はウォレットの保存にシステムのキーリングを使用できませんでした。Linux では、Secret Service プロバイダー（GNOME Keyring、Secret Service を有効にした KWallet、または KeePassXC）が起動していてロック解除されていることを確認してから、もう一度お試しください。",
+  "noSystemKeyringTitle": "システムキーリングがありません",
+  "noSystemKeyringPasswordRequired": "このコンピューターにシステムキーリングが見つからないため、ウォレットはアプリフォルダ内のファイルに保存されます。シークレットフレーズを暗号化するにはパスワードが必要です。",
+  "noSystemKeyringEnablePassword": "このコンピューターにシステムキーリングが見つからないため、ウォレットはアプリフォルダ内のファイルに保存されています。設定 > セキュリティでパスワードを有効にして、シークレットフレーズを暗号化してください。",
+  "retry": "再試行",
+  "keyringWalletUnreachableTitle": "ウォレットにアクセスできません",
+  "keyringWalletUnreachableDesc": "ウォレットはシステムのキーリングに保存されている可能性がありますが、NanChat はアクセスできません。キーリングのロックを解除して「再試行」を押してください。できない場合は、シークレットフレーズでウォレットを復元してください。パスワードで保護されたファイルに保存されます。",
+  "keyringWalletUseFile": "シークレットフレーズで復元"
 }

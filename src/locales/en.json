@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Allow it in your browser's site settings, then try again.",
   "openSettings": "Open Settings",
   "downloadModelMobileDataTitle": "Download over mobile data?",
-  "downloadModelMobileDataContent": "You're not on Wi-Fi. Translating requires downloading the {{languages}} language model (about {{size}} MB)."
+  "downloadModelMobileDataContent": "You're not on Wi-Fi. Translating requires downloading the {{languages}} language model (about {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Couldn't save to secure storage",
+  "secureStorageUnavailableTitle": "Secure storage unavailable",
+  "secureStorageErrorDesc": "NanChat couldn't use the system keyring to store your wallet. On Linux, make sure a Secret Service provider (GNOME Keyring, KWallet with Secret Service enabled, or KeePassXC) is running and unlocked, then try again.",
+  "noSystemKeyringTitle": "No system keyring",
+  "noSystemKeyringPasswordRequired": "No system keyring was found on this computer, so your wallet is saved in a file in the app folder. A password is required to encrypt your secret phrase.",
+  "noSystemKeyringEnablePassword": "No system keyring was found on this computer, so your wallet is saved in a file in the app folder. Enable a password in Settings > Security to encrypt your secret phrase.",
+  "retry": "Retry",
+  "keyringWalletUnreachableTitle": "Can't reach your wallet",
+  "keyringWalletUnreachableDesc": "Your wallet may be stored in the system keyring, but NanChat can't access it. Unlock the keyring and press Retry. If you can't, restore your wallet with its secret phrase: it will be saved in a password-protected file instead.",
+  "keyringWalletUseFile": "Restore with my secret phrase"
 }

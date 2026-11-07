@@ -3,7 +3,7 @@
 import React, { Dispatch, useState, useEffect, useContext, useDeferredValue, useRef, useCallback} from "react";
 import { IoArrowBack } from "react-icons/io5";
 
-import storage, { setSeed } from "../../../utils/storage";
+import storage, { isFileSecureStorage, setSeed } from "../../../utils/storage";
 import { Button, Card, Form, Input, List, Modal, NavBar, ProgressBar, Toast } from "antd-mobile";
 import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../useWallet";
@@ -172,6 +172,12 @@ export default function Password({
   const [password, setPassword] = useState<string>("");
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
   const [modalPasswordVisible, setModalPasswordVisible] = useState<boolean>(false);
+  // desktop without a system keyring: the seed is saved in a file, so the password can't be skipped
+  const [fileStorage, setFileStorage] = useState<boolean>(false);
+  useEffect(() => {
+    isFileSecureStorage().then(setFileStorage).catch(() => {});
+  }, []);
+  const canSkip = optional && !fileStorage;
 
   useEffect(() => {
     if (passLen > 0) {
@@ -254,10 +260,13 @@ export default function Password({
            
            {t('passwordWillEncryptSecretPhrase')}
           </p>
+          {fileStorage && <p className="mb-2" style={{color: "var(--adm-color-text-secondary)", textAlign: "center"}}>
+              {t('noSystemKeyringPasswordRequired')}
+            </p>}
           {optional && <>
-            <p className="mb-2" style={{color: "var(--adm-color-text-secondary)", textAlign: "center"}}>
+            {!fileStorage && <p className="mb-2" style={{color: "var(--adm-color-text-secondary)", textAlign: "center"}}>
               {t('desktopPasswordRecommended')}
-            </p>
+            </p>}
             <p className="mb-2" style={{color: "var(--adm-color-warning)", textAlign: "center"}}>
               {t('passwordWarning')}
             </p>
@@ -277,12 +286,13 @@ export default function Password({
                         }}
                         buttonText={optional ? t('enablePassword') : undefined}
                         />
-                        {optional && <Button
+                        {canSkip && <Button
                           shape="rounded"
                           size="large"
                           fill="none"
                           className="w-full mt-2"
                           onClick={async () => {
+                            if (await isFileSecureStorage()) return // checked again in case the button showed before the check finished
                             await setSeed(wallet.wallets["XNO"].seed, false, undefined, true)
                             setWalletState("unlocked")
                             onCreated()

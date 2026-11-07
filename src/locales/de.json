@@ -520,5 +520,15 @@
   "permissionBrowserHint": "Erlauben Sie ihn in den Website-Einstellungen Ihres Browsers und versuchen Sie es erneut.",
   "openSettings": "Einstellungen öffnen",
   "downloadModelMobileDataTitle": "Über mobile Daten herunterladen?",
-  "downloadModelMobileDataContent": "Sie sind nicht mit WLAN verbunden. Für die Übersetzung muss das Sprachmodell {{languages}} heruntergeladen werden (ca. {{size}} MB)."
+  "downloadModelMobileDataContent": "Sie sind nicht mit WLAN verbunden. Für die Übersetzung muss das Sprachmodell {{languages}} heruntergeladen werden (ca. {{size}} MB).",
+  "secureStorageSaveErrorTitle": "Speichern im sicheren Speicher fehlgeschlagen",
+  "secureStorageUnavailableTitle": "Sicherer Speicher nicht verfügbar",
+  "secureStorageErrorDesc": "NanChat konnte den Systemschlüsselbund nicht zum Speichern deiner Wallet verwenden. Stelle unter Linux sicher, dass ein Secret-Service-Anbieter (GNOME Keyring, KWallet mit aktiviertem Secret Service oder KeePassXC) läuft und entsperrt ist, und versuche es erneut.",
+  "noSystemKeyringTitle": "Kein Systemschlüsselbund",
+  "noSystemKeyringPasswordRequired": "Auf diesem Computer wurde kein Systemschlüsselbund gefunden, daher wird deine Wallet in einer Datei im App-Ordner gespeichert. Ein Passwort ist erforderlich, um deine geheime Phrase zu verschlüsseln.",
+  "noSystemKeyringEnablePassword": "Auf diesem Computer wurde kein Systemschlüsselbund gefunden, daher wird deine Wallet in einer Datei im App-Ordner gespeichert. Aktiviere ein Passwort unter Einstellungen > Sicherheit, um deine geheime Phrase zu verschlüsseln.",
+  "retry": "Erneut versuchen",
+  "keyringWalletUnreachableTitle": "Kein Zugriff auf deine Wallet",
+  "keyringWalletUnreachableDesc": "Deine Wallet ist möglicherweise im Systemschlüsselbund gespeichert, aber NanChat kann nicht darauf zugreifen. Entsperre den Schlüsselbund und tippe auf Erneut versuchen. Falls das nicht geht, stelle deine Wallet mit ihrer geheimen Phrase wieder her: Sie wird dann in einer passwortgeschützten Datei gespeichert.",
+  "keyringWalletUseFile": "Mit meiner geheimen Phrase wiederherstellen"
 }
