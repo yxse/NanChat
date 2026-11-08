@@ -23,6 +23,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { useTranslation } from "react-i18next";
 import { safeSetItem } from "../utils";
 import { isTauri } from "@tauri-apps/api/core";
+import ChatInputVoice from "./ChatInputVoice";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -466,7 +467,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
               name: file.name,
               type: file.type,
               size: file.size,
-              ...file?.imageDimensions
+              ...file?.imageDimensions,
+              ...file?.meta, // eg. duration of a voice message
             }
           }
         };
@@ -498,7 +500,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             name: file.name,
             type: file.type,
             size: file.size,
-            ...file?.imageDimensions
+            ...file?.imageDimensions,
+            ...file?.meta,
           }
         }
       };
@@ -540,6 +543,13 @@ const onStickerSelect = useCallback((stickerId) => {
 
 
     
+    // account the attachments are encrypted for
+    const toAddress =
+      chat?.type === "private" ? address :
+      chat?.type === "group" ? chat?.sharedAccount :
+      account?.startsWith('nano_') ? account : // chat not yet created
+      undefined;
+
     // console.log("message input render")
     return (
         <div 
@@ -573,6 +583,7 @@ const onStickerSelect = useCallback((stickerId) => {
               alignItems: 'center',
               gap: '1rem',
               width: '100%',
+              position: 'relative', // the voice recorder overlays this row
             }}
             >
             
@@ -625,10 +636,25 @@ const onStickerSelect = useCallback((stickerId) => {
               onChange={(e) => setNewMessage(e)}
             />
           
-          </div>    
+          </div>
+        {
+          !newMessage.trim() && !defaultNewMessage && !hideInput &&
+          <ChatInputVoice
+            accountTo={toAddress}
+            onUploadStart={onUploadStart}
+            onUploadSuccess={onUploadSuccess}
+            onUploadCancel={onUploadCancel}
+            onRecordingChange={(recording) => {
+              if (recording) {
+                setStickerVisible(false);
+                setInputAdditionVisible(false);
+              }
+            }}
+          />
+        }
           {
-            (enterToSend || !newMessage.trim()) && 
-          <div 
+            (enterToSend || !newMessage.trim()) &&
+          <div
         onClick={() => {
           if (!inputAdditionVisible && stickerVisible) {
             setStickerVisible(false);
@@ -636,7 +662,7 @@ const onStickerSelect = useCallback((stickerId) => {
           setInputAdditionVisible(!inputAdditionVisible)
         }}
         >
-          <AddCircleOutline 
+          <AddCircleOutline
           style={ {width: 32, height: 32, cursor: 'pointer'}}
           className="hoverable" />
         </div> }
@@ -663,14 +689,7 @@ const onStickerSelect = useCallback((stickerId) => {
         hideInput={hideInput}
         key={address + chat?.id + replyMessage} // adding replyMessage here fix bug replying message with pasting a file
         visible={inputAdditionVisible}
-        toAddress={
-          chat?.type === "private" ?
-          address :
-          chat?.type === "group" ?
-          chat?.sharedAccount :
-          account?.startsWith('nano_') ? account : // chat not yet created
-          undefined
-        }
+        toAddress={toAddress}
         chat={chat}
         onUploadStart={onUploadStart}
         onUploadSuccess={onUploadSuccess}

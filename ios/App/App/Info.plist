@@ -177,7 +177,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone access is required for audio calls</string>
+	<string>Microphone access is required for audio calls and voice messages</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Access to photo library is required to select images</string>
 	<key>NSUbiquitousContainers</key>

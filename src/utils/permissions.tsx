@@ -5,12 +5,13 @@ import i18n from "i18next";
 import type { CSSProperties } from "react";
 
 export type MediaPermission = "camera" | "microphone";
-export type PermissionPurpose = "scan" | "call" | "videoCall";
+export type PermissionPurpose = "scan" | "call" | "videoCall" | "voiceMessage";
 
 const DESCRIPTION_KEY: Record<PermissionPurpose, string> = {
     scan: "permissionScanDesc",
     call: "permissionCallDesc",
     videoCall: "permissionVideoCallDesc",
+    voiceMessage: "permissionVoiceMessageDesc",
 };
 
 // Opens the app page of the OS settings (Android and iOS).

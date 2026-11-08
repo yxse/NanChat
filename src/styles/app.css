@@ -714,6 +714,22 @@ body.light-theme .adm-button:hover:not(.adm-button-danger):not(.adm-button-prima
   background: rgba(0, 0, 0, 0.35);
   animation: upload-fade-in 0.2s ease-out;
 }
+.voice-recording-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--adm-color-danger);
+  animation: voice-recording-pulse 1.2s ease-in-out infinite;
+}
+@keyframes voice-recording-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
 .upload-progress-button {
   display: flex;
   align-items: center;
