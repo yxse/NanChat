@@ -13,7 +13,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { fetchFiatRates, getCurrencyLogo } from "../nanswap/swap/service";
 import { CircleFlag } from "react-circle-flags";
 import useLocalStorageState from "use-local-storage-state";
-import { MdBackup, MdContactMail, MdHowToVote, MdLogout, MdOutlineCleaningServices, MdOutlineFingerprint, MdOutlinePassword, MdOutlineSecurity, MdOutlineSettingsBackupRestore, MdOutlineTimer, MdSettingsBackupRestore, MdLockReset } from "react-icons/md";
+import { MdBackup, MdContactMail, MdHowToVote, MdLogout, MdOutlineCleaningServices, MdOutlineFingerprint, MdOutlinePassword, MdOutlineSecurity, MdOutlineSettingsBackupRestore, MdOutlineTimer, MdSettingsBackupRestore, MdLockReset, MdOutlineSubtitles } from "react-icons/md";
 import { getAccount } from "./getAccount";
 import * as webauthn from '@passwordless-id/webauthn'
 import { AiOutlineContacts, AiOutlineFormatPainter } from "react-icons/ai";
@@ -630,6 +630,14 @@ className="mb-24"
               }}
             >
               {t('translate')}
+            </List.Item>
+            <List.Item
+              prefix={<MdOutlineSubtitles size={24} />}
+              onClick={() => {
+                navigate("/settings/transcription")
+              }}
+            >
+              {t('voiceTranscription')}
             </List.Item>
 
             <List.Item
