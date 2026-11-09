@@ -26,7 +26,6 @@ import { useChats } from "../hooks/use-chats";
 const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, messageInputRef, account }) => {
     const isKeyboardOpen = useDetectKeyboardOpen(); // used to fix scroll bottom android when keyboard open and new message sent
     const [lastTypingTimeReceived, setLastTypingTimeReceived] = useState(0);
-    const [dateNow, setDateNow] = useState(Date.now());
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const { wallet } = useContext(WalletContext)
@@ -63,24 +62,22 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
     useEffect(() => {
         // todo this in separate component as it is refresh the whole component every second
         const interval = setInterval(() => {
-            setDateNow(Date.now());
+            // same array when nobody stopped typing: no re-render every 5s
             setParticipantsTyping(prev => {
-                return prev.filter(participant => {
-                    return Date.now() - participant.time < 4000;
-                });
+                const next = prev.filter(participant => Date.now() - participant.time < 4000);
+                return next.length === prev.length ? prev : next;
             });
         }, 5000);
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
-        socket.on('typing', (typing) => {
+        const onTyping = (typing) => {
             const { chatId, account: accountTyping} = typing;
             // setTimeout(() => {
             //     // window.scrollTo(0, document.body.scrollHeight);
             //   }
             //   , 10);
-            console.log('typing', chatId, accountTyping, address);
             if (chatId !== account) return // show typing only for current chat
             setParticipantsTyping(
                 prev => {
@@ -101,10 +98,11 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
                 messageInputRef.current?.blur(); // fix content shift android when typing & keyboard open
                 messageInputRef.current?.focus();
             }
-        });
+        };
+        socket.on('typing', onTyping);
 
         return () => {
-            socket.off('typing');
+            socket.off('typing', onTyping); // only this listener: another input (e.g. account info modal) keeps its own
             setParticipantsTyping([]);
         };
     }, [address, isKeyboardOpen, chat, account]);
@@ -114,11 +112,9 @@ const EmitTyping: React.FC<{ newMessage, messageInputRef }> = ({ newMessage, mes
                 if (chat?.type === "private"){
                     setLastTypingTimeReceived(0);
                 }
-                console.log('message', message);
-                console.log('participantsTyping', participantsTyping);
                 setParticipantsTyping((prev) => {
-                    console.log('prev', prev);
-                    return prev.filter(participant => participant.account !== message.fromAccount)
+                    const next = prev.filter(participant => participant.account !== message.fromAccount);
+                    return next.length === prev.length ? prev : next;
                 })
             }
         socket.on('message', handleMessage);
