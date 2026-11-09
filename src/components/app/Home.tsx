@@ -144,6 +144,10 @@ console.log("balance 2", totalBalance);
 }
 export default function Home({ }) {
   const [selectedTicker, setSelectedTicker] = useState<string>(null);
+  const closeTicker = () => {
+    setSelectedTicker(null)
+    navigate(location.pathname, {replace: true}) // reset send url params
+  }
   const [hiddenNetworks, setHiddenNetworks] = useLocalStorageState("hiddenNetworks", []);
   const {mutate,cache}=useSWRConfig()
 
@@ -173,22 +177,24 @@ export default function Home({ }) {
  
   return (
     <div className="w-full  " style={{  }}>
-        <Popup
-        destroyOnClose // else issue with history infinite scroll
+        {/* on large screens a ticker opens in a centered modal over the wallet (see RouteModal for the same look) */}
+        <CenterPopup
+          destroyOnClose // else issue with history infinite scroll
           visible={selectedTicker !== null}
-          onClose={() => {
-            setSelectedTicker(null)
-            navigate(location.pathname, {replace: true}) // reset send url params
-          }}
-          closeOnMaskClick
-          position="right"
-          maskClosable
+          onClose={closeTicker}
+          onMaskClick={closeTicker}
+          className="route-modal"
+          style={{
+            "--min-width": "min(600px, calc(100vw - 32px))",
+            "--max-width": "min(600px, calc(100vw - 32px))",
+            "--border-radius": "16px",
+            "--background-color": "var(--main-background-color)",
+          } as React.CSSProperties}
+          bodyStyle={{ maxHeight: "85vh", overflowY: "auto", overscrollBehavior: "contain" }}
           >{
-            selectedTicker && <div style={{maxHeight: "100vh", overflowY: "auto"}}>
-              <Network defaultTicker={selectedTicker} />
-              </div>
+            selectedTicker && <Network defaultTicker={selectedTicker} onBack={closeTicker} />
           }
-          </Popup>
+          </CenterPopup>
         {/* <NavBar
         className="text-xxl app-navbar "
         //  back={
