@@ -131,6 +131,29 @@
   }
 }
 
+/* new message sent / received while the chat is open: rises from the bottom (useNewMessageAnimation) */
+.message-enter {
+  animation: message-enter 200ms linear both;
+  will-change: opacity;
+}
+@keyframes message-enter {
+  /* the rise from the bottom is the whole list sliding up (slideListUp), the row itself only fades in */
+  from {
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .message-enter {
+    animation: none;
+  }
+}
+
 .app-navbar-menu {
   -webkit-box-pack: start;
   justify-content: flex-start;
