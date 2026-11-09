@@ -2,6 +2,7 @@ import { box, tools, wallet } from "multi-nano-web";
 import { generateSecureSeed } from "../utils/storage";
 import { fetcherChat, fetcherMessages, fetcherMessagesPost } from "../components/messaging/fetcher";
 import { initSqlStore, inMemoryMap, restoreData, setData } from "./database.service";
+import { rememberSharedKey } from "./notificationKeys";
 
 export async function addSharedKeyForParticipants(chatId: string, newParticipants: string[], existingSharedAccount: string, fromPk: string) {
     const sharedKey = await getSharedKey(chatId, existingSharedAccount, fromPk);
@@ -72,6 +73,7 @@ export async function getSharedKey(chatId: string, sharedAccount: string, active
         
         // Wait for the request to complete
         const result = await requestPromise;
+        rememberSharedKey(sharedAccount, result); // lets the iOS notification extension decrypt group previews
         return result;
     } finally {
         // Clean up by removing the promise from the map when done

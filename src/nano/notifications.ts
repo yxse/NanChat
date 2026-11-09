@@ -158,6 +158,9 @@ async function saveSubscription(token, accounts) {
         body: JSON.stringify({
             token: token,
             addresses: accounts,
+            // this client can decrypt message previews in a notification service extension:
+            // send them as visible `mutable-content` pushes instead of silent ones
+            ...(Capacitor.getPlatform() === "ios" ? { notificationServiceExtension: 1 } : {}),
         }),
     });
     if (r.status === 200 || r.status === 201) { // store in local storage only if successful
