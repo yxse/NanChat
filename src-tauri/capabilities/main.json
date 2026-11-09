@@ -11,6 +11,7 @@
     "allow-delete-secret",
     "allow-secure-storage-status",
     "allow-open-browser-window",
+    "core:webview:allow-set-webview-focus",
     "sql:allow-load",
     "sql:allow-select",
     "sql:allow-execute",

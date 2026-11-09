@@ -13,7 +13,7 @@ import { box, wallet } from 'multi-nano-web';
 import { getSeed } from '../../utils/storage';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { useEmit, useEvent } from '../messaging/components/EventContext';
-import { fetcherMessagesCache } from '../messaging/fetcher';
+import { expectNewMessages, fetcherMessagesCache } from '../messaging/message-cache';
 import { useChats } from '../messaging/hooks/use-chats';
 import { focusMainWindow, LIMIT_MESSAGES_INITIAL } from '../messaging/utils';
 import { useWallet } from '../useWallet';
@@ -140,6 +140,39 @@ const AppUrlListener: React.FC<any> = () => {
       setUriOrigin(origin);
       setUri(url);
     }
+
+    // Desktop (WebView2): on minimize the webview is hidden, and when it is shown again on restore the page gets the
+    // focus and loses it right after, so typing goes nowhere until a click. After a restore, if the page has not got
+    // the focus back, give it to the webview (the focused element, e.g. the message input, keeps it).
+    // Only on a restore (page hidden -> visible): switching to another app without minimizing keeps the page visible,
+    // so this never takes the focus from another app. Tauri's window isFocused() can't tell: it is false whenever the
+    // focus is inside the webview.
+    useEffect(() => {
+      if (!isTauri()) return;
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      const refocus = async () => {
+        if (document.hasFocus() || document.visibilityState === 'hidden') return;
+        try {
+          const { getCurrentWebview } = await import('@tauri-apps/api/webview');
+          await getCurrentWebview().setFocus();
+        } catch (e) {
+          console.warn("cannot give the focus back to the webview", e);
+        }
+      };
+      const onVisibility = () => {
+        timers.forEach(clearTimeout);
+        timers.length = 0;
+        if (document.visibilityState !== 'visible') return;
+        // after the restore settled (the focus is lost right after it), and once more in case it was lost again
+        timers.push(setTimeout(refocus, 150), setTimeout(refocus, 600));
+      };
+      document.addEventListener('visibilitychange', onVisibility);
+      return () => {
+        document.removeEventListener('visibilitychange', onVisibility);
+        timers.forEach(clearTimeout);
+      };
+    }, []);
+
     useEffect(() => {
       const handleOpenUrl = async () => {
         await onOpenUrl((urls) => {
@@ -198,12 +231,15 @@ const AppUrlListener: React.FC<any> = () => {
         // Toast.show({
           //   content: "action" + event.notification.title + " " + event.notification.body + " " + event.notification.data.url
           // })
+          // the chat has a message the store may not have yet (app launched / resumed from the notification): its newest
+          // page comes from the server, before navigating so the chat room's first load already asks for it
+          expectNewMessages(event.notification.data?.chatId);
           navigate('/') // to prevent bug when navigating back
           if (isSafeAppPath(event.notification.data.url)) navigate(event.notification.data.url);
-           setTimeout(() => {
-            // using delay or else it seems that chats list not correctly update
-               mutateChats() 
-          }, 1000);
+          // refresh the chats list right away (new heights / unread, which also refresh the open chat, see useChat).
+          // Again a bit later: on a cold launch the first call can be made before the chats store is ready
+          mutateChats()
+          setTimeout(() => mutateChats(), 1000);
         
         FirebaseMessaging.getDeliveredNotifications().then((notifications) => {
           if (Capacitor.getPlatform() === "android"){ // on iOS, threadId of notification allows to already remove all notification of that thread when clicking, on android we remove all notification, grouping notification in android seems to be pain in the ass
@@ -274,6 +310,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   // Preload first page of messages so the chat opens instantly when the user taps the notification.
   // We seed the useSWRInfinite cache directly (under its $inf$ key) so useChat(chatId)
   // mounts with data already present and skips the initial loading state.
+  expectNewMessages(chatId); // the store may not have this message yet (socket not connected in background)
   const firstPageKey = `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES_INITIAL}&cursor=-1&clearCount=false`;
   const infiniteKey = unstable_serialize((index, prev) => getKey(index, prev, chatId));
   globalMutate(
