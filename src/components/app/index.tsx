@@ -85,7 +85,6 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import NotificationSettings from "./NotificationSettings";
 import TranslateSettings from "../settings/TranslateSettings";
-import TranscriptionSettings from "../settings/TranscriptionSettings";
 import { authenticate } from "../../utils/biometrics";
 import { getIsPasswordEncrypted, getSeed } from "../../utils/storage";
 import useSWR from "swr";
@@ -458,7 +457,6 @@ const modalRoutes = (
     <Route path="/settings/security" element={<SecuritySettings />} />
     <Route path="/settings/notification" element={<NotificationSettings />} />
     <Route path="/settings/translate" element={<TranslateSettings />} />
-    <Route path="/settings/transcription" element={<TranscriptionSettings />} />
     <Route path="/settings/alias" element={<NanoAlias />} />
     <Route path="/settings/security/developer" element={<DeveloperSettings />} />
     <Route path="/settings/security/blocked" element={<BlockedChats />} />
@@ -479,7 +477,6 @@ function AppRoutes() {
         <Route path="/settings/security" element={<SecuritySettings />} />
         <Route path="/settings/notification" element={<NotificationSettings />} />
         <Route path="/settings/translate" element={<TranslateSettings />} />
-        <Route path="/settings/transcription" element={<TranscriptionSettings />} />
         <Route path="/settings/alias" element={<NanoAlias />} />
         <Route path="/settings/security/developer" element={<DeveloperSettings />} />
         <Route path="/settings/security/blocked" element={<BlockedChats />} />

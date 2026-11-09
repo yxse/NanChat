@@ -57,7 +57,6 @@
     "@capgo/capacitor-data-storage-sqlite": "^6.0.59",
     "@emotion/react": "^11.11.4",
     "@hello-pangea/dnd": "^18.0.1",
-    "@huggingface/transformers": "4.3.2",
     "@khmyznikov/pwa-install": "^0.4.0",
     "@ledgerhq/hw-transport": "^6.30.6",
     "@ledgerhq/hw-transport-web-ble": "^6.29.4",

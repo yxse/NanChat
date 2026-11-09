@@ -1,20 +1,7 @@
 import { memo, useEffect, useRef, useState } from "react";
-import { SpinLoading, Toast } from "antd-mobile";
+import { SpinLoading } from "antd-mobile";
 import { FaPause, FaPlay } from "react-icons/fa6";
-import { MdOutlineSubtitles } from "react-icons/md";
 import { useTranslation } from "react-i18next";
-import {
-    Transcript,
-    TranscriptionDeclinedError,
-    getCachedTranscript,
-    isAutoTranscribeEnabled,
-    isModelDownloaded,
-    isTranscriptionSupported,
-    resolveModel,
-    transcribe,
-    useTranscriptionState,
-} from "../../../services/transcription.service";
-import { languageName } from "../../../services/translation.service";
 
 const BAR_COUNT = 36;
 const MAX_DECODE_SIZE = 20 * 1024 * 1024; // above this, decoding the whole file just to draw bars isn't worth it
@@ -121,56 +108,12 @@ const MessageAudio = ({ src, cacheKey, duration: metaDuration, isFromCurrentUser
     const [waveform, setWaveform] = useState<Waveform | null>(null);
     const [elementDuration, setElementDuration] = useState<number | null>(null);
     const [speed, setSpeed] = useState(preferredSpeed);
-    const [transcript, setTranscript] = useState<Transcript | null>(null);
-    const [transcribing, setTranscribing] = useState(false);
-    const [transcriptVisible, setTranscriptVisible] = useState(true);
-    const transcriptionState = useTranscriptionState();
     useEffect(() => {
         if (!src) return;
         let mounted = true;
         getWaveform(cacheKey, src).then((w) => mounted && setWaveform(w));
         return () => { mounted = false; };
     }, [src, cacheKey]);
-
-    const runTranscription = async (interactive: boolean) => {
-        if (!src) return;
-        setTranscribing(true);
-        try {
-            const result = await transcribe(cacheKey, src, { interactive });
-            setTranscript(result);
-            setTranscriptVisible(true);
-        } catch (error) {
-            if (interactive && !(error instanceof TranscriptionDeclinedError)) {
-                console.error("transcription failed", error);
-                Toast.show({ icon: "fail", content: t("transcriptionFailed") });
-            }
-        } finally {
-            setTranscribing(false);
-        }
-    };
-
-    // already transcribed in this session, or auto transcription of received messages
-    useEffect(() => {
-        if (!src || !isTranscriptionSupported()) return;
-        let mounted = true;
-        const cached = getCachedTranscript(cacheKey);
-        if (cached) {
-            setTranscribing(true);
-            cached.then((result) => mounted && setTranscript(result)).catch(() => {}).finally(() => mounted && setTranscribing(false));
-        } else if (!isFromCurrentUser && isAutoTranscribeEnabled()) {
-            resolveModel().then(isModelDownloaded).then((downloaded) => {
-                if (downloaded && mounted) runTranscription(false);
-            });
-        }
-        return () => { mounted = false; };
-    }, [src, cacheKey]);
-
-    const onTranscribeClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (transcribing) return;
-        if (transcript) setTranscriptVisible(!transcriptVisible);
-        else runTranscription(true);
-    };
 
     // smooth progress while playing (timeupdate only fires ~4 times per second)
     useEffect(() => {
@@ -225,89 +168,56 @@ const MessageAudio = ({ src, cacheKey, duration: metaDuration, isFromCurrentUser
         if (audioRef.current) audioRef.current.playbackRate = next;
     };
 
-    const showTranscribeButton = isTranscriptionSupported() && !!src;
-    const downloading = transcribing && transcriptionState.status === "downloading";
-
     return (
         <div
             className={`chat-message ${isFromCurrentUser ? "to" : "from"}`}
-            style={{ borderRadius: 8, padding: "8px 10px", width: 260, maxWidth: "100%", userSelect: "none", WebkitUserSelect: "none" }}
+            style={{ borderRadius: 8, padding: "8px 10px", width: 260, maxWidth: "100%", display: "flex", alignItems: "center", gap: 10, userSelect: "none", WebkitUserSelect: "none" }}
         >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {src && (
-                    <audio
-                        ref={audioRef}
-                        src={src}
-                        preload="metadata"
-                        onLoadedMetadata={(e) => setElementDuration(e.currentTarget.duration)}
-                        onDurationChange={(e) => setElementDuration(e.currentTarget.duration)}
-                        onPlay={() => setPlaying(true)}
-                        onPause={() => { setPlaying(false); if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }}
-                        onEnded={() => { setPlaying(false); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0; }}
-                        onError={() => onError?.()}
-                    />
-                )}
-                <div
-                    onClick={togglePlay}
-                    aria-label={playing ? "Pause" : "Play"}
-                    role="button"
-                    style={{
-                        width: 38,
-                        height: 38,
-                        flexShrink: 0,
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: src ? "pointer" : "default",
-                        background: isFromCurrentUser ? "var(--adm-color-background)" : "var(--adm-color-primary)",
-                        color: isFromCurrentUser ? "var(--adm-color-primary)" : "#fff",
-                    }}
-                >
-                    {!src ? <SpinLoading color="currentColor" style={{ "--size": "18px" } as any} /> :
-                        playing ? <FaPause size={15} /> : <FaPlay size={14} style={{ marginLeft: 2 }} />}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, gap: 2 }}>
-                    <WaveformBars peaks={waveform?.peaks} progress={progress} onSeek={src ? seek : undefined} />
-                    {/* fixed height: the speed badge (with its border) replaces the label without moving anything */}
-                    <div className="text-xs" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", opacity: 0.75, height: 16 }}>
-                        <span style={{ fontVariantNumeric: "tabular-nums" }}>{formatDuration(playing || currentTime > 0 ? currentTime : duration)}</span>
-                        {(playing || currentTime > 0 || speed !== 1) ?
-                            <span onClick={cycleSpeed} style={{ cursor: "pointer", fontWeight: 600, padding: "0 6px", borderRadius: 8, border: "1px solid currentColor", lineHeight: "14px" }}>
-                                {speed}×
-                            </span>
-                            : <span>{t("voiceMessage")}</span>}
-                    </div>
-                </div>
-                {showTranscribeButton && (
-                    <div
-                        onClick={onTranscribeClick}
-                        role="button"
-                        aria-label={t("transcribe")}
-                        title={t("transcribe")}
-                        style={{ flexShrink: 0, display: "flex", alignItems: "center", cursor: transcribing ? "default" : "pointer", opacity: transcript && transcriptVisible ? 1 : 0.7 }}
-                    >
-                        {transcribing ? <SpinLoading color="currentColor" style={{ "--size": "18px" } as any} /> : <MdOutlineSubtitles size={20} />}
-                    </div>
-                )}
+            {src && (
+                <audio
+                    ref={audioRef}
+                    src={src}
+                    preload="metadata"
+                    onLoadedMetadata={(e) => setElementDuration(e.currentTarget.duration)}
+                    onDurationChange={(e) => setElementDuration(e.currentTarget.duration)}
+                    onPlay={() => setPlaying(true)}
+                    onPause={() => { setPlaying(false); if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }}
+                    onEnded={() => { setPlaying(false); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0; }}
+                    onError={() => onError?.()}
+                />
+            )}
+            <div
+                onClick={togglePlay}
+                aria-label={playing ? "Pause" : "Play"}
+                role="button"
+                style={{
+                    width: 38,
+                    height: 38,
+                    flexShrink: 0,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: src ? "pointer" : "default",
+                    background: isFromCurrentUser ? "var(--adm-color-background)" : "var(--adm-color-primary)",
+                    color: isFromCurrentUser ? "var(--adm-color-primary)" : "#fff",
+                }}
+            >
+                {!src ? <SpinLoading color="currentColor" style={{ "--size": "18px" } as any} /> :
+                    playing ? <FaPause size={15} /> : <FaPlay size={14} style={{ marginLeft: 2 }} />}
             </div>
-            {transcribing && !transcript && (
-                <div className="text-xs" style={{ marginTop: 6, opacity: 0.75 }}>
-                    {downloading
-                        ? t("downloadingSpeechModel", { percent: Math.round(transcriptionState.progress * 100) })
-                        : t("transcribing")}
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, gap: 2 }}>
+                <WaveformBars peaks={waveform?.peaks} progress={progress} onSeek={src ? seek : undefined} />
+                {/* fixed height: the speed badge (with its border) replaces the label without moving anything */}
+                <div className="text-xs" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", opacity: 0.75, height: 16 }}>
+                    <span style={{ fontVariantNumeric: "tabular-nums" }}>{formatDuration(playing || currentTime > 0 ? currentTime : duration)}</span>
+                    {(playing || currentTime > 0 || speed !== 1) ?
+                        <span onClick={cycleSpeed} style={{ cursor: "pointer", fontWeight: 600, padding: "0 6px", borderRadius: 8, border: "1px solid currentColor", lineHeight: "14px" }}>
+                            {speed}×
+                        </span>
+                        : <span>{t("voiceMessage")}</span>}
                 </div>
-            )}
-            {transcript && transcriptVisible && (
-                <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid color-mix(in srgb, currentColor 25%, transparent)", userSelect: "text", WebkitUserSelect: "text" }}>
-                    <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-                        {transcript.text || <span style={{ opacity: 0.6 }}>{t("transcriptEmpty")}</span>}
-                    </div>
-                    <div className="text-xs flex items-center gap-1" style={{ opacity: 0.6, marginTop: 2 }}>
-                        <MdOutlineSubtitles /> {t("transcript")}{transcript.language ? ` · ${languageName(transcript.language)}` : ""}
-                    </div>
-                </div>
-            )}
+            </div>
         </div>
     );
 };
