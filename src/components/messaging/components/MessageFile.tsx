@@ -159,7 +159,12 @@ const UploadProgressBar = ({ localId }) => {
 // Global promise map to track ongoing decryptions
 const decryptionPromises = new Map();
 
+// non-media file card: a fixed width, otherwise it grows with the file name (one line, nowrap) and a long name
+// overflows the screen (horizontal scroll on iOS); with it the name is cut with an ellipsis
+const FILE_CARD_STYLE = { width: 240, maxWidth: 'calc(100vw - 120px)', boxSizing: 'border-box' } as const;
+
 const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" }) => {
+    const { t } = useTranslation()
     const {chat} = useChats(message.chatId)
     const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(file.previewUrl || null) // previewUrl: local copy of a file we just sent, no need to wait for the cache
@@ -380,7 +385,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         )
         return (
             <div key={message._id + "file"}>
-                <Card style={{ minWidth: 220 }}>
+                <Card style={FILE_CARD_STYLE}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
                             <b style={{ fontSize: 16, color: 'var(--adm-color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -399,7 +404,7 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     }
 
     if (!isAccepted) return (
-        <div>
+        <div style={{ overflowWrap: 'anywhere' }}>
             <div>
                 {fileName} - {formatSize(file.meta?.size)}
             </div>
@@ -407,25 +412,64 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
         </div>
     )
     
-    if (!canDecrypt) return (
-        <div>
-            <Popover content="File no longer available." trigger="click" mode="dark">
-                <FileWrongOutline fontSize={48} />
-            </Popover>
-        </div>
-    )
-    
-    if (!decrypted && canDecrypt) return <div key={message._id + "file"} className={``} >
-        {file.meta?.height ? 
-        <Skeleton animated style={{"--height": `${heightImage}px`, "--border-radius": "8px", "--width": `${widthImage}px`}}/>
-        : 
-        <Skeleton animated style={{"--height": `${maxHeight}`, "--border-radius": "8px", "--width": `220px`}}/> // for file card
-        }
-    </div>
-    if (isSVG || !fileType?.startsWith('image') && !fileType?.startsWith('video')) {
+    // other files: a card with the name and size, known without decrypting. Rendered right away (a spinner in place
+    // of the download icon until the file is ready) rather than a media sized placeholder that then shrinks
+    if (!isMedia) {
         maxHeight = "72px"
         heightImage = 72
     }
+
+    // file deleted / expired: a placeholder of the same size as the file it replaces (no content shift when the
+    // download fails after the loading placeholder was shown)
+    if (!canDecrypt) {
+        if (isMedia) return (
+            <div key={message._id + "file"} style={{
+                height: file.meta?.height ? heightImage : +(maxHeight.split('px')[0]),
+                width: file.meta?.height && widthImage ? widthImage : 220,
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                borderRadius: 8,
+                backgroundColor: 'var(--adm-color-fill-content)',
+                color: 'var(--adm-color-weak)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: 8,
+                textAlign: 'center',
+                fontSize: 13,
+            }}>
+                <FileWrongOutline fontSize={32} />
+                <span>{t('fileUnavailable')}</span>
+            </div>
+        )
+        return (
+            <div key={message._id + "file"} style={{ height: heightImage }}>
+                <Card style={FILE_CARD_STYLE}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                            <b style={{ fontSize: 16, color: 'var(--adm-color-weak)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {fileName}
+                            </b>
+                            <div style={{ color: 'var(--adm-color-text-secondary)' }}>
+                                {t('fileUnavailable')}
+                            </div>
+                        </div>
+                        <FileWrongOutline color="var(--adm-color-weak)" fontSize={24} style={{ flex: 'none' }} />
+                    </div>
+                </Card>
+            </div>
+        )
+    }
+
+    if (!decrypted && canDecrypt && isMedia) return <div key={message._id + "file"} className={``} >
+        <Skeleton animated style={{
+            "--height": `${file.meta?.height ? heightImage : +(maxHeight.split('px')[0])}px`,
+            "--border-radius": "8px",
+            "--width": `${file.meta?.height && widthImage ? widthImage : 220}px`,
+        }}/>
+    </div>
     // Main render - only when decrypted exists
     return (
         <div key={message._id + "file"} className={``} style={{
@@ -459,24 +503,29 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                         </video>
                     }
                     {(isSVG || !fileType?.startsWith('image')) && !fileType?.startsWith('video') && 
-                        <Card>
+                        <Card style={FILE_CARD_STYLE}>
                             <div 
                                 onClick={async () => {
+                                    if (!decrypted) return // still loading
                                     await downloadFile(decrypted, fileName, fileType, fileID!)
                                 }}
                                 style={{
                                     display: 'flex', 
                                     flexDirection: 'row', 
-                                    cursor: 'pointer', 
+                                    cursor: decrypted ? 'pointer' : 'default', 
                                     alignItems: 'center', 
                                     justifyContent: 'space-between', 
                                     gap: 8
                                 }}
                             >
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <div style={{display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1}}>
                                     <b style={{
                                         fontSize: 16,
                                         color: 'var(--adm-color-text)',
+                                        // one line: the card is laid out in a fixed 72px high row
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
                                     }}>
                                         {fileName}
                                     </b>
@@ -484,12 +533,14 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
                                         {formatSize(fileSize)}
                                     </div>
                                 </div>
+                                {decrypted ?
                                 <a target="_blank">
                                     <DownlandOutline
                                         color="var(--adm-color-text)"
                                         fontSize={24} 
                                     />
                                 </a>
+                                : <SpinLoading style={{ '--size': '24px', flex: 'none' }} />}
                             </div>
                         </Card>
                     }
