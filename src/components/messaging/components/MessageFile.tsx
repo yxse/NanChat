@@ -23,6 +23,8 @@ import { getLocalFileName, getOpenableFileName } from "../../../services/file-ur
 import { useChats } from "../hooks/use-chats";
 import { useUploadState } from "../../../services/upload-progress";
 import { useTranslation } from "react-i18next";
+import MessageAudio, { formatDuration } from "./MessageAudio";
+import { AudioOutline } from "antd-mobile-icons";
 
 const downloadFile = async (content: string, fileName: string, fileType: string, fileId: string )=> {
     const download = async () => {
@@ -169,9 +171,8 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     const isAccepted = chat?.accepted || deleteMode 
     const [decrypted, setDecrypted] = useState(file.previewUrl || null) // previewUrl: local copy of a file we just sent, no need to wait for the cache
     const [canDecrypt, setCanDecrypt] = useState(true)
+    const [audioFailed, setAudioFailed] = useState(false) // codec not playable here (eg. webm on old iOS): offer the file instead
     const {activeAccount, activeAccountPk} = useWallet()
-    
-    console.log(file.meta)
     
     let targetAccount = message.fromAccount === activeAccount 
             ? message.toAccount
@@ -366,6 +367,34 @@ const MessageFile = ({ message, side, file, deleteMode=false, maxHeight="300px" 
     
     const isSVG = fileType === 'image/svg+xml';
     const isMedia = !isSVG && (fileType?.startsWith('image') || fileType?.startsWith('video'))
+
+    const isAudio = fileType?.startsWith('audio') && !audioFailed
+    const isCompact = +(maxHeight.split('px')[0]) < 100 // reply preview / chat list
+
+    if (isAudio && isCompact) return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <AudioOutline /> {t('voiceMessage')}{file.meta?.duration ? ` (${formatDuration(file.meta.duration)})` : ''}
+        </div>
+    )
+
+    if (isAudio && message.uploading) return (
+        <div key={message._id + "file"} style={{ display: 'flex', alignItems: 'center', gap: 8, flexDirection: 'row-reverse' }}>
+            <MessageAudio src={file.previewUrl} cacheKey={message._id} duration={file.meta?.duration} isFromCurrentUser />
+            <UploadProgress localId={message._id} compact />
+        </div>
+    )
+
+    if (isAudio && isAccepted && canDecrypt) return (
+        <div key={message._id + "file"}>
+            <MessageAudio
+                src={decrypted}
+                cacheKey={fileID || message._id}
+                duration={file.meta?.duration}
+                isFromCurrentUser={message.fromAccount === activeAccount}
+                onError={() => setAudioFailed(true)}
+            />
+        </div>
+    )
 
     // Early returns for different states
     if (message.uploading) {
