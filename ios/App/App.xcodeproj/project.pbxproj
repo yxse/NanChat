@@ -16,6 +16,7 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
 		B5C7D4232D8C895300FDADEB /* NanChatShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B5C7D4192D8C895300FDADEB /* NanChatShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C1A0D5022E9F4B1700ABCDEF /* NanChatNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C1A0D5012E9F4B1700ABCDEF /* NanChatNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B5C7D67A2DC27A0400FDADEB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5C7D6792DC27A0400FDADEB /* GoogleService-Info.plist */; };
 		B5C7D6CC2DCA55F400FDADEB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B5C7D6CB2DCA55F400FDADEB /* PrivacyInfo.xcprivacy */; };
 		B5E2BC122D318084002164C2 /* MyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E2BC112D318084002164C2 /* MyViewController.swift */; };
@@ -30,6 +31,13 @@
 			remoteGlobalIDString = B5C7D4182D8C895300FDADEB;
 			remoteInfo = NanChatShare;
 		};
+		C1A0D5032E9F4B1700ABCDEF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1A0D50A2E9F4B1700ABCDEF;
+			remoteInfo = NanChatNotificationService;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +48,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				B5C7D4232D8C895300FDADEB /* NanChatShare.appex in Embed Foundation Extensions */,
+				C1A0D5022E9F4B1700ABCDEF /* NanChatNotificationService.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -60,6 +69,7 @@
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		B57AE05C2D4A87CA0080CD06 /* AppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppDebug.entitlements; sourceTree = "<group>"; };
 		B5C7D4192D8C895300FDADEB /* NanChatShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NanChatShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1A0D5012E9F4B1700ABCDEF /* NanChatNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NanChatNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5C7D6792DC27A0400FDADEB /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B5C7D6CB2DCA55F400FDADEB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B5E2BC0F2D317FA9002164C2 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
@@ -76,6 +86,13 @@
 			);
 			target = B5C7D4182D8C895300FDADEB /* NanChatShare */;
 		};
+		C1A0D5052E9F4B1700ABCDEF /* Exceptions for "NanChatNotificationService" folder in "NanChatNotificationService" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C1A0D50A2E9F4B1700ABCDEF /* NanChatNotificationService */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -85,6 +102,14 @@
 				B5C7D4242D8C895300FDADEB /* Exceptions for "NanChatShare" folder in "NanChatShare" target */,
 			);
 			path = NanChatShare;
+			sourceTree = "<group>";
+		};
+		C1A0D5062E9F4B1700ABCDEF /* NanChatNotificationService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C1A0D5052E9F4B1700ABCDEF /* Exceptions for "NanChatNotificationService" folder in "NanChatNotificationService" target */,
+			);
+			path = NanChatNotificationService;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -99,6 +124,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B5C7D4162D8C895300FDADEB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1A0D5072E9F4B1700ABCDEF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -121,6 +153,7 @@
 			children = (
 				504EC3061FED79650016851F /* App */,
 				B5C7D41A2D8C895300FDADEB /* NanChatShare */,
+				C1A0D5062E9F4B1700ABCDEF /* NanChatNotificationService */,
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
 				27E2DDA53C4D2A4D1A88CE4A /* Frameworks */,
@@ -132,6 +165,7 @@
 			children = (
 				504EC3041FED79650016851F /* App.app */,
 				B5C7D4192D8C895300FDADEB /* NanChatShare.appex */,
+				C1A0D5012E9F4B1700ABCDEF /* NanChatNotificationService.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -184,6 +218,7 @@
 			);
 			dependencies = (
 				B5C7D4222D8C895300FDADEB /* PBXTargetDependency */,
+				C1A0D5042E9F4B1700ABCDEF /* PBXTargetDependency */,
 			);
 			name = App;
 			productName = App;
@@ -210,6 +245,26 @@
 			productReference = B5C7D4192D8C895300FDADEB /* NanChatShare.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		C1A0D50A2E9F4B1700ABCDEF /* NanChatNotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1A0D50D2E9F4B1700ABCDEF /* Build configuration list for PBXNativeTarget "NanChatNotificationService" */;
+			buildPhases = (
+				C1A0D5092E9F4B1700ABCDEF /* Sources */,
+				C1A0D5072E9F4B1700ABCDEF /* Frameworks */,
+				C1A0D5082E9F4B1700ABCDEF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C1A0D5062E9F4B1700ABCDEF /* NanChatNotificationService */,
+			);
+			name = NanChatNotificationService;
+			productName = NanChatNotificationService;
+			productReference = C1A0D5012E9F4B1700ABCDEF /* NanChatNotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -225,6 +280,9 @@
 						ProvisioningStyle = Automatic;
 					};
 					B5C7D4182D8C895300FDADEB = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					C1A0D50A2E9F4B1700ABCDEF = {
 						CreatedOnToolsVersion = 16.2;
 					};
 				};
@@ -244,6 +302,7 @@
 			targets = (
 				504EC3031FED79650016851F /* App */,
 				B5C7D4182D8C895300FDADEB /* NanChatShare */,
+				C1A0D50A2E9F4B1700ABCDEF /* NanChatNotificationService */,
 			);
 		};
 /* End PBXProject section */
@@ -265,6 +324,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B5C7D4172D8C895300FDADEB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1A0D5082E9F4B1700ABCDEF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -327,6 +393,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C1A0D5092E9F4B1700ABCDEF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -334,6 +407,11 @@
 			isa = PBXTargetDependency;
 			target = B5C7D4182D8C895300FDADEB /* NanChatShare */;
 			targetProxy = B5C7D4212D8C895300FDADEB /* PBXContainerItemProxy */;
+		};
+		C1A0D5042E9F4B1700ABCDEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1A0D50A2E9F4B1700ABCDEF /* NanChatNotificationService */;
+			targetProxy = C1A0D5032E9F4B1700ABCDEF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -594,6 +672,67 @@
 			};
 			name = Release;
 		};
+		C1A0D50B2E9F4B1700ABCDEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = NanChatNotificationService/NanChatNotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 77;
+				DEVELOPMENT_TEAM = MS2643LAQ4;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NanChatNotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NanChatNotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nanchat.app.NanChatNotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C1A0D50C2E9F4B1700ABCDEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = NanChatNotificationService/NanChatNotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 77;
+				DEVELOPMENT_TEAM = MS2643LAQ4;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NanChatNotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NanChatNotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nanchat.app.NanChatNotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -620,6 +759,15 @@
 			buildConfigurations = (
 				B5C7D4262D8C895300FDADEB /* Debug */,
 				B5C7D4272D8C895300FDADEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1A0D50D2E9F4B1700ABCDEF /* Build configuration list for PBXNativeTarget "NanChatNotificationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1A0D50B2E9F4B1700ABCDEF /* Debug */,
+				C1A0D50C2E9F4B1700ABCDEF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

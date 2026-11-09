@@ -7,6 +7,7 @@ import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { mutate } from "swr";
 import { getNewChatToken } from "../components/messaging/fetcher";
 import { wallet as walletLib } from "multi-nano-web";
+import { clearNotificationKeys } from "../services/notificationKeys";
 interface StorageArea {
   [key: string]: any;
 }
@@ -404,6 +405,7 @@ export async function removeSeed(): Promise<void> {
     }
     else{
       await SecureStoragePlugin.clear();
+      await clearNotificationKeys(); // keys shared with the iOS notification extension
     }
     mutate(key => true, undefined, {revalidate: false}); // clear all swr caches
   }
