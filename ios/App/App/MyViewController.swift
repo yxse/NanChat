@@ -47,6 +47,11 @@ public class ScrollIndicatorInsetsPlugin: CAPPlugin, CAPBridgedPlugin {
                     frame = frame.applying(CGAffineTransform(scaleX: 1 / page.zoomScale, y: 1 / page.zoomScale))
                 }
                 if Self.matches(frame, rect) {
+                    // the list starts under the status bar: UIKit would add the safe area on top of `top`,
+                    // which already includes it (the glass header pads itself by the safe area)
+                    if scrollView.automaticallyAdjustsScrollIndicatorInsets {
+                        scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+                    }
                     var insets = scrollView.verticalScrollIndicatorInsets
                     if insets.top != CGFloat(top) {
                         insets.top = CGFloat(top)
