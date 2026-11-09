@@ -34,6 +34,7 @@ import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
 import icon from "../../../../public/icons/nanchat.svg"
 import MuteNotif from "./MuteNotif";
+import { SearchInChatButton } from "./MessageSearch";
 import GroupParticipants from "./group/GroupParticipants";
 
 export const AccountCard = ({ account }) => {
@@ -176,6 +177,7 @@ const GroupInfo: React.FC<{}> = ({  }) => {
             </List.Item>
            
             </List>
+            <SearchInChatButton chatId={chat?.id} />
             <MuteNotif />
             <List style={{}} mode="card">
             <List.Item

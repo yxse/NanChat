@@ -1,6 +1,6 @@
 import { Button, List, Modal, NavBar, Popover, Skeleton, Space, Toast } from "antd-mobile";
-import { AddCircleOutline, BellMuteOutline, LockFill, MailOutline, MessageFill, ScanCodeOutline, SystemQRcodeOutline } from "antd-mobile-icons";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { AddCircleOutline, SearchOutline, BellMuteOutline, LockFill, MailOutline, MessageFill, ScanCodeOutline, SystemQRcodeOutline } from "antd-mobile-icons";
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LedgerContext } from "../../LedgerContext";
 import { WalletContext } from "../../useWallet";
 import { useWallet } from "../../useWallet";
@@ -21,6 +21,8 @@ import { showAccountQRCode } from "../showAccountQRCode";
 import { AccountAvatar } from "../AccountAvatar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import { useChats } from "../hooks/use-chats";
+import { ChatListTitle } from "./SyncIndicator";
+import { markChatRead } from "../message-cache";
 import {
   List as VirtualizedList,
   AutoSizer
@@ -34,6 +36,8 @@ import NetworkUnavailable from "./NetworkUnavailable";
 import { shouldStickToBottom } from '../utils';
 import GroupName from "./group/GroupName";
 import { UnsafeWalletWarning } from "../../app/UnsafeWalletWarning";
+import { useElementHeight } from "../../../hooks/use-element-height";
+import { ScrollIndicator, ScrollIndicatorHandle } from "./ScrollIndicator";
 
 export const ChatAvatar = ({ chat }) => {
     const {activeAccount} = useWallet();
@@ -56,6 +60,50 @@ export const ChatAvatar = ({ chat }) => {
         src={from?.profilePicture?.url || false}
         account={accountFrom}
     />
+}
+
+// height of the search box row, first row of the chats list
+const SEARCH_ROW_HEIGHT = 52;
+
+// "Search" box above the chats: opens the search screen. Scrolls away with the list, then the header shows a
+// search icon instead.
+// large screens: the search replaces this list next to the open chat (see Chat.tsx), which stays open
+export const useOpenSearch = () => {
+    const navigate = useNavigate();
+    const { account } = useParams();
+    const { isMobile, isTablet } = useBreakpoint();
+    return () => navigate(account && (!isMobile || isTablet) ? `/chat/${encodeURIComponent(account)}?q=` : '/chat/search');
+}
+
+const ChatListSearchBox = () => {
+    const { t } = useTranslation();
+    const open = useOpenSearch();
+    return (
+        <div style={{ height: SEARCH_ROW_HEIGHT, padding: '8px 12px', boxSizing: 'border-box', backgroundColor: 'var(--main-background-color)' }}>
+            <div
+                role="button"
+                tabIndex={0}
+                onClick={open}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') open(); }}
+                className="hoverable"
+                style={{
+                    height: 36,
+                    borderRadius: 8,
+                    backgroundColor: 'var(--adm-color-background)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    color: 'var(--adm-color-weak)',
+                    fontSize: 15,
+                    cursor: 'pointer',
+                }}
+            >
+                <SearchOutline />
+                {t('search')}
+            </div>
+        </div>
+    );
 }
 
 export const LedgerNotCompatible = () => {
@@ -117,10 +165,21 @@ const ChatList: React.FC = ({ onChatSelect }) => {
     // const accountData = accounts?.find(name => name._id === activeAccount)
     const {isMobile, width, isTablet} = useBreakpoint()
     const {inviteFriends} = useInviteFriends()
+    const openSearch = useOpenSearch()
      const [scanOpen, setScanOpen] = useState(false)
     const listRef = useRef(null);
+    // translucent header overlaying the list (navbar + warning banners), reserved by the first row
+    const [headerRef, headerHeight] = useElementHeight();
+    const indicatorRef = useRef<ScrollIndicatorHandle>(null);
+    useLayoutEffect(() => {
+      // react-virtualized caches the row heights, the first row follows the header height.
+      // layout effect: before paint, else the list shows a frame without the header space (content shift)
+      listRef.current?.recomputeRowHeights(0);
+    }, [headerHeight]);
     const scrollKeyStore = `scrollTop-chat`;
     const [initScrollPosition, setInitScrollPosition] = useState(+(localStorage.getItem(scrollKeyStore) || 0));
+    // search box (first row) scrolled out of view: the header shows the search icon instead
+    const [searchBoxHidden, setSearchBoxHidden] = useState(() => initScrollPosition >= SEARCH_ROW_HEIGHT - 8);
     useEffect(() => {
       // restore scroll position
       const scrollTop = localStorage.getItem(scrollKeyStore);
@@ -172,8 +231,14 @@ useEffect(() => {
         saveScrollPosition.cancel();
       };
     }, [saveScrollPosition]);
-const right = (
-        <div style={{ fontSize: 24, marginTop: 6 }}>
+const renderRight = (showSearch: boolean) => (
+        <div style={{ fontSize: 24, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 16 }}>
+            {showSearch && <SearchOutline
+              style={{ cursor: 'pointer' }}
+              className="hoverable"
+              aria-label={t('search')}
+              onClick={openSearch}
+            />}
             <Popover.Menu
           mode='dark'
           actions={[
@@ -251,12 +316,15 @@ const right = (
   if (!chats || isLoadingChat) {
       const style = { height: "65px", width: "100%", marginBottom: 5}
         return  <>
+         {/* same header as the loaded list (it extends under the status bar), kept in the flow here */}
+         <div className="chat-header-glass" style={{position: 'relative'}}>
          <NavBar
             className="app-navbar "
-            right={right}
+            right={renderRight(true)}
             backArrow={false}>
-          <span className="">NanChat </span>
+          <ChatListTitle />
         </NavBar>
+         </div>
         <div className="" style={{}}>
                 <Skeleton animated style={style} />
                 <Skeleton animated style={style} />
@@ -294,7 +362,12 @@ const right = (
         key: string
         style: CSSProperties
       }) {
-        // console.log("index", index)
+        // first row: the search box
+        if (index === 0) {
+            // the row also holds the space under the translucent header overlaying the list
+            return <div key={key} style={{...style, paddingTop: headerHeight, boxSizing: 'border-box'}}><ChatListSearchBox /></div>
+        }
+        index = index - 1 // chats start at the second row
 
         // render footer if index is last
         if (index === chats.length) {
@@ -338,16 +411,20 @@ const right = (
             style={style}
             key={key}
             arrowIcon={false}
-                className={"chat-item " + (chat.id === account ? 'active' : '')}
+                className={"chat-item " + (index === 0 ? 'first-chat ' : '') + (chat.id === account ? 'active' : '')}
                 onClick={() => {
                     onChatSelect(chat.id)
-                    // local mutate to update unread count
+                    // local mutate to update unread count. Only when there is one to reset: replacing the chats array
+                    // re-renders every chats subscriber (thousands of chats to scan each)
+                    if (chat.unreadCount > 0) {
+                        markChatRead(chat.id, activeAccountPk) // server side too: the room's useChat won't see it anymore
                         mutate(
                             chats.map(c =>
                                 c.id === chat.id ? { ...c, unreadCount: 0 } : c
                             ),
                             false
                         );
+                    }
                 }}
                 extra={
                     <div className="flex flex-col items-end">
@@ -416,54 +493,58 @@ const right = (
      
     return (
         <div
+        style={{position: 'relative', ['--chat-header-height' as any]: `${headerHeight}px`}}
         // style={isMobile ? {} : { minWidth: 500 }}
         >
+            {/* header floating over the list (translucent, blurred), the chats scroll behind it */}
+            <div ref={headerRef} className="chat-header-glass">
             {
                 (location.pathname === "/" || location.pathname === "/chat" || width > 768) &&
             <NavBar
             className="app-navbar "
-            right={right}
+            right={renderRight(searchBoxHidden)}
             backArrow={false}>
-          <span 
-          onClick={() => {
-            listRef.current?.scrollToPosition(0)
-          }}
-          className="">NanChat </span>
+          <ChatListTitle onClick={() => listRef.current?.scrollToPosition(0)} />
         </NavBar>
         }
-    
-          
-            <div className="">
-                <div className="">
-                   
-          <div style={{ }}>
-
-          <List 
-            className="chat-list"          
-          >
-          <div style={{ 
-            height: (isMobile || isTablet) ? "calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))" : "calc(100vh - 45px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))"
-          // 47px for the header, 58px for the menu
-          , overflow: "hidden" }}>
             <NetworkUnavailable />
            <UnsafeWalletWarning step={1} />
+            </div>
+
+
+            <div className="">
+                <div className="">
+
+          <div style={{ }}>
+
+          <List
+            className="chat-list"
+          >
+          <div style={{
+            // the header overlays the list, so only the status bar spacer and the menu bar (58px) are taken off
+            height: (isMobile || isTablet) ? "calc(100vh - 58px - var(--safe-area-inset-bottom) - var(--app-top-spacer, var(--safe-area-inset-top)))" : "calc(100vh - var(--safe-area-inset-bottom) - var(--app-top-spacer, var(--safe-area-inset-top)))"
+          , overflow: "hidden", position: "relative" }}>
+            <ScrollIndicator ref={indicatorRef} top={headerHeight} />
             <AutoSizer>
               {({ width, height }) => (
                 <VirtualizedList
                     ref={listRef}
-                  rowCount={chats.length + 1} // +1 for footer
+                  className="scroll-under-header"
+                  rowCount={chats.length + 2} // +1 for the search box, +1 for footer
                   rowRenderer={rowRenderer}
                   width={width}
                   height={height}
                   rowHeight={
                     ({ index }) => {
-                      if (index === chats.length) return 236; // footer height
+                      if (index === 0) return SEARCH_ROW_HEIGHT + headerHeight;
+                      if (index - 1 === chats.length) return 236; // footer height
                       return 70;
                     }
                   }
                   overscanRowCount={4}
                 //   isScrolling={isScrolling}
-                onScroll={({ scrollTop }) => {
+                onScroll={({ scrollTop, scrollHeight, clientHeight }) => {
+                    indicatorRef.current?.update(scrollTop, scrollHeight, clientHeight);
                     // setScrollTop(scrollTop);
                     if (initScrollPosition !== undefined) {
                         setInitScrollPosition(undefined);
@@ -471,7 +552,7 @@ const right = (
                     // if (scrollTop === 0) {
                     //     return;
                     // }
-                    console.log(scrollTop);
+                    setSearchBoxHidden(scrollTop >= SEARCH_ROW_HEIGHT - 8); // no re-render while it does not change
 
                     // localStorage.setItem(scrollKeyStore, scrollTop.toString());
                     saveScrollPosition(scrollTop);

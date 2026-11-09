@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, useNavigate, Routes, useParams, Navigate } from 'react-router-dom';
+import MessageSearch from "./MessageSearch";
+import { BrowserRouter as Router, Route, useNavigate, Routes, useParams, Navigate, useSearchParams } from 'react-router-dom';
 import ChatRoom from './ChatRoom';
 import ChatList from './ChatList';
 import { socket } from '../socket';
@@ -20,6 +21,15 @@ import { getKey } from '../hooks/useChat';
 import { useChats } from '../hooks/use-chats';
 import RedPacketResult from '../../app/redpacket/RedPacketResult';
 import GroupsInCommon from './group/GroupsInCommon';
+
+// left pane next to the chat on large screens: the search when open (?q= in the url, see MessageSearch), else the chats
+let chatPushTimer: ReturnType<typeof setTimeout> | undefined;
+
+const SidePane = ({ onChatSelect }: { onChatSelect: (chatId: string) => void }) => {
+    const [searchParams] = useSearchParams();
+    if (searchParams.has('q')) return <MessageSearch />;
+    return <ChatList onChatSelect={onChatSelect} />;
+}
 
 const Chat: React.FC = () => {
     const navigate = useNavigate();
@@ -68,19 +78,18 @@ const Chat: React.FC = () => {
     }
     , [ me]);
     function navigateWithTransition(path: string) {
-        if (document.startViewTransition) {
-            let reduceMotion = document.documentElement.classList.contains('no-animation')
-            if (reduceMotion) {
-                navigate(path)
-                return
-            }
-            document.startViewTransition(() => {
-                navigate(path, {unstable_viewTransition: true})
-            })
-        }
-        else {
+        const root = document.documentElement
+        if (root.classList.contains('no-animation')) {
             navigate(path)
+            return
         }
+        // the chat room animates in as live content (.chat-push in app.css), on every platform. Not a view transition:
+        // it animates snapshots of the pages, without backdrop-filter in WebKit (the glass header lost its blur during
+        // the animation and the frames after it), and it needs browser support (none on older iOS / Android webviews)
+        root.classList.add('chat-push')
+        navigate(path)
+        clearTimeout(chatPushTimer)
+        chatPushTimer = setTimeout(() => root.classList.remove('chat-push'), 400) // after the 240ms animation
     }
     if (!isRegistered) {
         return <SetName />
@@ -90,6 +99,19 @@ const Chat: React.FC = () => {
             <Routes>
                 <Route path="/red-packet-result" element={<RedPacketResult  />}/>
                 <Route path="/profile" element={<SetName />} />
+                <Route path="/search" element={
+                    // large screens: the search in place of the chats list, next to the (empty) chat
+                    (!isMobile || isTablet) ?
+                    <div key={"chat-search"} className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
+                        <div style={{ height: "100%", display: "flex", flexDirection: "column", flexBasis: "45%", maxWidth: 420 }}>
+                            <MessageSearch />
+                        </div>
+                        <div style={{ height: "100%", display: "flex", flexDirection: "column", flexBasis: "55%", flexGrow: 1, minWidth: 180 }}>
+                            <ChatRoom key={"chat-room-search"} />
+                        </div>
+                    </div>
+                    : <MessageSearch />
+                } />
                 <Route path="/:account" element={
                     <div key={"chat-account"}
                      className="flex flex-row" style={{ overflow: "auto", height: "100%" }}>
@@ -106,7 +128,7 @@ const Chat: React.FC = () => {
                             maxWidth: 420
 
                             }}>
-                        <ChatList
+                        <SidePane
                             onChatSelect={(chatId) => {
                                 if (isTablet) {
                                     navigateWithTransition(`/chat/${chatId}`)
@@ -116,7 +138,7 @@ const Chat: React.FC = () => {
                                 }
                             }}
                         /></div>}
-                        <div style={{
+                        <div className="chat-room-pane" style={{
                             height: "100%", 
                             display: "flex", 
                             flexDirection: "column",
