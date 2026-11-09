@@ -10,6 +10,10 @@
     "allow-get-secret",
     "allow-delete-secret",
     "allow-secure-storage-status",
-    "allow-open-browser-window"
+    "allow-open-browser-window",
+    "sql:allow-load",
+    "sql:allow-select",
+    "sql:allow-execute",
+    "sql:allow-close"
   ]
 }

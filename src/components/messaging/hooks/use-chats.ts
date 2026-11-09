@@ -1,7 +1,8 @@
 import useSWR, { mutate, useSWRConfig } from 'swr';
 import { useCallback, useEffect, useRef } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
+import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
+import { rememberChats } from '../message-cache';
 import { useWallet } from "../../useWallet";
 import { Toast } from 'antd-mobile';
 import { flushParticipantChanges, indexChats } from './participants-store';
@@ -40,6 +41,8 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
   );
   // keep the address -> participant index used by ProfileName in sync (no-op when chats did not change)
   indexChats(chats, !isLoading);
+  // chat heights / unread counts tell the message cache when the newest page can be served without a request
+  rememberChats(chats);
   useEffect(() => {
     flushParticipantChanges();
   }, [chats, isLoading]);

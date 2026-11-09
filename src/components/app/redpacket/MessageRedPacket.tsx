@@ -18,7 +18,8 @@ import { AiOutlineSwap } from "react-icons/ai";
 import useMessageDecryption from "../../messaging/hooks/use-message-decryption";
 import Sticker from "../../messaging/components/Sticker";
 import { useNavigate } from "react-router-dom";
-import {  fetcherChat, fetcherMessages, openRedPacket, saveMessageCache } from "../../messaging/fetcher";
+import {  fetcherChat, fetcherMessages, openRedPacket } from "../../messaging/fetcher";
+import { saveMessageCache } from "../../messaging/message-cache";
 import packetOpenedIcon from "../../../../public/icons/red_envelope_opened.png"
 import { useChat } from "../../messaging/hooks/useChat";
 import { inMemoryMap } from "../../../services/database.service";
@@ -98,8 +99,14 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
     const {mutate: mutateMessages} = useChat(message.chatId)
     const {activeAccount, activeAccountPk} = useWallet()
     const navigateToResult = () => {
+        // the chat stays mounted under the result (modal on large screens), so close this popup ourselves
+        setVisible(false)
         navigate(`/chat/red-packet-result?id=${message._id}`, {unstable_viewTransition: false})
     }
+    // packets that go straight to the result: already claimed (by us or fully), or our own group packet.
+    // The popup stays hidden for them, also while the fresh state is loading (else it flashes)
+    const {isOpen: isOpenInMessage} = useRedpacketState(message)
+    const goesToResult = isOpen || isOpenInMessage || (message.type === "group" && message.fromAccount === activeAccount)
     useEffect(() => {
         if (isOpen && data && !data?.error) {
             mutateMessages(currentPages => {
@@ -200,7 +207,7 @@ const ModalRedPacketOpen = ({visible, setVisible, message, messageDecrypted, sti
             backgroundImage: "url(https://bucket.nanwallet.com/logo/45-degree-fabric-dark.png)"
         }}
         actions={actions}
-        visible={visible && !isExpired}
+        visible={visible && !isExpired && !goesToResult}
         onClose={() => {
             setVisible(false);
         }}

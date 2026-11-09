@@ -24,6 +24,13 @@ import { getChatToken } from '../../utils/storage';
 import { useChats } from './hooks/use-chats';
 import { unstable_serialize } from 'swr/infinite';
 import { getKey } from './hooks/useChat';
+import { isChatOpen, onMessagesSynced, onMessageSyncFinished, readNewestCachedPage, storeIncomingMessage } from './message-cache';
+import { LIMIT_MESSAGES_INITIAL } from './utils';
+
+// most recent chats whose newest page is preloaded into the (persisted) SWR cache
+const PRELOAD_CHATS = 30;
+// chats whose cached pages survive the launch pruning (recently opened chats are usually among them)
+const PRUNE_KEEP_CHATS = 100;
 import { sendNotificationTauri } from '../../nano/notifications';
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -47,7 +54,7 @@ const ChatSocket: React.FC = () => {
 
     const {activeAccount, activeAccountPk, wallet} = useWallet()
     const {chats, mutateChats} = useChats();
-    const {mutate: mutateInifinite} = useSWRConfig();
+    const {mutate: mutateInifinite, cache: swrCache} = useSWRConfig();
     const location = useLocation();
     const { account } = useParams();  // chatId
     useEffect(() => {
@@ -94,7 +101,8 @@ const ChatSocket: React.FC = () => {
                 
             
             console.log('message', message);
-            console.log('account', account);
+            // keep the message store up to date, so the chat opens from it without a request
+            const decryptedMessage = storeIncomingMessage(message, activeAccount, activeAccountPk);
             if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
                             mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
                                 const newChats = [...(currentChats || [])];
@@ -121,10 +129,16 @@ const ChatSocket: React.FC = () => {
                                 return newChats;
                             }, false);
                         }
-                        
+
+                        // show it decrypted: an encrypted message renders empty until decrypted, then pops in without
+                        // its enter animation (the encrypted content is kept, as for any message of the page)
+                        const decrypted = await decryptedMessage;
+                        const shownMessage = decrypted ? { ...decrypted, content: message.content } : message;
                         mutateInifinite(unstable_serialize((index, prevPageData) => {
                             return getKey(index, prevPageData, message.chatId)
                         }), (currentPages) => {
+                            // chat never loaded: don't create a page with only this message, the chat loads from the message store
+                            if (!currentPages) return currentPages;
                             if (message.fromAccount === activeAccount &&
                                 currentPages?.[0].find(m => m._id === message._id) !== undefined) return currentPages; // don't mutate if message already exist, happens if we send the message, and still useful if chat opens on another device 
                     // if (message.fromAccount == activeAccount){
@@ -142,7 +156,7 @@ const ChatSocket: React.FC = () => {
                     // } 
                     // if (message.fromAccount !== address && chat?.type === 'private') return // don't mutate if message is not for this chat
                     const newPages = [...(currentPages || [])];
-                    newPages[0] = [{...message, status: 'sent'}, ...(newPages[0] || [])];
+                    newPages[0] = [{...shownMessage, status: 'sent'}, ...(newPages[0] || [])];
                     // deduplicate messages, can sometime happen on reconnect probably cause race condition socket & fetchMessages
                     newPages[0] = newPages[0].filter((msg, index, self) =>
                         index === self.findIndex((m) => m._id === msg._id)
@@ -181,7 +195,72 @@ const ChatSocket: React.FC = () => {
         return () => {
             socket.off('message', handleAllMessage);
         };
-    }, [activeAccount, chats]);
+    }, [activeAccount, activeAccountPk, chats]);
+
+    // Preload the newest page of closed chats from the message store into the SWR cache, so moving from the chats
+    // list to a chat room shows its messages instantly (no loading state, no request).
+    // Only the most recent chats are preloaded: the SWR cache is persisted (swr-idb-cache), every entry is loaded at
+    // launch and written back by useChat's reset, so an entry per chat (thousands) made launch and every chat switch
+    // slow. Other chats open from the message store (one indexed read).
+    const recentChatIdsRef = React.useRef<Set<string>>(new Set());
+    recentChatIdsRef.current = React.useMemo(
+        () => new Set((chats || []).slice(0, PRELOAD_CHATS).map((c) => c?.id).filter(Boolean)),
+        [chats],
+    );
+    useEffect(() => {
+        const infiniteKey = (chatId: string) => unstable_serialize((index, prev) => getKey(index, prev, chatId));
+        const preload = async (chatId: string, onlyIfMissing: boolean) => {
+            if (isChatOpen(chatId)) return; // an open chat refreshes itself (useChat)
+            const key = infiniteKey(chatId);
+            const inCache = !!swrCache.get(key)?.data;
+            if (onlyIfMissing && inCache) return;
+            if (!inCache && !recentChatIdsRef.current.has(chatId)) return; // see PRELOAD_CHATS
+            try {
+                const page = await readNewestCachedPage(chatId, LIMIT_MESSAGES_INITIAL);
+                if (page && !isChatOpen(chatId)) await mutateInifinite(key, [page], { revalidate: false });
+            } catch (error) {
+                console.log('preload chat failed', chatId, error);
+            }
+        };
+        // chats with new messages: replace the (stale) preloaded page
+        const offSynced = onMessagesSynced((chatId) => preload(chatId, false));
+        // after a sync: the most recent chats that have no page in memory yet
+        const offFinished = onMessageSyncFinished(async (syncedChats) => {
+            for (const chat of syncedChats.slice(0, PRELOAD_CHATS)) {
+                if (chat?.id) await preload(chat.id, true);
+            }
+        });
+        return () => {
+            offSynced();
+            offFinished();
+        };
+    }, [activeAccount]);
+
+    // Drop the cached message pages of chats outside the most recent ones (earlier builds preloaded every synced chat,
+    // leaving thousands of entries). Once per session, in small batches so the deletes never block the UI.
+    const prunedRef = React.useRef(false);
+    useEffect(() => {
+        if (prunedRef.current || !Array.isArray(chats) || chats.length === 0) return;
+        prunedRef.current = true;
+        const keep = new Set(chats.slice(0, PRUNE_KEEP_CHATS).map((c) => c?.id));
+        const stale: string[] = [];
+        for (const key of swrCache.keys()) {
+            if (!key.startsWith('$inf$/messages?')) continue;
+            const chatId = new URLSearchParams(key.slice(key.indexOf('?') + 1)).get('chatId');
+            if (chatId && !keep.has(chatId) && !isChatOpen(chatId)) stale.push(key);
+        }
+        if (!stale.length) return;
+        console.log('swr cache: pruning', stale.length, 'message pages');
+        // not cancelled when chats change (they do on every refresh): runs to the end once started
+        const step = () => {
+            for (const key of stale.splice(0, 200)) {
+                const chatId = new URLSearchParams(key.slice(key.indexOf('?') + 1)).get('chatId');
+                if (!chatId || !isChatOpen(chatId)) swrCache.delete(key);
+            }
+            if (stale.length) setTimeout(step, 50);
+        };
+        setTimeout(step, 2000); // after the launch work
+    }, [chats]);
 
      useEffect(() => {
             socket.on('chat', (chat) => {
