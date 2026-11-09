@@ -22,6 +22,7 @@ import { unstable_serialize } from 'swr/infinite';
 import { getKey } from '../messaging/hooks/useChat';
 import { isSavedContact } from '../messaging/call/call-signaling';
 import InAppNotification, { showInAppNotification } from './InAppNotification';
+import { useNotificationKeysSync } from './useNotificationKeysSync';
 
 
 const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
@@ -120,6 +121,7 @@ const AppUrlListener: React.FC<any> = () => {
     const {mutate: globalMutate} = useSWRConfig()
     const eventOpenUrl = useEvent('open-url'); // handle open url from discover nano apps
     const emit = useEmit()
+    useNotificationKeysSync()
     const handleURL = (url: string, origin: UriOrigin = EXTERNAL_ORIGIN) => {
       console.log("handle", url)
       let contactsFile = isContactImport(url);
@@ -263,6 +265,9 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let url = event.notification.data.url;
   let messagePreview = event.notification.data.messagePreview;
   let isMessagePreviewExist = messagePreview != null && messagePreview != undefined; // for backward compatibility, we set url to null to not show double notification on old client
+  if (Capacitor.getPlatform() === "ios" && callData?.nse === "1" && !isActive) {
+    return; // visible push: already decrypted and shown by the notification service extension
+  }
   if ((url == null && !isMessagePreviewExist) || ((location.pathname === "/chat" || location.pathname === "/") && isActive)) {
     return
   }
