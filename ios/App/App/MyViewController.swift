@@ -86,6 +86,7 @@ public class NotificationKeysPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "setAccountKeys", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "addSharedKeys", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clear", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setConfig", returnType: CAPPluginReturnPromise),
     ]
 
     private static let service = "com.nanchat.notification-keys"
@@ -120,7 +121,29 @@ public class NotificationKeysPlugin: CAPPlugin, CAPBridgedPlugin {
                 kSecAttrAccessGroup as String: Self.accessGroup,
             ]
             let status = SecItemDelete(query as CFDictionary)
+            Self.clearAvatarCache()
             status == errSecSuccess || status == errSecItemNotFound ? call.resolve() : call.reject("keychain error \(status)")
+        }
+    }
+
+    /// Settings read by the extension (backend used to look up sender profile pictures).
+    @objc func setConfig(_ call: CAPPluginCall) {
+        if let backendUrl = call.getString("backendUrl"), !backendUrl.isEmpty {
+            UserDefaults(suiteName: Self.accessGroup)?.set(backendUrl, forKey: "backendUrl")
+        }
+        call.resolve()
+    }
+
+    /// Profile pictures cached by the extension (see SenderAvatar.swift).
+    private static func clearAvatarCache() {
+        if let defaults = UserDefaults(suiteName: accessGroup) {
+            for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("avatar.") {
+                defaults.removeObject(forKey: key)
+            }
+        }
+        if let dir = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: accessGroup)?
+            .appendingPathComponent("Library/Caches/NotificationAvatars", isDirectory: true) {
+            try? FileManager.default.removeItem(at: dir)
         }
     }
 

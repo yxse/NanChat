@@ -13,6 +13,7 @@ interface NotificationKeysPlugin {
   setAccountKeys(options: { keys: Record<string, string> }): Promise<void>;
   addSharedKeys(options: { keys: Record<string, string> }): Promise<void>;
   clear(): Promise<void>;
+  setConfig(options: { backendUrl: string }): Promise<void>;
 }
 
 const NotificationKeys = registerPlugin<NotificationKeysPlugin>("NotificationKeys");
@@ -75,6 +76,8 @@ export async function syncNotificationKeys(
       localStorage.setItem(SYNCED_ADDRESSES_KEY, addresses);
     }
     await NotificationKeys.setAccountKeys({ keys });
+    // the extension looks up sender profile pictures on the public /account endpoint
+    await NotificationKeys.setConfig({ backendUrl: import.meta.env.VITE_PUBLIC_BACKEND });
     await exportSharedKeys([...sessionSharedKeys.entries()]);
   } catch (error) {
     console.error("Failed to sync notification keys", error);

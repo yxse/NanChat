@@ -2,23 +2,27 @@ import Foundation
 import Security
 import UserNotifications
 
-// Decrypts chat message previews before iOS displays the notification.
+// Decrypts chat message previews before iOS displays the notification, and shows the
+// sender's profile picture (iOS 15+ communication notification).
 //
 // The server sends a visible push (`mutable-content: 1`) with a generic body ("New message")
 // plus the encrypted message in the data payload. If the decryption key is available and the
 // message decrypts, the body is replaced with the plaintext; otherwise the generic notification
 // is shown untouched, so a notification is never lost.
 class NotificationService: UNNotificationServiceExtension {
+    private let lock = NSLock()
     private var contentHandler: ((UNNotificationContent) -> Void)?
     private var bestAttemptContent: UNMutableNotificationContent?
 
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-        self.contentHandler = contentHandler
         guard let content = request.content.mutableCopy() as? UNMutableNotificationContent else {
             contentHandler(request.content)
             return
         }
+        lock.lock()
+        self.contentHandler = contentHandler
         bestAttemptContent = content
+        lock.unlock()
         let userInfo = content.userInfo
 
         if let chatId = userInfo["chatId"] as? String, !chatId.isEmpty {
@@ -27,16 +31,36 @@ class NotificationService: UNNotificationServiceExtension {
         if let preview = MessagePreview.decrypt(userInfo: userInfo) {
             content.body = preview
         }
-        contentHandler(content)
-        self.contentHandler = nil
+
+        // only chat messages have a sender to show
+        guard #available(iOSApplicationExtension 15.0, *),
+              userInfo["chatId"] is String,
+              let fromAccount = userInfo["fromAccount"] as? String else {
+            deliver(content)
+            return
+        }
+        SenderAvatar.load(address: fromAccount, pictureUrl: userInfo["fromProfilePicture"] as? String) { avatar in
+            CommunicationNotification.update(content, userInfo: userInfo, avatar: avatar) { updated in
+                self.deliver(updated)
+            }
+        }
     }
 
     override func serviceExtensionTimeWillExpire() {
-        // Deliver whatever we have (the generic body at worst) before the system kills us.
-        if let contentHandler = contentHandler, let content = bestAttemptContent {
-            contentHandler(content)
-        }
+        // Deliver whatever we have (decrypted body, no avatar at worst) before the system kills us.
+        lock.lock()
+        let content = bestAttemptContent
+        lock.unlock()
+        if let content = content { deliver(content) }
+    }
+
+    /// Calls the content handler at most once.
+    private func deliver(_ content: UNNotificationContent) {
+        lock.lock()
+        let handler = contentHandler
         contentHandler = nil
+        lock.unlock()
+        handler?(content)
     }
 }
 

@@ -12,6 +12,7 @@ decrypt the message natively, before iOS displays the notification.
 | Piece | Role |
 |---|---|
 | `ios/App/NanChatNotificationService/NotificationService.swift` | Extension: reads the key, decrypts, replaces the body, sets `threadIdentifier = chatId` |
+| `ios/App/NanChatNotificationService/SenderAvatar.swift` | Sender profile picture as an iOS 15+ communication notification |
 | `ios/App/NanChatNotificationService/NanoBox.swift` | Pure-Swift port of multi-nano-web `box.decrypt` (no dependencies) |
 | `ios/App/App/MyViewController.swift` (`NotificationKeysPlugin`) | Writes keys to a keychain group shared with the extension |
 | `src/services/notificationKeys.ts`, `src/components/app/useNotificationKeysSync.ts` | Derive and export or clear the keys based on the setting and the wallet accounts |
@@ -27,6 +28,22 @@ preview is on. They are wiped when message preview is turned off, when the walle
 when the set of accounts changes. Group keys are exported the first time the app resolves each
 one (`getSharedKey`).
 
+## Sender profile picture
+
+On iOS 15+ the extension turns chat pushes into communication notifications (`INSendMessageIntent`),
+so the sender's avatar is shown the way messaging apps show it. It finds the picture in this order:
+
+1. `fromProfilePicture` in the push data, if the server sends it (optional, saves a request);
+2. otherwise `GET {backend}/account?account=nano_...` (public; the result, or a 404 meaning no
+   picture, is cached for 24 h). The app passes the backend URL to the extension.
+
+The image is fetched through `i.nanwallet.com` at 192px as PNG and cached in the App Group
+container. The cache is cleared with the keys. If anything fails or takes too long, the
+notification is shown without the avatar. This needs the **Communication Notifications**
+capability on the app (`com.apple.developer.usernotifications.communication`, already in the
+entitlements files) and `INSendMessageIntent` in the app's `NSUserActivityTypes` and the
+extension's `IntentsSupported` (already added).
+
 ## Server contract
 
 The iOS client sends `notificationServiceExtension: 1` in `POST /notifications/push/subscribe`.
@@ -41,7 +58,8 @@ For tokens with that flag and `messagePreview` on, send chat messages as a **vis
     "message": "<base64 ciphertext, as stored>",
     "fromAccount": "nano_...", "toAccount": "nano_...",
     "type": "group" | "...", "sharedAccount": "nano_...", "fromAccountName": "...",
-    "chatId": "...", "url": "/chat/...", "idInt": "...", "title": "...", "messagePreview": "true"
+    "chatId": "...", "url": "/chat/...", "idInt": "...", "title": "...", "messagePreview": "true",
+    "fromProfilePicture": "https://..."   // optional, raw profilePicture.url of the sender
   },
   "apns": { "payload": { "aps": { "mutable-content": 1, "thread-id": "<chatId>" } } }
 }
