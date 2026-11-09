@@ -579,7 +579,7 @@ const onStickerSelect = useCallback((stickerId) => {
           display: hideInput ? 'none' : 'block', // hide input when sharing from webview and for tranfer from account info
           position: "relative"
         }}
-        onSubmit={sendMessage} className=" px-4">
+        onSubmit={sendMessage} className=" px-3">
           {replyMessage && <MessageReply message={replyMessage} onClose={() => {
             messageInputRef.current?.focus();
             setReplyMessage(null)
@@ -592,7 +592,7 @@ const onStickerSelect = useCallback((stickerId) => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
+              gap: 10,
               width: '100%',
               position: 'relative', // the voice recorder overlays this row
             }}
