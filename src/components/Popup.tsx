@@ -29,6 +29,7 @@ import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from 
 import { WalletApp } from "./app/WalletApp";
 import { App as CapacitorApp } from "@capacitor/app";
 import { useReduceAnimation } from "../hooks/use-reduce-animation";
+import { UpdateRequiredModal } from "./app/UpdateRequiredModal";
 
 
 const blacklistStorageHandler = {
@@ -206,7 +207,8 @@ useEffect(() => {
     <SWRConfig value={{ provider: cacheProvider }}>
 
       <PopupWrapper theme={theme}>
-        <WalletApp initializing={initializing} /> 
+        <WalletApp initializing={initializing} />
+        <UpdateRequiredModal />
       </PopupWrapper>
       </SWRConfig>
     {/* </LedgerContext.Provider> */}

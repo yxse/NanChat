@@ -139,9 +139,7 @@
   "chats": "Chats",
   "syncingMessages": "Syncing…",
   "searchMessages": "Search messages",
-
   "searchIn": "In",
-
   "searchAllChats": "Search all chats",
   "noMessagesFound": "No messages found",
   "searchHistoryIncomplete": "Downloading message history ({{percent}}%), some results may be missing",
@@ -580,5 +578,17 @@
   "multiSelect": "Multi-select",
   "noResults": "No results",
   "mentionedYouTag": "[@you]",
-  "mentionedYou": "mentioned you"
+  "mentionedYou": "mentioned you",
+  "updateRequiredTitle": "Update required",
+  "updateRequiredDescription": "This version of NanChat is no longer supported. Update to keep receiving messages.",
+  "updateRequiredDescriptionVersion": "This version of NanChat is no longer supported. Update to {{version}} or later to keep receiving messages.",
+  "updateAvailable": "Update to {{version}}",
+  "update": "Update",
+  "later": "Later",
+  "reload": "Reload",
+  "downloadLatestVersion": "Download latest version",
+  "downloadApk": "Download APK {{version}}",
+  "downloadApkHint": "Open the downloaded file to install the update. Your wallet and chats are kept.",
+  "openGooglePlay": "Update on Google Play",
+  "openAppStore": "Update on the App Store"
 }

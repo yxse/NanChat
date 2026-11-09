@@ -1,10 +1,15 @@
 import { io } from 'socket.io-client';
-import { APP_PLATFORM, APP_VERSION } from '../../utils/client-version';
+import { APP_PLATFORM, APP_VERSION, markUpdateRequired } from '../../utils/client-version';
 
 export const socket = io(import.meta.env.VITE_PUBLIC_BACKEND, {
     autoConnect: false,
     // in query rather than auth: socket.auth is overwritten with the chat token on connect
     query: { appVersion: APP_VERSION, appPlatform: APP_PLATFORM },
+});
+
+// the backend refuses the handshake of clients below MIN_CLIENT_VERSION
+socket.on('connect_error', (err) => {
+    if (err?.message === 'Update required') markUpdateRequired();
 });
 
 import React, { useContext, useEffect } from 'react';
