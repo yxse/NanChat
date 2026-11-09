@@ -16,11 +16,14 @@ export type WorkerModelSpec = {
 
 export type WorkerRequest =
   | { type: "load"; id: number; model: WorkerModelSpec }
-  | { type: "transcribe"; id: number; model: WorkerModelSpec; audio: Float32Array };
+  | { type: "detect"; id: number; model: WorkerModelSpec; audio: Float32Array }
+  // `language`: already detected, skips detection
+  | { type: "transcribe"; id: number; model: WorkerModelSpec; audio: Float32Array; language?: string };
 
 export type WorkerResponse =
   | { type: "progress"; id: number; loaded: number; total: number }
   | { type: "loaded"; id: number }
+  | { type: "language"; id: number; language: string | null }
   | { type: "result"; id: number; text: string; language: string | null }
   | { type: "error"; id: number; message: string };
 
@@ -182,7 +185,11 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
         return;
       }
       const { audio } = request;
-      const language = await detectLanguage(asr, audio);
+      if (request.type === "detect") {
+        post({ type: "language", id: request.id, language: await detectLanguage(asr, audio) });
+        return;
+      }
+      const language = request.language ?? (await detectLanguage(asr, audio));
       const output: any = await asr(audio, {
         language: language ?? undefined,
         task: "transcribe",

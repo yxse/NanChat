@@ -178,6 +178,8 @@
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is required for audio calls and voice messages</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition is used to transcribe voice messages on your device</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Access to photo library is required to select images</string>
 	<key>NSUbiquitousContainers</key>

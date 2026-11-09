@@ -20,6 +20,7 @@
 		B5C7D6CC2DCA55F400FDADEB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B5C7D6CB2DCA55F400FDADEB /* PrivacyInfo.xcprivacy */; };
 		B5E2BC122D318084002164C2 /* MyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E2BC112D318084002164C2 /* MyViewController.swift */; };
 		B5E2BC142D318084002164C2 /* AppleTranslationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E2BC132D318084002164C2 /* AppleTranslationPlugin.swift */; };
+		B5E2BC162D318084002164C2 /* AppleSpeechPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E2BC152D318084002164C2 /* AppleSpeechPlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		B5E2BC0F2D317FA9002164C2 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		B5E2BC112D318084002164C2 /* MyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyViewController.swift; sourceTree = "<group>"; };
 		B5E2BC132D318084002164C2 /* AppleTranslationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTranslationPlugin.swift; sourceTree = "<group>"; };
+		B5E2BC152D318084002164C2 /* AppleSpeechPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechPlugin.swift; sourceTree = "<group>"; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -151,6 +153,7 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 				B5E2BC112D318084002164C2 /* MyViewController.swift */,
 				B5E2BC132D318084002164C2 /* AppleTranslationPlugin.swift */,
+				B5E2BC152D318084002164C2 /* AppleSpeechPlugin.swift */,
 				B5C7D6792DC27A0400FDADEB /* GoogleService-Info.plist */,
 				B5C7D6CB2DCA55F400FDADEB /* PrivacyInfo.xcprivacy */,
 			);
@@ -316,6 +319,7 @@
 			files = (
 				B5E2BC122D318084002164C2 /* MyViewController.swift in Sources */,
 				B5E2BC142D318084002164C2 /* AppleTranslationPlugin.swift in Sources */,
+				B5E2BC162D318084002164C2 /* AppleSpeechPlugin.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

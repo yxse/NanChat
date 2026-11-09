@@ -11,6 +11,7 @@ class MyViewController: CAPBridgeViewController {
         bridge?.registerPluginInstance(SensitiveScreenPlugin())
         bridge?.registerPluginInstance(ScrollIndicatorInsetsPlugin())
         bridge?.registerPluginInstance(AppleTranslationPlugin())
+        bridge?.registerPluginInstance(AppleSpeechPlugin())
     }
 }
 

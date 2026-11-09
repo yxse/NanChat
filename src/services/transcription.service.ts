@@ -1,6 +1,7 @@
 // On-device transcription of voice messages with Whisper (see worker/transcription.worker.ts).
 // Audio is decoded here (the worker has no AudioContext) and sent to the worker as 16 kHz mono.
 import { useSyncExternalStore } from "react";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Network } from "@capacitor/network";
 import { Modal, Toast } from "antd-mobile";
 import i18n from "i18next";
@@ -86,9 +87,10 @@ export const getModelSetting = (): TranscriptionModelSetting => {
 
 export const isAutoTranscribeEnabled = () => readJSON<boolean>(AUTO_TRANSCRIBE_KEY, false) === true;
 
-// small is only offered with WebGPU
+// small is only offered with WebGPU, and not on iOS: loading it exceeds the WebView's
+// memory limit and the web process gets killed (black screen, then reload)
 export const getAvailableModels = async (): Promise<TranscriptionModel[]> =>
-  (await detectGpu()).webgpu ? ["small", "base", "tiny"] : ["base", "tiny"];
+  Capacitor.getPlatform() !== "ios" && (await detectGpu()).webgpu ? ["small", "base", "tiny"] : ["base", "tiny"];
 
 export const resolveModel = async (setting = getModelSetting()): Promise<TranscriptionModel> => {
   const available = await getAvailableModels();
@@ -282,6 +284,52 @@ const decodeAudio = async (src: string): Promise<Float32Array> => {
   return mono;
 };
 
+/* ------------------------------------------------------------------ */
+/* Apple speech recognition (iOS)                                      */
+/* ------------------------------------------------------------------ */
+
+// iOS transcribes on device (faster, lighter and better than the Whisper models that fit in
+// the WebView) but needs the language up front: Whisper detects it, and still transcribes
+// the languages iOS can't (see ios/App/App/AppleSpeechPlugin.swift).
+interface AppleSpeechPlugin {
+  getSupportedLanguages(): Promise<{ languages: string[] }>;
+  transcribe(options: { audio: string; language: string }): Promise<{ text: string }>;
+}
+
+const AppleSpeech = registerPlugin<AppleSpeechPlugin>("AppleSpeech");
+
+let appleLanguages: Promise<Set<string>> | null = null;
+const getAppleLanguages = () =>
+  (appleLanguages ??= Capacitor.getPlatform() === "ios"
+    ? AppleSpeech.getSupportedLanguages().then(
+        ({ languages }) => new Set(languages),
+        () => new Set<string>(),
+      )
+    : Promise.resolve(new Set<string>()));
+
+// 16-bit PCM, base64 (half the size of float samples over the bridge)
+const toBase64Pcm = (audio: Float32Array) => {
+  const pcm = new Int16Array(audio.length);
+  for (let i = 0; i < audio.length; i++) pcm[i] = Math.max(-1, Math.min(1, audio[i])) * 0x7fff;
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).slice((reader.result as string).indexOf(",") + 1));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(new Blob([pcm.buffer]));
+  });
+};
+
+// null when iOS can't transcribe the language (or failed): Whisper does it instead
+const transcribeWithApple = async (audio: Float32Array, language: string | null) => {
+  if (!language || !(await getAppleLanguages()).has(language)) return null;
+  try {
+    return (await AppleSpeech.transcribe({ audio: await toBase64Pcm(audio), language })).text.trim();
+  } catch (error) {
+    console.warn("Apple speech recognition failed, falling back to Whisper", error);
+    return null;
+  }
+};
+
 export type Transcript = { text: string; language: string | null };
 
 // in memory only: transcripts of end-to-end encrypted messages are not written to disk
@@ -306,11 +354,24 @@ export const transcribe = async (
   }
   const result = (async () => {
     const audio = await decodeAudio(src);
-    const { text, language } = await call<Extract<WorkerResponse, { type: "result" }>>(
-      { type: "transcribe", model: await getSpec(model), audio },
+    const spec = await getSpec(model);
+    let language: string | undefined;
+    if ((await getAppleLanguages()).size > 0) {
+      // detection only looks at the first 30 s
+      const detected = await call<Extract<WorkerResponse, { type: "language" }>>({
+        type: "detect",
+        model: spec,
+        audio: audio.slice(0, SAMPLE_RATE * 30),
+      });
+      language = detected.language ?? undefined;
+      const text = await transcribeWithApple(audio, detected.language);
+      if (text !== null) return { text, language: detected.language };
+    }
+    const result = await call<Extract<WorkerResponse, { type: "result" }>>(
+      { type: "transcribe", model: spec, audio, language },
       [audio.buffer as ArrayBuffer],
     );
-    return { text, language };
+    return { text: result.text, language: result.language };
   })();
   transcripts.set(key, result);
   result.catch(() => transcripts.delete(key));

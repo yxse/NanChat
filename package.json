@@ -103,6 +103,7 @@
     "multi-nano-web": "2.0.1",
     "nano-address-validator": "^3.0.0",
     "nanocurrency": "^2.5.0",
+    "onnxruntime-web": "1.31.0-dev.20260914-8d85527a0",
     "piexifjs": "^1.0.6",
     "power-mode": "^5.0.0",
     "qrcode.react": "^3.1.0",
