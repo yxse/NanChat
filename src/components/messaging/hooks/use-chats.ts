@@ -198,6 +198,20 @@ async function muteNotifChat(mute) {
       throw new Error(r.error)
   }
 }
+// per group @mention notification settings: 'mutedMentions' | 'mutedEveryone'
+async function setChatNotificationSetting(key: 'mutedMentions' | 'mutedEveryone', value: boolean) {
+  const setValue = (v: boolean) => mutateChats(
+    current => current.map(c => c.id === chatId ? { ...c, [key]: v } : c),
+    false
+  )
+  await setValue(value) // optimistic update
+  const r = await fetcherMessagesPost('/chat-notification-setting', { chatId, key, value })
+  if (!r?.success) {
+    // revert explicitly: the incremental chats sync only returns chats with a new message
+    await setValue(!value)
+    throw new Error(r?.error || 'Error')
+  }
+}
     // console.log(chats[0])
   const isAdmin = chat?.creator === activeAccount;
 
@@ -212,6 +226,7 @@ async function muteNotifChat(mute) {
     blockChat,
     unblockChat,
     muteNotifChat,
+    setChatNotificationSetting,
     removeChat
     // isLoadingChat, 
     

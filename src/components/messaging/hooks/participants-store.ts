@@ -76,3 +76,8 @@ export function useParticipant(address: string | undefined) {
     const isReady = useSyncExternalStore(subscribe, () => ready);
     return { participant, ready: isReady };
 }
+
+// non-reactive lookup, for values computed once (e.g. the names of the @mentions of a message)
+export function getParticipant(address: string | undefined) {
+    return address ? index.get(address) : undefined;
+}

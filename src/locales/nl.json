@@ -571,5 +571,14 @@
   "retry": "Opnieuw proberen",
   "keyringWalletUnreachableTitle": "Geen toegang tot je wallet",
   "keyringWalletUnreachableDesc": "Je wallet staat mogelijk in de systeemsleutelbos, maar NanChat heeft er geen toegang toe. Ontgrendel de sleutelbos en tik op Opnieuw proberen. Lukt dat niet, herstel je wallet dan met de geheime zin: hij wordt dan opgeslagen in een met wachtwoord beveiligd bestand.",
-  "keyringWalletUseFile": "Herstellen met mijn geheime zin"
+  "keyringWalletUseFile": "Herstellen met mijn geheime zin",
+  "notifyMentions": "Melding wanneer ik @genoemd word",
+  "notifyMentionEveryone": "Melding voor @everyone",
+  "mentionEveryone": "Iedereen",
+  "mentionEveryoneDescription": "Alle {{count}} leden noemen",
+  "chooseWhoToMention": "Kies wie je wilt noemen",
+  "multiSelect": "Meerdere selecteren",
+  "noResults": "Geen resultaten",
+  "mentionedYouTag": "[@jij]",
+  "mentionedYou": "heeft je genoemd"
 }

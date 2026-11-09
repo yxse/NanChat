@@ -571,5 +571,14 @@
   "retry": "Riprova",
   "keyringWalletUnreachableTitle": "Impossibile accedere al tuo wallet",
   "keyringWalletUnreachableDesc": "Il tuo wallet potrebbe essere salvato nel portachiavi di sistema, ma NanChat non riesce ad accedervi. Sblocca il portachiavi e premi Riprova. Se non puoi, ripristina il wallet con la sua frase segreta: verrà salvato in un file protetto da password.",
-  "keyringWalletUseFile": "Ripristina con la mia frase segreta"
+  "keyringWalletUseFile": "Ripristina con la mia frase segreta",
+  "notifyMentions": "Avvisami quando vengo @menzionato",
+  "notifyMentionEveryone": "Avvisami per @everyone",
+  "mentionEveryone": "Tutti",
+  "mentionEveryoneDescription": "Menziona tutti i {{count}} membri",
+  "chooseWhoToMention": "Scegli chi menzionare",
+  "multiSelect": "Selezione multipla",
+  "noResults": "Nessun risultato",
+  "mentionedYouTag": "[@te]",
+  "mentionedYou": "ti ha menzionato"
 }

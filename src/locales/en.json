@@ -571,5 +571,14 @@
   "retry": "Retry",
   "keyringWalletUnreachableTitle": "Can't reach your wallet",
   "keyringWalletUnreachableDesc": "Your wallet may be stored in the system keyring, but NanChat can't access it. Unlock the keyring and press Retry. If you can't, restore your wallet with its secret phrase: it will be saved in a password-protected file instead.",
-  "keyringWalletUseFile": "Restore with my secret phrase"
+  "keyringWalletUseFile": "Restore with my secret phrase",
+  "notifyMentions": "Notify me when @mentioned",
+  "notifyMentionEveryone": "Notify me for @everyone",
+  "mentionEveryone": "Everyone",
+  "mentionEveryoneDescription": "Mention all {{count}} members",
+  "chooseWhoToMention": "Choose who to mention",
+  "multiSelect": "Multi-select",
+  "noResults": "No results",
+  "mentionedYouTag": "[@you]",
+  "mentionedYou": "mentioned you"
 }

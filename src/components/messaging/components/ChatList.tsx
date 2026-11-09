@@ -416,11 +416,11 @@ const renderRight = (showSearch: boolean) => (
                     onChatSelect(chat.id)
                     // local mutate to update unread count. Only when there is one to reset: replacing the chats array
                     // re-renders every chats subscriber (thousands of chats to scan each)
-                    if (chat.unreadCount > 0) {
+                    if (chat.unreadCount > 0 || chat.unreadMention) {
                         markChatRead(chat.id, activeAccountPk) // server side too: the room's useChat won't see it anymore
                         mutate(
                             chats.map(c =>
-                                c.id === chat.id ? { ...c, unreadCount: 0 } : c
+                                c.id === chat.id ? { ...c, unreadCount: 0, unreadMention: false } : c
                             ),
                             false
                         );
@@ -461,6 +461,14 @@ const renderRight = (showSearch: boolean) => (
                 // Ellipsis component is laggy when there are many messages
                 // description={<Ellipsis content={decrypted || '...'} />}
                 description={
+                (chat.unreadMention && chat.unreadCount > 0 && chat.lastMessageFrom !== activeAccount) ?
+                <div style={{display: 'flex', gap: 4, minWidth: 0}}>
+                  <span style={{color: 'var(--adm-color-danger)', flexShrink: 0}}>{t('mentionedYouTag')}</span>
+                  <div style={{flex: 1, minWidth: 0}}>
+                    <MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} type="chatlist"/>
+                  </div>
+                </div>
+                :
                 <MessageRaw key={"chat-list" + message._id} message={message} ellipsis includeProfileName={chat?.type == "group"} type="chatlist"/>
               }
             >

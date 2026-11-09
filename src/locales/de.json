@@ -571,5 +571,14 @@
   "retry": "Erneut versuchen",
   "keyringWalletUnreachableTitle": "Kein Zugriff auf deine Wallet",
   "keyringWalletUnreachableDesc": "Deine Wallet ist möglicherweise im Systemschlüsselbund gespeichert, aber NanChat kann nicht darauf zugreifen. Entsperre den Schlüsselbund und tippe auf Erneut versuchen. Falls das nicht geht, stelle deine Wallet mit ihrer geheimen Phrase wieder her: Sie wird dann in einer passwortgeschützten Datei gespeichert.",
-  "keyringWalletUseFile": "Mit meiner geheimen Phrase wiederherstellen"
+  "keyringWalletUseFile": "Mit meiner geheimen Phrase wiederherstellen",
+  "notifyMentions": "Benachrichtigen, wenn ich @erwähnt werde",
+  "notifyMentionEveryone": "Bei @everyone benachrichtigen",
+  "mentionEveryone": "Alle",
+  "mentionEveryoneDescription": "Alle {{count}} Mitglieder erwähnen",
+  "chooseWhoToMention": "Wen erwähnen?",
+  "multiSelect": "Mehrfachauswahl",
+  "noResults": "Keine Ergebnisse",
+  "mentionedYouTag": "[@du]",
+  "mentionedYou": "hat dich erwähnt"
 }

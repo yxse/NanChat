@@ -571,5 +571,14 @@
   "retry": "Reintentar",
   "keyringWalletUnreachableTitle": "No se puede acceder a tu billetera",
   "keyringWalletUnreachableDesc": "Puede que tu billetera esté guardada en el llavero del sistema, pero NanChat no puede acceder a él. Desbloquea el llavero y pulsa Reintentar. Si no puedes, restaura tu billetera con su frase secreta: se guardará en un archivo protegido con contraseña.",
-  "keyringWalletUseFile": "Restaurar con mi frase secreta"
+  "keyringWalletUseFile": "Restaurar con mi frase secreta",
+  "notifyMentions": "Notificarme cuando me @mencionen",
+  "notifyMentionEveryone": "Notificarme por @everyone",
+  "mentionEveryone": "Todos",
+  "mentionEveryoneDescription": "Mencionar a los {{count}} miembros",
+  "chooseWhoToMention": "Elegir a quién mencionar",
+  "multiSelect": "Selección múltiple",
+  "noResults": "Sin resultados",
+  "mentionedYouTag": "[@tú]",
+  "mentionedYou": "te mencionó"
 }

@@ -573,5 +573,14 @@
   "retry": "Повторить",
   "keyringWalletUnreachableTitle": "Нет доступа к кошельку",
   "keyringWalletUnreachableDesc": "Ваш кошелёк может храниться в системной связке ключей, но NanChat не может получить к ней доступ. Разблокируйте связку ключей и нажмите «Повторить». Если это невозможно, восстановите кошелёк с помощью секретной фразы: он будет сохранён в файле, защищённом паролем.",
-  "keyringWalletUseFile": "Восстановить по секретной фразе"
+  "keyringWalletUseFile": "Восстановить по секретной фразе",
+  "notifyMentions": "Уведомлять, когда меня @упоминают",
+  "notifyMentionEveryone": "Уведомлять о @everyone",
+  "mentionEveryone": "Все",
+  "mentionEveryoneDescription": "Упомянуть всех участников ({{count}})",
+  "chooseWhoToMention": "Кого упомянуть",
+  "multiSelect": "Выбрать несколько",
+  "noResults": "Ничего не найдено",
+  "mentionedYouTag": "[@вы]",
+  "mentionedYou": "упомянул(а) вас"
 }

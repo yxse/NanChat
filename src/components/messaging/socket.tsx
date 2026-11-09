@@ -26,6 +26,8 @@ import { unstable_serialize } from 'swr/infinite';
 import { getKey } from './hooks/useChat';
 import { isChatOpen, onMessagesSynced, onMessageSyncFinished, readNewestCachedPage, storeIncomingMessage } from './message-cache';
 import { LIMIT_MESSAGES_INITIAL } from './utils';
+import { isMentionNotified, isMentionNotifiedWhenMuted } from './mentions';
+import i18n from '../../i18n';
 
 // most recent chats whose newest page is preloaded into the (persisted) SWR cache
 const PRELOAD_CHATS = 30;
@@ -116,6 +118,12 @@ const ChatSocket: React.FC = () => {
                                         message.chatId === account ? 0 : // don't increment unread count if chat is the current open chat
                                         newChat.unreadCount + 1
                                     );
+                                    if (message.fromAccount === activeAccount || message.chatId === account) {
+                                        newChat.unreadMention = false;
+                                    }
+                                    else if (isMentionNotified(message, newChat, activeAccount)) {
+                                        newChat.unreadMention = true; // "[@you]" in the chats list
+                                    }
                                     newChat.lastMessageFrom = message.fromAccount;
                                     newChat.lastMessageTimestamp = new Date().toISOString();
                                     newChat.lastMessageId = message._id;
@@ -187,7 +195,10 @@ const ChatSocket: React.FC = () => {
                 console.log('isFocused', isFocused);
                 if (isFocused) return; // don't show notification if app is focused
                 if (location.pathname !== `/chat/${message.chatId}`) {
-                    sendNotificationTauri(message.fromAccountName, "New message");
+                    const chat = chats.find(c => c.id === message.chatId);
+                    const mentioned = isMentionNotified(message, chat, activeAccount);
+                    if (chat?.muted && !isMentionNotifiedWhenMuted(message, chat, activeAccount)) return; // muted, except the @mentions
+                    sendNotificationTauri(message.fromAccountName, mentioned ? i18n.t('mentionedYou') : "New message");
                 }
             }
     }

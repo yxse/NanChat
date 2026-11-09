@@ -16,6 +16,12 @@ interface Message {
     avatar?: string;
     participants: { _id: string; [key: string]: any }[];
     sharedAccount?: string;
+    type?: 'private' | 'group' | 'channel';
+    creator?: string;
+    muted?: boolean;
+    mutedMentions?: boolean; // not notified of @mentions when the group is muted
+    mutedEveryone?: boolean; // the admin's @everyone is a normal message
+    unreadMention?: boolean; // "[@you]" in the chats list
   }
   
   interface User {

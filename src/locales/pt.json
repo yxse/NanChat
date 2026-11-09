@@ -571,5 +571,14 @@
   "retry": "Tentar novamente",
   "keyringWalletUnreachableTitle": "Não foi possível acessar sua carteira",
   "keyringWalletUnreachableDesc": "Sua carteira pode estar guardada no chaveiro do sistema, mas o NanChat não consegue acessá-lo. Desbloqueie o chaveiro e toque em Tentar novamente. Se não conseguir, restaure sua carteira com a frase secreta: ela será salva em um arquivo protegido por senha.",
-  "keyringWalletUseFile": "Restaurar com minha frase secreta"
+  "keyringWalletUseFile": "Restaurar com minha frase secreta",
+  "notifyMentions": "Notificar-me quando for @mencionado",
+  "notifyMentionEveryone": "Notificar-me por @everyone",
+  "mentionEveryone": "Todos",
+  "mentionEveryoneDescription": "Mencionar os {{count}} membros",
+  "chooseWhoToMention": "Escolha quem mencionar",
+  "multiSelect": "Seleção múltipla",
+  "noResults": "Sem resultados",
+  "mentionedYouTag": "[@você]",
+  "mentionedYou": "mencionou você"
 }

@@ -575,5 +575,14 @@
   "retry": "إعادة المحاولة",
   "keyringWalletUnreachableTitle": "تعذّر الوصول إلى محفظتك",
   "keyringWalletUnreachableDesc": "قد تكون محفظتك مخزّنة في سلسلة مفاتيح النظام، لكن NanChat لا يستطيع الوصول إليها. افتح قفل سلسلة المفاتيح ثم اضغط إعادة المحاولة. إذا لم تتمكن من ذلك، استعد محفظتك باستخدام عبارتها السرية: ستُحفظ في ملف محمي بكلمة مرور.",
-  "keyringWalletUseFile": "الاستعادة بعبارتي السرية"
+  "keyringWalletUseFile": "الاستعادة بعبارتي السرية",
+  "notifyMentions": "أعلمني عند الإشارة إليّ بـ@",
+  "notifyMentionEveryone": "أعلمني عند @everyone",
+  "mentionEveryone": "الجميع",
+  "mentionEveryoneDescription": "الإشارة إلى جميع الأعضاء ({{count}})",
+  "chooseWhoToMention": "اختر من تريد الإشارة إليه",
+  "multiSelect": "تحديد متعدد",
+  "noResults": "لا توجد نتائج",
+  "mentionedYouTag": "[@أنت]",
+  "mentionedYou": "أشار إليك"
 }

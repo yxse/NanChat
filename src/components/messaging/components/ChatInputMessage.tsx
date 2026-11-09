@@ -25,6 +25,8 @@ import { useTranslation } from "react-i18next";
 import { safeSetItem } from "../utils";
 import { isTauri } from "@tauri-apps/api/core";
 import ChatInputVoice from "./ChatInputVoice";
+import MentionPicker from "./MentionPicker";
+import { Mention, extractMentions, mentionCandidates } from "../mentions";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -111,7 +113,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [newMessage, setNewMessage] = useState('');
     const navigate = useNavigate();
     const {activeAccount, activeAccountPk} = useWallet()
-    const {chat, mutateChats} = useChats(account);
+    const {chat, mutateChats, isAdmin} = useChats(account);
+    const isGroup = chat?.type === "group";
+    // index of the "@" that opened the mention picker, null when closed
+    const [mentionAt, setMentionAt] = useState<number | null>(null);
     // mutate of the chat's messages (same SWR key as useChat in ChatRoom). Not useChat itself: a second subscription to
     // the pages re-rendered the input on every page load / new message, ran useChat's effects twice (unread reset,
     // sync refresh) and fetched the messages of chats only shared to (account info, share popups)
@@ -208,6 +213,45 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         setInputAdditionVisible(true);
       }
     }, [welcomeButtonClick]);
+
+    const onTextChange = (value: string) => {
+      const prev = newMessage;
+      setNewMessage(value);
+      // typing a single "@" (at the start or after a space) in a group opens the participants to mention
+      if (!isGroup || hideInput || defaultNewMessage || value.length !== prev.length + 1) return;
+      let i = 0;
+      while (i < prev.length && prev[i] === value[i]) i++;
+      if (value[i] === '@' && (i === 0 || /\s/.test(value[i - 1]))) {
+        messageInputRef.current?.blur();
+        setMentionAt(i);
+      }
+    }
+
+    // replace the "@" typed with "@Name " for each selected participant
+    const insertMentions = (mentions: Mention[]) => {
+      const at = mentionAt;
+      setMentionAt(null);
+      const text = mentions.map(m => '@' + m.label).join(' ') + ' ';
+      let caret: number;
+      let value: string;
+      if (at !== null && newMessage[at] === '@') {
+        value = newMessage.slice(0, at) + text + newMessage.slice(at + 1);
+        caret = at + text.length;
+      } else {
+        const sep = newMessage && !/\s$/.test(newMessage) ? ' ' : '';
+        value = newMessage + sep + text;
+        caret = value.length;
+      }
+      setNewMessage(value);
+      focusInputAt(caret);
+    }
+    const focusInputAt = (caret?: number) => {
+      setTimeout(() => {
+        const input = messageInputRef.current;
+        input?.focus();
+        if (caret !== undefined) input?.nativeElement?.setSelectionRange(caret, caret);
+      }, 50); // after the popup closes and the value is rendered
+    }
 
     const resetReply = () => {
       setReplyMessage(null);
@@ -322,6 +366,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       if (replyMessage) {
         message.replyMessage = replyMessage;
         resetReply();
+      }
+      if (isGroup) {
+        const mentions = extractMentions(newMessage, mentionCandidates(chat?.participants, activeAccount, isAdmin));
+        if (mentions.length) message.mentions = mentions;
       }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
@@ -644,7 +692,7 @@ const onStickerSelect = useCallback((stickerId) => {
               className="m-2  "
               placeholder={t('message')}
               value={newMessage}
-              onChange={(e) => setNewMessage(e)}
+              onChange={onTextChange}
             />
           
           </div>
@@ -707,6 +755,20 @@ const onStickerSelect = useCallback((stickerId) => {
         onUploadCancel={onUploadCancel}
         onTipSent={onTipSent}
            />
+        {
+          isGroup && !hideInput &&
+          <MentionPicker
+            visible={mentionAt !== null}
+            participants={chat?.participants}
+            activeAccount={activeAccount}
+            canMentionEveryone={isAdmin}
+            onSelect={insertMentions}
+            onClose={() => {
+              setMentionAt(null);
+              focusInputAt();
+            }}
+          />
+        }
 
           
 

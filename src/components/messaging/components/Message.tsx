@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useRef, useState } from "react";
+import { memo, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AddCircleOutline, CompassOutline, DeleteOutline, KeyOutline, LockFill, LockOutline, UserAddOutline } from "antd-mobile-icons";
 import { WalletContext } from "../../useWallet";
@@ -32,6 +32,8 @@ import { isAutoTranslateEnabled, isTranslationAvailable, ModelDownloadDeclinedEr
 import { useTranslation } from "react-i18next";
 import MessageRaw from "./MessageRaw";
 import MessageRedPacket from "../../app/redpacket/MessageRedPacket";
+import { findMentions, Mention, MentionRange, MENTION_EVERYONE, mentionLabel } from "../mentions";
+import { getParticipant } from "../hooks/participants-store";
 
 const Message = memo(({
   message,
@@ -485,8 +487,24 @@ const ProfilePictureLink = ({ address }) => (
   </div>
 );
 
+// text of [start, end[ with the @mentions it contains in bold
+const withMentions = (text: string, start: number, end: number, mentions: MentionRange[], mentionStyle) => {
+  const parts: React.ReactNode[] = [];
+  let cursor = start;
+  for (const mention of mentions) {
+    if (mention.end <= cursor || mention.start >= end) continue;
+    const from = Math.max(mention.start, cursor);
+    const to = Math.min(mention.end, end);
+    if (from > cursor) parts.push(text.substring(cursor, from));
+    parts.push(<span key={'mention-' + from} style={mentionStyle}>{text.substring(from, to)}</span>);
+    cursor = to;
+  }
+  if (cursor < end) parts.push(text.substring(cursor, end));
+  return parts;
+}
+
 // Safer message renderer component
-const MessageContentLink = ({ message }) => {
+const MessageContentLink = ({ message, mentions = [] as MentionRange[], mentionStyle = undefined as React.CSSProperties | undefined }) => {
   // Decrypt message here if needed
   const decrypted = message; // Replace with your decryption logic
   
@@ -498,7 +516,7 @@ const MessageContentLink = ({ message }) => {
   
   if (urls.length === 0) {
     // If no URLs, just return the text
-    return <div>{decrypted}</div>;
+    return <div>{mentions.length ? withMentions(decrypted, 0, decrypted.length, mentions, mentionStyle) : decrypted}</div>;
   }
   
   // Split the message by URLs and create an array of text and link elements
@@ -510,7 +528,7 @@ const MessageContentLink = ({ message }) => {
     
     // Add text before the URL
     if (urlIndex > lastIndex) {
-      parts.push(decrypted.substring(lastIndex, urlIndex));
+      parts.push(...withMentions(decrypted, lastIndex, urlIndex, mentions, mentionStyle));
     }
     
     // Render the URL as a clickable span rather than an <a>: with no href the
@@ -541,7 +559,7 @@ const MessageContentLink = ({ message }) => {
   
   // Add any remaining text after the last URL
   if (lastIndex < decrypted.length) {
-    parts.push(decrypted.substring(lastIndex));
+    parts.push(...withMentions(decrypted, lastIndex, decrypted.length, mentions, mentionStyle));
   }
   
   // Render all parts together
@@ -605,6 +623,18 @@ const MessageContent = ({
   activeAccount = null as any
 }) => {
   const { t } = useTranslation();
+  // @mentions to highlight, from the accounts the message mentions
+  const mentions = useMemo(() => {
+    if (!Array.isArray(message?.mentions) || !message.mentions.length || !decrypted) return [];
+    const candidates: Mention[] = message.mentions.map(account => account === MENTION_EVERYONE
+      ? { account, label: MENTION_EVERYONE }
+      : { account, label: mentionLabel(getParticipant(account) || { _id: account }) });
+    return findMentions(decrypted, candidates);
+  }, [message?.mentions, decrypted]);
+  const mentionStyle: React.CSSProperties = {
+    fontWeight: 600,
+    color: isFromCurrentUser ? 'inherit' : 'var(--adm-color-primary)',
+  };
   const borderRadiusClass = isFromCurrentUser
     ? isPreviousMessageFromSameAccount ? '' : 'rounded-br-sm'
     : isPreviousMessageFromSameAccount ? '' : 'rounded-bl-sm';
@@ -632,7 +662,7 @@ const MessageContent = ({
         {!decrypted && !message.isLocal && (
           <LockOutline />
         )}
-        <MessageContentLink message={decrypted} />
+        <MessageContentLink message={decrypted} mentions={mentions} mentionStyle={mentionStyle} />
         {translated && (
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid color-mix(in srgb, currentColor 25%, transparent)' }}>
             <MessageContentLink message={translated} />

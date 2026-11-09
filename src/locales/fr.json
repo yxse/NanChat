@@ -571,5 +571,14 @@
   "retry": "Réessayer",
   "keyringWalletUnreachableTitle": "Impossible d'accéder à votre portefeuille",
   "keyringWalletUnreachableDesc": "Votre portefeuille est peut-être stocké dans le trousseau du système, mais NanChat ne peut pas y accéder. Déverrouillez le trousseau puis appuyez sur Réessayer. Sinon, restaurez votre portefeuille avec sa phrase secrète : il sera enregistré dans un fichier protégé par mot de passe.",
-  "keyringWalletUseFile": "Restaurer avec ma phrase secrète"
+  "keyringWalletUseFile": "Restaurer avec ma phrase secrète",
+  "notifyMentions": "Me notifier quand on me @mentionne",
+  "notifyMentionEveryone": "Me notifier pour @everyone",
+  "mentionEveryone": "Tout le monde",
+  "mentionEveryoneDescription": "Mentionner les {{count}} membres",
+  "chooseWhoToMention": "Choisir qui mentionner",
+  "multiSelect": "Sélection multiple",
+  "noResults": "Aucun résultat",
+  "mentionedYouTag": "[@vous]",
+  "mentionedYou": "vous a mentionné"
 }

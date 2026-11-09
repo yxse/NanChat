@@ -570,5 +570,14 @@
   "retry": "再試行",
   "keyringWalletUnreachableTitle": "ウォレットにアクセスできません",
   "keyringWalletUnreachableDesc": "ウォレットはシステムのキーリングに保存されている可能性がありますが、NanChat はアクセスできません。キーリングのロックを解除して「再試行」を押してください。できない場合は、シークレットフレーズでウォレットを復元してください。パスワードで保護されたファイルに保存されます。",
-  "keyringWalletUseFile": "シークレットフレーズで復元"
+  "keyringWalletUseFile": "シークレットフレーズで復元",
+  "notifyMentions": "@メンションされたら通知",
+  "notifyMentionEveryone": "@everyone を通知",
+  "mentionEveryone": "全員",
+  "mentionEveryoneDescription": "メンバー全員（{{count}}人）にメンション",
+  "chooseWhoToMention": "メンションする相手を選択",
+  "multiSelect": "複数選択",
+  "noResults": "結果なし",
+  "mentionedYouTag": "[@あなた]",
+  "mentionedYou": "があなたをメンションしました"
 }

@@ -22,6 +22,7 @@ import { unstable_serialize } from 'swr/infinite';
 import { getKey } from '../messaging/hooks/useChat';
 import { isSavedContact } from '../messaging/call/call-signaling';
 import InAppNotification, { showInAppNotification } from './InAppNotification';
+import i18n from '../../i18n';
 
 
 const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
@@ -340,6 +341,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   let title = event.notification.data.title;
   let targetAccount = fromAccount;
   let isGroupMessage = event.notification.data.type === "group";
+  let mentioned = event.notification.data.mentioned === "true"; // @mentioned in a group
   // console.log("decryption", message, targetAccount, accounts[0].privateKey);
   
   let activeAddresses = localStorage.getItem("activeAddresses") || "[]";
@@ -378,7 +380,8 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
               threadIdentifier: chatId,
               title: title,
               body: 
-              isGroupMessage ? `${fromAccountName}: ${decrypted}` : decrypted,
+              (mentioned ? i18n.t('mentionedYouTag') + ' ' : '') +
+              (isGroupMessage ? `${fromAccountName}: ${decrypted}` : decrypted),
               id: +idInt,
               schedule: { at: new Date(Date.now() + 100) },
               extra: {

@@ -180,7 +180,7 @@ export function useChat(chatId) {
     // mutate unreadCount to 0 when chat is opened or receives messages while open.
     // Only when needed: every mutation of the chats store notifies all its subscribers (one ProfileName per rendered
     // message), so doing it unconditionally on each page load made loading older messages slower and slower.
-    if (chat?.id && chat.unreadCount > 0) {
+    if (chat?.id && (chat.unreadCount > 0 || chat.unreadMention)) {
       // also server side, else the count comes back with the next chats fetch (e.g. messages received while the
       // socket was not in the chat room, or a newest page served from the message store without a request)
       markChatRead(chat.id, activeAccountPk);
@@ -190,12 +190,13 @@ export function useChat(chatId) {
         if (chatIndex !== -1) {
           const newChat = { ...newChats[chatIndex] };
           newChat.unreadCount = 0;
+          newChat.unreadMention = false;
           newChats[chatIndex] = newChat
         }
         return newChats;
       }, false);
     }
-  }, [pages, chat?.id, chat?.unreadCount]);
+  }, [pages, chat?.id, chat?.unreadCount, chat?.unreadMention]);
 
   useEffect(() => {
     const handleChatNotFound = async () => {

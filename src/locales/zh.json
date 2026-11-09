@@ -570,5 +570,14 @@
   "retry": "重试",
   "keyringWalletUnreachableTitle": "无法访问你的钱包",
   "keyringWalletUnreachableDesc": "你的钱包可能存储在系统密钥环中，但 NanChat 无法访问它。请解锁密钥环后点击重试。如果无法解锁，请用助记词恢复钱包：它将改为保存在受密码保护的文件中。",
-  "keyringWalletUseFile": "用助记词恢复"
+  "keyringWalletUseFile": "用助记词恢复",
+  "notifyMentions": "有人@我时通知我",
+  "notifyMentionEveryone": "@所有人时通知我",
+  "mentionEveryone": "所有人",
+  "mentionEveryoneDescription": "提及全部 {{count}} 位成员",
+  "chooseWhoToMention": "选择提醒的人",
+  "multiSelect": "多选",
+  "noResults": "无结果",
+  "mentionedYouTag": "[有人@我]",
+  "mentionedYou": "@了你"
 }

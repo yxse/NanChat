@@ -573,5 +573,14 @@
   "retry": "Spróbuj ponownie",
   "keyringWalletUnreachableTitle": "Brak dostępu do portfela",
   "keyringWalletUnreachableDesc": "Twój portfel może być zapisany w systemowym pęku kluczy, ale NanChat nie ma do niego dostępu. Odblokuj pęk kluczy i naciśnij Spróbuj ponownie. Jeśli to niemożliwe, przywróć portfel za pomocą frazy odzyskiwania: zostanie zapisany w pliku chronionym hasłem.",
-  "keyringWalletUseFile": "Przywróć za pomocą frazy odzyskiwania"
+  "keyringWalletUseFile": "Przywróć za pomocą frazy odzyskiwania",
+  "notifyMentions": "Powiadamiaj, gdy ktoś mnie @oznaczy",
+  "notifyMentionEveryone": "Powiadamiaj o @everyone",
+  "mentionEveryone": "Wszyscy",
+  "mentionEveryoneDescription": "Oznacz wszystkich członków ({{count}})",
+  "chooseWhoToMention": "Wybierz, kogo oznaczyć",
+  "multiSelect": "Wybór wielu",
+  "noResults": "Brak wyników",
+  "mentionedYouTag": "[@ty]",
+  "mentionedYou": "oznaczył(a) cię"
 }

@@ -573,5 +573,14 @@
   "retry": "Повторити",
   "keyringWalletUnreachableTitle": "Немає доступу до гаманця",
   "keyringWalletUnreachableDesc": "Ваш гаманець може зберігатися в системній в'язці ключів, але NanChat не може отримати до неї доступ. Розблокуйте в'язку ключів і натисніть «Повторити». Якщо це неможливо, відновіть гаманець за допомогою секретної фрази: його буде збережено у файлі, захищеному паролем.",
-  "keyringWalletUseFile": "Відновити за секретною фразою"
+  "keyringWalletUseFile": "Відновити за секретною фразою",
+  "notifyMentions": "Сповіщати, коли мене @згадують",
+  "notifyMentionEveryone": "Сповіщати про @everyone",
+  "mentionEveryone": "Усі",
+  "mentionEveryoneDescription": "Згадати всіх учасників ({{count}})",
+  "chooseWhoToMention": "Кого згадати",
+  "multiSelect": "Вибрати кілька",
+  "noResults": "Нічого не знайдено",
+  "mentionedYouTag": "[@ви]",
+  "mentionedYou": "згадав(ла) вас"
 }

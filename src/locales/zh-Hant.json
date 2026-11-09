@@ -570,5 +570,14 @@
   "retry": "重試",
   "keyringWalletUnreachableTitle": "無法存取你的錢包",
   "keyringWalletUnreachableDesc": "你的錢包可能儲存在系統鑰匙圈中，但 NanChat 無法存取它。請解鎖鑰匙圈後點選重試。如果無法解鎖，請用助記詞還原錢包：它將改為儲存在受密碼保護的檔案中。",
-  "keyringWalletUseFile": "用助記詞還原"
+  "keyringWalletUseFile": "用助記詞還原",
+  "notifyMentions": "有人@我時通知我",
+  "notifyMentionEveryone": "@所有人時通知我",
+  "mentionEveryone": "所有人",
+  "mentionEveryoneDescription": "提及全部 {{count}} 位成員",
+  "chooseWhoToMention": "選擇提醒的人",
+  "multiSelect": "多選",
+  "noResults": "沒有結果",
+  "mentionedYouTag": "[有人@我]",
+  "mentionedYou": "@了你"
 }
