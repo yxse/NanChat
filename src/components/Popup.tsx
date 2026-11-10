@@ -26,21 +26,41 @@ import { defaultContacts, safeSetItem } from "./messaging/utils";
 import { fetchPrices } from "../nanswap/swap/service";
 import { fetcherChat, fetcherMessages } from "./messaging/fetcher";
 import { timestampStorageHandler, useCacheProvider, simpleStorageHandler } from '@benskalz/swr-idb-cache'
+import { i18nReady } from "../i18n";
 import { WalletApp } from "./app/WalletApp";
 import { App as CapacitorApp } from "@capacitor/app";
 import { useReduceAnimation } from "../hooks/use-reduce-animation";
 import { UpdateRequiredModal } from "./app/UpdateRequiredModal";
 
 
+// entries not updated by SWR for this long are dropped from IndexedDB on startup
+const CACHE_MAX_AGE = 30 * 24 * 3600 * 1000
+
 const blacklistStorageHandler = {
   ...timestampStorageHandler,
   _rateLimitCache: new Map(),
-  
-  replace: (key, value, force = false) => {
-    
+  // last time SWR set real data for each key: saveAllToDb rewrites every entry on pause,
+  // so the stored ts keeps this value instead of the save time, else nothing would ever expire
+  _lastSet: new Map<string, number>(),
+
+  revive: (key: string, storeObject: any) => {
+    const ts = storeObject?.ts
+    if (!ts) return undefined
+    // chats never expire: they are the base of the incremental sync (lastSyncChat, see fetcherChats),
+    // dropping them alone would only show the chats updated since the last sync
+    if (!key.startsWith('/chats-') && Date.now() - ts > CACHE_MAX_AGE) return undefined
+    blacklistStorageHandler._lastSet.set(key, ts)
+    return storeObject.value
+  },
+
+  replace: (key: string, value: any, force: Boolean = false) => {
+
     // Rate limiter - check if key was accessed in last 30 seconds
     const now = Date.now();
     const lastAccess = blacklistStorageHandler._rateLimitCache.get(key);
+    // record the update even when the write below is throttled, the forced save on pause will persist it
+    if (!force && value?.data !== undefined) blacklistStorageHandler._lastSet.set(key, now)
+    const ts = blacklistStorageHandler._lastSet.get(key) ?? now
     
     const isMessages = key.startsWith('$inf$/messages')  
     const isChats = key.startsWith('/chats')  
@@ -83,11 +103,11 @@ const blacklistStorageHandler = {
       filteredValue.data = [filteredValue.data[0]]; // only keep first message page
       filteredValue['_l'] = 1; // set length to 1 to prevent swr fetching all pages
 
-      return timestampStorageHandler.replace(key, filteredValue);
+      return { value: filteredValue, ts };
     }
-    
-    // For all other keys, use the wrapped handler
-    return timestampStorageHandler.replace(key, value);
+
+    // For all other keys, same format as timestampStorageHandler, with the last real update as ts
+    return { value, ts };
   },
 }
 preload('/networks', fetcherChat)
@@ -102,7 +122,12 @@ export default function InitialPopup() {
     storeName: 'swr-cache',
     storageHandler: blacklistStorageHandler,
   })
-  const initializing = cacheProvider == null
+  // the language of the user is loaded on demand (see i18n.js): render once it is there, no flash of English
+  const [languageReady, setLanguageReady] = useState(false)
+  useEffect(() => {
+    i18nReady.then(() => setLanguageReady(true))
+  }, [])
+  const initializing = cacheProvider == null || !languageReady
   console.log("InitialPopup")
   // const [wallet, setWallet] = useState({seed: null, accounts: [], wallets: {}});
   useReduceAnimation();

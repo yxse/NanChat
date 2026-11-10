@@ -9,25 +9,38 @@ import { encrypt } from "../../../worker/crypto";
 import { WalletContext } from "../../useWallet";
 import { EyeFill, EyeInvisibleFill, LockOutline } from "antd-mobile-icons";
 
-import { zxcvbnOptions, zxcvbnAsync } from '@zxcvbn-ts/core'
-import * as zxcvbnCommonPackage from '@zxcvbn-ts/language-common'
-import * as zxcvbnEnPackage from '@zxcvbn-ts/language-en'
 import { t } from "i18next";
 
-const options = {
-  // recommended
-  dictionary: {
-    ...zxcvbnCommonPackage.dictionary,
-    ...zxcvbnEnPackage.dictionary,
-  },
-  // recommended
-  graphs: zxcvbnCommonPackage.adjacencyGraphs,
-  // recommended
-  useLevenshteinDistance: true,
-  // optional
-  translations: zxcvbnEnPackage.translations,
+// password strength: zxcvbn and its dictionaries (~1.6 MB) are loaded with the first check, not with the app
+let zxcvbnLoading: Promise<(password: string) => Promise<any>> | null = null;
+function loadZxcvbn() {
+  if (!zxcvbnLoading) {
+    zxcvbnLoading = Promise.all([
+      import('@zxcvbn-ts/core'),
+      import('@zxcvbn-ts/language-common'),
+      import('@zxcvbn-ts/language-en'),
+    ]).then(([{ zxcvbnOptions, zxcvbnAsync }, zxcvbnCommonPackage, zxcvbnEnPackage]) => {
+      zxcvbnOptions.setOptions({
+        // recommended
+        dictionary: {
+          ...zxcvbnCommonPackage.dictionary,
+          ...zxcvbnEnPackage.dictionary,
+        },
+        // recommended
+        graphs: zxcvbnCommonPackage.adjacencyGraphs,
+        // recommended
+        useLevenshteinDistance: true,
+        // optional
+        translations: zxcvbnEnPackage.translations,
+      })
+      return zxcvbnAsync
+    }).catch((err) => {
+      zxcvbnLoading = null // retried with the next check
+      throw err
+    })
+  }
+  return zxcvbnLoading
 }
-zxcvbnOptions.setOptions(options)
 
 const usePasswordStrength = (password: string) => {
   const [result, setResult] = useState("")
@@ -42,7 +55,7 @@ const usePasswordStrength = (password: string) => {
     
     // Set new timeout for 500ms
     timeoutRef.current = setTimeout(() => {
-      zxcvbnAsync(password).then((response) => setResult(response))
+      loadZxcvbn().then((zxcvbnAsync) => zxcvbnAsync(password)).then((response) => setResult(response)).catch(console.error)
     }, 300)
   }, [])
 

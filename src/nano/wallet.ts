@@ -14,6 +14,25 @@ import { formatAmountMega } from "../utils/format";
 import { Preferences } from '@capacitor/preferences';
 import { App as CapacitorApp } from '@capacitor/app';
 
+// The keys of an account are the same on every network (only the address prefix differs), but each network has its
+// own Wallet: at launch the same accounts were derived once per network (ed25519 / BIP32, the longest part of the
+// launch after the bundle). Derived once, then copied (each wallet rewrites the address prefix of its copy).
+// Kept only for the initialization burst, so the keys are not held longer than by the wallets themselves.
+const derivedAccounts = new Map<string, any[]>();
+let derivedAccountsTimer: ReturnType<typeof setTimeout> | null = null;
+function deriveAccounts(seed: string, from: number, to: number): any[] {
+  const key = from + ":" + to + ":" + seed;
+  let accounts = derivedAccounts.get(key);
+  if (!accounts) {
+    const derive = seed.length === 128 ? walletLib.accounts : walletLib.legacyAccounts;
+    accounts = derive(seed, from, to);
+    derivedAccounts.set(key, accounts);
+  }
+  if (derivedAccountsTimer) clearTimeout(derivedAccountsTimer);
+  derivedAccountsTimer = setTimeout(() => derivedAccounts.clear(), 5000);
+  return accounts.map((account) => ({ ...account }));
+}
+
 var lock = new AsyncLock();
 
 // Contact name of the sender if saved, else shortened address
@@ -121,12 +140,14 @@ export class Wallet {
       } else if (this.mapAccounts.size > 0) {
         this.subscribeConfirmation(Array.from(this.mapAccounts.keys()));
       }
-      // also try to receive any pending tx that arrived while offline
-      try {
-        this.receiveAllActiveAccount?.();
-      } catch (e) {
-        console.log("receiveAllActiveAccount on reconnect failed", e);
+      // on a reconnect, receive any pending tx that arrived while offline
+      // (the first connection is covered by initWallet, which already calls receiveAllActiveAccount)
+      if (this.wsHasConnected) {
+        this.receiveAllActiveAccount?.().catch((e) => {
+          console.log("receiveAllActiveAccount on reconnect failed", e);
+        });
       }
+      this.wsHasConnected = true;
     };
     this.websocket.onmessage = async (msg) => {
       let data_json = JSON.parse(msg.data);
@@ -313,7 +334,6 @@ export class Wallet {
       localStorage.setItem("ledgerAccounts", JSON.stringify(accounts));
     }
     else {
-      let functionToUse = this.seed.length === 128 ? walletLib.accounts : walletLib.legacyAccounts;
       if (this.allAccounts.find((account) => account.accountIndex === index)) {
         this.dispatch({type: "ADD_ACCOUNTS", payload: [...new Set(this.allAccounts.filter((account) => !this.hiddenIndexes.includes(account.accountIndex) || account.accountIndex === index))]})
         this.hiddenIndexes = this.hiddenIndexes.filter((i) => i !== index);
@@ -322,11 +342,7 @@ export class Wallet {
         return
       }
       // todo: store (encrypted) accounts instead of re creating them
-      accounts = functionToUse(
-        this.seed,
-        index,
-        index + nbAccounts -1,
-      );
+      accounts = deriveAccounts(this.seed, index, index + nbAccounts - 1);
     }
     this.allAccounts = this.allAccounts.concat(accounts).sort((a, b) => a.accountIndex - b.accountIndex);
     if (this.ticker === "XNO"){
