@@ -1,6 +1,17 @@
 import { io } from 'socket.io-client';
 import { APP_PLATFORM, APP_VERSION, markUpdateRequired } from '../../utils/client-version';
 
+// Text of a desktop notification when message preview is on, or null for the generic one
+const PREVIEW_MAX_LENGTH = 200;
+function desktopPreviewText(message: any, decrypted: unknown): string | null {
+    if (message?.stickerId || message?.content === "Sticker") return "Sticker";
+    if (message?.redPacket) return i18n.t("redPacket");
+    if (message?.file || message?.content === "File") return i18n.t("file");
+    if (isSpecialMessage(message) || typeof decrypted !== "string" || !decrypted.trim()) return null;
+    const text = decrypted.trim();
+    return text.length > PREVIEW_MAX_LENGTH ? text.slice(0, PREVIEW_MAX_LENGTH) + "…" : text;
+}
+
 export const socket = io(import.meta.env.VITE_PUBLIC_BACKEND, {
     autoConnect: false,
     // in query rather than auth: socket.auth is overwritten with the chat token on connect
@@ -30,7 +41,7 @@ import { useChats } from './hooks/use-chats';
 import { unstable_serialize } from 'swr/infinite';
 import { getKey } from './hooks/useChat';
 import { isChatOpen, onMessagesSynced, onMessageSyncFinished, readNewestCachedPage, storeIncomingMessage } from './message-cache';
-import { LIMIT_MESSAGES_INITIAL } from './utils';
+import { isSpecialMessage, LIMIT_MESSAGES_INITIAL } from './utils';
 import { isMentionNotified, isMentionNotifiedWhenMuted } from './mentions';
 import i18n from '../../i18n';
 
@@ -64,6 +75,10 @@ const ChatSocket: React.FC = () => {
     const {mutate: mutateInifinite, cache: swrCache} = useSWRConfig();
     const location = useLocation();
     const { account } = useParams();  // chatId
+    // "Message preview" setting (Settings > Notification), also used for desktop notifications
+    const { data: notificationSettings } = useSWR(isTauri() ? "/config-notification" : null, fetcherMessages);
+    const messagePreviewRef = React.useRef(false);
+    messagePreviewRef.current = !!notificationSettings?.messagePreview;
     useEffect(() => {
         getChatToken(activeAccountPk).then((token) => {
                     socket.auth = { token };
@@ -89,27 +104,32 @@ const ChatSocket: React.FC = () => {
             console.log('socket open');
             mutateChats()
     }
+    // messages sent while the socket is down only come back through the sync, without a notification
+    const onDisconnect = (reason: string) => console.log('socket disconnected:', reason);
     useEffect(() => {
         socket.io.on('reconnect', onReconnect);
         socket.on('connect', onConnect)
+        socket.on('disconnect', onDisconnect)
 
         socket.emit('join', activeAccount);
 
         return () => {
             socket.io.off('reconnect', onReconnect);
             socket.off('connect', onConnect)
+            socket.off('disconnect', onDisconnect)
         };
     }, [activeAccount, onlineAccount]);
 
     
     useEffect(() => {
         const handleAllMessage = async (message: Message) => {
+            let decryptedMessage: Promise<any> = Promise.resolve(null); // also read by the desktop notification
             try {
                 
             
             console.log('message', message);
             // keep the message store up to date, so the chat opens from it without a request
-            const decryptedMessage = storeIncomingMessage(message, activeAccount, activeAccountPk);
+            decryptedMessage = storeIncomingMessage(message, activeAccount, activeAccountPk);
             if (chats.find(chat => chat.id === message.chatId) !== undefined) { // dont local mutate if chat not yet exist / just created to prevent issue new chat not showing
                             mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
                                 const newChats = [...(currentChats || [])];
@@ -199,11 +219,21 @@ const ChatSocket: React.FC = () => {
                 const isFocused = await appWindow.isFocused();
                 console.log('isFocused', isFocused);
                 if (isFocused) return; // don't show notification if app is focused
-                if (location.pathname !== `/chat/${message.chatId}`) {
+                // not focused (minimized or behind another window): notify, the open chat included.
+                // Not for our own messages sent from another device.
+                if (message.fromAccount !== activeAccount) {
                     const chat = chats.find(c => c.id === message.chatId);
                     const mentioned = isMentionNotified(message, chat, activeAccount);
                     if (chat?.muted && !isMentionNotifiedWhenMuted(message, chat, activeAccount)) return; // muted, except the @mentions
-                    sendNotificationTauri(message.fromAccountName, mentioned ? i18n.t('mentionedYou') : "New message");
+                    const decrypted = await decryptedMessage;
+                    const preview = messagePreviewRef.current ? desktopPreviewText(message, decrypted?.decrypted) : null;
+                    const sender = message.fromAccountName || "NanChat";
+                    const isGroup = chat?.type === "group";
+                    let body = preview ?? (mentioned ? i18n.t('mentionedYou') : i18n.t('newMessage'));
+                    if (preview && mentioned) body = `${i18n.t('mentionedYouTag')} ${preview}`;
+                    if (isGroup && (preview || !mentioned)) body = `${sender}: ${body}`;
+                    else if (isGroup) body = `${sender} ${body}`; // "Alice mentioned you"
+                    sendNotificationTauri(isGroup ? (chat?.name || "Group chat") : sender, body, message.chatId);
                 }
             }
     }

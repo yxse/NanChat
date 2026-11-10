@@ -10,7 +10,7 @@ import {
   } from "@capacitor-firebase/messaging";
 import { Toast } from "antd-mobile";
 import { Capacitor } from "@capacitor/core";
-import { isTauri } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import {
     isPermissionGranted,
     requestPermission,
@@ -41,13 +41,20 @@ export async function getToken() {
     return token;
 }
 
-export async function sendNotificationTauri(title, body) {
-    if (isTauri()) {
-        let permissionGranted = await isPermissionGranted();
-        if (permissionGranted) {
-          sendNotification({ title: title, body: body });
-        }
-      }
+/**
+ * Desktop notification. With a chatId, clicking it restores the app and opens the chat (on Windows the
+ * toast is built natively with protocol activation, see src-tauri/src/notifications.rs); without one,
+ * clicking it brings the app back.
+ */
+export async function sendNotificationTauri(title: string, body: string, chatId?: string) {
+    if (!isTauri()) return;
+    if (!(await isPermissionGranted())) return;
+    try {
+        await invoke("show_notification", { title, body, chatId: chatId ?? null });
+    } catch (error) {
+        console.error("native notification failed", error);
+        sendNotification({ title, body });
+    }
 }
 async function askPermission() {
     let permissionGranted = false;

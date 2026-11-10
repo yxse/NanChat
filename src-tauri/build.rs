@@ -10,6 +10,7 @@ fn main() {
             "delete_secret",
             "secure_storage_status",
             "open_browser_window",
+            "show_notification",
         ])),
     )
     .expect("failed to run tauri-build");

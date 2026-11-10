@@ -707,7 +707,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             tones.play("ringtone");
             if (isTauri() && !(await getCurrentWindow().isFocused())) {
-                sendNotificationTauri(fromAccountName || "NanChat", video ? "Incoming video call" : "Incoming call");
+                sendNotificationTauri(fromAccountName || "NanChat", video ? "Incoming video call" : "Incoming call", chatId); // click: back to the app, on the chat
             }
         };
         const onSignal = ({ callId, from, data }: { callId: string; from: string; data: string }) => {

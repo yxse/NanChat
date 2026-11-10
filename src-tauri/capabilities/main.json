@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "description": "app commands (keyring, in-app browser) restricted to the bundled main window",
+  "description": "app commands (keyring, in-app browser, notifications) restricted to the bundled main window",
   "windows": [
     "main"
   ],
@@ -11,6 +11,9 @@
     "allow-delete-secret",
     "allow-secure-storage-status",
     "allow-open-browser-window",
+    "allow-show-notification",
+    "core:window:allow-show",
+    "core:window:allow-unminimize",
     "core:webview:allow-set-webview-focus",
     "sql:allow-load",
     "sql:allow-select",

@@ -200,6 +200,13 @@ const AppUrlListener: React.FC<any> = () => {
             console.log('[nanchat-navigation] listener registered');
             return unlisten;
           });
+          // click on a desktop notification (src-tauri/src/notifications.rs): the window is already
+          // brought back natively, open the chat
+          listen<string>('notification-clicked', (event) => {
+            const path = `/chat/${event.payload}`;
+            navigate('/');
+            if (isSafeAppPath(path)) navigate(path);
+          });
         });
       }
       if (Capacitor.isNativePlatform()){
