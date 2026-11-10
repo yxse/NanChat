@@ -24,7 +24,7 @@ import { t } from 'i18next';
 
 
 
-const CheckListItemAccount = ({ account, disabled, onClick }) => {
+export const CheckListItemAccount = ({ account, disabled, onClick }) => {
     return <CheckList.Item
                     disabled={disabled}
                     value={account._id}

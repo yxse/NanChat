@@ -1,7 +1,8 @@
 import useSWR, { useSWRConfig } from 'swr';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherMessages, fetcherMessagesCache } from '../fetcher';
+import { fetcherMessages } from '../fetcher';
+import { fetcherMessagesCache, markChatOpen, markChatRead, onMessagesSynced } from '../message-cache';
 import { useWallet } from "../../useWallet";
 import { useChats } from './use-chats';
 import { Badge } from '@capawesome/capacitor-badge';
@@ -19,19 +20,29 @@ const sendMessage = async (chatId, content) => {
   return response.json();
 };
 
+// unread total per chats array: the badge re-renders on every route change / chats update, the array only changes on
+// chats updates (thousands of chats to sum)
+const unreadSums = new WeakMap<object, { account: string; sum: number }>();
+function sumUnread(chats: any, activeAccount: string): number | null {
+  if (!Array.isArray(chats)) return null; // loading, or an { error } body
+  const cached = unreadSums.get(chats);
+  if (cached && cached.account === activeAccount) return cached.sum;
+  let sum = 0;
+  for (const chat of chats) {
+    if (chat.lastMessageFrom !== activeAccount) sum += chat?.muted ? 0 : chat.unreadCount || 0;
+  }
+  unreadSums.set(chats, { account: activeAccount, sum });
+  return sum;
+}
+
 export function useUnreadCount() {
   const [seedVerified] = useLocalStorageState('seedVerified', { defaultValue: false })
   const {chats} = useChats();
   const {activeAccount} = useWallet()
-  if (chats === undefined || chats?.error) return null;
-  const unread = chats?.reduce((acc, chat) => {
-    if (chat.lastMessageFrom !== activeAccount) {
-      return acc + (chat?.muted ? 0 : chat.unreadCount);
-    }
-    return acc;
-  }, 0)
+  const unread = sumUnread(chats, activeAccount);
 
   useEffect(() => {
+    if (unread == null) return;
     // update badge count
     let total = unread
     if (!seedVerified) {
@@ -54,15 +65,18 @@ export function useUnreadCount() {
 // const LIMIT = Capacitor.getPlatform() === "ios" ? 50 : 25;
 // Custom hook for chat functionality
 
-export const getKey = (pageIndex, previousPageData, chatId, height) => {
+export const getKey = (pageIndex, previousPageData, chatId, height?) => {
   // console.log({pageIndex, previousPageData});
   // debugger
-  if (previousPageData && previousPageData[previousPageData.length - 1].height == 0) {
-    // debugger
-    return null;
-  }
   if (pageIndex === 0) return `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES_INITIAL}&cursor=-1`;
+  if (!isMorePages(previousPageData)) return null;
   return `/messages?chatId=${chatId}&limit=${LIMIT_MESSAGES}&cursor=${previousPageData[previousPageData.length - 1].height-1}`;
+};
+// whether messages exist before this page (an { error } object or an empty page: no)
+const isMorePages = (page) => {
+  if (!Array.isArray(page) || page.length === 0) return false;
+  const oldest = page[page.length - 1];
+  return oldest?.height > 1 && oldest._prevHeight !== -1; // first message is height 1; _prevHeight -1: start of the history (message-cache)
 };
 export function useChat(chatId) {
   // Get messages using infinite loading
@@ -128,14 +142,17 @@ export function useChat(chatId) {
     // await mutate([pages[0]], false); // Keep only first page, no revalidation
     // messages = messages.slice(0, 20)
     // Reset size back to 1 (first page)
-    console.log(cache)
-    const keys = cache.keys()
+    // only rewrite entries holding more than one page: every cache.set is also an IndexedDB write (swr-idb-cache), and
+    // the cache can hold an entry per chat
+    const keys = [...cache.keys()]
    for (let key of keys){
       if (key.startsWith('/messages') && !key.includes('&page=0')) {
       cache.delete(key)
     }
-    if (key.startsWith('$inf$/messages')) { 
-      let filteredValue = {...cache.get(key)}
+    if (key.startsWith('$inf$/messages')) {
+      const current = cache.get(key) as any
+      if (!Array.isArray(current?.data) || (current.data.length <= 1 && current._l === 1)) continue
+      let filteredValue = {...current}
       filteredValue.data = [filteredValue.data[0]]; // only keep first message page
       filteredValue['_l'] = 1; // set length to 1 to prevent swr fetching all pages
       // debugger
@@ -149,27 +166,37 @@ export function useChat(chatId) {
   } 
   
 }
-  // Load the next (older) page. setSize resolves once the new page has been fetched.
-  // The page size is fixed by getKey, the optional argument is only kept for existing callers.
-  const loadMore = useCallback((_limit?: number) => setSize(s => s + 1), [setSize]);
+  // Load the next `count` older pages (page size fixed by getKey). setSize resolves once they have been fetched.
+  // Counted from the pages actually shown: reset() trims the cached size without re-rendering, and counting from that
+  // smaller size would re-fetch pages already shown instead of loading older ones.
+  const shownPages = useRef(0);
+  shownPages.current = pages?.length ?? 0;
+  const loadMore = useCallback(
+    (count: number = 1) => setSize(s => Math.max(s, shownPages.current) + Math.max(1, Math.floor(count) || 1)),
+    [setSize],
+  );
 
   useEffect(() => {
     // mutate unreadCount to 0 when chat is opened or receives messages while open.
     // Only when needed: every mutation of the chats store notifies all its subscribers (one ProfileName per rendered
     // message), so doing it unconditionally on each page load made loading older messages slower and slower.
-    if (chat?.id && chat.unreadCount > 0) {
+    if (chat?.id && (chat.unreadCount > 0 || chat.unreadMention)) {
+      // also server side, else the count comes back with the next chats fetch (e.g. messages received while the
+      // socket was not in the chat room, or a newest page served from the message store without a request)
+      markChatRead(chat.id, activeAccountPk);
       mutateChats(currentChats => {
         const newChats = [...(currentChats || [])];
         const chatIndex = newChats.findIndex(c => c.id === chat.id);
         if (chatIndex !== -1) {
           const newChat = { ...newChats[chatIndex] };
           newChat.unreadCount = 0;
+          newChat.unreadMention = false;
           newChats[chatIndex] = newChat
         }
         return newChats;
       }, false);
     }
-  }, [pages, chat?.id, chat?.unreadCount]);
+  }, [pages, chat?.id, chat?.unreadCount, chat?.unreadMention]);
 
   useEffect(() => {
     const handleChatNotFound = async () => {
@@ -189,7 +216,37 @@ export function useChat(chatId) {
   }, [pages])
   
   // 
-  const hasMore = pages && pages[pages.length - 1][pages[pages.length - 1].length - 1]?.height > 1;
+  // the background sync stored new messages of this chat: show them
+  const mutateRef = useRef(mutate);
+  mutateRef.current = mutate;
+  useEffect(() => {
+    if (!chatId) return;
+    const unmarkOpen = markChatOpen(chatId); // closed chats get their newest page preloaded instead (ChatSocket)
+    const unsubscribe = onMessagesSynced((syncedChatId) => {
+      if (syncedChatId === chatId) mutateRef.current();
+    });
+    return () => {
+      unmarkOpen();
+      unsubscribe();
+    };
+  }, [chatId]);
+
+  // the chats list knows a newer message than the newest one shown (chats fetched on launch / resume / notification
+  // tap): refresh now rather than after the background sync (1s delay + a batch request). Once per chat height: the
+  // height can stay above the newest visible message (deleted messages, join requests), that must not loop.
+  const refreshedForHeight = useRef<string | null>(null);
+  const newestShown: number | undefined = Array.isArray(pages?.[0]) ? pages[0][0]?.height : undefined;
+  const chatHeight: number | undefined = (chat as any)?.height; // not in the Chat type, sent by the server
+  useEffect(() => {
+    if (!chatId || !Number.isInteger(chatHeight) || !Number.isInteger(newestShown)) return;
+    if (chatHeight! <= newestShown!) return;
+    const marker = chatId + ':' + chatHeight;
+    if (refreshedForHeight.current === marker) return;
+    refreshedForHeight.current = marker;
+    mutateRef.current();
+  }, [chatId, chatHeight, newestShown]);
+
+  const hasMore = !!pages && isMorePages(pages[pages.length - 1]);
   return {
     messages,
     error,

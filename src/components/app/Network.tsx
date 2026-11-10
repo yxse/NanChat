@@ -326,7 +326,7 @@ export const ModalReceive = ({ ticker, modalVisible, setModalVisible, action, se
 </ResponsivePopup>    
   );
 };
-export default function Network({ defaultReceiveVisible = false, defaultAction = '', defaultTicker = false }) {
+export default function Network({ defaultReceiveVisible = false, defaultAction = '', defaultTicker = false, onBack = undefined as (() => void) | undefined }) {
   let { ticker } = useParams();
   if (defaultTicker) {
     ticker = defaultTicker;
@@ -412,7 +412,8 @@ export default function Network({ defaultReceiveVisible = false, defaultAction =
       // }
           className="app-navbar "
           onBack={() => {
-          navigate("/wallet");
+          if (onBack) onBack(); // opened in a modal over the wallet (large screens)
+          else navigate("/wallet");
         }}
         backArrow={true}>
           <span className="">{networks[ticker]?.name}</span>

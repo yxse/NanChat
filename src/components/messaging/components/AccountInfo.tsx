@@ -33,6 +33,7 @@ import AddContacts from "../../app/AddContacts";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useTranslation } from 'react-i18next';
 import MuteNotif from "./MuteNotif";
+import { SearchInChatButton } from "./MessageSearch";
 import ShareContactButton from "./contacts/ShareContactButton";
 import ContactGroupActions from "./group/ContactGroupActions";
 import { GroupItem } from "./group/GroupList";
@@ -268,8 +269,9 @@ const AccountInfo: React.FC<{}> = ({ onlineAccount }) => {
                             </List.Item>
                         </List>
                     }
+                    <SearchInChatButton chatId={chat?.id} />
                     {
-                        inOnNanchat && 
+                        inOnNanchat &&
                     <MuteNotif />
                     }
                     <List mode="card" style={{}}>

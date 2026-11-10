@@ -25,6 +25,33 @@ export const installVersionHeaders = () => {
     for (const [key, value] of Object.entries(versionHeaders)) {
       if (!headers.has(key)) headers.set(key, value);
     }
-    return originalFetch(input, { ...init, headers });
+    return originalFetch(input, { ...init, headers }).then((res) => {
+      // 426 = backend refuses this version (MIN_CLIENT_VERSION); the body carries minVersion
+      if (res.status === 426) {
+        res.clone().json()
+          .then((body) => markUpdateRequired(body?.minVersion))
+          .catch(() => markUpdateRequired());
+      }
+      return res;
+    });
   };
+};
+
+// "Update required" signal, raised by a 426 from the backend or a socket handshake refusal.
+// Kept framework-free so the fetch patch and the socket can set it; UpdateRequiredModal listens.
+type UpdateRequiredState = { required: boolean; minVersion?: string };
+let updateRequired: UpdateRequiredState = { required: false };
+const listeners = new Set<(s: UpdateRequiredState) => void>();
+
+export const markUpdateRequired = (minVersion?: string) => {
+  if (updateRequired.required && (!minVersion || minVersion === updateRequired.minVersion)) return;
+  updateRequired = { required: true, minVersion: minVersion ?? updateRequired.minVersion };
+  listeners.forEach((l) => l(updateRequired));
+};
+
+export const getUpdateRequired = () => updateRequired;
+
+export const onUpdateRequired = (listener: (s: UpdateRequiredState) => void) => {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
 };

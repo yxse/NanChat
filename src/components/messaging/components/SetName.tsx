@@ -69,9 +69,9 @@ const SetName: React.FC = () => {
                     account: activeAccount,
                     version: 2
                 }, activeAccountPk).then(async (res) => {
-                    console.log(res);
+                    if (res?.error) throw new Error(res.error);
                     Toast.show({icon: 'success'});
-                    await mutate({...me, name: values.name});
+                    await mutate({...me, name: values.name.trim()});
                     // navigate('/chat');
                     mutateChats(); // this can happen when switching to another account not yet registered
                     if (location.pathname === "/profile/name"){

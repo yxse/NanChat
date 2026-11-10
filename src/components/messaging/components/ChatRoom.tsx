@@ -1,4 +1,6 @@
-import { BellMuteOutline, LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
+import { BellMuteOutline, LockFill, LockOutline, MailOutline, MessageOutline, MoreOutline, PhoneFill, SearchOutline, SendOutline, TeamOutline, UserOutline } from "antd-mobile-icons";
+import { useTranslation } from "react-i18next";
+import { useOpenChatSearch, useSearchShortcut } from "./MessageSearch";
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { BiChevronLeft, BiMessageSquare } from "react-icons/bi";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -13,7 +15,8 @@ import SelectAccount from "../../app/SelectAccount";
 import { AccountIcon } from "../../app/Home";
 import { Button, DotLoading, Input, List, Modal, NavBar, SafeArea, Skeleton, Space, SpinLoading, Toast } from "antd-mobile";
 import useSWR from "swr";
-import { fetcherAccount, fetcherMessages, joinRequest, saveMessageCache } from "../fetcher";
+import { fetcherAccount, fetcherMessages, joinRequest } from "../fetcher";
+import { saveMessageCache } from "../message-cache";
 import { box } from "multi-nano-web";
 import ChatInputMessage from "./ChatInputMessage";
 import useSWRInfinite from "swr/infinite";
@@ -30,7 +33,7 @@ import ProfileName from "./profile/ProfileName";
 import { formatOnlineStatus } from "../../../utils/telegram-date-formatter";
 import { HeaderStatus } from "./HeaderStatus";
 import { StatusBar } from "@capacitor/status-bar";
-import { LIMIT_MESSAGES, LIMIT_MESSAGES_INITIAL, shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
+import { LIMIT_MESSAGES_INITIAL, shouldStickToBottom, TEAM_ACCOUNT, useImmediateSafeMutate } from "../utils";
 import { useHideNavbarOnMobile } from "../../../hooks/use-hide-navbar";
 import { useInviteFriends } from "../hooks/use-invite-friends";
 import { useChats } from "../hooks/use-chats";
@@ -45,6 +48,7 @@ import { DelayedSpinner } from "./DelayedSpinner";
 import { App } from "@capacitor/app";
 import ChatLocked from "./group/ChatLocked";
 import ActiveCallBanner from "../call/ActiveCallBanner";
+import { useElementHeight } from "../../../hooks/use-element-height";
 
 
 const ChatRoom: React.FC<{}> = ({  }) => {
@@ -56,6 +60,13 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     const messageListRef = useRef<MessageListHandle>(null);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    // opened from a search result: ?msg=<message id>&h=<height>
+    const searchTargetId = searchParams.get('msg');
+    const searchTargetHeight = Number(searchParams.get('h'));
+    const initialTarget = useMemo(
+        () => (searchTargetId && Number.isInteger(searchTargetHeight) ? { _id: searchTargetId, height: searchTargetHeight } : null),
+        [searchTargetId, searchTargetHeight],
+    );
     const { wallet } = useContext(WalletContext)
     const activeAccount = convertAddress(wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.address, "XNO");
     const activeAccountPk = wallet.accounts.find((account) => account.accountIndex === wallet.activeIndex)?.privateKey;
@@ -80,10 +91,16 @@ const ChatRoom: React.FC<{}> = ({  }) => {
     } = useChat(account);
     const {isMobile, isTablet} = useBreakpoint()
     const {chat, isLoading} = useChats(account);
+    const { t } = useTranslation();
+    const openChatSearch = useOpenChatSearch();
+    useSearchShortcut(chat?.id); // Ctrl+F: search in this chat (all chats when none is open)
     const safeMutate = useImmediateSafeMutate(mutate);
     // android and web/desktop use the virtua virtualizer; ios uses the non-virtualized MessageList
     // (virtua has scroll inertia issues on webkit, see https://github.com/inokawa/virtua/issues/473)
     const virtualized = Capacitor.getPlatform() !== 'ios'
+    // the header floats over the messages (translucent, blurred), the lists reserve its height as top padding.
+    // measured because the active call banner changes it
+    const [headerRef, headerHeight] = useElementHeight();
     // console.log("chats", chat);
     // const chat = chats?.find(chat => chat.id === account);
     const names = chat?.participants;
@@ -209,24 +226,14 @@ const ChatRoom: React.FC<{}> = ({  }) => {
 
     // console.log("messages", messages.length)
 
+    // the virtua list goes to the bottom by itself when we send a message (it slides to it); not with virtua's
+    // scrollToIndex here: called before the message is added, it targeted the previous last message and kept
+    // re-applying it while stickers / images loaded, pulling the list up away from the sent message
     const onSent = useCallback(() => {
-    // Your logic here
     setTimeout(() => {
         scrollToBottom();
     }, 0);
-    if (virtuaRef && virtuaRef.current){
-        // debugger
-        requestAnimationFrame(() =>
-        // shouldStickToBottom.current = true
-        
-        virtuaRef.current.scrollToIndex(messages.length + LIMIT_MESSAGES, { // idk why but need to add LIMIT_MESSAGES to scroll to bottom
-          align: 'end',
-          smooth: false // true can cause issue if too much messages loaded
-        })
-      )
-        
-    }
-}, [scrollToBottom, messages.length]);
+}, [scrollToBottom]);
 useEffect(() => {
     // virtua only: trim loaded pages unless its scroll cache will restore the position (MessageList handles this itself)
     if (virtualized && ((!isMobile && !isTablet) || !sessionStorage.getItem("list-cache-v2-" + chat?.id))) {
@@ -257,18 +264,27 @@ useEffect(() => {
             </div>
             )
     }
+    // large screens: search in this chat, opens next to it (on phones: from the contact / group info)
+    const searchButton = chat?.id && (!isMobile || isTablet) ? (
+        <SearchOutline
+            fontSize={24}
+            aria-label={t('searchMessages')}
+            onClick={() => openChatSearch(chat.id)}
+        />
+    ) : null;
     const HeaderPrivate = () => {
         return (
             <NavBar
             
-                className=" "
+                className="app-navbar"
                 backArrow={true}
                 onBack={() => {
                     navigate('/chat');
                 }}
                 right={
-                    <span style={{float: "right", cursor: "pointer"}}>
-                    <UserOutline 
+                    <span style={{float: "right", cursor: "pointer", display: "flex", gap: 16}}>
+                    {searchButton}
+                    <UserOutline
                     onClick={() => {
                         navigate(`/chat/${address}/info`);
                     }}
@@ -287,7 +303,7 @@ useEffect(() => {
                     <span className="truncate min-w-0"><ProfileName address={address} fallback={formatAddress(address)} /></span>
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
                     {/* <DotLoading /> */}
-                    <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 0 : 400} spinnerProps={{style:{width: 24}}}/>
+                    <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 300 : 400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
                 </div>
                 </NavBar>
@@ -304,8 +320,9 @@ useEffect(() => {
                     navigate(`/chat`);
                 }}
                 right={
-                    <span style={{float: "right", cursor: "pointer"}}>
-                    <MoreOutline 
+                    <span style={{float: "right", cursor: "pointer", display: "flex", gap: 16}}>
+                    {searchButton}
+                    <MoreOutline
                     onClick={() => {
                         navigate(`/chat/${
                             account
@@ -337,7 +354,7 @@ useEffect(() => {
                     >{chat?.name || 'Group Chat'}</span>
                     ({chat?.participants.length})
                     {chat?.muted && <BellMuteOutline fontSize={18} style={{marginRight: 8}}/>}
-                    <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 0 : 400} spinnerProps={{style:{width: 24}}}/>
+                    <DelayedSpinner isLoading={isLoadingFirstPage || showSpinnerLoadingMoreInHeader} delay={showSpinnerLoadingMoreInHeader ? 300 : 400} spinnerProps={{style:{width: 24}}}/>
                     </h2>
                 </div>
                 </NavBar>
@@ -358,6 +375,8 @@ useEffect(() => {
                 // overflow: 'auto',
                 height: '100%',
                 width: '100%',
+                position: 'relative',
+                ['--chat-header-height' as any]: `${headerHeight}px`,
                 // flexGrow: 1,
                 justifyContent: "space-between"
                 // animation: "slide-in 0.4s",
@@ -367,13 +386,16 @@ useEffect(() => {
             {
                 account != null && (
                     <div
-                    style={{borderBottom: '1px solid var(--adm-color-border)'}}
+                    ref={headerRef}
+                    className="chat-header-glass"
                     // prefix={
                     //     <AccountIcon account={account} width={48} />
                     // }
                     >
                         {
-                            chat?.type === 'group' ? <HeaderGroup /> : <HeaderPrivate />
+                            // called, not rendered as <HeaderGroup />: they are redefined on every render, as components React would
+                            // remount the whole header each time (name, icons and loading spinner flashing)
+                            chat?.type === 'group' ? HeaderGroup() : HeaderPrivate()
                         }
                         {chat?.type === 'group' && <ActiveCallBanner chatId={chat.id} />}
                     </div>
@@ -434,14 +456,17 @@ useEffect(() => {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 height: 'calc(100vh - 45px - 58px - var(--safe-area-inset-bottom) - var(--safe-area-inset-top))',
-                                width: '100%'
+                                width: '100%',
+                                // the header floats over this area (absolute): center the spinner below it
+                                paddingTop: 'var(--chat-header-height, 0px)',
+                                boxSizing: 'content-box',
                             }}>
                                 <SpinLoading style={{width: 48}} />
                             </div>
                         ) : (messages.length === 0 && account != null) ? (
-                            <div style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end"}}>
+                            <div style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingTop: 'var(--chat-header-height, 0px)'}}>
                                 <InfoMessageEncrypted />
-                                {chat?.creator === TEAM_ACCOUNT ? <WelcomeMessage /> : <StartConversation address={address} />}
+                                {chat?.creator === TEAM_ACCOUNT ? <WelcomeMessage /> : StartConversation({address})}
                             </div>
                         ) : account == null ? null : !virtualized ? (
                             <MessageList
@@ -456,6 +481,8 @@ useEffect(() => {
                                 loadMore={loadMore}
                                 restoreScroll={isMobile}
                                 onOpenAtBottom={reset}
+                                initialTarget={initialTarget}
+                                topInset={headerHeight}
                             />
                         ) : (
                             <div id="scrollableDiv" style={{height: "100%", width: '100%', overflow: "hidden", display: "block"}}>
@@ -470,6 +497,8 @@ useEffect(() => {
                                     messages={messages}
                                     fetchNextPage={loadMore}
                                     isFetchingNextPage={isLoadingMore}
+                                    initialTarget={initialTarget}
+                                    topInset={headerHeight}
                                 />
                             </div>
                         )

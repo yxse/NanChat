@@ -2,11 +2,8 @@ import { tools } from "multi-nano-web";
 import { getChatToken, setChatToken } from "../../utils/storage";
 import { accountIconUrl } from "../app/Home";
 import { Toast } from "antd-mobile";
-import { inMemoryMap, loadAllMessagesInMemoryMap, loadInMemoryMap, restoreData, restoreMessages, setData } from "../../services/database.service";
 import { saveCache } from "../Wrapper";
-import { decryptChatMessage } from "./hooks/use-message-decryption";
-import { cacheKeyPrefix, isSpecialMessage } from "./utils";
-import { Capacitor } from "@capacitor/core";
+import { scheduleMessageSync } from "./message-cache";
 
 
 export const signMessage = (privateKey, message) => {
@@ -52,50 +49,29 @@ export const getNewChatToken = async (account, privateKey) => {
 export const fetcherChat = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherMessagesNoAuth = (url) => fetch(import.meta.env.VITE_PUBLIC_BACKEND + url).then((res) => res.json());
 export const fetcherChats = async (oldChats, activeAccount, activeAccountPk, cache) => {
+    // lastSyncChat is saved together with the persisted chats (see saveChatsLastSync in Popup.tsx),
+    // so only the chats updated since then are fetched and merged into the cached list
     const lastSync = localStorage.getItem('lastSyncChat-' + activeAccount)
-    // debugger
+    let chats
     if (lastSync){
-        return fetcherMessages('/chats?ts=' + lastSync, activeAccountPk).then((res) => {
-            if (res.error == null){
-                // console.log(cache)
-                
-                // merge chats, the res.chat overwrite the old chats
-                let uniqueChats = [];
-                let chatIds = new Set();
-                res.chats.forEach((chat) => {
-                    if (!chatIds.has(chat.id)){
-                        chatIds.add(chat.id);
-                        uniqueChats.push(chat);
-                    }
-                });
-                // merge with old chats
-                oldChats.forEach((chat) => {
-                    if (!chatIds.has(chat.id)){
-                        uniqueChats.push(chat);
-                    }
-                });
-                // saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
-                // setTimeout(() => {
-                //     // localStorage.setItem('lastSync', res.ts); // prevent bug race condition loading chats on start causing missing updates
-                // }, 1000); // to not slow down fetcherchats
-                // setTimeout(() => {
-                // }, 5000);
-                // console.log(uniqueChats[0])
-                return uniqueChats;
+        const res = await fetcherMessages('/chats?ts=' + lastSync, activeAccountPk)
+        // merge chats, the updated chats overwrite the old ones
+        const chatIds = new Set();
+        chats = [];
+        for (const chat of [...res.chats, ...(oldChats || [])]) {
+            if (!chatIds.has(chat.id)){
+                chatIds.add(chat.id);
+                chats.push(chat);
             }
-        })
+        }
     }
     else{
-        return fetcherMessages('/chats', activeAccountPk).then((res) => {
-            if (res.error == null){
-                // setTimeout(() => {
-                //     saveCache(cache) // triggfer swr save cache to localstorage to ensure consistency in case savecache no trigger 
-                //     localStorage.setItem('lastSync', res.ts);
-                // }, 1000); // to not slow down fetcherchats
-                return res.chats;
-            }
-        })
+        const res = await fetcherMessages('/chats', activeAccountPk)
+        chats = res.chats
     }
+    // download the new messages of every chat in the background, so they open instantly (and offline)
+    scheduleMessageSync(chats, activeAccount, activeAccountPk)
+    return chats
 }
 export const fetcherMessages = (url, activeAccountPk?) => getChatToken(activeAccountPk).then(async (token) => {
     if (token == null){
@@ -135,119 +111,6 @@ export const fetcherMessages = (url, activeAccountPk?) => getChatToken(activeAcc
     })
 })
 
-const cacheAllMessagesChat = async (chatId, height) => {
-    
-    for (let i = 0; i < height; i++){
-        let cacheKey = `chat_${chatId}_msg_${i}`;
-        let cachedData = localStorage.getItem(cacheKey);
-        if (cachedData){
-            inMemoryMap.set(cacheKey, JSON.parse(cachedData));
-        }
-    }
-
-}
-
-export const getMessageCache = async (chatId, height) => {
-    let cacheKey = cacheKeyPrefix(chatId) + height;
-    return await restoreMessages(cacheKey, chatId)
-    return localStorage.getItem(cacheKey);
-}
-export const saveMessageCache = async (chatId, msg, account, accountPk) => {
-    let cacheKey = cacheKeyPrefix(chatId) + msg.height;
-    // localStorage.setItem(cacheKey, JSON.stringify(msg));
-    const decryptedMessage = {...msg}
-    console.time('decrypt-' + msg._id)
-    const {decrypted, decryptedRedPacket, decryptedReply} = await decryptChatMessage(msg, account, accountPk)
-    console.timeEnd('decrypt-' + msg._id)
-    decryptedMessage["decrypted"] = decrypted
-    if (!isSpecialMessage(msg)){
-        delete decryptedMessage["content"] // no need to keep the encrypted content
-    }
-    if (decryptedMessage["replyMessage"]){
-        decryptedMessage["replyMessage"]["decrypted"] = decryptedReply
-    }
-    if (decryptedMessage["redPacket"]){
-        decryptedMessage["redPacket"]["decrypted"] = decryptedRedPacket
-    }
-    setData(cacheKey, decryptedMessage)
-    return decryptedMessage
-}
-export const fetcherMessagesCache = (url, account, accountPk) => getChatToken().then(async (token) => {
-    
-
-    console.log("fetch message cache", url)
-    // Parse params from the URL
-    const urlParams = new URLSearchParams(url.split('?')[1]);
-    const requestedHeight = parseInt(urlParams.get('cursor') || '0');
-    const requestedLimit = parseInt(urlParams.get('limit') || '20');
-    const chatId = urlParams.get('chatId');
-    // Generate cache key prefix for this chat
-  //   const maxHeightKey = `chat_${chatId}_maxHeight`;
-  
-      // Get the cached messages
-      let cachedMessages = [];
-      let cachedMaxHeight = 0;
-    //   debugger
-    console.time('cache')
-
-    if (Capacitor.getPlatform() == "web"){
-         // on web, capgo/capacitor-data-storage-sqlite use localforage, which renders any filtering very inefficient as need to load all keys each time
-         // so for now we just load all messages in memory
-        await loadAllMessagesInMemoryMap()
-    }
-    else{
-        // on native it uses sqlite which should be able to efficintly filter by chat id
-        await loadInMemoryMap(chatId)
-    }
-      const promises = [];
-        for (let i = requestedHeight; (i > requestedHeight - requestedLimit) && i >= 0; i--) {
-            promises.push(getMessageCache(chatId, i));
-        }
-        const results = await Promise.all(promises);
-        cachedMessages = results.filter(data => data).flat();
-      console.timeEnd('cache')
-      // if all messages are cached, return them
-    //   debugger
-      if (cachedMessages.length == requestedLimit 
-        || (cachedMessages.length > 0 && cachedMessages.length == requestedHeight+1)  // for the first page
-    ){
-          return cachedMessages;
-      }
-      // else fetch the missing messages
-      return await fetch(import.meta.env.VITE_PUBLIC_BACKEND + url, {
-          headers: {
-              'Content-Type': 'application/json',
-              'token': token
-          }
-      })
-      .then(async (res) => {
-          if (res.ok) {
-            // Cache the messages
-            let messages = await res.json();
-            if (messages.error) return messages;
-            
-            // Process all messages in parallel
-            console.time('decrypt new messages')
-            const decrypted = [];
-            for (const message of messages) {
-                const cache = await getMessageCache(chatId, message.height); 
-                if (cache == null) {
-                    // Only save if not already existing
-                    let d = await saveMessageCache(chatId, message, account, accountPk)
-                    decrypted.push(d); 
-                } else {
-                    decrypted.push(cache);
-                }
-            }
-            console.timeEnd('decrypt new messages')
-            // debugger;
-            return decrypted;
-        }
-          else {
-              return Promise.reject(res.status)
-          }
-      })
-  })
 export const addParticipants = (chatId, participants, notification = true) => fetcherMessagesPost('/add-participants', {chatId, participants, notification})
 export const removeParticipants = (chatId, participants) => fetcherMessagesPost('/remove-participants', {chatId, participants})
 export const joinRequest = (chatId) => fetcherMessagesPost('/join-request', {chatId})

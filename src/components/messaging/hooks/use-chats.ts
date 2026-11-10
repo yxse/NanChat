@@ -1,7 +1,8 @@
 import useSWR, { mutate, useSWRConfig } from 'swr';
 import { useCallback, useEffect, useRef } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesCache, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
+import { fetcherAccount, fetcherChats, fetcherMessages, fetcherMessagesPost, muteChat, unmuteChat } from '../fetcher';
+import { rememberChats } from '../message-cache';
 import { useWallet } from "../../useWallet";
 import { Toast } from 'antd-mobile';
 import { flushParticipantChanges, indexChats } from './participants-store';
@@ -40,6 +41,8 @@ export function useChats(chatIdOrAccount?: string, doSaveCache = false): UseChat
   );
   // keep the address -> participant index used by ProfileName in sync (no-op when chats did not change)
   indexChats(chats, !isLoading);
+  // chat heights / unread counts tell the message cache when the newest page can be served without a request
+  rememberChats(chats);
   useEffect(() => {
     flushParticipantChanges();
   }, [chats, isLoading]);
@@ -195,6 +198,20 @@ async function muteNotifChat(mute) {
       throw new Error(r.error)
   }
 }
+// per group @mention notification settings: 'mutedMentions' | 'mutedEveryone'
+async function setChatNotificationSetting(key: 'mutedMentions' | 'mutedEveryone', value: boolean) {
+  const setValue = (v: boolean) => mutateChats(
+    current => current.map(c => c.id === chatId ? { ...c, [key]: v } : c),
+    false
+  )
+  await setValue(value) // optimistic update
+  const r = await fetcherMessagesPost('/chat-notification-setting', { chatId, key, value })
+  if (!r?.success) {
+    // revert explicitly: the incremental chats sync only returns chats with a new message
+    await setValue(!value)
+    throw new Error(r?.error || 'Error')
+  }
+}
     // console.log(chats[0])
   const isAdmin = chat?.creator === activeAccount;
 
@@ -209,6 +226,7 @@ async function muteNotifChat(mute) {
     blockChat,
     unblockChat,
     muteNotifChat,
+    setChatNotificationSetting,
     removeChat
     // isLoadingChat, 
     

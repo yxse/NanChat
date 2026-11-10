@@ -71,6 +71,10 @@ import ProfileHome from "../messaging/components/profile/ProfileHome";
 import MyStickers from "../messaging/components/profile/MyStickers";
 import MyCustomStickers from "../messaging/components/profile/MyCustomStickers";
 import { SideBarMenu } from "./desktop/SideBarMenu";
+import { useRouteModal } from "./desktop/RouteModal";
+import AccountInfo from "../messaging/components/AccountInfo";
+import GroupInfo from "../messaging/components/GroupInfo";
+import GroupsInCommon from "../messaging/components/group/GroupsInCommon";
 import SetUsername from "../messaging/components/profile/SetUsername";
 import AppUrlListener from "./AppUrlListener";
 import Buy from "./Buy";
@@ -407,25 +411,114 @@ if (Capacitor.isPluginAvailable('ShareExtension')) {
     }
   }
   , [callback]);
+
+  const safeTop = Capacitor.getPlatform() === "ios"
+    ? `max(var(--safe-area-inset-top), ${cachedSafeTop}px)`
+    : "var(--safe-area-inset-top)";
+  // chat list and full screen chat room (phone): the status bar spacer collapses and their translucent header
+  // (.chat-header-glass) extends under the status bar instead, so the content scrolls behind both
+  const { isMobile } = useBreakpoint();
+  const chatUnderStatusBar = isMobile && (
+    /^\/(chat\/?)?$/.test(location.pathname)
+    || /^\/chat\/(?!(search|profile|red-packet-result)\/?$)[^/]+\/?$/.test(location.pathname)
+  );
+  // the class and variables are rendered on a display:contents wrapper (no layout impact) rather than set on body
+  // from an effect: they must apply in the same commit as the route change, the pages measure their header in
+  // their own layout phase, which runs before an effect of this parent (content shift otherwise).
+  // The spacer only collapses when a .chat-header-glass is on screen to take over (see app.css), so a page
+  // rendered at these routes without one (e.g. SetName) keeps it. --app-top-spacer is its actual height
   return (
-    <>
+    <div
+      className={"safe-area-root" + (chatUnderStatusBar ? " chat-under-status-bar" : "")}
+      style={{ display: "contents", ["--app-safe-top" as any]: safeTop }}
+    >
       <div
+      className="status-bar-spacer"
       style={{
-        "paddingTop":
-          Capacitor.getPlatform() === "ios"
-            ? `max(var(--safe-area-inset-top), ${cachedSafeTop}px)`
-            : "var(--safe-area-inset-top)",
         backgroundColor: 
           location.pathname.startsWith("/wallet") ?
           "var(--main-background-color)" :
-          "var(--adm-color-background)" 
+          "var(--main-background-color)" 
       }}
       >
     </div>
       {children}
+    </div>
+  );
+}
+// settings pages and chat/group info, rendered in a centered modal over the current page on large screens
+const modalRoutes = (
+  <>
+    <Route path="/chat/:account/info" element={<AccountInfo />} />
+    <Route path="/chat/:account/info/groups" element={<GroupsInCommon />} />
+    <Route path="/chat/:account/group" element={<GroupInfo />} />
+    <Route path="/chat/red-packet-result" element={<RedPacketResult />} />
+    <Route path="/me/settings" element={<Settings />} />
+    <Route path="/settings/security" element={<SecuritySettings />} />
+    <Route path="/settings/notification" element={<NotificationSettings />} />
+    <Route path="/settings/translate" element={<TranslateSettings />} />
+    <Route path="/settings/alias" element={<NanoAlias />} />
+    <Route path="/settings/security/developer" element={<DeveloperSettings />} />
+    <Route path="/settings/security/blocked" element={<BlockedChats />} />
+  </>
+);
+
+function AppRoutes() {
+  const { background, modal } = useRouteModal(modalRoutes);
+  return (
+    <>
+      <Routes location={background}>
+        <Route path="/wallet" element={<Home
+        // setAction={setAction}
+        
+         />} />
+        {/* <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} /> */}
+        <Route path="/settings/change-secret-phrase" element={<ChangeSecretPhrase />} />
+        <Route path="/settings/security" element={<SecuritySettings />} />
+        <Route path="/settings/notification" element={<NotificationSettings />} />
+        <Route path="/settings/translate" element={<TranslateSettings />} />
+        <Route path="/settings/alias" element={<NanoAlias />} />
+        <Route path="/settings/security/developer" element={<DeveloperSettings />} />
+        <Route path="/settings/security/blocked" element={<BlockedChats />} />
+        <Route path="/buy" element={<Buy />} />
+        <Route path="/swap" element={<SwapHistory />} />
+        <Route path="/swap/:id" element={<SwapTransaction />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/contacts" element={<Contacts />} />
+        <Route path="/contacts/groups" element={<GroupsChats />} />
+        <Route path="/add-network" element={<AddNetwork />} />
+        <Route path="/sign" element={<Sign />} />
+        <Route path="/art" element={<Art />} />
+        <Route path="/protocol_handler" element={<Protocol_handler />} />
+        <Route path="/:ticker" element={<KnownTicker><Network defaultReceiveVisible={false}/></KnownTicker>} />
+        <Route
+          path="/:ticker/receive"
+          element={<KnownTicker><Network defaultReceiveVisible={true} defaultAction="receive" /></KnownTicker>} />
+        <Route path="/:ticker/red-packet" element={<KnownTicker><RedPacket  /></KnownTicker>}/>
+        <Route path="/:ticker/send" element={<KnownTicker><Send ticker={"XNO"} /></KnownTicker>} />
+        <Route path="/:ticker/representative" element={<KnownTicker><ChangeRep /></KnownTicker>} />
+        {/* <Route path="/messages" element={<Messaging />} />
+        <Route path="/messages/:account" element={<ChatRoom />} />
+        <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
+        <Route path="/discover" element={<Discover />} />
+        <Route  path="/me" element={<ProfileHome />} />
+        <Route  path="/me/settings" element={<Settings />} />
+        <Route  path="/me/stickers" element={<MyStickers />} />
+        <Route  path="/me/stickers/custom" element={<MyCustomStickers />} />
+        {/* <Route  path="/settings" element={<Settings />} /> */}
+        <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
+        <Route  path="/profile/name" element={<SetName />} />
+        <Route  path="/profile/bio" element={<SetBio />} />
+        <Route  path="/profile/username" element={<SetUsername />} />
+        <Route path="/files" element={<FileManagement />} />
+        <Route  path="/chat/*" element={<Chat />} />
+        <Route  path="/*" element={<Chat />} />
+      </Routes>
+      {modal}
     </>
   );
 }
+
 export default function App({callback}) {
   const [widget, setWidget] = useState<
     "home" | "art" | "swap" | "history" | "network"
@@ -529,53 +622,7 @@ export default function App({callback}) {
           {/** main content */}
             <AppUrlListener />
             <ForceMigrationGuard />
-          <Routes>
-            <Route path="/wallet" element={<Home
-            // setAction={setAction}
-            
-             />} />
-            {/* <Route path="/settings" element={<Settings isNavOpen={true} setNavOpen={setNavOpen} />} /> */}
-            <Route path="/settings/change-secret-phrase" element={<ChangeSecretPhrase />} />
-            <Route path="/settings/security" element={<SecuritySettings />} />
-            <Route path="/settings/notification" element={<NotificationSettings />} />
-            <Route path="/settings/translate" element={<TranslateSettings />} />
-            <Route path="/settings/alias" element={<NanoAlias />} />
-            <Route path="/settings/security/developer" element={<DeveloperSettings />} />
-            <Route path="/settings/security/blocked" element={<BlockedChats />} />
-            <Route path="/buy" element={<Buy />} />
-            <Route path="/swap" element={<SwapHistory />} />
-            <Route path="/swap/:id" element={<SwapTransaction />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/contacts/groups" element={<GroupsChats />} />
-            <Route path="/add-network" element={<AddNetwork />} />
-            <Route path="/sign" element={<Sign />} />
-            <Route path="/art" element={<Art />} />
-            <Route path="/protocol_handler" element={<Protocol_handler />} />
-            <Route path="/:ticker" element={<KnownTicker><Network defaultReceiveVisible={false}/></KnownTicker>} />
-            <Route
-              path="/:ticker/receive"
-              element={<KnownTicker><Network defaultReceiveVisible={true} defaultAction="receive" /></KnownTicker>} />
-            <Route path="/:ticker/red-packet" element={<KnownTicker><RedPacket  /></KnownTicker>}/>
-            <Route path="/:ticker/send" element={<KnownTicker><Send ticker={"XNO"} /></KnownTicker>} />
-            <Route path="/:ticker/representative" element={<KnownTicker><ChangeRep /></KnownTicker>} />
-            {/* <Route path="/messages" element={<Messaging />} />
-            <Route path="/messages/:account" element={<ChatRoom />} />
-            <Route path="/messages/g/:roomId" element={<Messaging />} /> */}
-            <Route path="/discover" element={<Discover />} />
-            <Route  path="/me" element={<ProfileHome />} />
-            <Route  path="/me/settings" element={<Settings />} />
-            <Route  path="/me/stickers" element={<MyStickers />} />
-            <Route  path="/me/stickers/custom" element={<MyCustomStickers />} />
-            {/* <Route  path="/settings" element={<Settings />} /> */}
-            <Route  path="/profile/pfp" element={<ProfilePictureUpload />} />
-            <Route  path="/profile/name" element={<SetName />} />
-            <Route  path="/profile/bio" element={<SetBio />} />
-            <Route  path="/profile/username" element={<SetUsername />} />
-            <Route path="/files" element={<FileManagement />} />
-            <Route  path="/chat/*" element={<Chat />} />
-            <Route  path="/*" element={<Chat />} />
-          </Routes>
+          <AppRoutes />
           </div>
           {/* <Settings isNavOpen={isNavOpen} setNavOpen={setNavOpen} /> */}
         </div>

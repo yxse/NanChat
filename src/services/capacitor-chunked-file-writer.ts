@@ -275,6 +275,10 @@ const safeMimeTypes = [
   'audio/mpeg',
   'audio/ogg',
   'audio/wav',
+  'audio/webm', // voice messages (Chrome/Firefox)
+  'audio/mp4', // voice messages (Safari, AAC)
+  'audio/aac',
+  'audio/x-m4a',
   'text/plain',
 ]
 export let fileIDsBeingDecrypted = new Set();

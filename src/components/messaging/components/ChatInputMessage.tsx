@@ -8,10 +8,11 @@ import useSWR, { useSWRConfig } from "swr";
 import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
 import { box } from "multi-nano-web";
 import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
-import { getKey, useChat } from "../hooks/useChat";
+import { getKey } from "../hooks/useChat";
 import EmitTyping from "./EmitTyping";
 import ChatInputStickers from "./ChatInputStickers";
 import { useBreakpoint } from "../../../hooks/use-windows-dimensions";
+import { useElementHeight } from "../../../hooks/use-element-height";
 import ChatInputAdd from "./ChatInputAdd";
 import { useEmit, useEvent } from "./EventContext";
 import { useChats } from "../hooks/use-chats";
@@ -23,6 +24,9 @@ import useLocalStorageState from "use-local-storage-state";
 import { useTranslation } from "react-i18next";
 import { safeSetItem } from "../utils";
 import { isTauri } from "@tauri-apps/api/core";
+import ChatInputVoice from "./ChatInputVoice";
+import MentionPicker from "./MentionPicker";
+import { Mention, extractMentions, mentionCandidates } from "../mentions";
 
 
 const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
@@ -109,8 +113,18 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [newMessage, setNewMessage] = useState('');
     const navigate = useNavigate();
     const {activeAccount, activeAccountPk} = useWallet()
-    const {chat, mutateChats} = useChats(account);
-    const { mutate: mutateMessages} = useChat(account);
+    const {chat, mutateChats, isAdmin} = useChats(account);
+    const isGroup = chat?.type === "group";
+    // index of the "@" that opened the mention picker, null when closed
+    const [mentionAt, setMentionAt] = useState<number | null>(null);
+    // mutate of the chat's messages (same SWR key as useChat in ChatRoom). Not useChat itself: a second subscription to
+    // the pages re-rendered the input on every page load / new message, ran useChat's effects twice (unread reset,
+    // sync refresh) and fetched the messages of chats only shared to (account info, share popups)
+    const { mutate: mutateGlobal } = useSWRConfig();
+    const mutateMessages = useCallback(
+      (data?: any, opts?: any) => mutateGlobal(unstable_serialize((index, prev) => getKey(index, prev, account)), data, opts),
+      [mutateGlobal, account],
+    );
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
     const replyEvent = useEvent("reply-message");
     const recallEvent = useEvent("recall-message");
@@ -142,22 +156,28 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     }
   }, [account]);
 
+  // the messages list shrinks by the sticker panel height: report its actual height (it changes, e.g. taller
+  // with the sticker search open), else the list overlaps the input and the "is typing" bar hides the last messages
+  const [stickersRef, stickersHeight] = useElementHeight();
+  const emittedStickerHeight = useRef(false);
   useEffect(() => {
     if (stickerVisible == undefined) return
-    // debugger
     if (stickerVisible){
-      emit('sticker-visible', 300)
+      emit('sticker-visible', stickersHeight || 300) // 300 until measured
+      emittedStickerHeight.current = true
     }
-    else{
+    else if (emittedStickerHeight.current){
       emit('sticker-visible', 0)
+      emittedStickerHeight.current = false
     }
-    return () => emit('sticker-visible', 0)
-  }, [stickerVisible])
+  }, [stickerVisible, stickersHeight])
+  // only the input that opened the panel resets it (another one, e.g. the hidden input of the account info modal
+  // over the chat on large screens, must not)
+  useEffect(() => () => { if (emittedStickerHeight.current) emit('sticker-visible', 0) }, [])
   
       // Debounced save function
   const debouncedSave = useCallback(
     debounce((id, text) => {
-        console.log('saving draft', id, text)
         safeSetItem(id, text)
     }, 500), // Save after 500ms of inactivity
     []
@@ -193,6 +213,45 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         setInputAdditionVisible(true);
       }
     }, [welcomeButtonClick]);
+
+    const onTextChange = (value: string) => {
+      const prev = newMessage;
+      setNewMessage(value);
+      // typing a single "@" (at the start or after a space) in a group opens the participants to mention
+      if (!isGroup || hideInput || defaultNewMessage || value.length !== prev.length + 1) return;
+      let i = 0;
+      while (i < prev.length && prev[i] === value[i]) i++;
+      if (value[i] === '@' && (i === 0 || /\s/.test(value[i - 1]))) {
+        messageInputRef.current?.blur();
+        setMentionAt(i);
+      }
+    }
+
+    // replace the "@" typed with "@Name " for each selected participant
+    const insertMentions = (mentions: Mention[]) => {
+      const at = mentionAt;
+      setMentionAt(null);
+      const text = mentions.map(m => '@' + m.label).join(' ') + ' ';
+      let caret: number;
+      let value: string;
+      if (at !== null && newMessage[at] === '@') {
+        value = newMessage.slice(0, at) + text + newMessage.slice(at + 1);
+        caret = at + text.length;
+      } else {
+        const sep = newMessage && !/\s$/.test(newMessage) ? ' ' : '';
+        value = newMessage + sep + text;
+        caret = value.length;
+      }
+      setNewMessage(value);
+      focusInputAt(caret);
+    }
+    const focusInputAt = (caret?: number) => {
+      setTimeout(() => {
+        const input = messageInputRef.current;
+        input?.focus();
+        if (caret !== undefined) input?.nativeElement?.setSelectionRange(caret, caret);
+      }, 50); // after the popup closes and the value is rendered
+    }
 
     const resetReply = () => {
       setReplyMessage(null);
@@ -241,13 +300,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       else{
         mutateMessages(currentPages => {
           const newPages = [...(currentPages || [])];
-          // remove local message with id
-          const messageIndex = newPages[0].findIndex(m => m._id === message._id);
-          if (messageIndex !== -1) {
-              newPages[0].splice(messageIndex, 1);
-          }
-          newPages[0] = [{ ...message, status: "sent", _id: response.messageId, isLocal: true}, ...(newPages[0] || [])];
-          console.log(newPages)
+          // replace the local message (without mutating the cached page in place)
+          const firstPage = (newPages[0] || []).filter(m => m._id !== message._id);
+          // localId keeps the row key stable across the id swap (the send animation is not cut short)
+          newPages[0] = [{ ...message, status: "sent", _id: response.messageId, localId: message._id, isLocal: true}, ...firstPage];
           return newPages;
       }, false);
 
@@ -310,6 +366,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       if (replyMessage) {
         message.replyMessage = replyMessage;
         resetReply();
+      }
+      if (isGroup) {
+        const mentions = extractMentions(newMessage, mentionCandidates(chat?.participants, activeAccount, isAdmin));
+        if (mentions.length) message.mentions = mentions;
       }
       onSent(message);
       mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
@@ -466,7 +526,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
               name: file.name,
               type: file.type,
               size: file.size,
-              ...file?.imageDimensions
+              ...file?.imageDimensions,
+              ...file?.meta, // eg. duration of a voice message
             }
           }
         };
@@ -498,7 +559,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
             name: file.name,
             type: file.type,
             size: file.size,
-            ...file?.imageDimensions
+            ...file?.imageDimensions,
+            ...file?.meta,
           }
         }
       };
@@ -540,6 +602,13 @@ const onStickerSelect = useCallback((stickerId) => {
 
 
     
+    // account the attachments are encrypted for
+    const toAddress =
+      chat?.type === "private" ? address :
+      chat?.type === "group" ? chat?.sharedAccount :
+      account?.startsWith('nano_') ? account : // chat not yet created
+      undefined;
+
     // console.log("message input render")
     return (
         <div 
@@ -558,7 +627,7 @@ const onStickerSelect = useCallback((stickerId) => {
           display: hideInput ? 'none' : 'block', // hide input when sharing from webview and for tranfer from account info
           position: "relative"
         }}
-        onSubmit={sendMessage} className=" px-4">
+        onSubmit={sendMessage} className=" px-3">
           {replyMessage && <MessageReply message={replyMessage} onClose={() => {
             messageInputRef.current?.focus();
             setReplyMessage(null)
@@ -571,8 +640,9 @@ const onStickerSelect = useCallback((stickerId) => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
+              gap: 10,
               width: '100%',
+              position: 'relative', // the voice recorder overlays this row
             }}
             >
             
@@ -622,13 +692,28 @@ const onStickerSelect = useCallback((stickerId) => {
               className="m-2  "
               placeholder={t('message')}
               value={newMessage}
-              onChange={(e) => setNewMessage(e)}
+              onChange={onTextChange}
             />
           
-          </div>    
+          </div>
+        {
+          !newMessage.trim() && !defaultNewMessage && !hideInput &&
+          <ChatInputVoice
+            accountTo={toAddress}
+            onUploadStart={onUploadStart}
+            onUploadSuccess={onUploadSuccess}
+            onUploadCancel={onUploadCancel}
+            onRecordingChange={(recording) => {
+              if (recording) {
+                setStickerVisible(false);
+                setInputAdditionVisible(false);
+              }
+            }}
+          />
+        }
           {
-            (enterToSend || !newMessage.trim()) && 
-          <div 
+            (enterToSend || !newMessage.trim()) &&
+          <div
         onClick={() => {
           if (!inputAdditionVisible && stickerVisible) {
             setStickerVisible(false);
@@ -636,7 +721,7 @@ const onStickerSelect = useCallback((stickerId) => {
           setInputAdditionVisible(!inputAdditionVisible)
         }}
         >
-          <AddCircleOutline 
+          <AddCircleOutline
           style={ {width: 32, height: 32, cursor: 'pointer'}}
           className="hoverable" />
         </div> }
@@ -656,27 +741,34 @@ const onStickerSelect = useCallback((stickerId) => {
           </div>
           
           {
-            stickerVisible && <ChatInputStickers // showing stickers list
-            onStickerSelect={onStickerSelect} />
+            stickerVisible && <div ref={stickersRef} style={{display: 'flow-root'}} /* margins counted in the height */><ChatInputStickers // showing stickers list
+            onStickerSelect={onStickerSelect} /></div>
           }
         <ChatInputAdd 
         hideInput={hideInput}
         key={address + chat?.id + replyMessage} // adding replyMessage here fix bug replying message with pasting a file
         visible={inputAdditionVisible}
-        toAddress={
-          chat?.type === "private" ?
-          address :
-          chat?.type === "group" ?
-          chat?.sharedAccount :
-          account?.startsWith('nano_') ? account : // chat not yet created
-          undefined
-        }
+        toAddress={toAddress}
         chat={chat}
         onUploadStart={onUploadStart}
         onUploadSuccess={onUploadSuccess}
         onUploadCancel={onUploadCancel}
         onTipSent={onTipSent}
            />
+        {
+          isGroup && !hideInput &&
+          <MentionPicker
+            visible={mentionAt !== null}
+            participants={chat?.participants}
+            activeAccount={activeAccount}
+            canMentionEveryone={isAdmin}
+            onSelect={insertMentions}
+            onClose={() => {
+              setMentionAt(null);
+              focusInputAt();
+            }}
+          />
+        }
 
           
 

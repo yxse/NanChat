@@ -13,6 +13,7 @@
     "windows": [
       {
         "title": "NanChat",
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,IntensiveWakeUpThrottling,CalculateNativeWinOcclusion --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows",
         "resizable": true,
         "maximized": true
       }

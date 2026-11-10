@@ -233,7 +233,11 @@ export const focusMainWindow = async () => {
   if (!isTauri()) return;
   const { Window } = await import("@tauri-apps/api/window");
   const mainWin = await Window.getByLabel("main");
-  await mainWin?.setFocus();
+  if (!mainWin) return;
+  // setFocus does nothing while the window is minimized or hidden
+  await mainWin.show();
+  await mainWin.unminimize();
+  await mainWin.setFocus();
 }
 
 export type BrowserClosedPage = { label: string; url: string; title: string };

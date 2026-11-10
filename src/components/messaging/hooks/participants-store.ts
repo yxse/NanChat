@@ -28,6 +28,13 @@ export function indexChats(chats: any[] | undefined, isReady: boolean) {
         for (const participant of chat?.participants || []) {
             const address = participant?._id;
             if (!address || nextIndex.has(address)) continue; // first chat wins, as before
+            // same object as indexed: unchanged. Local mutations (unread reset, last message...) copy only the chat
+            // they change, so this skips serializing every participant (tens of thousands) on each chats update
+            if (index.get(address) === participant && signatures.has(address)) {
+                nextIndex.set(address, participant);
+                nextSignatures.set(address, signatures.get(address)!);
+                continue;
+            }
             const signature = JSON.stringify(participant);
             const unchanged = signatures.get(address) === signature;
             nextIndex.set(address, unchanged ? index.get(address) : participant); // keep identity when unchanged
@@ -68,4 +75,9 @@ export function useParticipant(address: string | undefined) {
     const participant = useSyncExternalStore(subscribe, () => (address ? index.get(address) : undefined));
     const isReady = useSyncExternalStore(subscribe, () => ready);
     return { participant, ready: isReady };
+}
+
+// non-reactive lookup, for values computed once (e.g. the names of the @mentions of a message)
+export function getParticipant(address: string | undefined) {
+    return address ? index.get(address) : undefined;
 }

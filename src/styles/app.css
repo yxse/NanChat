@@ -43,6 +43,116 @@
   }
   
 }
+.adm-nav-bar {
+  background-color: var(--main-background-color);
+}
+
+/* chat room header floating over the messages, which scroll behind it */
+.chat-header-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  border-bottom: 1px solid color-mix(in srgb, var(--adm-color-border) 60%, transparent);
+  background-color: var(--main-background-color); /* fallback without color-mix */
+  background-color: color-mix(in srgb, var(--main-background-color) 80%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+}
+/* status bar spacer (SafeAreaWrapper). On the chat list / chat room on phones, a glass header on screen extends
+   under the status bar instead: the spacer collapses and the header pads itself by the safe area.
+   --app-top-spacer is the spacer's actual height, for the layouts computing their height from 100vh */
+.safe-area-root {
+  --app-top-spacer: var(--app-safe-top, var(--safe-area-inset-top));
+}
+.safe-area-root.chat-under-status-bar:has(.chat-header-glass) {
+  --app-top-spacer: 0px;
+}
+.status-bar-spacer {
+  padding-top: var(--app-top-spacer);
+}
+.chat-under-status-bar .chat-header-glass {
+  padding-top: var(--app-safe-top);
+}
+/* lists scrolling behind a glass header: the scrollbar starts below the header */
+.scroll-under-header::-webkit-scrollbar-track {
+  margin-top: var(--chat-header-height, 0px);
+}
+/* iOS ignores the track margin: <ScrollIndicator> insets the native indicator, or on app binaries without its
+   native plugin, hides it and draws its own (body.custom-scroll-indicator) */
+.ios.custom-scroll-indicator .scroll-under-header {
+  scrollbar-width: none;
+}
+.ios.custom-scroll-indicator .scroll-under-header::-webkit-scrollbar {
+  display: none;
+}
+.chat-header-glass .adm-nav-bar {
+  background-color: transparent;
+}
+/* iOS: opening a chat animates the chat room itself (Chat.tsx navigateWithTransition), not view transition snapshots,
+   where WebKit renders no backdrop-filter: the glass header keeps its blur during the animation */
+.chat-push .chat-room-pane {
+  position: relative;
+  animation: chat-push-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* the room starts shifted to the right, past the screen edge: its container must not become horizontally
+   scrollable meanwhile (clip where supported, hidden otherwise). !important: the container sets overflow: auto as an
+   inline style (Chat.tsx), which wins over any normal rule */
+.chat-push :has(> .chat-room-pane) {
+  overflow-x: hidden !important;
+  overflow-x: clip !important;
+}
+/* the fade is an overlay fading out over the room, not the room's opacity: an opacity below 1 makes the room the
+   backdrop root of the header (its blur then sees and blends differently until the end of the animation) */
+.chat-push .chat-room-pane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 20; /* above the glass header (z-index 10) */
+  pointer-events: none;
+  background-color: var(--main-background-color);
+  animation: chat-push-reveal 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes chat-push-in {
+  from {
+    transform: translateX(35%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes chat-push-reveal {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* new message sent / received while the chat is open: rises from the bottom (useNewMessageAnimation) */
+.message-enter {
+  animation: message-enter 200ms linear both;
+  will-change: opacity;
+}
+@keyframes message-enter {
+  /* the rise from the bottom is the whole list sliding up (slideListUp), the row itself only fades in */
+  from {
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .message-enter {
+    animation: none;
+  }
+}
 
 .app-navbar-menu {
   -webkit-box-pack: start;
@@ -532,82 +642,6 @@ body.light-theme .adm-button:hover:not(.adm-button-danger):not(.adm-button-prima
     flex-basis: 100% !important;
   }
 
-  
-/* here we customize the transition, these are the shared styles for the old and new view*/      
-::view-transition-new(root),
-::view-transition-old(root) {
-  animation-duration: 200ms;
-  /* animation-timing-function: ease-in-out; */
-  animation-direction: normal;
-}
-
-/* old view slides out to the left */
-::view-transition-old(root) {
-  animation-name: slide-out;
-}
-
-/* new view slides in from the right */
-::view-transition-new(root) {
-  animation-name: slide-in;
-  mix-blend-mode: normal;
-}
-}
-
-
-
-
-
-
-
-/* class "back-transition" is added to the html element 
- * to customize the back transition 
- * new view
- */
-.back-transition::view-transition-new(root) {
-  animation-name: slide-out-reverse;
-}
-
-/* customized back transition for old view */
-.back-transition::view-transition-old(root) {
-  animation-name: slide-in-reverse;
-  mix-blend-mode: normal;
-  z-index: 1;
-}
-
-@keyframes slide-out {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-20%);
-  }
-}
-
-@keyframes slide-out-reverse {
-  from {
-    transform: translateX(-20%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-in-reverse {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
 }      
       
 
@@ -713,6 +747,22 @@ body.light-theme .adm-button:hover:not(.adm-button-danger):not(.adm-button-prima
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.35);
   animation: upload-fade-in 0.2s ease-out;
+}
+.voice-recording-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--adm-color-danger);
+  animation: voice-recording-pulse 1.2s ease-in-out infinite;
+}
+@keyframes voice-recording-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
 }
 .upload-progress-button {
   display: flex;
@@ -911,6 +961,12 @@ input[type=number]::-webkit-outer-spin-button {
   margin-bottom: calc(var(--safe-area-inset-bottom, 0px) + var(--android-inset-bottom, 0px)) !important;
 }
 
+/* phones: no separator above the first chat (the search box row sits right above it), large screens keep it */
+@media (max-width: 800px) {
+  .chat-item.first-chat .adm-list-item-content {
+    border-top: none;
+  }
+}
 .chat-item .adm-list-item-content-main {
   /* for chat list message ellipsis */
   overflow: auto; 
@@ -1017,4 +1073,47 @@ body.light-theme {
 .message-highlight {
   animation: messageHighlight 1.5s ease-out;
   border-radius: 0px;
+}
+/* search results: let the text column shrink (antd list item content is a flex child with min-width auto),
+   names on one line with an ellipsis, long words wrapped, so a long link or address never widens the page */
+.message-search .adm-list-item-content-main {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.message-search .adm-list-item-content-main > :not(.adm-list-item-description) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.message-search .adm-list-item-content-extra {
+  flex-shrink: 0;
+}
+/* the search input keeps its default intrinsic width (~290px) in antd's flex search box unless allowed to shrink */
+.message-search .adm-search-bar-input-box,
+.message-search .adm-search-bar .adm-input,
+.message-search .adm-search-bar .adm-input-element {
+  min-width: 0;
+}
+/* no primary-colored border around the focused search input */
+.message-search .adm-search-bar-active .adm-search-bar-input-box {
+  border-color: transparent;
+  background: var(--background);
+}
+.message-search .adm-search-bar .adm-input-element:focus {
+  outline: none;
+}
+/* large screens: the search result opened next to the search */
+.message-search .adm-list-item.search-result-selected {
+  background-color: var(--adm-color-fill-content);
+}
+
+/* pages opened in a centered modal on large screens (see desktop/RouteModal.tsx): the header stays on top while the
+   content scrolls, and the bottom spacing kept for the phone tab bar is dropped */
+.route-modal .adm-center-popup-body .adm-nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.route-modal .adm-center-popup-body .mb-24 {
+  margin-bottom: 16px;
 }

@@ -405,7 +405,7 @@ export async function removeSeed(): Promise<void> {
     }
     else{
       await SecureStoragePlugin.clear();
-      await clearNotificationKeys(); // keys shared with the iOS notification extension
+      await clearNotificationKeys(); // keys used by the native notification code (iOS extension, Android messaging service)
     }
     mutate(key => true, undefined, {revalidate: false}); // clear all swr caches
   }

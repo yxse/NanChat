@@ -14,10 +14,17 @@ use std::time::Duration;
 /// in-app browser content webview.
 const BROWSER_TOOLBAR_HEIGHT: f64 = 44.0;
 
+/// WebView2 arguments, the same as `additionalBrowserArgs` of the main window in tauri.conf.json:
+/// webviews sharing a data directory must use identical arguments or WebView2 refuses to create
+/// them. wry's defaults (msWebOOUI, msPdfOOUI, msSmartScreenProtection) plus no background
+/// throttling, so the socket keeps receiving messages (and their notifications) while minimized.
+const WEBVIEW2_BROWSER_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,IntensiveWakeUpThrottling,CalculateNativeWinOcclusion --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows";
+
 /// How often the content webview URL is polled to catch SPA (history API)
 /// navigations, which don't trigger on_navigation.
 const BROWSER_URL_POLL_INTERVAL: Duration = Duration::from_millis(500);
 
+mod notifications;
 mod secure_store;
 
 // Secrets (seed, PIN, chat tokens). get_secret returns null when the secret
@@ -178,6 +185,7 @@ async fn open_browser_window(
                 &toolbar_label,
                 WebviewUrl::App("browser-toolbar.html".into()),
             )
+            .additional_browser_args(WEBVIEW2_BROWSER_ARGS)
             .initialization_script(&toolbar_init),
             LogicalPosition::new(0.0, 0.0),
             LogicalSize::new(logical_w, BROWSER_TOOLBAR_HEIGHT),
@@ -217,6 +225,7 @@ async fn open_browser_window(
     let content_wv = window
         .add_child(
             WebviewBuilder::new(&content_label, WebviewUrl::External(parsed_url))
+                .additional_browser_args(WEBVIEW2_BROWSER_ARGS)
                 .devtools(cfg!(debug_assertions))
                 .user_agent("NanChat/1.0.0")
                 .initialization_script(NANCHAT_INTERCEPT_SCRIPT)
@@ -362,19 +371,26 @@ const NANCHAT_INTERCEPT_SCRIPT: &str = r#"(function() {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    notifications::allow_foreground_handoff();
     tauri::Builder::default()
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
-            let _ = app
-                .get_webview_window("main")
-                .expect("no main window")
-                .set_focus();
+        // a second launch (notification click, deep link, desktop shortcut) brings the running app
+        // back; with the deep-link feature, a URL in the arguments is forwarded to the deep-link plugin
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            // taskbar menu task: only turns notifications off / on, the window stays where it is
+            if args.iter().any(|arg| arg == notifications::TOGGLE_ARG) {
+                notifications::toggle(app);
+                return;
+            }
+            notifications::focus_main_window(app);
         }))
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
+            notifications::init(app.handle());
             // usefull for dev, only works on Windows and Linux
             #[cfg(any(target_os = "windows", target_os = "linux"))]
             {
@@ -391,7 +407,8 @@ pub fn run() {
             get_secret,
             delete_secret,
             secure_storage_status,
-            open_browser_window
+            open_browser_window,
+            notifications::show_notification
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

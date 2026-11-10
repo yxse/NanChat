@@ -105,7 +105,7 @@ const registerNative = async () => {
             account: activeAccount,
             version: 2
         }, activeAccountPk).then(async (res) => {
-            console.log(res);
+            if (res?.error) throw new Error(res.error);
             // Toast.show({icon: 'success'});
             await mutate({name: name});
             await mutateChats(); // preload chats
@@ -132,7 +132,7 @@ const registerWeb = async (name) => {
             account: activeAccount,
             version: 2
         }, activeAccountPk).then(async (res) => {
-            console.log(res);
+            if (res?.error) throw new Error(res.error);
             // Toast.show({icon: 'success'});
             await mutate({name: name});
             await mutateChats(); // preload chats
