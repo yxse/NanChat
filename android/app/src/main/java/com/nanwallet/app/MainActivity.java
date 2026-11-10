@@ -22,6 +22,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(SensitiveScreenPlugin.class);
         registerPlugin(InstallSourcePlugin.class);
+        registerPlugin(NotificationKeysPlugin.class);
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: Initializing edge-to-edge handler");
 

@@ -1,5 +1,6 @@
-// Keys for the iOS notification service extension (ios/App/NanChatNotificationService), which
-// decrypts message previews natively so they show even when iOS won't wake the app.
+// Keys for the native code that decrypts message previews, so they show even when the WebView
+// isn't running: the iOS notification service extension (ios/App/NanChatNotificationService) and
+// the Android messaging service (android/.../NanChatMessagingService.java).
 //
 // Only Curve25519 secret keys are exported (blake2b of the account key, clamped: what
 // multi-nano-web's box uses for decryption). They are a one way derivation of the account keys:
@@ -23,7 +24,9 @@ const Curve25519: any = (Curve25519Module as any).default ?? Curve25519Module;
 
 const SYNCED_ADDRESSES_KEY = "notificationKeysAddresses";
 
-export const isNotificationKeysSupported = () => Capacitor.getPlatform() === "ios";
+export const isNotificationKeysSupported = () =>
+  Capacitor.getPlatform() === "ios" ||
+  (Capacitor.getPlatform() === "android" && Capacitor.isPluginAvailable("NotificationKeys"));
 
 const hexToBytes = (hex: string) => Uint8Array.from(hex.match(/.{2}/g) || [], (b) => parseInt(b, 16));
 const bytesToHex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");

@@ -14,6 +14,7 @@ enum SenderAvatar {
     static let defaultBackendUrl = "https://api.nanchat.com"
     private static let urlCacheTTL: TimeInterval = 24 * 60 * 60
     private static let size = 192
+    private static let stickerSize = 384
 
     static var defaults: UserDefaults? { UserDefaults(suiteName: appGroup) }
 
@@ -64,14 +65,32 @@ enum SenderAvatar {
         }.resume()
     }
 
-    private static func image(for source: String, completion: @escaping (Data?) -> Void) {
-        let digest = SHA256.hash(data: Data(source.utf8)).map { String(format: "%02x", $0) }.joined()
+    /// Sticker image as a notification attachment (PNG through the image proxy, cached like avatars).
+    static func stickerAttachment(_ source: String, completion: @escaping (UNNotificationAttachment?) -> Void) {
+        image(for: source, size: stickerSize) { data in
+            guard let data = data else {
+                completion(nil)
+                return
+            }
+            // iOS moves the attachment file into its own store: give it a copy, not the cached file
+            let file = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).png")
+            do {
+                try data.write(to: file)
+                completion(try UNNotificationAttachment(identifier: "sticker", url: file, options: nil))
+            } catch {
+                completion(nil)
+            }
+        }
+    }
+
+    private static func image(for source: String, size: Int = size, completion: @escaping (Data?) -> Void) {
+        let digest = SHA256.hash(data: Data("\(size):\(source)".utf8)).map { String(format: "%02x", $0) }.joined()
         let file = cacheDirectory?.appendingPathComponent("\(digest).png")
         if let file = file, let data = try? Data(contentsOf: file) {
             completion(data)
             return
         }
-        guard let url = proxiedUrl(source) else {
+        guard let url = proxiedUrl(source, size: size) else {
             completion(nil)
             return
         }
@@ -90,7 +109,7 @@ enum SenderAvatar {
     }
 
     /// Same proxy as ProfilePicture.tsx, resized and converted to PNG (INImage can't decode webp/gif reliably).
-    private static func proxiedUrl(_ source: String) -> URL? {
+    private static func proxiedUrl(_ source: String, size: Int) -> URL? {
         // equivalent of JS encodeURI
         var allowed = CharacterSet.alphanumerics
         allowed.insert(charactersIn: ";,/?:@&=+$-_.!~*'()#")

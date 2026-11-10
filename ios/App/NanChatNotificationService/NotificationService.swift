@@ -28,22 +28,62 @@ class NotificationService: UNNotificationServiceExtension {
         if let chatId = userInfo["chatId"] as? String, !chatId.isEmpty {
             content.threadIdentifier = chatId // group notifications per chat, as the app does
         }
-        if let preview = MessagePreview.decrypt(userInfo: userInfo) {
+        // sticker messages aren't encrypted: content is "Sticker" and stickerId the image URL
+        let stickerUrl = MessagePreview.stickerUrl(userInfo: userInfo)
+        if let preview = stickerUrl != nil ? MessagePreview.stickerBody(userInfo: userInfo) : MessagePreview.decrypt(userInfo: userInfo) {
             content.body = preview
         }
 
-        // only chat messages have a sender to show
-        guard #available(iOSApplicationExtension 15.0, *),
-              userInfo["chatId"] is String,
-              let fromAccount = userInfo["fromAccount"] as? String else {
-            deliver(content)
-            return
+        // only chat messages have a sender to show (communication notification, iOS 15+)
+        var avatarAccount: String?
+        if #available(iOSApplicationExtension 15.0, *), userInfo["chatId"] is String {
+            avatarAccount = userInfo["fromAccount"] as? String
         }
-        SenderAvatar.load(address: fromAccount, pictureUrl: userInfo["fromProfilePicture"] as? String) { avatar in
-            CommunicationNotification.update(content, userInfo: userInfo, avatar: avatar) { updated in
-                self.deliver(updated)
+
+        // avatar and sticker are downloaded in parallel
+        let group = DispatchGroup()
+        let resultLock = NSLock()
+        var avatar: Data?
+        var sticker: UNNotificationAttachment?
+        if let fromAccount = avatarAccount {
+            group.enter()
+            SenderAvatar.load(address: fromAccount, pictureUrl: userInfo["fromProfilePicture"] as? String) { data in
+                resultLock.lock(); avatar = data; resultLock.unlock()
+                group.leave()
             }
         }
+        if let stickerUrl = stickerUrl {
+            group.enter()
+            SenderAvatar.stickerAttachment(stickerUrl) { attachment in
+                resultLock.lock(); sticker = attachment; resultLock.unlock()
+                group.leave()
+            }
+        }
+        group.notify(queue: .global()) {
+            resultLock.lock()
+            let avatarData = avatar, stickerAttachment = sticker
+            resultLock.unlock()
+            if let stickerAttachment = stickerAttachment {
+                self.lock.lock()
+                content.attachments = [stickerAttachment]
+                self.lock.unlock()
+            }
+            guard #available(iOSApplicationExtension 15.0, *), avatarAccount != nil else {
+                self.deliver(content)
+                return
+            }
+            CommunicationNotification.update(content, userInfo: userInfo, avatar: avatarData) { updated in
+                self.deliver(Self.withAttachment(updated, stickerAttachment))
+            }
+        }
+    }
+
+    /// Makes sure the sticker survives the communication notification update.
+    private static func withAttachment(_ content: UNNotificationContent, _ attachment: UNNotificationAttachment?) -> UNNotificationContent {
+        guard let attachment = attachment, content.attachments.isEmpty,
+              let copy = content.mutableCopy() as? UNMutableNotificationContent else { return content }
+        copy.attachments = [attachment]
+        return copy
     }
 
     override func serviceExtensionTimeWillExpire() {
@@ -87,6 +127,19 @@ enum MessagePreview {
             return "\(name): \(text)"
         }
         return text
+    }
+
+    /// Sticker messages aren't encrypted (content is "Sticker"): the image URL comes in `stickerId`.
+    static func stickerUrl(userInfo: [AnyHashable: Any]) -> String? {
+        guard let url = userInfo["stickerId"] as? String, url.hasPrefix("https://") else { return nil }
+        return url
+    }
+
+    static func stickerBody(userInfo: [AnyHashable: Any]) -> String {
+        if (userInfo["type"] as? String) == "group", let name = userInfo["fromAccountName"] as? String, !name.isEmpty {
+            return "\(name): Sticker"
+        }
+        return "Sticker"
     }
 
     /// Keys are indexed by the address without its ticker prefix (see addressKeyId in notificationKeys.ts).

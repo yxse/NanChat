@@ -73,7 +73,7 @@ export async function getSharedKey(chatId: string, sharedAccount: string, active
         
         // Wait for the request to complete
         const result = await requestPromise;
-        rememberSharedKey(sharedAccount, result); // lets the iOS notification extension decrypt group previews
+        rememberSharedKey(sharedAccount, result); // lets the native notification code (iOS, Android) decrypt group previews
         return result;
     } finally {
         // Clean up by removing the promise from the map when done

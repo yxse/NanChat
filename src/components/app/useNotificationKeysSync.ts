@@ -4,7 +4,7 @@ import { fetcherMessages } from "../messaging/fetcher";
 import { useWallet } from "../useWallet";
 import { isNotificationKeysSupported, syncNotificationKeys } from "../../services/notificationKeys";
 
-// Keeps the iOS notification service extension's decryption keys in sync with the
+// Keeps the native message preview decryption keys (iOS extension, Android messaging service) in sync with the
 // "Message preview" setting and the wallet accounts (see services/notificationKeys.ts).
 export function useNotificationKeysSync() {
   const supported = isNotificationKeysSupported();

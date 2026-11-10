@@ -44,6 +44,12 @@ capability on the app (`com.apple.developer.usernotifications.communication`, al
 entitlements files) and `INSendMessageIntent` in the app's `NSUserActivityTypes` and the
 extension's `IntentsSupported` (already added).
 
+## Stickers
+
+Sticker messages aren't encrypted (`message` is `"Sticker"`), the server adds the image URL as
+`stickerId`. The extension shows "Sticker" (or "<name>: Sticker" in groups) and attaches the image,
+fetched through the image proxy as a 384px PNG (animated stickers show their first frame).
+
 ## Server contract
 
 The iOS client sends `notificationServiceExtension: 1` in `POST /notifications/push/subscribe`.
@@ -59,7 +65,8 @@ For tokens with that flag and `messagePreview` on, send chat messages as a **vis
     "fromAccount": "nano_...", "toAccount": "nano_...",
     "type": "group" | "...", "sharedAccount": "nano_...", "fromAccountName": "...",
     "chatId": "...", "url": "/chat/...", "idInt": "...", "title": "...", "messagePreview": "true",
-    "fromProfilePicture": "https://..."   // optional, raw profilePicture.url of the sender
+    "fromProfilePicture": "https://...",  // optional, raw profilePicture.url of the sender
+    "stickerId": "https://..."            // sticker messages only: the image URL (message is "Sticker")
   },
   "apns": { "payload": { "aps": { "mutable-content": 1, "thread-id": "<chatId>" } } }
 }

@@ -60,6 +60,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Replaces the Firebase plugin's messaging service: shows message previews natively
+             when the app isn't running (NanChatMessagingService.java) -->
+        <service
+            android:name="io.capawesome.capacitorjs.plugins.firebase.messaging.MessagingService"
+            tools:node="remove" />
+        <service
+            android:name=".NanChatMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

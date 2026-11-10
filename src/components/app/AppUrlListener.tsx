@@ -24,6 +24,7 @@ import { isSavedContact } from '../messaging/call/call-signaling';
 import InAppNotification, { showInAppNotification } from './InAppNotification';
 import i18n from '../../i18n';
 import { useNotificationKeysSync } from './useNotificationKeysSync';
+import { isNotificationKeysSupported } from '../../services/notificationKeys';
 
 
 const contactsFileName = ["natriumcontacts_", "kaliumcontacts_"];
@@ -305,6 +306,8 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
   if (Capacitor.getPlatform() === "ios" && callData?.nse === "1" && !isActive) {
     return; // visible push: already decrypted and shown by the notification service extension
   }
+  // in the background, Android shows message previews natively (NanChatMessagingService.java): only preload the chat
+  const shownNatively = Capacitor.getPlatform() === "android" && messagePreview === "true" && !isActive && isNotificationKeysSupported();
   if ((url == null && !isMessagePreviewExist) || ((location.pathname === "/chat" || location.pathname === "/") && isActive)) {
     return
   }
@@ -327,6 +330,7 @@ FirebaseMessaging.addListener("notificationReceived", async (event) => {
     },
     { revalidate: false },
   ).catch((err) => console.warn('preload chat messages failed', err));
+  if (shownNatively) return;
 
   // return
   // focus window
