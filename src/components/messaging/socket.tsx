@@ -57,6 +57,25 @@ import Sticker from './components/Sticker';
 import { ModalReceive } from '../app/Network';
 import useLocalStorageState from 'use-local-storage-state';
 
+// sticker ids are image urls (official stickers of the Banano / Risitas collections)
+const RATE_LIMIT_STICKERS = [
+    'https://bucket.nanwallet.com/stickers/6a28060156fd62b504484e85/a49d99b7a64e.png', // meh
+    'https://bucket.nanwallet.com/stickers/6a28060156fd62b504484e85/3b90bbefaa4f.jpg', // duck
+    'https://bucket.nanwallet.com/stickers/6a28060156fd62b504484e85/638e377352a7.png', // Awkward Sweat
+]
+// backend rate limit (messages: socket "error" event / failed ack, new chats: POST /chat 429)
+export const showRateLimitModal = () => {
+    Modal.clear()
+    Modal.alert({
+        content: <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
+            <Sticker stickerId={RATE_LIMIT_STICKERS[Math.floor(Math.random() * RATE_LIMIT_STICKERS.length)]} height="96px" />
+            <br />
+            Rate limited. Please slow down a bit.
+        </div>,
+        confirmText: 'OK',
+    })
+}
+
 const ChatSocket: React.FC = () => {
     const navigate = useNavigate();
     const [onlineAccount, setOnlineAccount] = React.useState<string[]>([]);
@@ -335,19 +354,10 @@ const ChatSocket: React.FC = () => {
             };
         }, [activeAccount, chats]);
      useEffect(() => {
-        const stickersId = ['14544', '2786', 'duck-2']
         const handleError = (error) => {
             console.log('Socket error:', error);
             if (error.error === 'Rate limit exceeded') {
-            Modal.clear()
-            Modal.alert({
-                content: <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
-                    <Sticker stickerId={stickersId[Math.floor(Math.random() * stickersId.length)]} width={96} />
-                    <br />
-                    Rate limited. Please slow down a bit.
-                </div>,
-                confirmText: 'OK',
-            })
+                showRateLimitModal()
             }
         }
         socket.on('error', handleError);

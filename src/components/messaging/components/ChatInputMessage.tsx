@@ -1,11 +1,12 @@
 import { AddCircleOutline } from "antd-mobile-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { socket } from "../socket";
+import { showRateLimitModal, socket } from "../socket";
 import { useWallet } from "../../useWallet";
 import { Button, TextArea, Toast } from "antd-mobile";
 import useSWR, { useSWRConfig } from "swr";
-import { fetcherMessages, fetcherMessagesPost } from "../fetcher";
+import { fetcherMessages } from "../fetcher";
+import { getChatToken } from "../../../utils/storage";
 import { box } from "multi-nano-web";
 import { FaArrowUp, FaKeyboard } from "react-icons/fa6";
 import { getKey } from "../hooks/useChat";
@@ -29,12 +30,14 @@ import MentionPicker from "./MentionPicker";
 import { Mention, extractMentions, mentionCandidates } from "../mentions";
 
 
-const mutateLocal = async (mutate, mutateChats, message, account, activeAccount) => {
+// mutateMessagesOf(chatId, ...): the message goes in the cache of its own chat, which is not the chat of the url
+// when this message creates the chat (url /chat/nano_..., then /chat/<new chat id>)
+const mutateLocal = async (mutateMessagesOf, mutateChats, message, activeAccount) => {
 
   // this seems to increase socket io message of about 60ms, probably beacause that changes /chats and /messages data which cause many render
   // could be optimized using more memo() in ChatRoom/ChatListo to reduce unnessecary re render
   const id = message._id;
-  await mutate(currentPages => {
+  await mutateMessagesOf(message.chatId, currentPages => {
       const newPages = [...(currentPages || [])];
       newPages[0] = [{ ...message, isLocal: true, _id: id, status: "sent_local"}, ...(newPages[0] || [])];
       return newPages;
@@ -45,7 +48,7 @@ const mutateLocal = async (mutate, mutateChats, message, account, activeAccount)
 
   await mutateChats(currentChats => { // local mutate to update last message in chat list without refetching
       const newChats = [...(currentChats || [])];
-      const chatIndex = newChats.findIndex(chat => chat.id === account);
+      const chatIndex = newChats.findIndex(chat => chat.id === message.chatId);
       if (chatIndex !== -1) {
           const newChat = { ...newChats[chatIndex] };
           newChat.lastMessage = message.content;
@@ -113,7 +116,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const [newMessage, setNewMessage] = useState('');
     const navigate = useNavigate();
     const {activeAccount, activeAccountPk} = useWallet()
-    const {chat, mutateChats, isAdmin} = useChats(account);
+    const {chat, chats, mutateChats, isAdmin} = useChats(account);
+    const chatsRef = useRef(chats);
+    chatsRef.current = chats;
     const isGroup = chat?.type === "group";
     // index of the "@" that opened the mention picker, null when closed
     const [mentionAt, setMentionAt] = useState<number | null>(null);
@@ -121,9 +126,10 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     // the pages re-rendered the input on every page load / new message, ran useChat's effects twice (unread reset,
     // sync refresh) and fetched the messages of chats only shared to (account info, share popups)
     const { mutate: mutateGlobal } = useSWRConfig();
-    const mutateMessages = useCallback(
-      (data?: any, opts?: any) => mutateGlobal(unstable_serialize((index, prev) => getKey(index, prev, account)), data, opts),
-      [mutateGlobal, account],
+    // keyed by the message's chatId, not the url's: the first message of a new chat is sent from /chat/nano_...
+    const mutateMessagesOf = useCallback(
+      (chatId: string, data?: any, opts?: any) => mutateGlobal(unstable_serialize((index, prev) => getKey(index, prev, chatId)), data, opts),
+      [mutateGlobal],
     );
     const [replyMessage, setReplyMessage] = useState<Message | null>(null);
     const replyEvent = useEvent("reply-message");
@@ -289,19 +295,37 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
 
   const callbackSocket = (response: any, message) => {
       console.log("message sent", response, {"local Id": message._id}, message);
-      if (response.success !== true) {
-        messageInputRef.current?.focus();
-        setNewMessage(newMessage);
-        Toast.show({
-          content: response.error,
-          icon: 'fail', 
-        });
+      if (response?.success !== true) {
+        // not sent: remove it from the chat, else it stays "sending" forever
+        mutateMessagesOf(message.chatId, currentPages => {
+          if (!currentPages) return currentPages;
+          const newPages = [...currentPages];
+          newPages[0] = (newPages[0] || []).filter(m => m._id !== message._id);
+          return newPages;
+        }, false);
+        if (message.file?.previewUrl) URL.revokeObjectURL(message.file.previewUrl);
+        // the chats list preview showed it as last message: refetch the real one
+        if (chatsRef.current?.find(c => c.id === message.chatId)?.lastMessageId === message._id) mutateChats();
+        const isText = !message.stickerId && !message.tip && !message.redPacket && !message.file;
+        if (isText) {
+          setNewMessage(current => current.trim() ? current : message.content); // give the text back, unless a new one is typed
+          messageInputRef.current?.focus();
+        }
+        if (response?.error === 'Rate limit exceeded') {
+          showRateLimitModal();
+        } else {
+          Toast.show({
+            content: response?.error || t('somethingWentWrong'),
+            icon: 'fail',
+          });
+        }
       }
       else{
-        mutateMessages(currentPages => {
+        mutateMessagesOf(message.chatId, currentPages => {
           const newPages = [...(currentPages || [])];
-          // replace the local message (without mutating the cached page in place)
-          const firstPage = (newPages[0] || []).filter(m => m._id !== message._id);
+          // replace the local message (without mutating the cached page in place). Also drop the server copy if the
+          // chat fetch or the socket echo already brought it (e.g. first message of a new chat)
+          const firstPage = (newPages[0] || []).filter(m => m._id !== message._id && m._id !== response.messageId);
           // localId keeps the row key stable across the id swap (the send animation is not cut short)
           newPages[0] = [{ ...message, status: "sent", _id: response.messageId, localId: message._id, isLocal: true}, ...firstPage];
           return newPages;
@@ -311,10 +335,12 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
    }
 
-   const getOrCreateNewChatIfNotExist = async (account) => {
+   // null if the chat could not be created (error shown), the message must not be sent
+   const getOrCreateNewChatIfNotExist = async (account): Promise<{height: number, chatId: string} | null> => {
     // debugger
     if (chat == undefined && account.startsWith('nano_')) {
         const newChat = await createNewChat(account);
+        if (!newChat) return null;
         navigate(`/chat/${newChat.id}`, {replace: true}); 
         return {
           height: 0,
@@ -329,11 +355,30 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       }
    }
     const createNewChat = async (account: string) => {
-      const newChat = await fetcherMessagesPost('/chat', {
-        type: "private",
-        participants: [activeAccount, account],
-      });
-      
+      let newChat: any;
+      let status = 0;
+      try {
+        const token = await getChatToken(activeAccountPk);
+        const res = await fetch(import.meta.env.VITE_PUBLIC_BACKEND + '/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', token: token as string },
+          body: JSON.stringify({ type: "private", participants: [activeAccount, account] }),
+        });
+        status = res.status;
+        newChat = await res.json().catch(() => null); // older backends answer the rate limit in plain text
+      } catch (error) {
+        console.error("create chat failed", error);
+      }
+      if (status === 429 || newChat?.error === 'Rate limit exceeded') {
+        showRateLimitModal();
+        return null;
+      }
+      if (!newChat?.id) {
+        console.error("create chat failed", status, newChat);
+        Toast.show({ content: newChat?.error || t('somethingWentWrong'), icon: 'fail' });
+        return null;
+      }
+
       console.log("created chat", newChat);
       
       await mutateChats(currentChats => {
@@ -349,7 +394,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
       e.preventDefault();
       if (!newMessage.trim()) return;
       
-      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+      const target = await getOrCreateNewChatIfNotExist(account)
+      if (!target) return; // the text stays in the input
+      const {chatId, height} = target
 
       const message: Message = {
         content: newMessage,
@@ -372,7 +419,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         if (mentions.length) message.mentions = mentions;
       }
       onSent(message);
-      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+      mutateLocal(mutateMessagesOf, mutateChats, message, activeAccount);
      const messageEncrypted = { ...message };
      if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
       messageEncrypted['content'] = box.encrypt(newMessage, address, activeAccountPk);
@@ -400,7 +447,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     messageInputRef.send = sendMessage;
 
     const sendTipMessage = async (ticker: string, hash: string, destinationAddress: string) => {
-      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+      const target = await getOrCreateNewChatIfNotExist(account)
+      if (!target) return;
+      const {chatId, height} = target
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
         content: "Transfer",
@@ -417,14 +466,16 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         resetReply();
       }
       onSent(message);
-      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+      mutateLocal(mutateMessagesOf, mutateChats, message, activeAccount);
      socket.emit('message', message,  (response) => callbackSocket(response, message));
     //  messageInputRef.current?.focus();
     };
     messageInputRef.sendTip = sendTipMessage;
     
     const sendRedPacketMessage = async (ticker: string, hash: string, mode: "normal" | "lucky", quantity: number, messageContent, stickerId) => {
-      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+      const target = await getOrCreateNewChatIfNotExist(account)
+      if (!target) return;
+      const {chatId, height} = target
 
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       let encryptedMessageContent = ""
@@ -439,7 +490,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         redPacket: {ticker, hash, mode, quantity, message: messageContent, stickerId},
         _id: Math.random().toString()
       };
-      await mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+      await mutateLocal(mutateMessagesOf, mutateChats, message, activeAccount);
        if (messageContent?.length > 0){
         if (chat === undefined || chat.type === "private") { // chat can be undefined when sending first message
         encryptedMessageContent = box.encrypt(messageContent, address, activeAccountPk);
@@ -464,7 +515,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     messageInputRef.sendRedPacketMessage = sendRedPacketMessage;
 
     const sendStickerMessage = async (stickerId: string) => {
-      const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+      const target = await getOrCreateNewChatIfNotExist(account)
+      if (!target) return;
+      const {chatId, height} = target
 
       // let messageTip = 'Tip ' + ticker + ' ' + hash;
       const message: Message = {
@@ -482,7 +535,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
         resetReply();
       }
       onSent(message);
-      mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+      mutateLocal(mutateMessagesOf, mutateChats, message, activeAccount);
      const messageEncrypted = { ...message };
     //  if (chat.type === "private") {
     //   messageEncrypted['content'] = box.encrypt(message.content, address, activeAccountPk);
@@ -495,8 +548,8 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     // local file messages waiting for their upload to finish, keyed by local id
     const pendingFileMessages = useRef(new Map<string, Promise<any>>());
 
-    const replaceLocalMessage = (localId: string, replace: (message) => Message | null) => {
-      mutateMessages(currentPages => {
+    const replaceLocalMessage = (chatId: string, localId: string, replace: (message) => Message | null) => {
+      mutateMessagesOf(chatId, currentPages => {
         const newPages = [...(currentPages || [])];
         newPages[0] = (newPages[0] || []).flatMap(m => {
           if (m._id !== localId) return [m];
@@ -510,7 +563,9 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     // show the file in the chat immediately with upload progress, it is sent once the upload succeeds
     const startFileMessage = (file) => {
       const pending = (async () => {
-        const {chatId, height} = await getOrCreateNewChatIfNotExist(account)
+        const target = await getOrCreateNewChatIfNotExist(account)
+        if (!target) return null; // not shown, sendFileMessage / cancelFileMessage skip it
+        const {chatId, height} = target
         const message: Message = {
           content: "File",
           fromAccount: activeAccount,
@@ -539,7 +594,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           resetReply();
         }
         onSent(message);
-        await mutateLocal(mutateMessages, mutateChats, message, account, activeAccount);
+        await mutateLocal(mutateMessagesOf, mutateChats, message, activeAccount);
         return message;
       })();
       pendingFileMessages.current.set(file.localId, pending);
@@ -564,7 +619,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
           }
         }
       };
-      replaceLocalMessage(file.localId, (m) => ({ ...m, ...message }));
+      replaceLocalMessage(message.chatId, file.localId, (m) => ({ ...m, ...message }));
       const { previewUrl, ...fileToSend } = message.file;
       socket.emit('message', { ...message, file: fileToSend }, (response) => callbackSocket(response, message));
     }
@@ -572,7 +627,7 @@ const ChatInputMessage: React.FC<{ }> = ({ onSent, messageInputRef, defaultNewMe
     const cancelFileMessage = async (localId: string) => {
       const pending = await pendingFileMessages.current.get(localId);
       pendingFileMessages.current.delete(localId);
-      replaceLocalMessage(localId, () => null);
+      if (pending) replaceLocalMessage(pending.chatId, localId, () => null);
       if (pending?.file?.previewUrl) URL.revokeObjectURL(pending.file.previewUrl);
     }
 
