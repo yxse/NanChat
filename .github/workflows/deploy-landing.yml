@@ -1,0 +1,31 @@
+name: 'deploy landing site'
+
+# Rebuilds nanchat.com when an app release is published, so its desktop
+# download buttons point to the new installers. Releases are created as drafts
+# by the publish workflow, and the site only links to published releases, so
+# this runs on publication rather than at the end of the build.
+#
+# Setup: create a deploy hook for the production branch in the Cloudflare
+# Pages project of nanchat.com (Settings > Builds > Deploy hooks), then save
+# its URL as the repository secret CLOUDFLARE_PAGES_DEPLOY_HOOK.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  deploy-landing:
+    if: github.event_name == 'workflow_dispatch' || (startsWith(github.event.release.tag_name, 'app-v') && !github.event.release.prerelease)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the Cloudflare Pages build
+        env:
+          DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::warning::CLOUDFLARE_PAGES_DEPLOY_HOOK is not set, nanchat.com was not rebuilt."
+            exit 0
+          fi
+          curl --fail --silent --show-error --retry 3 -X POST "$DEPLOY_HOOK" > /dev/null
+          echo "nanchat.com rebuild triggered."
