@@ -2,7 +2,6 @@ import { tools } from "multi-nano-web";
 import { getChatToken, setChatToken } from "../../utils/storage";
 import { accountIconUrl } from "../app/Home";
 import { Toast } from "antd-mobile";
-import { saveCache } from "../Wrapper";
 import { scheduleMessageSync } from "./message-cache";
 
 

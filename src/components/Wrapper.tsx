@@ -1,67 +1,12 @@
 import { useEffect, type ReactNode } from "react";
-import { SWRConfig } from "swr";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { Capacitor } from "@capacitor/core";
-import { App } from "@capacitor/app";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { EventProvider } from "./messaging/components/EventContext";
 import '../i18n';
 import { getWindowDimensions } from "../hooks/use-windows-dimensions";
 import { refreshStatusBarTheme } from "./messaging/utils";
-import { timestampStorageHandler, useCacheProvider } from '@piotr-cz/swr-idb-cache'
-
-export function saveCache(map) {
-  return
-  console.log("saving cache")
-  // clear cache 
-  // localStorage.removeItem('app-cache')
-      debugger
-  
-  // return
-  // filter out inf messages to not load them all directly
-  let array = []
-  for (let key of map.keys()) {
-    if (key.startsWith('/messages') && !key.includes('&page=0')) {
-      continue // skip all messages except the first page
-    }
-    else if (!key.startsWith('$inf$/messages')) {
-      array.push([key, map.get(key)])
-    }
-    else {
-      let elmt = {...map.get(key)} // {... } for shallow clone to not update the origanl map which could cause scrolling back to bottom when loading old messages 
-      elmt.data = [elmt.data[0]] // only keep the first message page
-      elmt['_l'] = 1 // set the length to 1 to prevent swr fetching all pages https://github.com/vercel/swr/blob/f521fb7e3ea9cc7b6c02ec32b7329784b4d8e854/src/infinite/types.ts#L154
-      array.push([key, elmt])
-    }
-  }
-  // let appCache = JSON.stringify(Array.from(map.entries()))
-  // .filter(([key, _]) => !key.includes('/messages') || key.includes('&page=0')))
-  localStorage.setItem('app-cache', JSON.stringify(array))
-  const latstUpdatedChat = array.find((e) => e[0] === "/chats")?.[1]?.data[0]?.updatedAt
-  if (latstUpdatedChat){ // save last updated time of chat, serving as cursor
-    localStorage.setItem('lastSync', new Date(latstUpdatedChat).getTime().toString()) // eventually could be more precise using the r.ts of /chats response
-  }
-}
-
-function localStorageProvider() {
-  // localStorage.removeItem('app-cache')
-  // When initializing, we restore the data from `localStorage` into a map.
-  const map = new Map(JSON.parse(localStorage.getItem('app-cache') || '[]'))
- 
-  // Before unloading the app, we write back all the data into `localStorage`.
-  window.addEventListener('beforeunload', () => {
-    saveCache(map)
-  })
-  
-  App.addListener('pause', () => {
-    saveCache(map)
-  })
-
- 
-  // We still use the map for write & read for performance.
-  return map
-}
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_PUBLIC_firebase_apiKey,
