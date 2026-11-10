@@ -13,13 +13,11 @@ export const SUPPORTED_LANGUAGES = Object.values(Language) as string[];
 
 // mlkit: on-device (Android + iOS), models downloaded by the app
 // apple: on-device, iOS 18+ Translation framework (system-managed models)
-// google: free Google Translate endpoint (translate.googleapis.com, client=gtx)
-// deepl: free DeepL endpoint used by the DeepL apps (www2.deepl.com/jsonrpc).
-//        Native only: it needs app-like headers and blocks browser CORS.
-// Both are unofficial (no API key): they can rate limit or change without notice.
-export type TranslationProvider = "mlkit" | "apple" | "google" | "deepl";
+// google: free Google Translate endpoint (translate.googleapis.com, client=gtx).
+//         Unofficial (no API key): it can rate limit or change without notice.
+export type TranslationProvider = "mlkit" | "apple" | "google";
 
-export const CLOUD_PROVIDERS: TranslationProvider[] = ["google", "deepl"];
+export const CLOUD_PROVIDERS: TranslationProvider[] = ["google"];
 export const isCloudProvider = (provider: TranslationProvider) =>
   CLOUD_PROVIDERS.includes(provider);
 
@@ -27,7 +25,6 @@ export const PROVIDER_NAMES: Record<TranslationProvider, string> = {
   mlkit: "ML Kit",
   apple: "Apple",
   google: "Google Translate",
-  deepl: "DeepL",
 };
 
 interface AppleTranslationPlugin {
@@ -74,10 +71,10 @@ export const getPlatformProviders = (): TranslationProvider[] => {
   if (!Capacitor.isNativePlatform()) return ["google"];
   if (Capacitor.getPlatform() === "ios") {
     return appleAvailable === false
-      ? ["mlkit", "google", "deepl"]
-      : ["mlkit", "apple", "google", "deepl"];
+      ? ["mlkit", "google"]
+      : ["mlkit", "apple", "google"];
   }
-  return ["mlkit", "google", "deepl"];
+  return ["mlkit", "google"];
 };
 
 const readJSON = <T,>(key: string, fallback: T): T => {
@@ -106,36 +103,11 @@ export const isTranslationAvailable = (provider: TranslationProvider = getProvid
 /* Languages                                                           */
 /* ------------------------------------------------------------------ */
 
-// DeepL target languages (base codes, ML Kit naming), mapped in toDeeplTarget
-const DEEPL_TARGETS = [
-  "ar", "bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "he", "hu",
-  "id", "it", "ja", "ko", "lt", "lv", "nl", "no", "pl", "pt", "ro", "ru", "sk",
-  "sl", "sv", "th", "tr", "uk", "vi", "zh",
-];
-
-// DeepL web API: base language + optional regional variant
-const toDeeplTarget = (language: string): { lang: string; variant?: string } => {
-  switch (language) {
-    case "en": return { lang: "EN", variant: "en-US" };
-    case "pt": return { lang: "PT", variant: "pt-BR" };
-    case "zh": return { lang: "ZH", variant: "zh-Hans" };
-    case "no": return { lang: "NB" };
-    default: return { lang: language.toUpperCase() };
-  }
-};
-
 const toGoogleTarget = (language: string) => (language === "zh" ? "zh-CN" : language);
 
 // Target languages offered for a provider (apple needs getAppleSupportedLanguages first)
 export const getProviderLanguages = (provider: TranslationProvider): string[] => {
-  switch (provider) {
-    case "deepl":
-      return DEEPL_TARGETS;
-    case "apple":
-      return appleLanguages ?? [];
-    default:
-      return SUPPORTED_LANGUAGES;
-  }
+  return provider === "apple" ? appleLanguages ?? [] : SUPPORTED_LANGUAGES;
 };
 
 export const getDefaultTargetLanguage = (): Language => {
@@ -289,9 +261,6 @@ const request = async (
 
 const checkStatus = ({ status, data }: HttpResponse) => {
   if (status === 429 || status === 403) throw new TranslationRateLimitError();
-  if (data?.error?.code === 1042911 || data?.error?.message === "Too many requests") {
-    throw new TranslationRateLimitError();
-  }
   if (status < 200 || status >= 300 || data?.error) {
     throw new Error(`translation request failed (${status}) ${JSON.stringify(data)?.slice(0, 200)}`);
   }
@@ -316,63 +285,6 @@ const translateGoogle = async (text: string, targetLanguage: string) => {
   const detected = String(response.data?.[2] || "").split("-")[0].toLowerCase();
   if (detected === targetLanguage) return null;
   const translated = segments.map((segment: any[]) => segment?.[0] ?? "").join("");
-  return translated || null;
-};
-
-// Mimics the DeepL iOS app (same request shape as the DeepLX project)
-const DEEPL_HEADERS = {
-  "Content-Type": "application/json",
-  Accept: "*/*",
-  "Accept-Language": "en-US,en;q=0.9",
-  "User-Agent": "DeepL/1627620 CFNetwork/3826.500.62.2.1 Darwin/24.4.0",
-  "X-App-Os-Name": "iOS",
-  "X-App-Os-Version": "18.4.0",
-  "X-App-Device": "iPhone16,2",
-  "X-App-Build": "1627620",
-  "X-App-Version": "25.1",
-  "X-Product": "translator",
-  Referer: "https://www.deepl.com/",
-};
-
-let deeplRequestId = Math.floor(Math.random() * 99999 + 100000) * 1000;
-
-const translateDeepl = async (text: string, targetLanguage: string) => {
-  if (!DEEPL_TARGETS.includes(targetLanguage)) return null;
-  const id = ++deeplRequestId;
-  // the timestamp must be a multiple of (number of "i" in the text + 1)
-  const iCount = (text.match(/i/g) || []).length + 1;
-  const now = Date.now();
-  const timestamp = now - (now % iCount) + iCount;
-  const { lang, variant } = toDeeplTarget(targetLanguage);
-  const payload = {
-    jsonrpc: "2.0",
-    method: "LMT_handle_texts",
-    id,
-    params: {
-      texts: [{ text, requestAlternatives: 0 }],
-      splitting: "newlines",
-      lang: { source_lang_user_selected: "auto", target_lang: lang },
-      timestamp,
-      commonJobParams: {
-        wasSpoken: false,
-        transcribe_as: "",
-        ...(variant ? { regionalVariant: variant } : {}),
-      },
-    },
-  };
-  // DeepL checks the spacing around "method" against the request id
-  const spacing = (id + 5) % 29 === 0 || (id + 3) % 13 === 0 ? '"method" : "' : '"method": "';
-  const body = JSON.stringify(payload).replace('"method":"', spacing);
-  const response = await request("POST", "https://www2.deepl.com/jsonrpc?method=LMT_handle_texts", {
-    body,
-    headers: DEEPL_HEADERS,
-  });
-  checkStatus(response);
-  const result = response.data?.result;
-  const translated = result?.texts?.[0]?.text;
-  if (typeof translated !== "string") throw new Error("unexpected DeepL translation response");
-  const detected = String(result?.lang || "").split("-")[0].toLowerCase();
-  if (detected === targetLanguage || (targetLanguage === "no" && detected === "nb")) return null;
   return translated || null;
 };
 
@@ -411,7 +323,5 @@ export const translateText = async (
       return translateMlkit(text, sourceLanguage, targetLanguage, interactive);
     case "google":
       return translateGoogle(text, targetLanguage);
-    case "deepl":
-      return translateDeepl(text, targetLanguage);
   }
 };
