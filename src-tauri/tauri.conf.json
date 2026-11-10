@@ -19,7 +19,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.nanchat.com https://api.nanexplorer.com https://proxy.xno.link https://proxy-signature.xno.link https://cdn.moneyconvert.net https://link-preview.b3nskalz.workers.dev https://nanswap.com wss://nodes.nanswap.com wss://api.nanchat.com https://*.googleapis.com https://*.firebaseapp.com https://*.firebasestorage.app; frame-src 'self' https://*.firebaseapp.com; object-src 'none'"
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self' data: blob: https://api.nanchat.com https://api.nanexplorer.com https://proxy.xno.link https://proxy-signature.xno.link https://cdn.moneyconvert.net https://link-preview.b3nskalz.workers.dev https://nanswap.com https://nanft.nanwallet.com wss://nodes.nanswap.com wss://api.nanchat.com https://*.googleapis.com https://*.firebaseapp.com https://*.firebasestorage.app; frame-src 'self' https://*.firebaseapp.com; object-src 'none'"
     }
   },
   "bundle": {
