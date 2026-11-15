@@ -119,6 +119,37 @@ function filterServices(services, searchText) {
 // there is one native webview, and the Art screen mounts a second Discover.
 let lastPageUrl = "";
 
+// The link to share from the in-app browser: the page the user is actually on (a game room, an
+// article), not the service's home page, so the chat preview and the recipient's tap match what
+// the sharer sees. NanChat's own additions are dropped: the group id must not leak into another
+// chat, and the sharer's address must not make the recipient open the page as them.
+export function shareableUrl(url: unknown, fallback: string | null): string | null {
+    if (typeof url !== "string" || !/^https?:\/\//i.test(url)) return fallback;
+    try {
+        const u = new URL(url);
+        const added = ["nanchat-chat-id", "address"].filter((k) => u.searchParams.has(k));
+        if (!added.length) return url; // untouched, so the service's own query string keeps its exact spelling
+        for (const k of added) u.searchParams.delete(k);
+        return u.toString();
+    } catch {
+        return fallback;
+    }
+}
+
+// Current page of the native webview. The result of evaluateJavaScript is a string on iOS and a
+// JSON-encoded string on Android, so the value is wrapped in JSON and unwrapped as many times as needed.
+async function currentWebviewUrl(): Promise<string | null> {
+    try {
+        let v: unknown = await WebviewOverlay.evaluateJavaScript("JSON.stringify({ url: window.location.href })");
+        for (let i = 0; i < 2 && typeof v === "string"; i++) v = JSON.parse(v);
+        const url = (v as { url?: unknown } | null)?.url;
+        return typeof url === "string" ? url : null;
+    } catch (error) {
+        console.error("Error reading the webview url:", error);
+        return null;
+    }
+}
+
 export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const { t } = useTranslation();
     const { activeAccount } = useWallet()
@@ -127,6 +158,8 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [visible, setVisible] = useState(false);
     const [desktopShareUrl, setDesktopShareUrl] = useState<string | null>(null);
+    // page shared from the mobile in-app browser (see shareableUrl)
+    const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [visibleMessage, setVisibleMessage] = useState(false);
     const [openService, setOpenService] = useState(null);
     const [history, setHistory] = useState([]);
@@ -204,7 +237,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
         let unlisten: (() => void) | undefined;
         import('@tauri-apps/api/event').then(({ listen }) => {
             listen('browser-share', (event) => {
-                const url = event.payload as string;
+                const url = shareableUrl(event.payload, null);
                 if (url) setDesktopShareUrl(url);
                 setVisible(true);
                 focusMainWindow();
@@ -219,6 +252,7 @@ export const Discover: React.FC = ({defaultURL, onClose, openUrl}) => {
     if (isLoading) {
         return <div><DotLoading /></div>
     }
+    const linkToShare = shareUrl || desktopShareUrl || openService?.link || null;
     
  
 WebviewOverlay.onPageLoaded(() => {
@@ -447,16 +481,10 @@ WebviewOverlay.onPageLoaded(() => {
         role="button"
         style={{cursor: 'pointer', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent'}}
            onClick={async() => {
-            // const script = `
-            // ${extractMetadata.toString()}
-            // extractMetadata();
-            // `;
-            // const pageMetaOg = await WebviewOverlay.evaluateJavaScript(script);
-            // // setShareContent(JSON.parse(pageMetaOg));
-            // setShareContent(pageMetaOg);
+            // share the page the user is on, falling back to the service's link
+            setShareUrl(shareableUrl(await currentWebviewUrl(), openService?.link || null));
             setVisible(true);
             await WebviewOverlay.toggleSnapshot(true);
-             
            }}
            >
                <AiOutlineShareAlt />
@@ -498,6 +526,7 @@ destroyOnClose
                 onClose={async () => {
                     if (Capacitor.isNativePlatform()) await WebviewOverlay.toggleSnapshot(false);
                     setDesktopShareUrl(null);
+                    setShareUrl(null);
                     setVisible(false)
                     focusLastBrowserWindow();
                 }}
@@ -537,7 +566,7 @@ className="text-xl  text-center p-2">
                     <ItemChat chat={selectedChat} onClick={() => {}} /></List>
                     <div 
                     style={{border: '1px solid var(--adm-color-border)', maxWidth: 300, padding: 8, marginLeft: "auto", marginRight: "auto", borderRadius: 8}}>
-                        <MetadataCard message={openService?.link || desktopShareUrl} />
+                        <MetadataCard message={linkToShare} />
                     </div>
                     <ChatInputMessage 
                     hideInput
@@ -552,10 +581,11 @@ className="text-xl  text-center p-2">
                         setVisibleMessage(false)
                         setVisible(false)
                         setDesktopShareUrl(null);
+                        setShareUrl(null);
                         focusLastBrowserWindow();
                         
                     }}
-                        defaultNewMessage={openService?.link || desktopShareUrl}
+                        defaultNewMessage={linkToShare}
                         defaultChatId={selectedChat?.id}
                         messageInputRef={inputRef}
                     />

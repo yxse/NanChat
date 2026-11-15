@@ -83,7 +83,9 @@ export const MetadataCard = ({ message, messageData }) => {
   const isWhiteListed = whitelistedDomains?.includes(domain);
   const navigate = useNavigate();
 
-  const {data, isLoading} = useSWR(isWhiteListed ? `https://link-preview.b3nskalz.workers.dev/?q=${url}` : null, async (url) => {const res = await fetch(url); return res.json();});
+  // encoded: unencoded, the link's own query string (?game=chess&room=…) would be read as parameters of the preview request
+  const previewUrl = isWhiteListed ? `https://link-preview.b3nskalz.workers.dev/?q=${encodeURIComponent(url)}` : null;
+  const {data, isLoading} = useSWR(previewUrl, async (url) => {const res = await fetch(url); return res.json();});
   if (isLoading) return <DotLoading />;
   return (<>
        <Card
